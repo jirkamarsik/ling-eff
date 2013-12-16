@@ -4,7 +4,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE GADTs #-}
 
-module LinguisticEffectsObjectGQ where
+module LinguisticEffectsObjectGQEvents where
 
 import Eff
 import OpenUnion1
@@ -49,6 +49,12 @@ fetchR tag = send_req (FetchR tag)
 assertC :: (Member Ref r) => Formula Bool -> Eff r ()
 assertC prop = send_req (AssertC prop)
 
+data Event v = EventR (Formula Entity -> v)
+               deriving (Typeable, Functor)
+
+eventR :: (Member Event r) => Eff r (Formula Entity)
+eventR = send_req EventR
+
 
 select :: (Member Choose r) => AnaphoraTag -> [e] -> Eff r e
 select tag = choose
@@ -76,6 +82,26 @@ enter m = loop [] (admin m) where
   handler rs (AssertC prop k) = (return prop) `and'` loop rs (k ())
 
 
+ec :: (Member Fresh r) =>
+               Eff (Event :> r) (Formula Bool) -> Eff r (Formula Bool)
+ec m = do n <- fresh
+          let var = Sym ("e" ++ show n)
+              loop (Val x) = return $ App (Var (Sym "exists")) (Abs var x) 
+              loop (E u) = handle_relay u loop handler
+              handler (EventR k) = loop (k (Var var))
+          loop (admin m) where
+
+
+scopeDomain :: (Member Fresh r, Member Event r) =>
+               Eff r (Formula Bool) -> Eff r (Formula Bool)
+scopeDomain m = do n <- fresh
+                   let var = Sym ("e" ++ show n)
+                       loop (Val x) = return $ App (Var (Sym "exists")) (Abs var x) 
+                       loop (E u) = interpose u loop handler
+                       handler (EventR k) = loop (k (Var var))
+                   loop (admin m) where
+
+
 -- SEMANTICS
 
 fill :: (Member Fresh r) =>
@@ -97,11 +123,18 @@ liftF f x = App (Var f) x
 liftF2 :: Sym -> Formula a -> Formula b -> Formula c
 liftF2 f x y = App (App (Var f) x) y
 
+liftF3 :: Sym -> Formula a -> Formula b -> Formula c -> Formula d
+liftF3 f x y z = App (App (App (Var f) x) y) z
+
 liftFM :: Sym -> Eff r (Formula a) -> Eff r (Formula b)
 liftFM = liftM . liftF
 
 liftFM2 :: Sym -> Eff r (Formula a) -> Eff r (Formula b) -> Eff r (Formula c)
 liftFM2 = liftM2 . liftF2
+
+liftFM3 :: Sym -> Eff r (Formula a) -> Eff r (Formula b) -> Eff r (Formula c)
+           -> Eff r (Formula d)
+liftFM3 = liftM3 . liftF3
 
 andF :: Formula Bool -> Formula Bool -> Formula Bool
 andF = liftF2 (Sym "and")
@@ -142,11 +175,14 @@ farmer = liftFM (Sym "farmer")
 donkey :: EffTr r (Entity -> Bool)
 donkey = liftFM (Sym "donkey")
 
-owns :: EffTr r (Entity -> Entity -> Bool)
-owns = liftFM2 (Sym "owns")
+owns :: (Member Event r) => EffTr r (Entity -> Entity -> Bool)
+owns = liftFM3 (Sym "owns") eventR
 
-beats :: EffTr r (Entity -> Entity -> Bool)
-beats = liftFM2 (Sym "beats")
+beats :: (Member Event r) => EffTr r (Entity -> Entity -> Bool)
+beats = liftFM3 (Sym "beats") eventR
+
+slowly :: (Member Event r) => EffTr r ((Entity -> Bool) -> (Entity -> Bool))
+slowly p x = liftFM (Sym "slow") eventR `and'` p x
 
 it :: (Member Ref r) => EffTr r Entity 
 it = fetchR It
@@ -157,23 +193,24 @@ he = fetchR He
 she :: (Member Ref r) => EffTr r Entity 
 she = fetchR She
 
-who :: EffTr r ((Entity -> Bool) -> (Entity -> Bool) -> (Entity -> Bool))
-who r n x = n x `and'` r x
+who :: (Member Event r, Member Fresh r) =>
+       EffTr r ((Entity -> Bool) -> (Entity -> Bool) -> (Entity -> Bool))
+who r n x = n x `and'` (scopeDomain (r x))
 
 a :: (Member Ref r) => EffTr r ((Entity -> Bool) -> GQ)
 a n s = do x <- freshR
            n (return x) >>= assertC
            s (return x)
 
-every :: (Member Ref r, Member Choose r, Member Fresh r) =>
+every :: (Member Ref r, Member Choose r, Member Fresh r, Member Event r) =>
          EffTr r ((Entity -> Bool) -> GQ)
 every n s = notH (do x <- freshR
                      n (return x) >>= assertC
-                     notH (s (return x)))
+                     notH (scopeDomain (s (return x))))
             where notH = not' . enter
 
 
-runAll = run . (flip runFresh) 0 . makeChoice . runRef []
+runAll = run . (flip runFresh) 0 . makeChoice . runRef [] . ec
 
 donkeySentence = every (who (\x -> (a donkey) (\y -> owns y x)) farmer) (beats it)
 donkeySentenceR = runAll donkeySentence
@@ -201,3 +238,6 @@ a_everyR = runAll a_every
 
 aeANDhbi = a_every `and'` heBeatsIt
 aeANDhbiR = runAll aeANDhbi
+
+slowlySent = a farmer (slowly (beats john))
+slowlySentR = runAll slowlySent
