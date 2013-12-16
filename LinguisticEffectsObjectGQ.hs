@@ -4,7 +4,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE GADTs #-}
 
-module LinguisticEffectsObject where
+module LinguisticEffectsObjectGQ where
 
 import Eff
 import OpenUnion1
@@ -124,6 +124,8 @@ eq' = liftM2 eqF
 
 -- SYNTAX
 
+type GQ = (Entity -> Bool) -> Bool
+
 john :: (Member Ref r) => EffTr r Entity
 john = do j <- freshR
           assertC $ j `eqF` Var (Sym "john")
@@ -158,13 +160,13 @@ she = fetchR She
 who :: EffTr r ((Entity -> Bool) -> (Entity -> Bool) -> (Entity -> Bool))
 who r n x = n x `and'` r x
 
-a :: (Member Ref r) => EffTr r ((Entity -> Bool) -> Entity)
-a n = do x <- freshR
-         n (return x) >>= assertC
-         return x
+a :: (Member Ref r) => EffTr r ((Entity -> Bool) -> GQ)
+a n s = do x <- freshR
+           n (return x) >>= assertC
+           s (return x)
 
 every :: (Member Ref r, Member Choose r, Member Fresh r) =>
-         EffTr r ((Entity -> Bool) -> (Entity -> Bool) -> Bool)
+         EffTr r ((Entity -> Bool) -> GQ)
 every n s = notH (do x <- freshR
                      n (return x) >>= assertC
                      notH (s (return x)))
@@ -173,10 +175,10 @@ every n s = notH (do x <- freshR
 
 runAll = run . (flip runFresh) 0 . makeChoice . runRef []
 
-donkeySentence = every (who (owns (a donkey)) farmer) (beats it)
+donkeySentence = every (who (\x -> (a donkey) (\y -> owns y x)) farmer) (beats it)
 donkeySentenceR = runAll donkeySentence
 
-johnBeatsADonkey = beats (a donkey) john
+johnBeatsADonkey = a donkey (\x -> beats x john)
 johnBeatsADonkeyR = runAll johnBeatsADonkey
 
 heBeatsIt = beats it he
@@ -188,8 +190,14 @@ dsANDhbiR = runAll dsANDhbi
 jbadANDhbi = johnBeatsADonkey `and'` heBeatsIt
 jbadANDhbiR = runAll jbadANDhbi
 
-every_a = every farmer (beats (a donkey))
+every_a = every farmer (\x -> (a donkey) (\y -> (beats y x)))
 every_aR = runAll every_a
 
 eaANDhbi = every_a `and'` heBeatsIt
 eaANDhbiR = runAll eaANDhbi
+
+a_every = a donkey (\y -> (every farmer) (\x -> (beats y x)))
+a_everyR = runAll a_every
+
+aeANDhbi = a_every `and'` heBeatsIt
+aeANDhbiR = runAll aeANDhbi
