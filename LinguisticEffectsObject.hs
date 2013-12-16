@@ -3,6 +3,7 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
 
 module LinguisticEffectsObject where
 
@@ -97,6 +98,12 @@ liftF f x = App (Var f) x
 liftF2 :: Sym -> Formula a -> Formula b -> Formula c
 liftF2 f x y = App (App (Var f) x) y
 
+liftFM :: Sym -> Eff r (Formula a) -> Eff r (Formula b)
+liftFM = liftM . liftF
+
+liftFM2 :: Sym -> Eff r (Formula a) -> Eff r (Formula b) -> Eff r (Formula c)
+liftFM2 = liftM2 . liftF2
+
 andF :: Formula Bool -> Formula Bool -> Formula Bool
 andF = liftF2 (Sym "and")
 
@@ -129,16 +136,16 @@ mary = do m <- freshR
           return m
 
 farmer :: EffTr r (Entity -> Bool)
-farmer = (liftM . liftF) (Sym "farmer")
+farmer = liftFM (Sym "farmer")
 
 donkey :: EffTr r (Entity -> Bool)
-donkey = (liftM . liftF) (Sym "donkey")
+donkey = liftFM (Sym "donkey")
 
 owns :: EffTr r (Entity -> Entity -> Bool)
-owns = (liftM2 . liftF2) (Sym "owns")
+owns = (flip . liftFM2) (Sym "owns")
 
 beats :: EffTr r (Entity -> Entity -> Bool)
-beats = (liftM2 . liftF2) (Sym "beats")
+beats = (flip . liftFM2) (Sym "beats")
 
 it :: (Member Ref r) => EffTr r Entity 
 it = fetchR It
@@ -165,7 +172,25 @@ every n s = notH (do x <- freshR
             where notH = not' . enter
 
 
-donkeySentence :: (Member Choose r, Member Ref r, Member Fresh r) => EffTr r Bool
-donkeySentence = every (who (owns (a donkey)) farmer) (beats it)
+runAll = run . (flip runFresh) 0 . makeChoice . runRef []
 
-donkeySentenceR = run $ (flip runFresh) 0 $ makeChoice $ runRef [] donkeySentence
+donkeySentence = every (who (owns (a donkey)) farmer) (beats it)
+donkeySentenceR = runAll donkeySentence
+
+johnBeatsADonkey = beats (a donkey) john
+johnBeatsADonkeyR = runAll johnBeatsADonkey
+
+heBeatsIt = beats it he
+heBeatsItR = runAll heBeatsIt
+
+dsANDhbi = donkeySentence `and'` heBeatsIt
+dsANDhbiR = runAll dsANDhbi
+
+jbadANDhbi = johnBeatsADonkey `and'` heBeatsIt
+jbadANDhbiR = runAll jbadANDhbi
+
+every_a = every farmer (beats (a donkey))
+every_aR = runAll every_a
+
+eaANDhbi = every_a `and'` heBeatsIt
+eaANDhbiR = runAll eaANDhbi
