@@ -82,24 +82,21 @@ enter m = loop [] (admin m) where
   handler rs (AssertC prop k) = (return prop) `and'` loop rs (k ())
 
 
-ec :: (Member Fresh r) =>
-               Eff (Event :> r) (Formula Bool) -> Eff r (Formula Bool)
-ec m = do n <- fresh
-          let var = Sym ("e" ++ show n)
-              loop (Val x) = return $ App (Var (Sym "exists")) (Abs var x) 
+ec :: (Member Fresh r, Member Ref r) =>
+      Eff (Event :> r) (Formula Bool) -> Eff r (Formula Bool)
+ec m = do e <- freshR
+          let loop (Val x) = return x
               loop (E u) = handle_relay u loop handler
-              handler (EventR k) = loop (k (Var var))
-          loop (admin m) where
+              handler (EventR k) = loop (k e)
+          loop (admin m)
 
-
-scopeDomain :: (Member Fresh r, Member Event r) =>
+scopeDomain :: (Member Fresh r, Member Event r, Member Ref r) =>
                Eff r (Formula Bool) -> Eff r (Formula Bool)
-scopeDomain m = do n <- fresh
-                   let var = Sym ("e" ++ show n)
-                       loop (Val x) = return $ App (Var (Sym "exists")) (Abs var x) 
+scopeDomain m = do e <- freshR
+                   let loop (Val x) = return x
                        loop (E u) = interpose u loop handler
-                       handler (EventR k) = loop (k (Var var))
-                   loop (admin m) where
+                       handler (EventR k) = loop (k e)
+                   loop (admin m)
 
 
 -- SEMANTICS
@@ -193,7 +190,7 @@ he = fetchR He
 she :: (Member Ref r) => EffTr r Entity 
 she = fetchR She
 
-who :: (Member Event r, Member Fresh r) =>
+who :: (Member Event r, Member Fresh r, Member Ref r) =>
        EffTr r ((Entity -> Bool) -> (Entity -> Bool) -> (Entity -> Bool))
 who r n x = n x `and'` (scopeDomain (r x))
 
