@@ -6,7 +6,7 @@
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE FlexibleInstances #-}
 
-module LinguisticEffectsObjectGQEventsCoordOversimplified where
+module LinguisticEffectsObjectGQEventsCoord where
 
 import Eff
 import OpenUnion1
@@ -53,7 +53,9 @@ data Event v = EventR (Formula Entity -> v)
 eventR :: (Member Event r) => Eff r (Formula Entity)
 eventR = send_req EventR
 
-data CoordMode = Conj | Disj
+data CoordOp = Conj | Disj
+data CoordPol = Pos | Neg
+data CoordMode = CoordMode CoordOp CoordPol
 
 data Coord v = forall a. Coord CoordMode a a (a -> v)
                deriving Typeable
@@ -111,22 +113,30 @@ runCoord :: (Member Choose r, Member Fresh r, Member Ref r, Member Event r) =>
 runCoord m = loop (admin m) where
   loop (Val x) = return x
   loop (E u) = handle_relay u loop handler
-  handler (Coord mode x y k) =
-    loop (k x) `opf` loop (k y)
-    where opf = case mode of Conj -> and'
-                             Disj -> or'
+  handler (Coord (CoordMode op pol) x y k) =
+    polf (loop (k x)) `opf` polf (loop (k y))
+    where opf = case op of Conj -> and''
+                           Disj -> or''
+          polf = case pol of Pos -> id
+                             Neg -> not''
 
-handleCoord :: (Member Choose r, Member Fresh r, Member Ref r, Member Event r,
-                Member Coord r) =>
-               Eff r (Formula Bool) -> Eff r (Formula Bool)
-handleCoord m = loop (admin m) where
+negateMode :: CoordMode -> CoordMode
+negateMode (CoordMode op pol) = CoordMode op' pol' where
+  op' = case op of
+    Conj -> Disj
+    Disj -> Conj
+  pol' = case pol of
+    Pos -> Neg
+    Neg -> Pos
+
+switchPolarity :: (Member Choose r, Member Fresh r, Member Ref r,
+                   Member Coord r, Member Event r) =>
+                  Eff r a -> Eff r a 
+switchPolarity m = loop (admin m) where
   loop (Val x) = return x
   loop (E u) = interpose u loop handler
-  handler (Coord mode x y k) =
-    loop (k x) `opf` loop (k y)
-    where opf = case mode of Conj -> and''
-                             Disj -> or''
-
+  handler (Coord mode x y k) = do one <- coord (negateMode mode) x y
+                                  loop $ k one
 
      
 -- SEMANTICS
@@ -179,7 +189,7 @@ not' = liftM notF
 not'' :: (Member Ref r, Member Fresh r, Member Choose r, Member Event r,
           Member Coord r) =>
          EffTr r (Bool -> Bool)
-not'' = not' . enter . handleCoord
+not'' = not' . enter . switchPolarity
 
 eqF :: Formula Entity -> Formula Entity -> Formula Bool
 eqF = liftF2 (Sym "=")
@@ -257,25 +267,25 @@ every n s = notH (do x <- freshR
             where notH = not' . enter
 
 and_NP :: (Member Coord r) => EffTr r (GQ -> GQ -> GQ)
-and_NP f1 f2 = \x -> do f <- coord Conj f1 f2
+and_NP f1 f2 = \x -> do f <- coord (CoordMode Conj Pos) f1 f2
                         f x
 
 and_VP :: (Member Coord r) =>
           EffTr r ((Entity -> Bool) -> (Entity -> Bool) -> (Entity -> Bool))
-and_VP f1 f2 = \x -> do f <- coord Conj f1 f2
+and_VP f1 f2 = \x -> do f <- coord (CoordMode Conj Pos) f1 f2
                         f x
 
 or_NP :: (Member Coord r) => EffTr r (GQ -> GQ -> GQ)
-or_NP f1 f2 = \x -> do f <- coord Disj f1 f2
+or_NP f1 f2 = \x -> do f <- coord (CoordMode Disj Pos) f1 f2
                        f x
 
 or_VP :: (Member Coord r) =>
          EffTr r ((Entity -> Bool) -> (Entity -> Bool) -> (Entity -> Bool))
-or_VP f1 f2 = \x -> do f <- coord Disj f1 f2
+or_VP f1 f2 = \x -> do f <- coord (CoordMode Disj Pos) f1 f2
                        f x
 
 
-runAll = run . (flip runFresh) 0 . makeChoice . runRef [] . ec . runCoord . handleCoord
+runAll = run . (flip runFresh) 0 . makeChoice . runRef [] . ec . runCoord
 
 donkeySentence = beatsSWS it (every (who (ownsSWS (a donkey)) farmer))
 donkeySentenceR = runAll donkeySentence
