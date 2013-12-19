@@ -173,10 +173,10 @@ donkey :: EffTr r (Entity -> Bool)
 donkey = liftFM (Sym "donkey")
 
 owns :: (Member Event r) => EffTr r (Entity -> Entity -> Bool)
-owns = liftFM3 (Sym "owns") eventR
+owns = flip $ liftFM3 (Sym "owns") eventR
 
 beats :: (Member Event r) => EffTr r (Entity -> Entity -> Bool)
-beats = liftFM3 (Sym "beats") eventR
+beats = flip $ liftFM3 (Sym "beats") eventR
 
 slowly :: (Member Event r) => EffTr r ((Entity -> Bool) -> (Entity -> Bool))
 slowly p x = liftFM (Sym "slow") eventR `and'` p x
@@ -206,16 +206,21 @@ every n s = notH (do x <- freshR
                      notH (scopeDomain (s (return x))))
             where notH = not' . enter
 
+eos :: (Member Ref r, Member Fresh r) =>
+       EffTr (Event :> r) Bool -> EffTr r Bool
+eos = ec
 
-runAll = run . (flip runFresh) 0 . makeChoice . runRef [] . ec
 
-donkeySentence = every (who (\x -> (a donkey) (\y -> owns y x)) farmer) (beats it)
+runAll' rs = run . (flip runFresh) 0 . makeChoice . runRef rs
+runAll = runAll' []
+
+donkeySentence = eos $ every (who (\x -> (a donkey) (\y -> owns y x)) farmer) (beats it)
 donkeySentenceR = runAll donkeySentence
 
-johnBeatsADonkey = a donkey (\x -> beats x john)
+johnBeatsADonkey = eos $ a donkey (\x -> beats x john)
 johnBeatsADonkeyR = runAll johnBeatsADonkey
 
-heBeatsIt = beats it he
+heBeatsIt = eos $ beats it he
 heBeatsItR = runAll heBeatsIt
 
 dsANDhbi = donkeySentence `and'` heBeatsIt
@@ -224,17 +229,17 @@ dsANDhbiR = runAll dsANDhbi
 jbadANDhbi = johnBeatsADonkey `and'` heBeatsIt
 jbadANDhbiR = runAll jbadANDhbi
 
-every_a = every farmer (\x -> (a donkey) (\y -> (beats y x)))
+every_a = eos $ every farmer (\x -> (a donkey) (\y -> (beats y x)))
 every_aR = runAll every_a
 
 eaANDhbi = every_a `and'` heBeatsIt
 eaANDhbiR = runAll eaANDhbi
 
-a_every = a donkey (\y -> (every farmer) (\x -> (beats y x)))
+a_every = eos $ a donkey (\y -> (every farmer) (\x -> (beats y x)))
 a_everyR = runAll a_every
 
 aeANDhbi = a_every `and'` heBeatsIt
 aeANDhbiR = runAll aeANDhbi
 
-slowlySent = a farmer (slowly (beats john))
+slowlySent = eos $ a farmer (slowly (beats john))
 slowlySentR = runAll slowlySent

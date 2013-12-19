@@ -29,6 +29,10 @@ instance Show (Formula a) where
   show (Abs (Sym var) body) = "(lambda (" ++ var ++ ") " ++ show body ++ ")"
   show (App f a)            = "(" ++ show f ++ " " ++ show a ++ ")"
 
+simplify :: Formula a -> Formula a
+simplify (App (Var (Sym "not")) (App (Var (Sym "not")) x)) = x
+simplify x = x
+
 type family EffTr r a
 type instance EffTr r Bool = Eff r (Formula Bool)
 type instance EffTr r Entity = Eff r (Formula Entity)
@@ -179,7 +183,7 @@ not' = liftM notF
 not'' :: (Member Ref r, Member Fresh r, Member Choose r, Member Event r,
           Member Coord r) =>
          EffTr r (Bool -> Bool)
-not'' = not' . enter . handleCoord
+not'' = not' . enter . scopeDomain . handleCoord
 
 eqF :: Formula Entity -> Formula Entity -> Formula Bool
 eqF = liftF2 (Sym "=")
@@ -223,11 +227,17 @@ ownsSWS o s = s (\x -> o (\y -> liftFM3 (Sym "owns") eventR x y))
 ownsOWS :: (Member Event r) => EffTr r (GQ -> GQ -> Bool)
 ownsOWS o s = o (\y -> s (\x -> liftFM3 (Sym "owns") eventR x y))
 
+owns :: (Member Event r, Member Choose r) => EffTr r (GQ -> GQ -> Bool)
+owns o s = ownsSWS o s `mplus'` ownsOWS o s
+
 beatsSWS :: (Member Event r) => EffTr r (GQ -> GQ -> Bool)
 beatsSWS o s = s (\x -> o (\y -> liftFM3 (Sym "beats") eventR x y))
 
 beatsOWS :: (Member Event r) => EffTr r (GQ -> GQ -> Bool)
 beatsOWS o s = o (\y -> s (\x -> liftFM3 (Sym "beats") eventR x y))
+
+beats :: (Member Event r, Member Choose r) => EffTr r (GQ -> GQ -> Bool)
+beats o s = beatsSWS o s `mplus'` beatsOWS o s
 
 slowly :: (Member Event r) => EffTr r ((GQ -> Bool) -> (GQ -> Bool))
 slowly p x = liftFM (Sym "slow") eventR `and'` p x
@@ -252,9 +262,8 @@ a n s = do x <- freshR
 every :: (Member Ref r, Member Choose r, Member Fresh r, Member Event r,
           Member Coord r) =>
          EffTr r ((Entity -> Bool) -> GQ)
-every n s = notH (do x <- freshR
-                     n (return x) `and'` notH (scopeDomain (s (return x))))
-            where notH = not' . enter
+every n s = not'' (do x <- freshR
+                      n (return x) `and'` not'' (s (return x)))
 
 and_NP :: (Member Coord r) => EffTr r (GQ -> GQ -> GQ)
 and_NP f1 f2 = \x -> do f <- coord Conj f1 f2
@@ -304,6 +313,9 @@ a_everyR = runAll a_every
 aeANDhbi = a_every `and'` heBeatsIt
 aeANDhbiR = runAll aeANDhbi
 
+every__a = beats (a donkey) (every farmer)
+every__aR = runAll every__a
+
 slowlySent = slowly (beatsSWS john) (a farmer)
 slowlySentR = runAll slowlySent
 
@@ -312,3 +324,6 @@ conjSentR = runAll conjSent
 
 nestedConjSent = ownsSWS (and_NP john mary) (every donkey)
 nestedConjSentR = runAll nestedConjSent
+
+nestedConjSentOr = ownsSWS (or_NP john mary) (every donkey)
+nestedConjSentOrR = runAll nestedConjSentOr

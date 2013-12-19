@@ -115,6 +115,19 @@ runCoord m = loop (admin m) where
   loop (E u) = handle_relay u loop handler
   handler (Coord (CoordMode op pol) x y k) =
     polf (loop (k x)) `opf` polf (loop (k y))
+    where opf = case op of Conj -> and'
+                           Disj -> or'
+          polf = case pol of Pos -> id
+                             Neg -> not'
+
+handleCoord :: (Member Choose r, Member Fresh r, Member Ref r, Member Event r,
+                Member Coord r) =>
+               Eff r (Formula Bool) -> Eff r (Formula Bool)
+handleCoord m = loop (admin m) where
+  loop (Val x) = return x
+  loop (E u) = interpose u loop handler
+  handler (Coord (CoordMode op pol) x y k) =
+    polf (loop (k x)) `opf` polf (loop (k y))
     where opf = case op of Conj -> and''
                            Disj -> or''
           polf = case pol of Pos -> id
@@ -213,13 +226,13 @@ or'' x y = not'' (not'' x `and''` not'' y)
 
 type GQ = (Entity -> Bool) -> Bool
 
-john :: (Member Ref r) => EffTr r GQ
+john :: (Member Ref r, Member Fresh r, Member Event r) => EffTr r GQ
 john s = do j <- freshR
-            (return (j `eqF` Var (Sym "john"))) `and'` s (return j)
+            (return (j `eqF` Var (Sym "john"))) `and''` s (return j)
 
-mary :: (Member Ref r) => EffTr r GQ
+mary :: (Member Ref r, Member Fresh r, Member Event r) => EffTr r GQ
 mary s = do m <- freshR
-            (return (m `eqF` Var (Sym "mary"))) `and'` s (return m)
+            (return (m `eqF` Var (Sym "mary"))) `and''` s (return m)
 
 farmer :: EffTr r (Entity -> Bool)
 farmer = liftFM (Sym "farmer")
@@ -233,11 +246,17 @@ ownsSWS o s = s (\x -> o (\y -> liftFM3 (Sym "owns") eventR x y))
 ownsOWS :: (Member Event r) => EffTr r (GQ -> GQ -> Bool)
 ownsOWS o s = o (\y -> s (\x -> liftFM3 (Sym "owns") eventR x y))
 
+owns :: (Member Event r, Member Choose r) => EffTr r (GQ -> GQ -> Bool)
+owns o s = ownsSWS o s `mplus'` ownsOWS o s
+
 beatsSWS :: (Member Event r) => EffTr r (GQ -> GQ -> Bool)
 beatsSWS o s = s (\x -> o (\y -> liftFM3 (Sym "beats") eventR x y))
 
 beatsOWS :: (Member Event r) => EffTr r (GQ -> GQ -> Bool)
 beatsOWS o s = o (\y -> s (\x -> liftFM3 (Sym "beats") eventR x y))
+
+beats :: (Member Event r, Member Choose r) => EffTr r (GQ -> GQ -> Bool)
+beats o s = beatsSWS o s `mplus'` beatsOWS o s
 
 slowly :: (Member Event r) => EffTr r ((GQ -> Bool) -> (GQ -> Bool))
 slowly p x = liftFM (Sym "slow") eventR `and'` p x
@@ -253,18 +272,18 @@ she s = s (fetchR She)
 
 who :: (Member Event r, Member Fresh r, Member Ref r) =>
        EffTr r ((GQ -> Bool) -> (Entity -> Bool) -> (Entity -> Bool))
-who r n x = n x `and'` (scopeDomain (r (\p -> p x)))
+who r n x = n x `and''` (scopeDomain (r (\p -> p x)))
 
-a :: (Member Ref r) => EffTr r ((Entity -> Bool) -> GQ)
+a :: (Member Ref r, Member Fresh r, Member Event r) =>
+     EffTr r ((Entity -> Bool) -> GQ)
 a n s = do x <- freshR
-           n (return x) `and'` s (return x)
+           n (return x) `and''` s (return x)
 
 every :: (Member Ref r, Member Choose r, Member Fresh r, Member Event r,
           Member Coord r) =>
          EffTr r ((Entity -> Bool) -> GQ)
-every n s = notH (do x <- freshR
-                     n (return x) `and'` notH (scopeDomain (s (return x))))
-            where notH = not' . enter
+every n s = not' (do x <- freshR
+                     n (return x) `and''` not'' (scopeDomain (s (return x))))
 
 and_NP :: (Member Coord r) => EffTr r (GQ -> GQ -> GQ)
 and_NP f1 f2 = \x -> do f <- coord (CoordMode Conj Pos) f1 f2
@@ -284,16 +303,20 @@ or_VP :: (Member Coord r) =>
 or_VP f1 f2 = \x -> do f <- coord (CoordMode Disj Pos) f1 f2
                        f x
 
+dot :: (Member Ref r, Member Fresh r, Member Coord r, Member Choose r) =>
+       EffTr (Event :> r) Bool -> EffTr r Bool
+dot = ec . handleCoord
+
 
 runAll = run . (flip runFresh) 0 . makeChoice . runRef [] . ec . runCoord
 
-donkeySentence = beatsSWS it (every (who (ownsSWS (a donkey)) farmer))
+donkeySentence = dot $ beatsSWS it (every (who (ownsSWS (a donkey)) farmer))
 donkeySentenceR = runAll donkeySentence
 
-johnBeatsADonkey = beatsSWS (a donkey) john
+johnBeatsADonkey = dot $ beatsSWS (a donkey) john
 johnBeatsADonkeyR = runAll johnBeatsADonkey
 
-heBeatsIt = beatsSWS it he
+heBeatsIt = dot $ beatsSWS it he
 heBeatsItR = runAll heBeatsIt
 
 dsANDhbi = donkeySentence `and'` heBeatsIt
@@ -302,23 +325,29 @@ dsANDhbiR = runAll dsANDhbi
 jbadANDhbi = johnBeatsADonkey `and'` heBeatsIt
 jbadANDhbiR = runAll jbadANDhbi
 
-every_a = beatsSWS (a donkey) (every farmer)
+every_a = dot $ beatsSWS (a donkey) (every farmer)
 every_aR = runAll every_a
 
 eaANDhbi = every_a `and'` heBeatsIt
 eaANDhbiR = runAll eaANDhbi
 
-a_every = beatsOWS (a donkey) (every farmer)
+a_every = dot $ beatsOWS (a donkey) (every farmer)
 a_everyR = runAll a_every
 
 aeANDhbi = a_every `and'` heBeatsIt
 aeANDhbiR = runAll aeANDhbi
 
-slowlySent = slowly (beatsSWS john) (a farmer)
+every__a = dot $ beats (a donkey) (every farmer)
+every__aR = runAll every__a
+
+slowlySent = dot $ slowly (beatsSWS john) (a farmer)
 slowlySentR = runAll slowlySent
 
-conjSent = ownsSWS (and_NP john (a donkey)) mary
+conjSent = dot $ ownsSWS (and_NP john (a donkey)) mary
 conjSentR = runAll conjSent
 
-nestedConjSent = ownsSWS (and_NP john mary) (every donkey)
+nestedConjSent = dot $ ownsSWS (and_NP john mary) (every donkey)
 nestedConjSentR = runAll nestedConjSent
+
+nestedConjSent' = dot $ ownsSWS (or_NP john mary) (every donkey)
+nestedConjSent'R = runAll nestedConjSent'

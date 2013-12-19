@@ -141,10 +141,10 @@ donkey :: EffTr r (Entity -> Bool)
 donkey = liftFM (Sym "donkey")
 
 owns :: EffTr r (Entity -> Entity -> Bool)
-owns = liftFM2 (Sym "owns")
+owns = flip $ liftFM2 (Sym "owns")
 
 beats :: EffTr r (Entity -> Entity -> Bool)
-beats = liftFM2 (Sym "beats")
+beats = flip $ liftFM2 (Sym "beats")
 
 it :: (Member Ref r) => EffTr r Entity 
 it = fetchR It
