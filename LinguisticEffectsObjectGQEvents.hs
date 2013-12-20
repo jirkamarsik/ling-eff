@@ -64,8 +64,8 @@ runRef :: (Member Choose r, Member Fresh r) =>
 runRef rs m = loop rs (admin m) where
   loop rs (Val x) = return x
   loop rs (E u) = handle_relay u (loop rs) (handler rs)
-  handler rs (FreshR k) = exists' (\x -> do xv <- x
-                                            loop (xv:rs) (k xv))
+  handler rs (FreshR k) = exists'' (\x -> do xv <- x
+                                             loop (xv:rs) (k xv))
   handler rs (FetchR tag k) = do selected_ref <- select tag rs
                                  loop rs (k selected_ref)
 
@@ -74,8 +74,8 @@ enter :: (Member Choose r, Member Fresh r, Member Ref r) =>
 enter m = loop [] (admin m) where
   loop rs (Val x) = return x
   loop rs (E u) = interpose u (loop rs) (handler rs)
-  handler rs (FreshR k) = exists' (\x -> do xv <- x
-                                            loop (xv:rs) (k xv))
+  handler rs (FreshR k) = exists'' (\x -> do xv <- x
+                                             loop (xv:rs) (k xv))
   handler rs (FetchR tag k) = do selected_ref <- select tag rs `mplus'` fetchR tag
                                  loop rs (k selected_ref)
 
@@ -153,7 +153,6 @@ subEvent m = do e_sup <- eventR
 
 -- SEMANTICS
 
--- add polymorphic lift?
 liftF :: Sym -> Formula a -> Formula b
 liftF f x = App (Var f) x
 
@@ -180,8 +179,24 @@ fill f = do n <- fresh
             body <- f (return (Var var))
             return (Abs var body)
 
+existsF :: Formula (Entity -> Bool) -> Formula Bool
+existsF = liftF (Sym "exists")
+
 exists' :: (Member Fresh r) => EffTr r ((Entity -> Bool) -> Bool)
-exists' p = fmap (App (Var (Sym "exists"))) (fill p)
+exists' p = fmap existsF (fill p)
+
+exists'' :: (Member Fresh r) => EffTr r ((Entity -> Bool) -> Bool)
+exists'' = exists'
+
+forallF :: Formula (Entity -> Bool) -> Formula Bool
+forallF = liftF (Sym "forall")
+
+forall' :: (Member Fresh r) => EffTr r ((Entity -> Bool) -> Bool)
+forall' p = fmap forallF (fill p)
+
+forall'' :: (Member Ref r, Member Fresh r, Member Choose r, Member Event r)
+            => EffTr r ((Entity -> Bool) -> Bool)
+forall'' p = not'' (exists'' (not'' . p))
 
 andF :: Formula Bool -> Formula Bool -> Formula Bool
 andF = liftF2 (Sym "and")
@@ -217,9 +232,19 @@ orF = liftF2 (Sym "or")
 or' :: EffTr r (Bool -> Bool -> Bool)
 or' = liftM2 orF
 
-or'' :: (Member Choose r, Member Fresh r, Member Ref r, Member Event r) =>
+or'' :: (Member Ref r, Member Fresh r, Member Choose r, Member Event r) =>
         EffTr r (Bool -> Bool -> Bool)
 or'' x y = not'' (not'' x `and''` not'' y)
+
+implF :: Formula Bool -> Formula Bool -> Formula Bool
+implF = liftF2 (Sym "impl")
+
+impl' :: EffTr r (Bool -> Bool -> Bool)
+impl' = liftM2 implF
+
+impl'' :: (Member Ref r, Member Fresh r, Member Choose r, Member Event r) =>
+          EffTr r (Bool -> Bool -> Bool)
+impl'' x y = not'' (x `and''` not'' y)
 
 
 -- SYNTAX
@@ -287,7 +312,7 @@ he s = s (fetchR He)
 she :: (Member Ref r) => SemEffTr r NP
 she s = s (fetchR She)
 
-who :: (Member Event r, Member Fresh r, Member Ref r) =>
+who :: (Member Event r, Member Ref r) =>
        SemEffTr r ((NP -> S) -> N -> N)
 who r n x = n x `and''` (scopeDomain (r (\p -> p x)))
 
@@ -300,9 +325,11 @@ every :: (Member Ref r, Member Choose r, Member Fresh r, Member Event r) =>
 every n s = not'' (do x <- freshR
                       n (return x) `and''` not'' (s (return x)))
 
-eos :: (Member Ref r, Member Fresh r) =>
-       SemEffTr (Event :> r) S -> SemEffTr r M
+eos :: (Member Ref r) => SemEffTr (Event :> r) S -> SemEffTr r M
 eos = ec
+
+next :: SemEffTr r (M -> M -> M)
+next = and''
 
 
 runAll' rs = run . (flip runFresh) 0 . makeChoice . runRef rs
@@ -311,22 +338,22 @@ runAll = runAll' []
 donkeySentence = eos $ beatsSWS it (every (who (ownsSWS (a donkey)) farmer))
 donkeySentenceR = runAll donkeySentence
 
-johnBeatsADonkey = eos $ beatsSWS (a donkey) john 
+johnBeatsADonkey = eos $ beatsSWS (a donkey) john
 johnBeatsADonkeyR = runAll johnBeatsADonkey
 
-heBeatsIt = eos $ beatsSWS it he
+heBeatsIt = eos (beatsSWS it he)
 heBeatsItR = runAll heBeatsIt
 
-dsANDhbi = donkeySentence `and''` heBeatsIt
+dsANDhbi = donkeySentence `next` heBeatsIt
 dsANDhbiR = runAll dsANDhbi
 
-jbadANDhbi = johnBeatsADonkey `and''` heBeatsIt
+jbadANDhbi = johnBeatsADonkey `next` heBeatsIt
 jbadANDhbiR = runAll jbadANDhbi
 
 every_a = eos $ beats (a donkey) (every farmer)
 every_aR = runAll every_a
 
-eaANDhbi = every_a `and'` heBeatsIt
+eaANDhbi = every_a `next` heBeatsIt
 eaANDhbiR = runAll eaANDhbi
 
 slowlySent = eos $ slowly (beatsSWS john) (a farmer)
