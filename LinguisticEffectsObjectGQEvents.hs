@@ -111,6 +111,17 @@ ec_stateful m = loop Nothing (admin m) where
                                   loop (Just e) (k e)
   handler (Just e) (EventR k) = loop (Just e) (k e)
 
+ec_final :: (Member Ref r, Member Fresh r) =>
+            Eff (Event :> r) (Formula Bool) -> Eff r (Formula Bool)
+ec_final m = loop Nothing (admin m) where
+  loop Nothing (Val x) = return x
+  loop (Just e) (Val x) = freshR `eq''` (return e) `and''` (return x)
+  loop event (E u) = handle_relay u (loop event) (handler event)
+  handler Nothing (EventR k) = do n <- fresh
+                                  let e = Var (Sym ("e" ++ show n))
+                                  loop (Just e) (k e)
+  handler (Just e) (EventR k) = loop (Just e) (k e)
+
 ec :: (Member Ref r) =>
       Eff (Event :> r) (Formula Bool) -> Eff r (Formula Bool)
 ec = ec_composed
@@ -124,12 +135,27 @@ continueSupplyNewEvent e m = loop m where
   loop (E u) = interpose u loop handler
   handler (EventR k) = loop (k e)
 
-scopeDomain :: (Member Ref r, Member Event r) => Eff r a -> Eff r a
-scopeDomain m = loop (admin m) where
+scopeDomain_old :: (Member Ref r, Member Event r) => Eff r a -> Eff r a
+scopeDomain_old m = loop (admin m) where
   loop (Val x) = return x
   loop (E u) = interpose u loop handler
   handler (EventR k) = do e <- freshR
                           continueSupplyNewEvent e (k e)
+
+scopeDomain_final :: (Member Ref r, Member Fresh r, Member Event r) =>
+                     Eff r (Formula Bool) -> Eff r (Formula Bool)
+scopeDomain_final m = loop Nothing (admin m) where
+  loop Nothing (Val x) = return x
+  loop (Just e) (Val x) = freshR `eq''` (return e) `and''` (return x)
+  loop event (E u) = interpose u (loop event) (handler event)
+  handler Nothing (EventR k) = do n <- fresh
+                                  let e = Var (Sym ("e" ++ show n))
+                                  loop (Just e) (k e)
+  handler (Just e) (EventR k) = loop (Just e) (k e)
+
+scopeDomain :: (Member Ref r, Member Fresh r, Member Event r) =>
+               Eff r (Formula Bool) -> Eff r (Formula Bool)
+scopeDomain = scopeDomain_final
 
 abstractOutEvent :: (Member Event r) =>
                     Eff r a -> Eff r (Formula Entity) -> Eff r a
@@ -312,7 +338,7 @@ he s = s (fetchR He)
 she :: (Member Ref r) => SemEffTr r NP
 she s = s (fetchR She)
 
-who :: (Member Event r, Member Ref r) =>
+who :: (Member Ref r, Member Fresh r, Member Event r) =>
        SemEffTr r ((NP -> S) -> N -> N)
 who r n x = n x `and''` (scopeDomain (r (\p -> p x)))
 
