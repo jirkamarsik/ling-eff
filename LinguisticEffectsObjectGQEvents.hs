@@ -40,7 +40,8 @@ type instance EffTr r (a -> b) = (EffTr r a) -> (EffTr r b)
 data AnaphoraTag = He | She | It
 
 data Ref v = FreshR (Formula Entity -> v) |
-             FetchR AnaphoraTag (Formula Entity -> v)
+             FetchR AnaphoraTag (Formula Entity -> v) |
+             HangR Sym (() -> v)
              deriving (Typeable, Functor)
 
 freshR :: (Member Ref r) => Eff r (Formula Entity)
@@ -48,6 +49,9 @@ freshR = send_req FreshR
 
 fetchR :: (Member Ref r) => AnaphoraTag -> Eff r (Formula Entity)
 fetchR tag = send_req (FetchR tag)
+
+hangR :: (Member Ref r) => Sym -> Eff r ()
+hangR var = send_req (HangR var)
 
 data Event v = EventR (Formula Entity -> v)
                deriving (Typeable, Functor)
@@ -68,6 +72,8 @@ runRef rs m = loop rs (admin m) where
                                              loop (xv:rs) (k xv))
   handler rs (FetchR tag k) = do selected_ref <- select tag rs
                                  loop rs (k selected_ref)
+  handler rs (HangR var k) = fmap existsF (fill var (\x -> do xv <- x
+                                                              loop (xv:rs) (k ())))
 
 enter :: (Member Choose r, Member Fresh r, Member Ref r) =>
          Eff r (Formula Bool) -> Eff r (Formula Bool)
@@ -78,6 +84,8 @@ enter m = loop [] (admin m) where
                                              loop (xv:rs) (k xv))
   handler rs (FetchR tag k) = do selected_ref <- select tag rs `mplus'` fetchR tag
                                  loop rs (k selected_ref)
+  handler rs (HangR var k) = fmap existsF (fill var (\x -> do xv <- x
+                                                              loop (xv:rs) (k ())))
 
 
 supplyEvent :: Formula Entity -> Eff (Event :> r) a -> Eff r a
@@ -115,16 +123,16 @@ ec_final :: (Member Ref r, Member Fresh r) =>
             Eff (Event :> r) (Formula Bool) -> Eff r (Formula Bool)
 ec_final m = loop Nothing (admin m) where
   loop Nothing (Val x) = return x
-  loop (Just e) (Val x) = freshR `eq''` (return e) `and''` (return x)
+  loop (Just (Var var)) (Val x) = hangR var >> return x
   loop event (E u) = handle_relay u (loop event) (handler event)
   handler Nothing (EventR k) = do n <- fresh
                                   let e = Var (Sym ("e" ++ show n))
                                   loop (Just e) (k e)
   handler (Just e) (EventR k) = loop (Just e) (k e)
 
-ec :: (Member Ref r) =>
+ec :: (Member Ref r, Member Fresh r) =>
       Eff (Event :> r) (Formula Bool) -> Eff r (Formula Bool)
-ec = ec_composed
+ec = ec_final
 
 supplyNewEvent :: (Member Event r) => Formula Entity -> Eff r a -> Eff r a
 supplyNewEvent e = (continueSupplyNewEvent e) . admin
@@ -146,7 +154,7 @@ scopeDomain_final :: (Member Ref r, Member Fresh r, Member Event r) =>
                      Eff r (Formula Bool) -> Eff r (Formula Bool)
 scopeDomain_final m = loop Nothing (admin m) where
   loop Nothing (Val x) = return x
-  loop (Just e) (Val x) = freshR `eq''` (return e) `and''` (return x)
+  loop (Just (Var var)) (Val x) = hangR var >> return x
   loop event (E u) = interpose u (loop event) (handler event)
   handler Nothing (EventR k) = do n <- fresh
                                   let e = Var (Sym ("e" ++ show n))
@@ -163,7 +171,7 @@ abstractOutEvent m e = e >>= (\ev -> supplyNewEvent ev m)
 
 makeEventClosure :: (Member Fresh r, Member Event r) =>
                     Eff r (Formula a) -> Eff r (Formula (Entity -> a))
-makeEventClosure = fill . abstractOutEvent
+makeEventClosure = fillFresh . abstractOutEvent
 
 sumEvent :: (Member Event r, Member Fresh r) =>
             Eff r (Formula Bool) -> Eff r (Formula Bool)
@@ -198,18 +206,21 @@ liftFM3 :: Sym -> Eff r (Formula a) -> Eff r (Formula b) -> Eff r (Formula c)
            -> Eff r (Formula d)
 liftFM3 = liftM3 . liftF3
 
-fill :: (Member Fresh r) =>
-        (Eff r (Formula a) -> Eff r (Formula b)) -> Eff r (Formula (a -> b))
-fill f = do n <- fresh
-            let var = Sym ("x" ++ show n)
-            body <- f (return (Var var))
-            return (Abs var body)
+fill :: Sym -> (Eff r (Formula a) -> Eff r (Formula b)) -> Eff r (Formula (a -> b))
+fill var f = do body <- f (return (Var var))
+                return (Abs var body)
+
+fillFresh :: (Member Fresh r) =>
+             (Eff r (Formula a) -> Eff r (Formula b)) -> Eff r (Formula (a -> b))
+fillFresh f = do n <- fresh
+                 let var = Sym ("x" ++ show n)
+                 fill var f
 
 existsF :: Formula (Entity -> Bool) -> Formula Bool
 existsF = liftF (Sym "exists")
 
 exists' :: (Member Fresh r) => EffTr r ((Entity -> Bool) -> Bool)
-exists' p = fmap existsF (fill p)
+exists' p = fmap existsF (fillFresh p)
 
 exists'' :: (Member Fresh r) => EffTr r ((Entity -> Bool) -> Bool)
 exists'' = exists'
@@ -218,7 +229,7 @@ forallF :: Formula (Entity -> Bool) -> Formula Bool
 forallF = liftF (Sym "forall")
 
 forall' :: (Member Fresh r) => EffTr r ((Entity -> Bool) -> Bool)
-forall' p = fmap forallF (fill p)
+forall' p = fmap forallF (fillFresh p)
 
 forall'' :: (Member Ref r, Member Fresh r, Member Choose r, Member Event r)
             => EffTr r ((Entity -> Bool) -> Bool)
@@ -241,7 +252,7 @@ not' = liftM notF
 
 not'' :: (Member Ref r, Member Fresh r, Member Choose r, Member Event r) =>
          EffTr r (Bool -> Bool)
-not'' = not' . enter . scopeDomain
+not'' = not' . enter
 
 eqF :: Formula Entity -> Formula Entity -> Formula Bool
 eqF = liftF2 (Sym "=")
@@ -308,23 +319,38 @@ farmer = liftFM (Sym "farmer")
 donkey :: SemEffTr r N
 donkey = liftFM (Sym "donkey")
 
-ownsSWS :: (Member Event r) => SemEffTr r (NP -> VP)
-ownsSWS o s = s (\x -> o (\y -> liftFM3 (Sym "owns") eventR x y))
+mkTVSWS :: (Member Event r) => Sym -> SemEffTr r (NP -> VP)
+mkTVSWS var o s = s (\x -> o (\y -> liftFM3 (Sym "owns") eventR x y))
+
+mkTVOWS :: (Member Event r) => Sym -> SemEffTr r (NP -> VP)
+mkTVOWS var o s = o (\y -> s (\x -> liftFM3 (Sym "owns") eventR x y))
 
 ownsOWS :: (Member Event r) => SemEffTr r (NP -> VP)
-ownsOWS o s = o (\y -> s (\x -> liftFM3 (Sym "owns") eventR x y))
+ownsSWS = mkTVSWS (Sym "owns")
+
+ownsSWS :: (Member Event r) => SemEffTr r (NP -> VP)
+ownsOWS = mkTVOWS (Sym "owns")
 
 owns :: (Member Event r, Member Choose r) => SemEffTr r (NP -> VP)
 owns o s = ownsSWS o s `mplus'` ownsOWS o s
 
 beatsSWS :: (Member Event r) => SemEffTr r (NP -> VP)
-beatsSWS o s = s (\x -> o (\y -> liftFM3 (Sym "beats") eventR x y))
+beatsSWS = mkTVSWS (Sym "beats")
 
 beatsOWS :: (Member Event r) => SemEffTr r (NP -> VP)
-beatsOWS o s = o (\y -> s (\x -> liftFM3 (Sym "beats") eventR x y))
+beatsOWS = mkTVOWS (Sym "beats")
 
 beats :: (Member Event r, Member Choose r) => SemEffTr r (NP -> VP)
 beats o s = beatsSWS o s `mplus'` beatsOWS o s
+
+lovesSWS :: (Member Event r) => SemEffTr r (NP -> VP)
+lovesSWS = mkTVSWS (Sym "loves")
+
+lovesOWS :: (Member Event r) => SemEffTr r (NP -> VP)
+lovesOWS = mkTVOWS (Sym "loves")
+
+loves :: (Member Event r, Member Choose r) => SemEffTr r (NP -> VP)
+loves o s = lovesSWS o s `mplus'` lovesOWS o s
 
 slowly :: (Member Event r) => SemEffTr r (VP -> VP)
 slowly p x = liftFM (Sym "slow") eventR `and''` p x
@@ -349,9 +375,10 @@ a n s = do x <- freshR
 every :: (Member Ref r, Member Choose r, Member Fresh r, Member Event r) =>
          SemEffTr r (N -> NP)
 every n s = not'' (do x <- freshR
-                      n (return x) `and''` not'' (s (return x)))
+                      n (return x) `and''` not'' (subEvent (s (return x))))
 
-eos :: (Member Ref r) => SemEffTr (Event :> r) S -> SemEffTr r M
+eos :: (Member Ref r, Member Fresh r) =>
+       SemEffTr (Event :> r) S -> SemEffTr r M
 eos = ec
 
 next :: SemEffTr r (M -> M -> M)
@@ -381,6 +408,9 @@ every_aR = runAll every_a
 
 eaANDhbi = every_a `next` heBeatsIt
 eaANDhbiR = runAll eaANDhbi
+
+johnLovesIt = eos $ lovesSWS it john
+johnLovesItR = runAll johnLovesIt
 
 slowlySent = eos $ slowly (beatsSWS john) (a farmer)
 slowlySentR = runAll slowlySent
