@@ -81,26 +81,55 @@ enter m = loop [] (admin m) where
 
 
 supplyEvent :: Formula Entity -> Eff (Event :> r) a -> Eff r a
-supplyEvent e m = loop (admin m) where
+supplyEvent e = (continueSupplyEvent e) . admin
+
+continueSupplyEvent :: Formula Entity -> VE a (Event :> r) -> Eff r a
+continueSupplyEvent e m = loop m where
   loop (Val x) = return x
   loop (E u) = handle_relay u loop handler
   handler (EventR k) = loop (k e)
 
-ec :: (Member Fresh r, Member Ref r) =>
+ec_extra :: (Member Ref r) =>
+            Eff (Event :> r) (Formula Bool) -> Eff r (Formula Bool)
+ec_extra m = do e <- freshR
+                supplyEvent e m
+
+ec_composed :: (Member Ref r) =>
+               Eff (Event :> r) (Formula Bool) -> Eff r (Formula Bool)
+ec_composed m = loop (admin m) where
+  loop (Val x) = return x
+  loop (E u) = handle_relay u loop handler
+  handler (EventR k) = do e <- freshR
+                          continueSupplyEvent e (k e)
+
+ec_stateful :: (Member Ref r) =>
+               Eff (Event :> r) (Formula Bool) -> Eff r (Formula Bool)
+ec_stateful m = loop Nothing (admin m) where
+  loop event (Val x) = return x
+  loop event (E u) = handle_relay u (loop event) (handler event)
+  handler Nothing (EventR k) = do e <- freshR
+                                  loop (Just e) (k e)
+  handler (Just e) (EventR k) = loop (Just e) (k e)
+
+ec :: (Member Ref r) =>
       Eff (Event :> r) (Formula Bool) -> Eff r (Formula Bool)
-ec m = do e <- freshR
-          supplyEvent e m
+ec = ec_composed
 
 supplyNewEvent :: (Member Event r) => Formula Entity -> Eff r a -> Eff r a
-supplyNewEvent e m = loop (admin m) where
+supplyNewEvent e = (continueSupplyNewEvent e) . admin
+
+continueSupplyNewEvent :: (Member Event r) => Formula Entity -> VE a r -> Eff r a
+continueSupplyNewEvent e m = loop m where
   loop (Val x) = return x
   loop (E u) = interpose u loop handler
   handler (EventR k) = loop (k e)
 
-scopeDomain :: (Member Fresh r, Member Event r, Member Ref r) =>
-               Eff r (Formula Bool) -> Eff r (Formula Bool)
-scopeDomain m = do e <- freshR
-                   supplyNewEvent e m
+scopeDomain :: (Member Ref r, Member Event r) => Eff r a -> Eff r a
+scopeDomain m = loop (admin m) where
+  loop (Val x) = return x
+  loop (E u) = interpose u loop handler
+  handler (EventR k) = do e <- freshR
+                          continueSupplyNewEvent e (k e)
 
 abstractOutEvent :: (Member Event r) =>
                     Eff r a -> Eff r (Formula Entity) -> Eff r a
@@ -171,7 +200,7 @@ not' = liftM notF
 
 not'' :: (Member Ref r, Member Fresh r, Member Choose r, Member Event r) =>
          EffTr r (Bool -> Bool)
-not'' = not' . enter
+not'' = not' . enter . scopeDomain
 
 eqF :: Formula Entity -> Formula Entity -> Formula Bool
 eqF = liftF2 (Sym "=")
@@ -269,7 +298,7 @@ a n s = do x <- freshR
 every :: (Member Ref r, Member Choose r, Member Fresh r, Member Event r) =>
          SemEffTr r (N -> NP)
 every n s = not'' (do x <- freshR
-                      n (return x) `and''` not'' (subEvent (s (return x))))
+                      n (return x) `and''` not'' (s (return x)))
 
 eos :: (Member Ref r, Member Fresh r) =>
        SemEffTr (Event :> r) S -> SemEffTr r M
@@ -279,7 +308,7 @@ eos = ec
 runAll' rs = run . (flip runFresh) 0 . makeChoice . runRef rs
 runAll = runAll' []
 
-donkeySentence = eos $ beatsSWS it (every (who (owns (a donkey)) farmer))
+donkeySentence = eos $ beatsSWS it (every (who (ownsSWS (a donkey)) farmer))
 donkeySentenceR = runAll donkeySentence
 
 johnBeatsADonkey = eos $ beatsSWS (a donkey) john 
