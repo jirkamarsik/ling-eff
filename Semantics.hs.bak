@@ -10,7 +10,7 @@ module Semantics where
 -- also known as simply-typed lambda-calculus
 -- It is a form of a higher-order predicate logic.
 
-data Entity = John | Mary
+data Entity = John | Mary | Chiquita
   deriving (Eq, Show)
 
 -- We define the grammar of the target language the same way
@@ -19,16 +19,17 @@ data Entity = John | Mary
 class Lambda lrepr where
   john'  :: lrepr Entity
   mary'  :: lrepr Entity
-  like'  :: lrepr (Entity -> Entity -> Bool)
-  own'   :: lrepr (Entity -> Entity -> Bool)
   farmer':: lrepr (Entity -> Bool)
   donkey':: lrepr (Entity -> Bool)
-  green' :: lrepr (Entity -> Bool)
+  own'   :: lrepr (Entity -> Entity -> Bool)
+  beat'  :: lrepr (Entity -> Entity -> Bool)
+  like'  :: lrepr (Entity -> Entity -> Bool)
 
   true   :: lrepr Bool
   neg    :: lrepr Bool -> lrepr Bool
   conj   :: lrepr Bool -> lrepr Bool -> lrepr Bool
   impl   :: lrepr Bool -> lrepr Bool -> lrepr Bool
+  eq     :: lrepr Entity -> lrepr Entity -> lrepr Bool
   exists :: lrepr ((Entity -> Bool) -> Bool)
   forall :: lrepr ((Entity -> Bool) -> Bool)
   iota   :: lrepr ((Entity -> Bool) -> Entity) -- simplistic definites
@@ -69,11 +70,11 @@ data R a = R { unR :: a }
 instance Lambda R where
   john'                  = R John
   mary'                  = R Mary
+  own'                   = R (\o s -> elem (s,o) [(John,Chiquita)])
+  beat'                  = R (\o s -> elem (s,o) [(John,Chiquita), (Mary,John)])
   like'                  = R (\o s -> elem (s,o) [(John,Mary), (Mary,John)])
-  own'                   = R (\o s -> elem (s,o) [(Mary,John)])
-  farmer'                = R (\s -> s == Mary)
-  donkey'                = R (\s -> s == John)
-  green'                 = R (\s -> s == John)
+  farmer'                = R (\s -> elem s [Mary, John])
+  donkey'                = R (\s -> s == Chiquita)
 
   true                   = R True
   neg (R True)           = R False
@@ -82,6 +83,7 @@ instance Lambda R where
   conj _        _        = R False
   impl (R False) _       = R True
   impl _         x       = x
+  eq   (R x)     (R y)   = R $ x == y
   exists                 = R (\f -> any f domain)
   forall                 = R (\f -> all f domain)
   iota                   = R (\f -> let [x] = filter f domain in x)
@@ -90,7 +92,7 @@ instance Lambda R where
   lam f                  = R (\x -> unR (f (R x)))
 
 
-domain = [John, Mary]
+domain = [John, Mary, Chiquita]
 
 instance (Show a) => Show (R a) where
   show (R x) = show x
@@ -119,16 +121,17 @@ data C a = C { unC :: Int -> Int -> String }
 instance Lambda C where
   john'            = C (\_ _ -> "john'")
   mary'            = C (\_ _ -> "mary'")
-  like'            = C (\_ _ -> "like'")
   own'             = C (\_ _ -> "own'")
+  beat'             = C (\_ _ -> "beat'")
+  like'            = C (\_ _ -> "like'")
   farmer'          = C (\_ _ -> "farmer'")
   donkey'          = C (\_ _ -> "donkey'")
-  green'           = C (\_ _ -> "green'")
 
   true             = C (\_ _ -> "T")
   neg (C x)        = C (\i p -> paren (p > 10) ("-" ++ x i 11))
   conj (C x) (C y) = C (\i p -> paren (p > 3) (x i 4 ++ " & " ++ y i 3))
   impl (C x) (C y) = C (\i p -> paren (p > 2) (x i 3 ++ " => " ++ y i 2))
+  eq   (C x) (C y) = C (\i p -> paren (p > 4) (x i 5 ++ " = " ++ y i 5))
   exists           = C (\_ _ -> "E")
   forall           = C (\_ _ -> "A")
   iota             = C (\_ _ -> "I")
@@ -170,11 +173,11 @@ data P lrepr a = P { unP :: lrepr a, known :: Maybe (Known lrepr a) }
 instance (Lambda lrepr) => Lambda (P lrepr) where
   john'                      = unknown john'
   mary'                      = unknown mary'
-  like'                      = unknown like'
   own'                       = unknown own'
+  beat'                      = unknown beat'
+  like'                      = unknown like'
   farmer'                    = unknown farmer'
   donkey'                    = unknown donkey'
-  green'                     = unknown green'
 
   true                       = P true (Just True)
   neg (P _ (Just False))     = true
@@ -189,6 +192,7 @@ instance (Lambda lrepr) => Lambda (P lrepr) where
   impl (P _ (Just False)) _  = true
   impl (P _ (Just True)) x   = x
   impl (P x _) (P y _)       = unknown (impl x y)
+  eq   (P x _) (P y _)       = unknown (eq x y)
   exists                     = unknown exists
   forall                     = unknown forall
   iota                       = unknown iota

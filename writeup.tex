@@ -1,0 +1,780 @@
+\documentclass{article}
+
+\usepackage{listings}
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{stmaryrd}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{natbib}
+
+\newcommand{\dand}{\mathbin{\bar{\land}}}
+\newcommand{\dnot}{\mathop{\bar{\lnot}}}
+\newcommand{\dimpl}{\mathbin{\bar{\to}}}
+\newcommand{\dexists}{\mathop{\bar{\exists}}}
+\newcommand{\dforall}{\mathop{\bar{\forall}}}
+
+\newcommand{\hsbind}{\mathbin{\texttt{>>=}}}
+\newcommand{\hsrevbind}{\mathbin{\texttt{=<<}}}
+\newcommand{\hsseq}{\mathbin{\texttt{>>}}}
+\newcommand{\occons}{\mathbin{::}}
+
+\newcommand{\statecps}[3]{\llbracket #3 \rrbracket^{#2}_{#1}}
+\newcommand{\cps}[2]{\llbracket #2 \rrbracket^{#1}}
+
+\newcommand{\sem}[1]{\llbracket #1 \rrbracket}
+\newcommand{\intens}[1]{\overline{#1}}
+
+\begin{document}
+
+% Setup from http://tex.stackexchange.com/questions/116595/highlighting-haskell-listings-in-large-tex-document
+\lstset{
+  frame=none,
+  xleftmargin=2pt,
+  stepnumber=1,
+  numbers=left,
+  numbersep=5pt,
+  numberstyle=\ttfamily\tiny\color[gray]{0.3},
+  belowcaptionskip=\bigskipamount,
+  captionpos=b,
+  escapeinside={*'}{'*},
+  language=haskell,
+  tabsize=2,
+  emphstyle={\bf},
+  commentstyle=\it,
+  stringstyle=\mdseries\rmfamily,
+  showspaces=false,
+  keywordstyle=\bfseries\rmfamily,
+  columns=flexible,
+  basicstyle=\small\sffamily,
+  showstringspaces=false,
+  morecomment=[l]\%,
+}
+
+
+\section{Motivating example}
+
+I will begin with an example from functional programming that will help to
+motivate the ideas behind my approach. Functional programming shares a lot of
+similarities with the formal work a semanticist has to do.
+
+The key principle of functional programming is purity: the results of
+functions depend exclusively on their arguments, they cannot effect or be
+effected by any other elements. In formal semantics, the analogous principle
+is that of compositionality: the meaning of a phrase is a function of the
+meanings of its constituents (and of the way those constituents are combined).
+
+We can rephrase purity in terms of compositionality and vice versa. Pure
+procedures are procedures such that the meaning of a procedure call (its
+result) is a function of the meaning of the procedure (its definition) and of
+the argument (its value). A syntactic operator has a compositional semantics
+if its meaning can be derived as a pure function of its constituents meanings.
+
+However, both in the case of functional programming and formal semantics, we
+run into problems when we need to handle phenomena which are ``seemingly
+non-compositional''. An example of this in formal semantics is the treatment
+of context and the capability of phrases to both depend on it and modify it.
+
+\subsection{The example}
+
+We consider the problem of having to write a function which (re)labels the
+nodes of a binary tree with natural numbers in an increasing order depth-first
+left-to-right.
+
+Let us start first with a straightforward solution (\texttt{relabel0}). We
+will transform the tree recursively. Since in order to relabel some subtree,
+we need to know the number at which to start indexing, the recursive function
+needs an extra argument. We also need to find the amount by which the index
+was incremented while transforming the subtree so that we know at which number
+to continue when we process the next subtree. We solve this by having the
+recursive function return a pair of the transformed tree and the new index
+value.
+
+\begin{lstlisting}
+relabel0 :: Tree a -> Tree Int
+relabel0 tree = fst (relabel' tree 0) where
+
+  relabel' :: Tree a -> Int -> (Tree Int, Int)
+  relabel' (Leaf value)              n = (Leaf n, n + 1)
+  relabel' (Branch left value right) n =
+    let (newLeft, newValue) = relabel' left n
+        (newRight, newN)    = relabel' right (newValue + 1) in
+    (Branch newLeft newValue newRight, newN)
+\end{lstlisting}
+
+We can refactor our solution a bit into \texttt{relabel1}. This makes the
+passing around of the integer state more systematic. We see that the
+\texttt{relabel'} function performs a sequence of steps. The sequentiality is
+expressed by the fact that we use some state of our computation (the current
+index) as a parameter at each step and we produce some value and the new
+state.
+
+\begin{lstlisting}
+relabel1 :: Tree a -> Tree Int
+relabel1 tree = fst (relabel' tree 0) where
+
+  relabel' :: Tree a -> Int -> (Tree Int, Int)
+  relabel' (Leaf value)              n0 =
+    let (newValue, n1) = (n0, n0 + 1) in
+        (Leaf newValue, n1)
+  relabel' (Branch left value right) n0 =
+    let (newLeft,  n1) = relabel' left n0
+        (newValue, n2) = (n1, n1 + 1)
+        (newRight, n3) = relabel' right n2 in
+    (Branch newLeft newValue newRight, n3)
+\end{lstlisting}
+
+Now that we are passing around the state systematically, we can define a
+function to do the tedium for us. In this case, we are actually asking for the
+\texttt{bind} method (\texttt{>>=}) of the state monad. We can therefore
+abstract away from passing around the state manually and use Haskell's handy
+\texttt{do}-notation, which is syntactic sugar for the \texttt{bind} method of
+a monad (\texttt{relabel2}).
+
+\begin{lstlisting}
+relabel2 :: Tree a -> Tree Int
+relabel2 tree = evalState (relabel' tree) 0 where
+
+  relabel' :: Tree a -> State Int (Tree Int)
+  relabel' (Leaf value)              =
+    do newValue <- relabelNode value
+       return (Leaf newValue)
+  relabel' (Branch left value right) =
+    do newLeft  <- relabel' left
+       newValue <- relabelNode value
+       newRight <- relabel' right
+       return (Branch newLeft newValue newRight)
+
+  relabelNode :: a -> State Int Int
+  relabelNode old = do n <- get
+                       put (n + 1)
+                       return n
+\end{lstlisting}
+
+The type constructor \texttt{State Int a} represents a stateful computation of
+type \texttt{a} where the state being accessed is of type \texttt{Int}. It is
+merely an abstraction for \texttt{Int -> (a, Int)}. The signature of
+\texttt{relabel'} is now clearer. It tells us that \texttt{relabel'} is a
+function that maps some tree into an integer tree while accessing some state
+of type \texttt{Int}. The final function, \texttt{relabel2}, however, is not
+stateful because we apply \texttt{evalState} to the stateful computation and
+supply some initial value for the state. \texttt{evalState} just passes the
+initial state to the stateful computation and then retrieves the result of the
+computation, i.e. the first element of the returned pair. The body of the
+function is pretty much the same, only \texttt{let} and \texttt{=} have been
+replaced by \texttt{do} and \texttt{<-}, respectively. This frees us from
+having to manage state manually ourselves.
+
+We also extract the relabeling transformation that is applied to the values in
+the tree themselves into the function \texttt{relabelNode}. Inside its
+definition, we use the ``effectful'' operations \texttt{get} and \texttt{put},
+whose types are \texttt{State a a} and \texttt{a -> State a ()} respectively,
+to access and modify the state.
+
+If we look closer at the function definition, it becomes easy now to see that
+\texttt{relabel'} is just a recursive traversal of the tree which applies the
+function \texttt{relabelNode} to each value in the tree. Furthermore, it is a
+generalization of the common \texttt{map} function since it accepts functions
+that map the values of the tree to values in some monad. By instantiating the
+monad to the identity monad, we get the familiar \texttt{map} function. By
+instantiating it to the state monad, we get a depth-first left-to-right
+traversal procedure.
+
+We can pull out the traversal logic into its separate function. As it happens,
+this kind of function can be derived automatically by Haskell just from the
+data type's declaration. Our relabeling function then ends up looking like
+this (\texttt{relabel3}):
+
+\begin{lstlisting}
+relabel3 :: Tree a -> Tree Int
+relabel3 tree = evalState (traverse relabelNode tree) 0 where
+
+  relabelNode :: a -> State Int Int
+  relabelNode old = do n <- get
+                       put (n + 1)
+                       return n
+\end{lstlisting}
+
+We finally end up with something which looks very simple, we simply traverse
+the tree while applying a function. Inside the function, there is an
+introduction of state because of the use of the \texttt{get} and \texttt{put}
+operations. At the top, we then have the corresponding elimination of state by
+the \texttt{evalState} function (of type \texttt{State a b -> a ->
+  b}). Furthermore, all of this is done in a pure setting. Haskell provides us
+with merely a thin layer of syntactic sugar over the lambda calculus, even
+though it feels like we are modifying some state variables as in more
+expressive languages.
+
+This example has relevance to the plight of a formal semanticist trying to
+handle discourse dynamics compositionally. The tree transformation that we set
+out to describe here is interesting because the translation of a subtree is
+not simply a function of the subtree, but it also depends on some context that
+was established before, context which is also updated by the process of
+translating the subtree. This is very similar to the basic problem we
+encounter in dynamic semantics. The meaning of some syntactic phrase is
+expressed not only in terms of its constituents' meanings but also in terms of
+some context which it can update as well.
+
+We used the pure/compositional formalism of Haskell to describe the
+transformation. This has led us to a solution in a ``denotational'' style. We
+have then presented a framework commonly adopted in Haskell, the notion of a
+monad, which allowed us to reach a more succinct and intelligible
+solution. This new solution was expressed in ``operational'' terms. We had a
+procedure with virtual side-effects called \texttt{relabelNode} which was
+mapped over the tree. In the end, we had been using a pure programming
+language but the most elegant solution to our problem had proven to be the
+implementation of state and then expressing the transformation as an operation
+with effect on the state.
+
+In this way, we got to work in a pure metalanguage which is amenable to
+denotational reasoning and analysis, but we still had the possibility of
+working in an operational style if it suited our problem. Another approach
+similar to this might be the introduction of a language which is effectful,
+but has both an operational and a denotational semantics.
+
+
+\section{Dynamic logic as effectful computation}
+
+We will demonstrate our idea of adopting effects in computational semantics by
+rephrasing the continuation-based dynamic logic of Philippe DeGroote in
+effect-like terms.
+
+
+\subsection{Our monad}
+
+We define our monad to be the combination of state and continuations that was
+used by Oleg Kiselyov in his Applicative ACG examples. The type
+$\statecps{\gamma}{\omega}{\alpha}$ shall be synonymous with $\gamma \to
+(\alpha \to \gamma \to \omega) \to \omega$ and stands for a computation of a
+value of type $\alpha$ that manipulates state of type $\gamma$ and has access
+to its continuation whose result type is $\omega$. The continuation expects
+both the computed value of type $\alpha$ and the new state of type
+$\gamma$. This differs from, and generalizes, the approach used in DeGroote,
+where both $\alpha$ and $\omega$ are fixed to the type $o$ of propositions and
+where the continuation only produces the future proposition and does not need
+access to the current proposition (the extra argument of type $\alpha$ in our
+formulation).
+
+We give below the definitions of \texttt{return} and \texttt{>>=} for this
+monad.
+
+\begin{align*}
+& \statecps{\gamma}{\omega}{\alpha} = \gamma \to (\alpha \to \gamma \to \omega) \to \omega \\
+& \texttt{return} :: \alpha \to \statecps{\gamma}{\omega}{\alpha} \\
+& \texttt{return}\ x \equiv \lambda e \phi. \phi x e \\
+& (\texttt{>>=}) :: \statecps{\gamma}{\omega}{\alpha}
+    \to (\alpha \to \statecps{\gamma}{\omega}{\beta})
+     \to \statecps{\gamma}{\omega}{\beta} \\
+& m \hsbind f \equiv \lambda e \phi. m e (\lambda v e'. f v e' \phi)
+\end{align*}
+
+We also give the definition of a state ``elimination''
+procedure. \texttt{runState} takes as arguments some initial state $e$ of type
+$\gamma$ and a value $m$ in our monad, having type
+$\statecps{\gamma}{\alpha}{\alpha}$, and converts the ``dynamic'' value
+(stateful computation) into a pure value of type $\alpha$ by providing it with
+the initial state and a trivial terminal continuation.
+
+\begin{align*}
+& \texttt{runState} :: \gamma \to \statecps{\gamma}{\alpha}{\alpha} \to \alpha \\
+& \texttt{runState}\ e\ m \equiv m e (\lambda x e'. x)
+\end{align*}
+
+
+
+\subsection{Logical connectives}
+
+When using a logic, we prefer to write in terms of logical connectives. We
+will now proceed to define conjunction, negation and existential
+quantification on dynamic formulas (stateful computations of propositions,
+type $\statecps{\gamma}{o}{o}$).\footnote{The other logical connectives are to
+  be derived from these three using the usual equations.}
+
+
+\subsubsection{Conjunction}
+
+Conjunction is the most straight-forward. We order the effects of the two
+formulas $\phi$ and $\psi$ in conjunction $\phi \dand \psi$ such that the
+effects of $\phi$ happen before the effects of $\psi$ by first binding $\phi$
+and then $\psi$.
+
+$$
+(\dand) :: \statecps{\gamma}{o}{o} \to \statecps{\gamma}{o}{o}
+           \to \statecps{\gamma}{o}{o}
+$$
+\vspace{-2em}
+\begin{align*}
+\phi \dand \psi \equiv \texttt{do}\ & p \gets \phi \\
+                                    & q \gets \psi \\
+                                    & \texttt{return}\ (p \land q)
+\end{align*} 
+
+This syntactic sugar is translated into the following lambda calculus:
+
+$$
+\phi \dand \psi \equiv \phi \hsbind (\lambda p.
+                       \psi \hsbind (\lambda q.
+                       \texttt{return}\ (p \land q)))
+$$
+
+There is also a combinator, \texttt{liftM2}, commonly used in Haskell which
+fits our definition of dynamic conjunction. \texttt{liftM2} lifts a binary
+function over simple values into a generalized binary function which operates
+on values in some monad and which evaluates its arguments left-to-right.
+
+$$
+\dand \equiv \texttt{liftM2}\ \land
+$$
+
+This states more clearly our intent that dynamic conjunction is just plain
+conjunction which evaluates its two arguments for effects on discourse state
+in a left-to-right order.
+
+
+\subsubsection{Negation}
+
+If we follow the definition given in DeGroote's proposal, we arrive at the
+following restatement in our monadic framework.
+
+\begin{align*}
+& (\dnot) :: \statecps{\gamma}{o}{o} \to \statecps{\gamma}{o}{o} \\
+& \dnot \psi \equiv \lambda e \phi. \phi (\lnot (\psi e (\lambda p e'. p))) e
+\end{align*}
+
+We notice that inside the negation, we are applying a dynamic proposition to
+some initial state and the trivial terminal continuation, which was exactly
+the definition of our state eliminator, \texttt{runState}.
+
+$$
+\dnot \psi \equiv \lambda e \phi. \phi (\lnot (\texttt{runState}\ e\ \psi)) e
+$$
+
+Here we see that dynamic negation can be seen as recursively interpreting the
+negated content in a fresh instance of the state interpreter, all effects of
+$\psi$ will be contained inside the negation. In our case of using our state
+monad, this reinterpretation can be more easily understood as dynamic
+(re)binding. Wrapping \texttt{runState} over a stateful computation is like
+dynamically binding a new value to the state variable. Using \texttt{runState}
+in our extended negation thus means that the state that is modified by $\psi$
+is different from the global state. Since we initialize this new state to the
+same value as the global state, this can be seen as saying that the negated
+content only has access to a copy of the state, changes to which will be
+discarded.
+
+We can think of \texttt{runState} as of a handler which interprets the effects
+in the negated formula $\psi$ locally. Note that access to state is not the
+only effect supported by our monad, we also give our computations access to
+their continuations. This means that \texttt{runState} not only binds a fresh
+state variable but it also delimits the continuations inside $\psi$.
+
+Before we finish with negation, we will present another way of restating
+it. The previous definition was given in a continuation-passing style. We
+could not just use \texttt{return} to raise the negated formula into a dynamic
+formula since we were accessing the current state $e$ which we used as our new
+initial state. We can define an effectful operation (a function, 0-ary in this
+case, whose output values belong to the monad) that retrieves the state for
+us.
+
+\begin{align*}
+& \texttt{get} :: \statecps{\gamma}{\omega}{\gamma} \\
+& \texttt{get} \equiv \lambda e \phi. \phi e e
+\end{align*}
+
+Having introduced \texttt{get}, we can now reformulate negation using
+\texttt{do}-notation and not having to abstract manually over the state $e$
+and the continuation $\phi$.
+
+\begin{align*}
+\dnot \psi \equiv \texttt{do}\ & e \gets \texttt{get} \\
+                               & \texttt{return}\ \lnot (\texttt{runState}\ e\ \psi)
+\end{align*}
+
+As a final remark, we notice that wrapping a dynamic formula in
+\texttt{runState} has a similar effect as wrapping it in a DRT box. The
+argument of \texttt{runState} gets a fresh copy of the state which it can use
+as a sandbox for introducing local state changes which will not escape the
+negation.
+
+
+\subsubsection{Existential quantification}
+
+For the existential quantifier, we start with the definition from DeGroote's
+proposal, since it is compatible with our formalization.
+
+\begin{align*}
+& (\dexists) :: (\iota \to \statecps{\gamma}{o}{o}) \to \statecps{\gamma}{o}{o} \\
+& \dexists P \equiv \lambda e \phi. \exists (\lambda x. P x e \phi)
+\end{align*}
+
+Here we witness for the first time the body is not an application of the
+continuation to some return value. Instead, we are quantifying over a term
+built using the continuation.
+
+We can decompose this term into smaller parts. First, we notice that the type
+of the existential quantifier is $(\iota \to o) \to o$. We note that values
+having the type $(\alpha \to \omega) \to \omega$, which we will write as
+$\cps{\omega}{\alpha}$, form a monad of their own. This monad, dubbed the
+continuation monad, represents computations that have access to their
+continuations of some result type $\omega$.
+
+However, we operate with a notion of a computation that has access both to its
+continuation and to some mutable state. We will define a lifting operation
+which takes a value from the continuation monad having type
+$\cps{\omega}{\alpha} = (\alpha \to \omega) \to \omega$ and injects it into
+the more general state-and-continuation monad, producing a value of type
+$\statecps{\gamma}{\omega}{\alpha} = \gamma \to (\alpha \to \gamma \to \omega)
+\to \omega$ for some $\gamma$.
+
+\begin{align*}
+& \texttt{cont} :: \cps{\omega}{\alpha} \to \statecps{\gamma}{\omega}{\alpha} \\
+& \texttt{cont}\ c \equiv \lambda e \phi. c (\lambda x. \phi x e)
+\end{align*}
+
+If we are reasoning within a calculus with continuations, we can think of the
+existential quantifier as a computation that produces some existentially
+quantified variable. By lifting the existential quantifier using the function
+defined above, we can therefore introduce a new effectful operation,
+\texttt{fresh}.
+
+\begin{align*}
+& \texttt{fresh} :: \statecps{\gamma}{o}{\iota} \\
+& \texttt{fresh} \equiv \texttt{cont}\ \exists
+\end{align*}
+
+By making the existential quantifier into a function whose value belongs to
+our monad, we can think of it as an effectful operation which generates fresh,
+existentially quantified discourse referents. We can then use this operation
+to express the dynamic existential quantifier.
+
+$$
+(\dexists) :: (\iota \to \statecps{\gamma}{o}{o}) \to \statecps{\gamma}{o}{o}
+$$
+\vspace{-2em}
+\begin{align*}
+\dexists P \equiv \texttt{do}\ & x \gets \texttt{fresh} \\
+                               & P x
+\end{align*}
+
+This can be rewritten without the \texttt{do}-notation sugar...
+
+$$
+\dexists P \equiv \texttt{fresh} \hsbind P
+$$
+
+...or in a more applicative style by flipping the direction of the bind.
+
+$$
+\dexists P \equiv P \hsrevbind \texttt{fresh}
+$$
+
+Thus we can see that saying $\dexists P$ is the same as stating $P$ about some
+new existentially-quantified entity. The reason we need to turn to the effect
+of scoping over our continuation is that we would like to capture not only $P$
+in the scope of the quantifier, but also anything else that comes after. This
+way, the predicate does not check only $P$, but also everything else that is
+stated about the introduced individual in later discourse.
+
+%% Intuitive crap about the existential quantifier
+
+\begin{comment}
+I suggest there are at least two interesting ways of building an intuition
+around this formula. These intuitions agree in what is being defined (they
+describe the same denotations) but they differ in the intuitive order of
+evaluation (they describe different operations).
+
+There is a syntactic perspective, in which we can imagine we are abstracting
+over $e$ and $\phi$, ingredients necessary to construct the logical
+representation. We continue interpretation of discourse by passing these state
+parameters to the newly created dynamic proposition $P x$. Finally, we wrap
+the existential quantifier $\exists x$ around the result.
+
+This is similar to how we usually end up working with formulas like these. We
+perform all the $\beta$-reductions, including the ones inside $\lambda$
+abstracts, to arrive at a formula which is the desirable output,
+i.e. something we might use for inference. Noticeably, we keep evaluating the
+formula only until we reach the desired form (the normal form). However, we
+still have on our hands a term of a propositional type, which therefore
+denotes some proposition (a truth value, a set of worlds or some other
+realization). However, we are never interested in computing the final
+denotation, the element of the type's domain which is the value of the
+semantic formula in some given model. Instead, at some point, the formula
+stops being a recipe for interpreting discourse and constructing a semantic
+representation (on which we compute by $\beta$-reduction) and becomes the
+semantic representation itself (which we use to establish inferences).
+
+Under this perspective, there is a distinction between the bits of the term
+which correspond to interpretation and the gluing together of meaning and the
+bits which correspond to parts of the final constructed logical form. This
+distinction is made concrete by the lambda calculus notion of a constant,
+which is impervious to reduction. In a sense, when applying a predicate like
+$sleep$ to a constant like $j$ (John), we are not really interested to find
+out whether $j \in sleep$ for some specific model. For us, $sleep$ is not just
+a shortcut for the definition of the sleeping relation in some model. For us,
+it is a function that when applied to some argument such as $j$ yields the
+formula $sleep(j)$.
+
+Let us now consider the other intuition, the semantic perspective. We can read
+the existential as saying that upon abstracting over the $e$ and $\phi$
+arguments, we apply the existential quantifier to some function, a
+$\lambda$-abstraction which is closed over the two arguments $e$ and
+$\phi$. The supplied function will be a predicate that when given some
+argument to test, $x$, uses it to build the proposition $P x$ and evaluate it
+in the context of $e$ and $\phi$ to yield some propositional value (truth
+value, set of worlds\ldots). Evaluation would stop at this point until we
+would supply some definition of the existential quantifier which would
+actually use this predicate.
+
+This is not a very satisfying model of discourse processing since essentially
+all further discourse processing becomes stuck as soon as we encounter the
+first existential quantifier, with the rest of the discourse effects, such as
+presuppositions, being hidden behind the $\lambda$-abstraction. Therefore, if
+we will choose to embrace a model of discourse processing that uses
+computations with general effects (where it is necessary to adhere to some
+conventional order of evaluation), this will force us to rethink the way we
+build the logical representation itself and will invite us to consider either
+a deep embedding of a (possibly distinct) language of semantic representations
+or the explicit introduction of staging to our calculus (discourse processing
+time vs logic time).
+\end{comment}
+
+
+\subsection{Translating the lexical entries}
+
+Now we can turn our attention to adapting the grammar itself.
+
+The lexical entries that do not make use of the state and continuations will
+be very similar. Minor changes are made to fit our slightly varied notion of a
+continuation.
+
+\begin{align*}
+  \llbracket farmer \rrbracket & \equiv \lambda x.
+    \texttt{return}\ (\textbf{farmer}\ x) \\
+  \llbracket donkey \rrbracket & \equiv \lambda x.
+    \texttt{return}\ (\textbf{donkey}\ x) \\
+  \llbracket owns \rrbracket & \equiv \lambda o s.
+    s (\lambda x. o (\lambda y. \texttt{return}\ (\textbf{own}\ x\ y))) \\
+  \llbracket beats \rrbracket & \equiv \lambda o s.
+    s (\lambda x. o (\lambda y. \texttt{return}\ (\textbf{beat}\ x\ y))) \\
+  \llbracket who \rrbracket & \equiv \lambda r n x.
+    n x \dand r (\lambda \psi. \psi x)
+\end{align*}
+
+Now for the interesting parts.
+
+\begin{align*}
+  \llbracket a \rrbracket & \equiv \lambda n \psi.
+    \dexists x. n x \dand (\lambda e \phi. \psi x (x \occons e) \phi) \\
+  \llbracket every \rrbracket & \equiv \lambda n \psi.
+    \dforall x. n x \dimpl (\lambda e \phi. \psi x (x \occons e) \phi) \\
+  \llbracket it \rrbracket & \equiv \lambda \psi e \phi.
+    \psi (\texttt{sel}_\texttt{it} e) e \phi
+\end{align*}
+
+Here we have the parts that interact with the state being passed through the
+computation. As before, we might try to hide the abstractions over the states
+$e$ and continuations $\phi$ and replace them with some more abstract
+operations.
+
+\begin{align*}
+& \texttt{push} :: \iota \to \statecps{\gamma}{\omega}{()} \\
+& \texttt{push}\ x \equiv \lambda e \phi. \phi () (x \occons e)
+\footnote{() is the single inhabitant of the unit type ().}
+\end{align*}
+
+\texttt{push} is just a stateful operations that adds a new discourse referent
+on to the list of current discourse referents in the state. We can now rewrite
+the recipes for $a$ and $every$.
+
+\begin{align*}
+  \llbracket a \rrbracket & \equiv \lambda n \psi.
+    \dexists x. n x \dand (\texttt{do}\ \texttt{push}\ x; \psi x) \\
+  \llbracket every \rrbracket & \equiv \lambda n \psi.
+    \dforall x. n x \dimpl (\texttt{do}\ \texttt{push}\ x; \psi x)
+\end{align*}
+
+We can pull out the syntactic sugar of the \texttt{do}-notation and reach the
+following ($A \hsseq B$ is defined as $A \hsbind (\lambda \_. B)$).
+
+\begin{align*}
+  \llbracket a \rrbracket & \equiv \lambda n \psi.
+    \dexists x. n x \dand (\texttt{push}\ x \hsseq \psi x) \\
+  \llbracket every \rrbracket & \equiv \lambda n \psi.
+    \dforall x. n x \dimpl (\texttt{push}\ x \hsseq \psi x) 
+\end{align*}
+
+We can do the same for $it$ by wrapping the selection operator in an effectful
+operation.
+
+\begin{align*}
+& \texttt{select}_\texttt{it} :: \statecps{\gamma}{\omega}{\iota} \\
+& \texttt{select}_\texttt{it} \equiv \lambda e \phi.
+    \phi (\texttt{sel}_\texttt{it} e) e
+\end{align*}
+
+With this in hand, we can now rewrite the recipe for $it$ by using effects
+instead of direct manipulation of continuations.
+
+\begin{align*}
+  \llbracket it \rrbracket \equiv \lambda \psi. \texttt{do}\
+    & x \gets \texttt{select}_\texttt{it} \\
+    & \psi x
+\end{align*}
+
+This arguably reads nicer with the syntactic sugar removed...
+
+\begin{align*}
+  \llbracket it \rrbracket & \equiv \lambda \psi.
+    \texttt{select}_\texttt{it} \hsbind \psi
+\end{align*}
+
+...and in an applicative order.
+
+\begin{align*}
+  \llbracket it \rrbracket & \equiv \lambda \psi.
+    \psi \hsrevbind \texttt{select}_\texttt{it}
+\end{align*}
+
+The applicative style betrays the similarity of the denotation of $it$ to the
+denotations of other referential expressions, such as proper names.
+
+\begin{align*}
+\llbracket John \rrbracket &= \lambda \psi. \psi\ \textbf{j} \\
+                           &= \lambda \psi. \psi \hsrevbind \texttt{return}\ \textbf{j}
+\end{align*}
+
+Here we have just replaced the $\texttt{select}_\texttt{it}$ operation by the
+trivial computation $\texttt{return}\ \textbf{j}$.
+
+
+\subsection{Recapitulation}
+
+To sum up what we have done, we have introduced a monad which is capable of
+treating computations that have access to their continuations and to some
+mutable state.
+
+In terms of this monad, we have then redefined three of the basic predicate
+logic connectives. Conjunction was trivially lifted such that it chained the
+effects from left to right. Negation introduced a sort of modality which acts
+as a containing island for any state and continuation effects. The existential
+quantifier profited from the presence of continuations to extend its scope to
+anything that will be yielded by the continuing computation.
+
+Finally, we have restated the donkey grammar fragment using this formalism.
+In the final grammar, we can distinguish three kinds of lexical items.
+
+We can see the universal/neutral items which do not use any of the introduced
+effects, such as the common nouns, the verbs and the relativizer. These items
+would work just as well in other grammars by taking their definitions of the
+logical connectors and their monad, e.g. in a grammar about intensionality (by
+using the world reader monad), about event arguments (by using the event
+reader monad) or just in a basic toy grammar (by using the identity monad).
+
+Next, we have the decorated items. These are lexical items that are not at the
+focal point of our grammar but which interact with the phenomenon it models,
+or at least its formalization. In our example, the items in focus are
+anaphoric expressions such as pronouns. These interact with quantified noun
+phrases, even though a satisfying account of quantified noun phrases can be
+given while omitting pronouns. The structural difference between the treatment
+of these items in a simple grammar and an expanded one is usually just a
+single adjunction, e.g. adjoining $(\texttt{push}\ x \hsseq *)$ in the case of
+the quantified noun phrases. It is usually desirable to avoid the ad-hoc
+sprinkling of such effects in a grammar by folding them inside the basic
+logical connectives to arrive at a more principled solution. In our running
+example, this could be achieved by removing the \texttt{push} applications
+from the lexicon and using the following definition of dynamic quantification
+which automatically \texttt{push}es the new discourse referent (as was done by
+Lebedeva).
+
+$$
+\dexists P \equiv \texttt{fresh} \hsbind (\lambda x. \texttt{push}\ x \hsseq P x)
+$$
+
+Finally, we have the focal items which could not be expressed without the
+mechanisms that were introduced. In the case of dynamicity, these are the
+anaphoric expressions, which cannot be reconciled with the basic stateless
+view of semantics.
+
+
+\section{From monads to effects}
+
+The point of introducing monads and using them to present dynamic logic was
+not to convince others to adopt monads in their work. That would be a moot
+point since there is hardly any difference between the original proposal and
+our monadic revision and preferring one over the other is merely a question of
+style.
+
+On the contrary, the reason for our exposition was to convince the reader that
+the continuation-based style of dynamic logic already is a monad, or at least
+something akin to one in the relevant aspects. What we talk about is the fact
+that meanings are generalized from their plain form (e.g. a truth value) into
+the more expressive form (e.g. a function from left and right contexts into a
+truth value) that allows us to describe some novel phenomenon.
+
+The problem with this approach is that as we try to account for multiple
+phenomena in a single theory, we end up with a layered structure of these
+monadic generalizations. This layering manifests itself in several
+inconveniences. Consider the case of combining intensionality and
+dynamicity. Applying an intensional operator to a dynamic intension
+necessitates that we lift the operator to the dynamic domain so that it can
+pass through the dynamic layer, operate on the intension and return another
+dynamic intension. A similar problem arises when applying the same (static
+intensional) operator to the intension of a dynamic meaning. We will
+demonstrate this with an example.
+
+\subsubsection{Example of lifting operators}
+
+Imagine we have an intensional grammar fragment. Denotations of linguistic
+expressions have types which are the result of applying the intensionalization
+operation described in \citet{de2013note} to the usual types. To present the
+notion of an intensional type, we introduce the notation $\intens{\alpha}$
+which will stand for the type $\sigma \to \alpha$, where $\sigma$ is the type
+of possible worlds. The type of an intensional denotation is then derived from
+the type of an extensional denotation using the homomorphism given below.
+
+\begin{align*}
+  Int(\iota) & = \intens{\iota} \\
+  Int(o) & = \intens{o} \\
+  Int(\alpha \to \beta) & = Int(\alpha) \to Int(\beta)
+\end{align*}
+
+See the example below with the intensional operator $fake$ being lifted to
+$fake'$ so that it can be applied to dynamic intensions such as $student'$ and
+to $fake''$ so that it is applicable to intensions of dynamic meanings such as
+$student''$.
+
+\begin{align*}
+\intens{\alpha} & \equiv \sigma \to \alpha \\
+\sem{student} & :: \intens{\iota} \to \intens{o} \\
+\sem{fake} & :: (\intens{\iota} \to \intens{o})
+            \to (\intens{\iota} \to \intens{o}) \\
+\sem{student'} & :: \intens{\iota} \to \statecps{\gamma}{\intens{o}}{\intens{o}} \\
+\sem{fake'} & :: (\intens{\iota} \to \statecps{\gamma}{\intens{o}}{\intens{o}})
+             \to (\intens{\iota} \to \statecps{\gamma}{\intens{o}}{\intens{o}}) \\
+\sem{fake'} & \equiv \lambda P x e \phi.
+  \phi (\sem{fake} (\lambda y. P y e (\lambda \psi e'. \psi)) x) e \\
+\sem{student''} & :: \intens{\iota} \to \intens{\statecps{\gamma}{o}{o}} \\
+\sem{fake''} & :: (\intens{\iota} \to \intens{\statecps{\gamma}{o}{o}})
+              \to (\intens{\iota} \to \intens{\statecps{\gamma}{o}{o}}) \\
+\sem{fake''} & \equiv \lambda P x s e \phi.
+  \phi (\sem{fake} (\lambda y t. P y t e (\lambda \psi e'. \psi)) x s) e
+\end{align*}
+
+\begin{align*}
+  Dyn(\iota) & = \iota \\
+  Dyn(o) & = \statecps{\gamma}{o}{o} = \gamma \to (o \to \gamma \to o) \to o \\
+  Dyn(\alpha \to \beta) & = Dyn(\alpha) \to Dyn(\beta) \\
+  \sem{fake'} & :: Int(Dyn((\iota \to o) \to (\iota \to o))) \\
+  \sem{fake''} & :: Dyn(Int((\iota \to o) \to (\iota \to o)))
+\end{align*}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.5\textwidth]{monads-vs-effects-on-twitter}
+  \caption{\label{fig:twitter} Anecdotal evidence of the transition from
+    monads to effects.}
+\end{figure}
+
+\bibliography{effects-writeup}
+\bibliographystyle{plainnat}
+
+\end{document}

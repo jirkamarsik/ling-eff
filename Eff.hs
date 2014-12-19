@@ -107,8 +107,10 @@ interpose u loop h = case prj u of
 newtype Reader e v = Reader (e -> v)
     deriving (Typeable, Functor)
 
+{-
 instance Functor ((->) e) where
     fmap = (.)
+-}
 
 -- The signature is inferred
 ask :: (Typeable e, Member (Reader e) r) => Eff r e

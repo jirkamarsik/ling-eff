@@ -1,0 +1,286 @@
+(* UTIL *)
+
+let rec print_list = function x::xs -> "(cons " ^ x ^ " " ^ print_list xs ^ ")"
+                              | []  -> "empty";;
+
+let rec concat = function x :: xs -> fun ys -> x :: concat xs ys
+                          | []    -> fun ys -> ys;;
+
+(* LOGIC *)
+type entity = string
+type prop = string
+type world = string
+
+type var = effect
+  operation new_var : unit -> string
+end;;
+
+let v = new var
+
+let var_gen = handler
+    | v#new_var () k -> (function var::vars -> k var vars | [] -> k "?" [])
+    | val x          -> fun var -> x
+    | finally f      -> f ["x"; "y"; "z"; "w"];;
+
+let forall p =
+  let x = v#new_var () in
+  "(forall (lambda (" ^ x ^ ") " ^ p x ^ "))";;
+
+let exists p =
+  let x = v#new_var () in
+  "(exists (lambda (" ^ x ^ ") " ^ p x ^ "))";;
+
+let conj a b =
+  "((and " ^ a ^ ") " ^ b ^ ")";;
+
+let neg a =
+  "(not " ^ a ^ ")"
+
+
+(* EFFECTS (types and instances) *)
+type clause = effect
+  operation scope_over : ((entity -> prop) -> prop) -> entity
+end;;
+
+let c = new clause
+
+type drt = effect
+  operation fresh : unit -> entity
+  operation get : unit -> entity list
+  operation assert : prop -> unit
+end;;
+
+let d = new drt
+
+type extraction = effect
+  operation move : unit -> entity
+end;;
+
+let e = new extraction
+
+type failure = effect
+  operation fail : unit -> empty
+end;;
+
+let f = new failure
+
+let fail' () = match f#fail () with;;
+
+type presupposition = effect
+  operation presuppose : (entity -> prop) -> entity
+end;;
+
+let p = new presupposition
+
+type 'a supply = effect
+  operation obtain : unit -> 'a
+end;;
+
+let w = new supply
+
+(* HANDLERS *)
+let empty_context = handler
+    | d#get () k -> k []
+    | val x      -> x
+
+let drs = handler
+    | d#fresh () k    -> fun refs -> exists (fun x -> k x (x :: refs))
+    | d#get () k      -> fun refs -> k (concat (d#get ()) refs) refs
+    | d#assert prop k -> fun refs -> conj prop (k () refs)
+    | val x           -> fun refs -> x
+    | finally f       -> f []
+
+let tensed_clause = handler
+    | c#scope_over q k -> q k
+    | val x            -> x
+
+let extract =  handler
+    | e#move () k -> fun used var -> if used then let outer_var = e#move () in
+                                                  k outer_var true var
+                                             else k var true var
+    | val x       -> fun used var -> if not used then fail' () else x
+    | finally f   -> f false
+
+let maybe = handler
+    | f#fail () k -> "BOTTOM"
+    | val x       -> x
+
+let catch = handler
+    | e#move () k -> k (fail' ())
+    | val x       -> x
+
+let accomodate = handler
+    | p#presuppose prop k -> let x = d#fresh () in
+                             let () = d#assert (prop x) in
+                             k x
+    | val x               -> x
+
+(* top handler *)
+let top s_thunk =
+  with maybe handle
+  with catch handle
+  with var_gen handle
+  with empty_context handle
+  with drs handle
+  with accomodate handle
+  s_thunk ()
+
+
+(* DYNAMIC LOGIC *)
+let dand p_thunk q_thunk () =
+  conj (p_thunk ()) (q_thunk ())
+(* let dand p_thunk q_thunk =
+     { conj p_thunk! q_thunk! } *)
+
+let dnot prop_thunk () =
+  neg (with drs handle prop_thunk ())
+(* let dnot prop_thunk =
+     { neg (with drs handle prop_thunk!) } *)
+
+let dexists p =
+  p (d#fresh ())
+(* let dexists p =
+     p (fresh ()) *)
+
+let dforall p =
+  dnot (fun () -> let x = d#fresh () in
+                  dnot (fun () -> p x) ()) ()
+
+let dimp p_thunk q_thunk =
+  dnot (dand p_thunk (dnot q_thunk))
+
+
+(* SEMANTIC DOMAIN *)
+let mary' = "Mary"
+
+let ulysses' = "Ulysses"
+
+let book' x = "(book " ^ x ^ ")"
+
+let man' x = "(man " ^ x ^ ")"
+let woman' x = "(woman " ^ x ^ ")"
+
+let temperature' t w = "((temperature " ^ t ^ ") " ^ w ^ ")"
+
+let read' s o = "((read " ^ s ^ ") " ^ o ^ ")"
+
+let loved' s o = "((loved " ^ s ^ ") " ^ o ^ ")"
+
+let sel' index refs = "(sel_" ^ index ^ " " ^ print_list refs ^ ")"
+
+let fetch' index = sel' index (d#get ())
+
+let eq' x y = "((= " ^ x ^ ") "^ y ^ ")"
+
+
+(* GRAMMAR *)
+let mary () =
+  p#presuppose (eq' mary')
+
+let ulysses () =
+  p#presuppose (eq' ulysses')
+
+let he () = fetch' "he"
+
+let she () = fetch' "she"
+
+let it () = fetch' "it"
+(* let it = { sel_it' (get ()) } *)
+
+let everything () = c#scope_over dforall
+
+let everyone = everything
+
+let something () = d#fresh ()
+(* let something = { fresh () } *)
+
+let someone = something
+
+let a n () =
+  let x = d#fresh () in
+  let () = d#assert (n x) in
+  x
+(* let a n =
+  { let x = fresh () in
+    let () = assert (n x) in
+    x } *)
+
+(* let a n () =
+  c#scope_over (fun k -> (dexists (fun x -> dand (fun () -> n x) (fun () -> k *) (* x) ()))) *)
+
+let some = a
+
+let every n () =
+  c#scope_over (fun k -> (dforall (fun x -> dimp (fun () -> n x) (fun () -> k x) ())))
+(* let every n =
+     { scope_over (\k -> dforall x. ({n x} \dimp {k x})!) } *)
+
+let who n rel_thunk x =
+  let rel = with extract handle rel_thunk () in
+  conj (n x) (rel x)
+(* let who n rel_thunk x =
+     let rel = with extract handle rel_thunk! in
+     conj (n x) (rel x) *)
+
+let trace () =
+  e#move ()
+(* let trace = { e#move () } *)
+
+let book = book'
+
+let man = man'
+let woman = woman'
+
+let read subj_thunk obj_thunk () =
+  with tensed_clause handle
+    read' (subj_thunk ()) (obj_thunk ())
+(* let owns subj_thunk obj_thunk =
+     { with tensed_clause handle
+         owns' subj_thunk! obj_thunk! } *)
+
+let loved subj_thunk obj_thunk () =
+  with tensed_clause handle
+    loved' (subj_thunk ()) (obj_thunk ())
+
+let temperature x =
+  temperature' x (w#obtain ())
+
+let the n () =
+  
+
+let dot s1_thunk s2_thunk () =
+  conj (s1_thunk ()) (s2_thunk ())
+
+let output_refs () =
+  print_list (d#get ())
+
+
+(* EXAMPLES*)
+let sent1 = top (read mary ulysses);;
+let sent2 = top (read mary everything);;
+let sent2_ = top (read mary something);;
+let sent3 = top (read someone everything);;
+let sent4 = top (read everyone something);;
+
+let sent5 = top (dot (read someone everything) (read someone everything));;
+let sent6 = top (dot (read someone everything) (read everyone something));;
+let sent7 = top (dot (read everyone something) (read someone everything));;
+let sent8 = top (dot (read everyone something) (read everyone something));;
+
+let sent85 = top (read (every man) (every book))
+
+let sent9 = top (dot (dot (read someone everything) (read someone everything)) output_refs);;
+let sent10 = top (dot (dot (read someone everything) (read everyone something)) output_refs);;
+let sent11 = top (dot (dot (read everyone something) (read someone everything)) output_refs);;
+let sent12 = top (dot (dot (read everyone something) (read everyone something)) output_refs);;
+
+let sent13 = top (read mary (some book));;
+let sent14 = top (read mary (every book));;
+
+let sent15 = top (dot (read mary (a book)) (loved she it))
+
+let sent16 = top (loved (every (who man (read trace (a book)))) it)
+let sent16' = top (loved (every (who man (read trace trace))) it)
+let sent16'' = top (loved (every (who man (read mary (a book)))) it)
+
+let sent17 = top (dot (loved everyone mary) (read she ulysses))

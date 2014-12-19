@@ -1,0 +1,22 @@
+
+
+  The temperature is rising. It might go as high as ninety.
+
+  * discourse referents for intensions
+  * make a distinction between values and references
+    * i.e. ninety is a value, the current temperature is a "reference"
+
+
+  John seeks a unicorn.
+
+  * suppress the existential import (and therefore also the unicorn as a
+    possible precedent)
+  * handle the ambiguity in which the indefinite is existential
+
+
+  John seeks a friend of Mary's. He wants to leave her a message.
+
+  * preserve the presupposition and discourse availability of Mary
+
+
+  

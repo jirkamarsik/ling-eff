@@ -1,0 +1,134 @@
+\documentclass{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage{pgfpages}
+\usepackage{stmaryrd}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage[cmtip,all]{xy}
+\newcommand{\longsquiggly}{\xymatrix{{}\ar@{~>}[r]&{}}}
+
+\hypersetup{pdfstartview={Fit}}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}
+  {\hfill {\normalsize \insertframenumber{}/\inserttotalframenumber{}}}
+
+  
+\newcommand{\hastype}{\mathop{:}}
+
+\newcommand{\dand}{\mathbin{\overline{\land}}}
+\newcommand{\dnot}{\mathop{\overline{\lnot}}}
+\newcommand{\dimpl}{\mathbin{\overline{\to}}}
+\newcommand{\dexists}{\mathop{\overline{\exists}}}
+\newcommand{\dforall}{\mathop{\overline{\forall}}}
+
+\newcommand{\hsbind}{\mathbin{\texttt{>>=}}}
+\newcommand{\hsrevbind}{\mathbin{\texttt{=<<}}}
+\newcommand{\hsseq}{\mathbin{\texttt{>>}}}
+\newcommand{\occons}{\mathbin{::}}
+
+\newcommand{\statecps}[3]{\llbracket #3 \rrbracket^{#2}_{#1}}
+\newcommand{\cps}[2]{\llbracket #2 \rrbracket^{#1}}
+
+\newcommand{\sem}[1]{\llbracket #1 \rrbracket}
+\newcommand{\intens}[1]{\overline{#1}}
+
+\newcommand{\obj}[1]{\text{Obj}(#1)}
+\newcommand{\inl}[1]{\text{inl}(#1)}
+\newcommand{\inr}[1]{\text{inr}(#1)}
+\newcommand{\id}[1]{\text{id}_{#1}}
+
+
+
+\begin{document}
+
+\title[Effects \& Semantics]{Field Report}
+\author{Jiří Maršík}
+\institute[INRIA Loria]
+{
+  Sémagramme \\
+  INRIA Loria
+}
+\date[February 2014]{March 27, 2014}
+
+\frame{\titlepage \setcounter{framenumber}{1}}
+
+\begin{frame}
+  \frametitle{Original Topic}
+
+  Large-scale grammar\ldots
+  \pause
+  \begin{itemize}
+  \item of French and English
+    \pause
+  \item with semantics and pragmatics (discourse structure)
+    \pause
+  \item accounting for explicit (and later implicit) discourse connectives
+    \pause
+  \item providing temporal and spatial representations
+  \end{itemize}
+\pause
+\vfill
+  To be evaluated...
+\pause
+  \begin{itemize}
+  \item on annotated corpora (Annodis)
+    \pause
+  \item in international challenges
+    \pause
+  \item on cognitive observations (SLAM)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Current Point of Research}
+
+  \textbf{Problem:} Combining isolated treatments of semantic phenomena
+  \pause
+  \vfill
+  non-compositionality at the syntax-semantics interface \\
+  $\longsquiggly$ impure code generators
+  \pause
+  \vfill
+  open set of sources of non-compositionality \\
+  $\longsquiggly$ algebraic effects and handlers
+  \vfill
+  \pause
+  handlers in syntax-semantics interface:
+  \begin{itemize}
+  \item DRS - internally dynamic, externally static connectives
+  \item scope islands (e.g. tensed clauses)
+  \item presupposition (Katia's thesis)
+  \item option operator for implicit arguments
+  \item overtly moved complementizers and interrogatives
+  \item scope domains for events (Landman)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Future Goals}
+
+  Finish what I started:
+  \begin{itemize}
+  \item Commit to a suitable calculus with handlers
+  \item Reductions ``behind a $\lambda$'' $\longsquiggly$ staging
+  \item Crossover + inverse scope = problem for evaluation order
+  \item Transform the handler calculus into plain $\lambda$-calculus
+    \begin{itemize}
+    \item Can this be linear or parsable?
+    \end{itemize}
+  \end{itemize}
+  \vfill
+  \pause
+  Going further:
+  \begin{itemize}
+  \item Re-entrant contexts
+  \item More phenomena
+  \item Maybe something from the original topic?
+  \item Writing my thesis!
+  \end{itemize}
+\end{frame}
+
+\end{document}

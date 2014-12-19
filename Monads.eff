@@ -1,0 +1,61 @@
+type 'a get = effect
+  operation get : unit -> 'a
+end;;
+
+type 'a put = effect
+  operation put : 'a -> unit
+end;;
+
+
+let context_get = new get;;
+let context_put = new put;;
+let world_get = new get;;
+
+
+let hide_state comp =
+  let s1 = context_get#get () in
+  let (res, s2) = comp s1 in
+  let () = context_put#put s2 in
+  res;;
+
+let hide_intensionality comp =
+  let w = world_get#get () in
+  comp w;;
+
+
+let handle_state s1 =
+  handler
+  | context_get#get () k -> fun s -> k s s
+  | context_put#put s k ->  fun _ -> k () s
+  | val x ->                fun s -> (x, s)
+  | finally f -> f s1;;
+
+let handle_intensionality w1 =
+  handler
+  | world_get#get () k -> fun w -> k w w
+  | val x ->              fun w -> x
+  | finally f -> f w1;;
+
+
+let int_ex1 =
+  fun w -> 2 ** w;;
+
+let state_ex1 =
+  fun s -> (s, s + 1);;
+
+let combined () =
+  let x1 = hide_intensionality int_ex1 in
+  let x2 = hide_state state_ex1 in
+  let x3 = hide_state state_ex1 in
+  x1 + x2 + x3;;
+
+
+let one_way =
+  with handle_state 20 handle
+  with handle_intensionality 3 handle
+  combined ();;
+
+let other_way =
+  with handle_intensionality 3 handle
+  with handle_state 20 handle
+  combined ();;

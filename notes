@@ -1,0 +1,2 @@
+Maybe src/datalog.prover/db_parser.mli? shouldn't be committed in the
+source repo? The same for Makefile and config.status.
