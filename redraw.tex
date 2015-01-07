@@ -1,0 +1,65 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{stmaryrd}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{natbib}
+\usepackage{gb4e}
+\usepackage{bussproofs}
+
+
+\newcommand{\dand}{\mathbin{\overline{\land}}}
+\newcommand{\dnot}{\mathop{\overline{\lnot}}}
+\newcommand{\dimpl}{\mathbin{\overline{\to}}}
+\newcommand{\dexists}{\mathop{\overline{\exists}}}
+\newcommand{\dforall}{\mathop{\overline{\forall}}}
+
+\newcommand{\hsbind}{\mathbin{\texttt{>>=}}}
+\newcommand{\hsrevbind}{\mathbin{\texttt{=<<}}}
+\newcommand{\hsseq}{\mathbin{\texttt{>>}}}
+\newcommand{\occons}{\mathbin{::}}
+
+\newcommand{\statecps}[3]{\llbracket #3 \rrbracket^{#2}_{#1}}
+\newcommand{\cps}[2]{\llbracket #2 \rrbracket^{#1}}
+
+\newcommand{\sem}[1]{\llbracket #1 \rrbracket}
+\newcommand{\intens}[1]{\overline{#1}}
+
+\newcommand{\keyword}[1]{\texttt{#1}}
+\newcommand{\effect}[1]{\textbf{#1}}
+\newcommand{\semdom}[1]{\textbf{#1}}
+\newcommand{\handle}[2]{\keyword{with}\ #1\ \keyword{handle}\ #2}
+
+\def\limp {\mathbin{{-}\mkern-3.5mu{\circ}}}
+
+
+\title{Pragmasemantics as a Two-Step Process}
+\author{Jirka Maršík \and Maxime Amblard}
+
+
+\begin{document}
+
+\maketitle
+
+
+In the quest to give a formal compositional semantics to natural languages,
+semanticists have turned their attention to phenomena that have been
+considered as parts of pragmatics, namely discourse anaphora and
+presupposition projection. To account for these phenomena, the very kinds
+of meanings assigned to words and phrases are revisited. To be more
+specific, in the prevalent paradigm of modeling natural language
+denotations using the simply-typed lambda calculus (higher-order logic)
+this means revisiting the types of denotations assigned to individual parts
+of speech.
+
+
+
+
+\bibliography{paper/effects-paper}
+\bibliographystyle{plainnat}
+
+\end{document}
