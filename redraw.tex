@@ -1,4 +1,4 @@
-\documentclass[a4paper,11pt]{article}
+\documentclass[a4paper,11pt,DIV=12]{scrartcl}
 
 \usepackage[utf8]{inputenc}
 \usepackage{listings}
@@ -7,7 +7,6 @@
 \usepackage{stmaryrd}
 \usepackage{verbatim}
 \usepackage{graphicx}
-\usepackage{natbib}
 \usepackage{gb4e}
 \usepackage{bussproofs}
 
@@ -74,8 +73,8 @@ languages and the pragma(seman)tic phenomena of linguistics.
 
 \subsection{Parallel Functions}
 
-We notice that pragmatics seems to do a similar service to semantics as
-does the study of side effects in the field of programming language
+We notice that pragmatics seems to do a similar service to natural language
+semantics as does the study of side effects to programming language
 semantics. Discourse anaphora is an example of an action whose effect
 transcends the lexical scope of the expressions involved (the referent and
 the referring expression), similar to the way a mutable store bridges the
@@ -91,17 +90,46 @@ users through side effects.
 \subsection{Parallel Theories}
 
 When semanticists turn their attention to phenomena whose effects go beyond
-the scope of their syntactic domains (e.g., )
+the scope of their syntactic domains, they are often forced to generalize
+the types of the denotations assigned by their theory to be able to keep a
+compositional treatment. In dynamic semantics, the type of a proposition
+changes into a function from discourse contexts to propositions and updated
+discouse contexts in order to handle anaphora. In programming languages,
+the type of a value changes into a function from states of memory to values
+and updated states of memory to handle mutable variables.
 
-We have started exploring the viability of the methods used to treat side
-effects in programming language semantics to the study of the phenomena
-that prompt natural language semanticists to generalize the types of their
-denotations in similar ways. Our motivation is to analyse the interplay of
-the different effects studied by semanticists (dynamics, modality,
-presuppositions\ldots).
+Computer scientists have developed general notions of a side effect that
+allow us to abstract away from effects and compose them with relative ease
+(monads and monad morphisms \cite{moggi1990abstract}, algebraic effects and
+handlers \cite{plotkin2013handling}). A prominent feature of these theories
+is that they decompose a complex denotation type (such as the ones seen
+above) into a \emph{computation type} with two components: the type of
+value being computed and the set of effects this computation might have.
 
+This decomposition allows us to put the effects aside and makes it easier
+to explore their combinations. Our motivation is to have grammars that
+encompasss multiple pragmasemantic phenomena and tackle their interactions,
+which haven't been studied as much as the individual phenomena themselves.
+So far, we have a small prototype using an effectful metalanguage and
+dealing with dynamics (based on type-theoretic dynamic logic
+\cite{de2006towards}), presuppositions (based on presuppositions as
+exceptions \cite{lebedeva2012expression}) and some of their interactions
+(the presupposition binding problem).
+
+The denotations we assign are computations, which incur some effects until
+they finally yield some value. We assign to sentences computations that
+yield simple propositions (i.e., truth values) that can incur side effects
+that account for their potential to interact with the anaphoric context and
+trigger presuppositions. We write the grammar not by positing what meaning
+should look like, rather we state what it should do. In this way, we obtain
+an interesting contrast between the final produced value, which is all
+about truthiness and which falls straight into the domain of semantics, and
+the effects yielded by the interpretation, which include pragmatic
+phenomena such as discourse anaphora and presuppositions. This distinction
+could thus be seen as a formal incarnation of Stalnaker's distinction
+between content and context \cite{stalnaker1974pragmatic}.
 
 \bibliography{paper/effects-paper}
-\bibliographystyle{plainnat}
+\bibliographystyle{plain}
 
 \end{document}
