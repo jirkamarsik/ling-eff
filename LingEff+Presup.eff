@@ -25,7 +25,7 @@ let lift2 fn x y = app (app (var fn) x) y;;
 
 (* UTIL *)
 
-let any = fold_left (fun x y -> x && y) true;;
+let any = fold_left (fun x y -> x || y) false;;
 
 let rec list_to_term = function
   | x :: xs -> lift2 "cons" x (list_to_term xs)
@@ -329,3 +329,4 @@ let sent18 = top (dnot (dnot (fun () ->
 
 let sent19 = top (escaped_from (a boxer) (_s he apartment));;
 let sent20 = top (escaped_from (every boxer) (_s he apartment));;
+let sent21 = top (escaped_from (every boxer) mary);;
