@@ -1,6 +1,7 @@
 *.aux
 *.bbl
 *.blg
+*.dia~
 *.log
 *.nav
 *.out
@@ -9,3 +10,4 @@
 *.toc
 *.vrb
 paper
+dias/*-eps-converted-to.pdf
