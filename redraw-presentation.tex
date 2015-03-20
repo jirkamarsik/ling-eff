@@ -1,0 +1,495 @@
+\documentclass{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage{pgfpages}
+\usepackage{stmaryrd}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{xcolor}
+
+\usepackage[export]{adjustbox}
+\setbeamercovered{transparent}
+
+\hypersetup{pdfstartview={Fit}}
+\def\limp {\mathbin{{-}\mkern-3.5mu{\circ}}}
+
+
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}
+  {\hfill {\normalsize \insertframenumber{}/\inserttotalframenumber{}}}
+
+\definecolor{mygreen}{RGB}{30, 176, 37}
+
+\definecolor{myColor}{rgb}{0.50,0.70,0.10}%
+\definecolor{myColor2}{rgb}{0.50,0.20,0.80}%
+%\definecolor{myColor}{rgb}{1.00,0.00,0.10}%
+%\definecolor{myGreen}{rgb}{0.00,0.60,0.00}%
+%\definecolor{myOrange}{rgb}{1.00,0.40,0.00}%
+%\definecolor{myOtherOrange}{rgb}{0.90,0.50,0.00}%
+%\definecolor{myBlue}{rgb}{0.20,0.20,0.70}%
+%\definecolor{myGray}{rgb}{0.84,0.84,0.94}%
+%\newcommand{\green}[1]{\textcolor{myGreen}{#1}}
+%\newcommand{\blue}[1]{\textcolor{myBlue}{#1}} 
+%\newcommand{\red}[1]{\textcolor{red}{#1}} 
+%\newcommand{\marron}[1]{\textcolor{brown!65!black!80!white}{#1}}
+%\newcommand{\myorange}[1]{\textcolor{myOrange}{#1}}
+%\newcommand{\myotherorange}[1]{\textcolor{myOtherOrange}{#1}}
+\newcommand{\mycolor}[1]{\textcolor{myColor}{#1}}
+\newcommand{\mycolord}[1]{\textcolor{myColor2}{#1}}
+
+
+  
+\newcommand{\hastype}{\mathop{:}}
+
+\newcommand{\dand}{\mathbin{\overline{\land}}}
+\newcommand{\dnot}{\mathop{\overline{\lnot}}}
+\newcommand{\dimpl}{\mathbin{\overline{\to}}}
+\newcommand{\dexists}{\mathop{\overline{\exists}}}
+\newcommand{\dforall}{\mathop{\overline{\forall}}}
+
+\newcommand{\hsbind}{\mathbin{\texttt{>>=}}}
+\newcommand{\hsrevbind}{\mathbin{\texttt{=<<}}}
+\newcommand{\hsseq}{\mathbin{\texttt{>>}}}
+\newcommand{\occons}{\mathbin{::}}
+
+\newcommand{\statecps}[3]{\llbracket #3 \rrbracket^{#2}_{#1}}
+\newcommand{\cps}[2]{\llbracket #2 \rrbracket^{#1}}
+
+\newcommand{\sem}[1]{\llbracket #1 \rrbracket}
+\newcommand{\intens}[1]{\overline{#1}}
+
+\newcommand{\obj}[1]{\text{Obj}(#1)}
+\newcommand{\inl}[1]{\text{inl}(#1)}
+\newcommand{\inr}[1]{\text{inr}(#1)}
+\newcommand{\id}[1]{\text{id}_{#1}}
+
+\newcommand{\keyword}[1]{\texttt{#1}}
+\newcommand{\effect}[1]{\textbf{#1}}
+\newcommand{\semdom}[1]{\textbf{#1}}
+\newcommand{\handle}[2]{\keyword{with}\ #1\ \keyword{handle}\ #2}
+
+
+\newcommand{\highlight}[2]{\colorbox{#1}{$\displaystyle #2$}}
+
+
+%% \setbeamercolor{block title}{fg=ngreen,bg=white} % Colors of the block titles
+%% \setbeamercolor{block body}{fg=black,bg=white} % Colors of the body of blocks
+%% \setbeamercolor{block alerted title}{fg=white,bg=dblue!70} % Colors of the highlighted block titles
+%% \setbeamercolor{block alerted body}{fg=black,bg=dblue!10} % Colors of the body of highlighted blocks
+%% % Many more colors are available for use in beamerthemeconfposter.sty
+
+
+
+
+
+
+
+
+
+
+
+
+\title{Pragmatic Side Effects}
+\author{Jirka Maršík and Maxime Amblard}
+\institute[LORIA, Université de Lorraine, Inria]
+{
+  LORIA, UMR 7503, Université de Lorraine, CNRS, Inria, Campus Scientifique, \\
+  F-54506 Vand\oe uvre-lès-Nancy, France
+}
+\date{20 March, 2015}
+
+
+
+
+
+
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+
+\begin{frame}{Our Setting}
+  Context:
+  \begin{itemize}
+  \item Montague semantics, using the $\lambda$ calculus
+  \end{itemize}
+  \vfill
+
+  Objective:
+  \begin{itemize}
+  \item Increase the empirical coverage
+  \end{itemize}
+  \vfill
+
+  Challenge:
+  \begin{itemize}
+  \item multiple sentences
+    \begin{itemize}
+    \item discourse phenomena
+    \item pragmatics
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Example of Pragmasemantics}
+  \framesubtitle{de Groote -- Type-Theoretic Dynamic Logic}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{block}{Montague}
+        \begin{align*}
+          \sem{s} &= o \\
+          \sem{n} &= \iota \to \sem{s} \\
+          \sem{np} &= (\iota \to \sem{s}) \to \sem{s}
+        \end{align*}
+      \end{block}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{block}{de Groote}
+         \begin{align*}
+          \sem{s} &= \gamma \to (\gamma \to o) \to o \\
+          \sem{n} &= \iota \to \sem{s} \\
+          \sem{np} &= (\iota \to \sem{s}) \to \sem{s}
+        \end{align*}
+      \end{block}
+    \end{column}
+  \end{columns}
+  \vfill
+  \pause
+  $$
+  \sem{\textit{He bought a car}} = \lambda e \phi.\ \exists
+  x. car(x)\ \land\ bought(\texttt{sel}_{he}(e), x)\ \land\ \phi (x \occons e)
+  $$
+\end{frame}
+
+
+\begin{frame}
+  \begin{center}
+    \vfill
+
+    {\huge Drawing Inspiration from Programming Languages}
+
+    \vfill
+
+    \begin{quotation}
+      There is in my opinion no important theoretical difference between
+      natural languages and the programming languages of computer
+      scientists.
+    \end{quotation}
+  \end{center}
+\end{frame}
+
+
+\begin{frame}{Side Effects in Programming Languages}
+  \vfill
+  Account for:
+  \pause
+  \vfill
+  \begin{itemize}
+  \item a program's interaction with the world of its users
+    \begin{itemize}
+    \item e.g., makings sounds, printing documents, moving robotic limbs\ldots
+    \end{itemize}
+  \end{itemize}
+  \pause
+  \vfill
+  \begin{itemize}
+  \item non-local interactions between parts of a program
+    \begin{itemize}
+    \item e.g., writing to and reading from variables, throwing and
+      catching exceptions\ldots
+    \end{itemize}
+  \end{itemize}
+  \vfill
+  \pause
+  \alert{Side effects align with pragmatics in their purpose.}
+\end{frame}
+
+\begin{frame}{Type Raising}
+  Side effects and pragmatics align also in their theories.
+  \pause
+  \vfill
+  Most famous example: Montague's type raising
+  \begin{itemize}
+  \item from entities to generalized quantifiers
+  \item i.e., from $\iota$ to $(\iota \to o) \to o$
+  \item e.g., $john$ becomes $\lambda P. P\ john$
+  \end{itemize}
+  \vfill
+  \pause
+  In computer science, discovered as continuations
+  \begin{itemize}
+  \item raising $\alpha$ to $(\alpha \to \omega) \to \omega$
+  \item e.g., applying a function $f$ to two arguments $S$ and $O$ in
+    continuation-passing style
+    $$ \lambda P. S (\lambda x. O (\lambda y. P\ (f\ x\ y))) $$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Generalizing Denotations}
+  ``Upgrading'' the types of denotations in order to keep a compositional
+  semantics seems like a common strategy.
+  \vfill
+  \begin{tabular}{llr}
+    Natural Languages & Prog. Languages & Type $\alpha$ becomes \\
+    \hline
+    Quantification & Control &
+    $(\alpha \to \omega) \to \omega$ \\
+    Anaphora & State &
+    $\gamma \to \alpha \times \gamma$ \\
+    Intensionality & Environment &
+    $\delta \to \alpha$ \\
+    Presuppositions & Exceptions &
+    $\alpha \oplus \chi$ \\
+    Questions & Non-determinism &
+    $\alpha \to o$ \\
+    Focus & &
+    $\alpha \times (\alpha \to o)$ \\
+    Expressives & Output &
+    $\alpha \times \epsilon$ \\
+    Prob. semantics & Prob. programming &
+    $[\mathbb{R} \times \alpha]$ \\
+  \end{tabular}
+\end{frame}
+
+\begin{frame}{How to Avoid Changing Denotations?}
+  Different pragmasemantic phenomena, all in one theory \\
+    $\rightarrow$ more and more elaborate types
+  \vfill
+  \pause
+  We often have to change our minds on what is meaning
+  \begin{itemize}
+  \item old denotations $\rightarrow$ outdated
+  \item denotations from other strands of work $\rightarrow$ incompatible
+  \end{itemize}
+  \pause
+  \vfill
+  Some solutions to this problem exist already in computer science.
+\end{frame}
+
+\newcommand{\includepicture}[1]{
+    \includegraphics[scale=0.4]{dias/#1.eps}
+}
+
+\begin{frame}{Example from Computer Science}
+  \begin{adjustbox}{center}
+   \begin{tabular}{|c|c|c|} \hline
+    \textbf{3} & \textbf{x + 3} & \textbf{print("hello")} \\ \hline
+    $3$ & & \\ \hline
+    \visible<2->{$\lambda s. \left<3, s\right>$} & \visible<2->{$\lambda s. \left<s("x") + 3, s\right>$} & \\ \hline
+    \visible<3->{$\lambda s. \left<3, s, ""\right>$} & \visible<3->{$\lambda s. \left<s("x") + 3, s, ""\right>$} & \visible<3->{$\lambda s. \left<(), s, "hello"\right>$} \\ \hline
+    \visible<4->{\includepicture{3}} & & \\ \hline
+    \visible<5->{\includepicture{3}} & \visible<5->{\includepicture{x+3}} & \\ \hline
+    \visible<6->{\includepicture{3}} & \visible<6->{\includepicture{x+3}} & \visible<6->{\includepicture{print}} \\ \hline
+  \end{tabular}
+  \end{adjustbox}
+\end{frame}
+
+\begin{frame}{Example from Linguistics}
+  \begin{adjustbox}{center}
+   \begin{tabular}{|c|c|c|} \hline
+    \textbf{John} & \textbf{every boy} & \textbf{she} \\ \hline
+    $j$ & & \\ \hline
+    \visible<2->{$\lambda P. P j$} & \visible<2->{$\lambda P. \forall x. (boy\ x) \rightarrow (P\ x)$} & \\ \hline
+    \visible<3->{$\lambda P e \phi. P j e \phi$} &
+    \visible<3->{\begin{tabular}{@{}c@{}}$\lambda P e \phi. [\forall x. (boy\ x) \rightarrow$ \\
+      $P\ x\ e\ (\lambda e'. \top)] \land \phi\ e$ \end{tabular}} &
+    \visible<3->{$\lambda P e \phi. P (\texttt{sel}_{she}(e)) e \phi$} \\ \hline
+    \visible<4->{\includepicture{john}} & & \\ \hline
+    \visible<5->{\includepicture{john}} & \visible<5->{\includepicture{everyboy_static}} & \\ \hline
+    \visible<6->{\includepicture{john}} & \visible<6->{\includepicture{everyboy}} & \visible<6->{\includepicture{she}} \\ \hline
+  \end{tabular}
+  \end{adjustbox}
+\end{frame}
+
+\begin{frame}{Reaping the Benefits of Stability}
+  Consider the semantics of a relational noun like \textit{mother} in the
+  construction \textit{the mother of X}.
+
+  \pause
+
+  \begin{align*}
+    \sem{\textit{the mother of}} &= \lambda x.\ mother(x) \\
+    \pause
+    \sem{\textit{the mother of}} &= \lambda X P.\ X\ (\lambda
+    x.\ P\ (mother(x))) \\
+    \pause
+    \sem{\textit{the mother of}} &= \lambda X P e \phi.\ X\ (\lambda x e'
+    \phi'.\ P\ (mother(x))\ e'\ \phi')\ e\ \phi \\
+  \end{align*}
+
+  \pause
+
+  Its denotation changes even though the meaning stays morally the same.
+\end{frame}
+
+
+
+\newcommand{\includepicturescale}[2]{
+    \includegraphics[scale=#2]{dias/#1.eps}
+}
+
+\newcommand{\includepicturem}[1]{
+    \includegraphics[scale=0.48]{dias/#1.eps}
+}
+
+
+
+
+\begin{frame}{Reaping the Benefits of Stability}
+How does it work in our system?
+\pause
+$$
+\sem{\textit{the mother of}} = \lambda x.\ mother(x)
+$$
+\vfill
+\pause
+\begin{adjustbox}{center}
+  \begin{tabular}{ccc}
+    \visible<3->{\includepicturem{john}} & \visible<4->{\includepicturem{everyboy}} & \visible<5->{\includepicturem{she}} \\
+    $\visible<3->{\Downarrow}$ & $\visible<4->{\Downarrow}$ & $\visible<5->{\Downarrow}$ \\
+    \visible<3->{\includepicturem{john_mother}} & \visible<4->{\includepicturem{everyboy_mother}} & \visible<5->{\includepicturem{she_mother}} \\
+  \end{tabular}
+\end{adjustbox}
+\end{frame}
+
+\begin{frame}{Reaping the Benefits of Stability}
+  Our meaning for \textit{the mother of X} is agnostic about its
+  argument. It works with simple, quantificational or dynamic meanings of
+  \textit{X}.
+  \vfill
+  \pause
+  This also holds for more involved meanings of the relational noun.
+  \vfill
+  \only<1-2>{\vspace{58mm}}
+  \only<3>{
+  \begin{itemize}
+  \item dynamic \textit{mother}
+   $$
+    \sem{\textit{the mother of}} = \lambda x.\ \begin{array}{l}\includepicturescale{dynamic_mother}{0.45}\end{array}
+   $$
+  \end{itemize}}
+  \only<4>{
+  \begin{itemize}
+  \item presuppositional \textit{mother}
+  $$
+    \sem{\textit{the mother of}} = \lambda x.\ \begin{array}{l}\includepicturescale{presuppositional_mother}{0.45}\end{array}
+  $$
+  \end{itemize}
+  \vspace{13mm}
+  }
+\end{frame}
+
+\begin{frame}{Algebraic Effects\ldots}
+
+  We have been using a framework developed in PL research.
+
+  \vfill
+  
+  In it:
+  \begin{itemize}
+  \item interacting with the context $=$ throwing an exception
+  \item the exception contains a response for every possible outcome of the
+    operation
+  \end{itemize}
+ 
+  \pause
+  \vfill
+  
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+   Denotations are:
+  \begin{itemize}
+  \item algebraic expressions (drawn as trees)
+  \item \textcolor{mygreen}{generators} $=$ values
+  \item \textcolor{red}{operators} $=$ possible interactions with the context
+  \item arity $=$ the number of possible outcomes
+  \item type $= \mathcal{F}_{\textcolor{red}{\Sigma}}(\textcolor{mygreen}{\tau})$
+  \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \only<2>{\includepicturescale{example}{0.4}}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{\ldots and Handlers}
+  Handlers give scope and interpretation to (some of) the effects in a
+  computation.
+
+  \begin{itemize}
+  \item Practically, they are like exception handlers in programming languages.
+  \item Technically, they are catamorphisms (folds) on the algebra of effects.
+  \end{itemize}
+  
+
+  \pause
+  \vfill 
+
+  Examples:
+  \begin{itemize}
+  \item a tensed verb delimits quantification, creating a scope island
+  \item logical negation blocks referent accessibility (as in DRT or TTDL)
+  \item the common ground accomodates presuppositions if they have not been
+    yet assumed
+  \item hypotheseses can cancel presuppositions in their scope (\text{if
+    \ldots, then \ldots})
+  % \item shifted perspectives and quotation interpret speaker-dependent
+  % expressions
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Proof of Concept}
+  \vfill
+  We have built a small prototype to test and explore our approach.
+  \vfill
+  \begin{itemize}
+  \item in-situ quantification
+  \item discourse anaphora
+  \item presuppositions (of referentials)
+  \item their interactions
+    \begin{itemize}
+    \item e.g., binding problem
+    \end{itemize}
+  \end{itemize}
+  \vfill
+\end{frame}
+
+\begin{frame}{Summary}
+  \begin{itemize}
+  \item perspective shift
+    \begin{itemize}
+    \item from denotations as complex objects \\
+          to denotations as complex \textcolor{red}{processes} producing simple \textcolor{mygreen}{objects}
+    \item focus on what meanings do, not on what they are
+    \end{itemize}
+    \vfill
+    \pause
+  \item content/context distinction
+    \begin{itemize}
+    \item \textcolor{mygreen}{objects} -- purely truth-conditional material
+    \item \textcolor{red}{process} -- we dump the pragmatic wastebasket here
+    \item placement of non-locality phenomena such as in-situ
+      quantification is to our discretion
+    \end{itemize}
+    \vfill
+    \pause
+  \item easier to manage multiple effects
+    \begin{itemize}
+    \item our driving motivation (empirical coverage)
+    \item stable denotations help avoid generalizing to the worst case
+    \item captures parameters, mutable state, continuations, projections
+      and their filtering/cancelling both flexibly and compositionally
+      \begin{itemize}
+      \item used in PLT research and functional programming too
+      \end{itemize}
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\end{document}
