@@ -25,7 +25,7 @@ let lift2 fn x y = app (app (var fn) x) y;;
 
 (* UTIL *)
 
-let any = fold_left (fun x y -> x && y) true;;
+let any = fold_left (fun x y -> x || y) false;;
 
 let rec list_to_term = function
   | x :: xs -> lift2 "cons" x (list_to_term xs)
@@ -111,8 +111,7 @@ let n = new polarity;;
 (* HANDLERS *)
 
 let empty_context = handler
-  | d#get () k -> k []
-  | val x      -> x;;
+  | d#get () k -> k [];;
 
 let find_some vars term = any (map (fun v -> occurs v term) vars);;
 
@@ -129,8 +128,7 @@ let drs = handler
   | finally f       -> f [];;
 
 let tensed_clause = handler
-  | c#scope_over q k -> q k
-  | val x            -> x;;
+  | c#scope_over q k -> q k;;
 
 let extract =  handler
   | e#move () k -> fun used var -> if used then let outer_var = e#move () in
@@ -140,36 +138,45 @@ let extract =  handler
   | finally f   -> f false;;
 
 let maybe = handler
-  | f#fail () k -> var "BOTTOM"
-  | val x       -> x;;
+  | f#fail () k -> var "BOTTOM";;
 
 let catch = handler
-  | e#move () k -> k (fail' ())
-  | val x       -> x;;
+  | e#move () k -> k (fail' ());;
 
 let accomodate = handler
   | p#presuppose prop k -> let x = d#fresh () in
                            let () = d#assert (prop x) in
-                           k x
-  | val x               -> x;;
+                           k x;;
 
 
 (* top handler *)
 
-let dnot prop_thunk () =
-  neg (with drs handle prop_thunk ())
+let simple_dnot prop_thunk () =
+  neg (with drs handle prop_thunk ());;
 (* let dnot prop_thunk =
      { neg (with drs handle prop_thunk!) } *)
 
-let default_polarity = handler
-  | n#get_polarity () k -> fun pol -> k pol
-  | val prop            -> fun pol -> if pol then prop else neg prop
-  | finally f           -> f true
+let dnot prop_thunk () =
+  with handler
+       | n#get_polarity () k -> fun pol -> k pol true
+       | finally f -> f (not (n#get_polarity ()))
+       | val prop -> let p1 = fun () -> prop in
+                     fun pol -> if pol then p1 () else simple_dnot p1 ()
+       | d#fresh () k -> let p1 = fun () -> k (d#fresh ()) true in
+                         fun pol -> if pol then p1 () else simple_dnot p1 ()
+       | d#assert prop k -> let p1 = fun () -> k (d#assert prop) true in
+                            fun pol -> if pol then p1 () else simple_dnot p1 ()
+       | d#get () k -> let p1 = fun () -> k (d#get ()) true in
+                       fun pol -> if pol then p1 () else simple_dnot p1 ()
+       | p#presuppose prop k -> let p1 = fun () -> k (p#presuppose prop) true in
+                                fun pol -> if pol then p1 () else simple_dnot p1 ()
+  handle prop_thunk ();;
 
-let switch_polarity = handler
-  | n#get_polarity () k -> fun pol -> k pol
-  | val prop            -> fun pol -> if pol then prop else neg prop
-  | finally f           -> f (not (n#get_polarity ()))
+let default_polarity = handler
+  | n#get_polarity () k -> k true;;
+
+let unpolarize prop_thunk () =
+  with default_polarity handle prop_thunk ()
 
 let top s_thunk =
   let s = with maybe handle
@@ -185,7 +192,7 @@ let top s_thunk =
 
 (* DYNAMIC LOGIC *)
 let dand p_thunk q_thunk () =
-  conj (p_thunk ()) (q_thunk ())
+  conj (unpolarize p_thunk ()) (unpolarize q_thunk ())
 (* let dand p_thunk q_thunk =
      { conj p_thunk! q_thunk! } *)
 
@@ -201,6 +208,9 @@ let dforall p =
 let dimp p_thunk q_thunk =
   dnot (dand p_thunk (dnot q_thunk))
 
+let dor p_thunk q_thunk =
+  dnot (dand (dnot p_thunk) (dnot q_thunk))
+
 
 (* SEMANTIC DOMAIN *)
 
@@ -215,6 +225,8 @@ let apartment' = lift1 "apartment"
 
 let read' = lift2 "read"
 let loved' = lift2 "loved"
+let met' = lift2 "met"
+let hid' = lift2 "hid"
 let escaped_from' = lift2 "escaped_from"
 let poss' = lift2 "poss"
 
@@ -293,6 +305,14 @@ let loved subj_thunk obj_thunk () =
   with tensed_clause handle
     loved' (subj_thunk ()) (obj_thunk ())
 
+let met subj_thunk obj_thunk () =
+  with tensed_clause handle
+    met' (subj_thunk ()) (obj_thunk ())
+
+let hid subj_thunk obj_thunk () =
+  with tensed_clause handle
+    hid' (subj_thunk ()) (obj_thunk ())
+
 let escaped_from subj_thunk obj_thunk () =
   with tensed_clause handle
     escaped_from' (subj_thunk ()) (obj_thunk ())
@@ -345,3 +365,27 @@ let sent18 = top (dnot (dnot (fun () ->
 
 let sent19 = top (escaped_from (a boxer) (_s he apartment));;
 let sent20 = top (escaped_from (every boxer) (_s he apartment));;
+
+let sent21 = top (dot (dnot (dnot (dnot (read mary (some book)))))
+                      (loved she it))
+
+let sent21 = top (dot (dnot (dnot (read mary (some book))))
+                      (loved she it))
+
+let sent22 = top (dot (dnot (read mary (some book)))
+                      (loved she it))
+
+let sent23 =
+  top (dot (met mary (a (who man (escaped_from trace (_s he apartment)))))
+           (loved she he))
+
+let sent23 =
+  top (dot (dnot (met mary (a (who man (escaped_from trace (_s he apartment))))))
+           (loved she he))
+
+let sent23 =
+  top (dot (dnot (dnot (met mary (a (who man (escaped_from trace (_s he apartment)))))))
+           (loved she he))
+
+let sent24 = top (dor (dnot (met mary (a boxer)))
+                      (hid she he))
