@@ -1,0 +1,7 @@
+digraph NLAST {
+
+  bought -> every
+  every -> driver
+  bought -> a
+  a -> car
+}

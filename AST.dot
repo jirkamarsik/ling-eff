@@ -1,0 +1,47 @@
+digraph AST {
+
+
+  if [label="if"]
+  exp [label=">="]
+  block [label=";"]
+  expVar [label="var"]
+  expX [label="x"]
+  expZero [label="0"]
+  dec [label="_--"]
+  negSet [label="="]
+  reset [label="="]
+  decX [label="x"]
+  neg [label="neg"]
+  true [label="true"]
+  resetX [label="x"]
+  resetZero [label="0"]
+
+  { rank = same;
+    dec -> block [style=invis]
+  }
+  { rank = same;
+    expVar -> expZero [style=invis]
+  }
+  { rank = same;
+    negSet -> reset [style=invis]
+  }
+  { rank = same;
+    neg -> true [style=invis]
+  }
+  { rank = same;
+    resetX -> resetZero [style=invis]
+  }
+  if -> exp [label="cond"]
+  if -> dec [label="then"]
+  if -> block [label="else"]
+  exp -> expVar
+  expVar -> expX
+  exp -> expZero
+  block -> negSet
+  block -> reset
+  dec -> decX
+  negSet -> neg [label="target"]
+  negSet -> true [label="source"]
+  reset -> resetX [label="target"]
+  reset -> resetZero [label="source"]
+}
