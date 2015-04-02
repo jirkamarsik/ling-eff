@@ -296,13 +296,13 @@
     \textbf{John} & \textbf{every boy} & \textbf{she} \\ \hline
     $j$ & & \\ \hline
     \visible<2->{$\lambda P. P j$} & \visible<2->{$\lambda P. \forall x. (boy\ x) \rightarrow (P\ x)$} & \\ \hline
-    \visible<3->{$\lambda P e \phi. P j e \phi$} &
+    \visible<3->{$\lambda P e \phi. P j (j :: e) \phi$} &
     \visible<3->{\begin{tabular}{@{}c@{}}$\lambda P e \phi. [\forall x. (boy\ x) \rightarrow$ \\
-      $P\ x\ e\ (\lambda e'. \top)] \land \phi\ e$ \end{tabular}} &
+      $P\ x\ (x :: e)\ (\lambda e'. \top)] \land \phi\ e$ \end{tabular}} &
     \visible<3->{$\lambda P e \phi. P (\texttt{sel}_{she}(e)) e \phi$} \\ \hline
     \visible<4->{\includepicture{john}} & & \\ \hline
     \visible<5->{\includepicture{john}} & \visible<5->{\includepicture{everyboy_static}} & \\ \hline
-    \visible<6->{\includepicture{john}} & \visible<6->{\includepicture{everyboy}} & \visible<6->{\includepicture{she}} \\ \hline
+    \visible<6->{\includepicture{john_push}} & \visible<6->{\includepicture{everyboy}} & \visible<6->{\includepicture{she}} \\ \hline
   \end{tabular}
   \end{adjustbox}
 \end{frame}
@@ -351,8 +351,10 @@ $$
 \pause
 \begin{adjustbox}{center}
   \begin{tabular}{ccc}
-    \visible<3->{\includepicturem{john}} & \visible<4->{\includepicturem{everyboy}} & \visible<5->{\includepicturem{she}} \\
+    \visible<3->{\includepicturem{john_push}} & \visible<4->{\includepicturem{everyboy}} & \visible<5->{\includepicturem{she}} \\
+    & & \\
     $\visible<3->{\Downarrow}$ & $\visible<4->{\Downarrow}$ & $\visible<5->{\Downarrow}$ \\
+    & & \\
     \visible<3->{\includepicturem{john_mother}} & \visible<4->{\includepicturem{everyboy_mother}} & \visible<5->{\includepicturem{she_mother}} \\
   \end{tabular}
 \end{adjustbox}
