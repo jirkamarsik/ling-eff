@@ -279,7 +279,7 @@
 \begin{frame}{Example from Computer Science}
   \begin{adjustbox}{center}
    \begin{tabular}{|c|c|c|} \hline
-    \textbf{3} & \textbf{x + 3} & \textbf{print("hello")} \\ \hline
+    \textbf{3} & \visible<2->{\textbf{x + 3}} & \visible<3->{\textbf{print("hello")}} \\ \hline
     $3$ & & \\ \hline
     \visible<2->{$\lambda s. \left<3, s\right>$} & \visible<2->{$\lambda s. \left<s("x") + 3, s\right>$} & \\ \hline
     \visible<3->{$\lambda s. \left<3, s, ""\right>$} & \visible<3->{$\lambda s. \left<s("x") + 3, s, ""\right>$} & \visible<3->{$\lambda s. \left<(), s, "hello"\right>$} \\ \hline
@@ -293,7 +293,7 @@
 \begin{frame}{Example from Linguistics}
   \begin{adjustbox}{center}
    \begin{tabular}{|c|c|c|} \hline
-    \textbf{John} & \textbf{every boy} & \textbf{she} \\ \hline
+    \textbf{John} & \visible<2->{\textbf{every boy}} & \visible<3->{\textbf{she}} \\ \hline
     $j$ & & \\ \hline
     \visible<2->{$\lambda P. P j$} & \visible<2->{$\lambda P. \forall x. (boy\ x) \rightarrow (P\ x)$} & \\ \hline
     \visible<3->{$\lambda P e \phi. P j (j :: e) \phi$} &
