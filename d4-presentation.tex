@@ -159,10 +159,10 @@ Challenge:
   \begin{block}{Code}
 \begin{lstlisting}
 if (x >= 0) {
-x--;
+  x--;
 } else {
-neg = true;
-x = 0;
+  neg = true;
+  x = 0;
 }
 \end{lstlisting}
   \end{block}
@@ -342,17 +342,17 @@ $$
   Side effects and pragmatics align also in their theories.
   \pause
   \vfill
-  Most famous example: Montague's type raising
+  Most famous example: Montague's generalized quantifiers
   \begin{itemize}
-  \item from entities to generalized quantifiers
-  \item i.e., from $\iota$ to $(\iota \to o) \to o$
-  \item e.g., $john$ becomes $\lambda P. P\ john$
+  \item $\sem{np} = (\iota \to o) \to o$
+  \item e.g., the meaning of a transitive verb such as \textit{bought}
+    $$ \sem{\textsc{bought}} &= \lambda S O. S (\lambda x. O (\lambda y. \semdom{bought}(x, y))) $$
   \end{itemize}
   \vfill
   \pause
   In computer science, discovered as continuations
   \begin{itemize}
-  \item raising $\alpha$ to $(\alpha \to \omega) \to \omega$
+  \item $\sem{exp_{\tau}} = (\tau \to \omega) \to \omega$
   \item e.g., applying a function $f$ to two arguments $S$ and $O$ in
     continuation-passing style
     $$ \lambda P. S (\lambda x. O (\lambda y. P\ (f\ x\ y))) $$
@@ -407,7 +407,7 @@ $$
 \begin{frame}{Example from Computer Science}
   \begin{adjustbox}{center}
    \begin{tabular}{|c|c|c|} \hline
-    \textbf{3} & \textbf{x + 3} & \textbf{print("hello")} \\ \hline
+    \textbf{3} & \visible<2->{\textbf{x + 3}} & \visible<3->{\textbf{print("hello")}} \\ \hline
     $3$ & & \\ \hline
     \visible<2->{$\lambda s. \left<3, s\right>$} & \visible<2->{$\lambda s. \left<s("x") + 3, s\right>$} & \\ \hline
     \visible<3->{$\lambda s. \left<3, s, ""\right>$} & \visible<3->{$\lambda s. \left<s("x") + 3, s, ""\right>$} & \visible<3->{$\lambda s. \left<(), s, "hello"\right>$} \\ \hline
