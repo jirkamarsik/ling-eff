@@ -8,6 +8,9 @@
 \usepackage{tikz}
 \usepackage{listings}
 \usepackage{xcolor}
+\usepackage[normalem]{ulem}
+\usepackage{appendixnumberbeamer}
+\usepackage{url}
 
 \usepackage[export]{adjustbox}
 \setbeamercovered{transparent}
@@ -19,7 +22,7 @@
 
 \setbeamertemplate{navigation symbols}{}
 \setbeamertemplate{footline}
-  {\hfill {\normalsize \insertframenumber{}/\inserttotalframenumber{}}}
+{\hfill {\normalsize \insertframenumber{}/\inserttotalframenumber{}}}
 
 \definecolor{mygreen}{RGB}{30, 176, 37}
 
@@ -41,7 +44,7 @@
 \newcommand{\mycolord}[1]{\textcolor{myColor2}{#1}}
 
 
-  
+
 \newcommand{\hastype}{\mathop{:}}
 
 \newcommand{\dand}{\mathbin{\overline{\land}}}
@@ -74,6 +77,16 @@
 
 \newcommand{\highlight}[2]{\colorbox{#1}{$\displaystyle #2$}}
 
+\newcommand{\includepicturescale}[2]{
+    \includegraphics[scale=#2]{dias/#1.eps}
+}
+
+\newcommand{\includepicturem}[1]{
+    \includegraphics[scale=0.48]{dias/#1.eps}
+}
+
+
+
 
 %% \setbeamercolor{block title}{fg=ngreen,bg=white} % Colors of the block titles
 %% \setbeamercolor{block body}{fg=black,bg=white} % Colors of the body of blocks
@@ -96,10 +109,10 @@
 \author{Jirka Maršík}
 \institute[LORIA, Université de Lorraine, Inria]
 {
-  Équipe Sémagramme
- \\
-  LORIA, UMR 7503, Université de Lorraine, CNRS, Inria, Campus Scientifique, \\
-  F-54506 Vand\oe uvre-lès-Nancy, France
+Équipe Sémagramme
+\\
+LORIA, UMR 7503, Université de Lorraine, CNRS, Inria, Campus Scientifique, \\
+F-54506 Vand\oe uvre-lès-Nancy, France
 }
 \date{April 3, 2015}
 
@@ -112,172 +125,174 @@
 \begin{document}
 
 \begin{frame}
-  \titlepage
+\titlepage
 \end{frame}
 
 
 \begin{frame}{Our Setting}
-  Context:
-  \begin{itemize}
-  \item Montague semantics, using the $\lambda$ calculus
-  \end{itemize}
-  \vfill
+Context:
+\begin{itemize}
+\item denotational semantics of a natural language
+\item using the $\lambda$-calculus
+\end{itemize}
+\vfill
 
-  Objective:
-  \begin{itemize}
-  \item Increase the empirical coverage
-  \end{itemize}
-  \vfill
+Objective:
+\begin{itemize}
+\item cover more complicated fragments of language
+\end{itemize}
+\vfill
 
-  Challenge:
-  \begin{itemize}
-  \item multiple sentences
-    \begin{itemize}
-    \item discourse phenomena
-    \item pragmatics
-    \end{itemize}
-  \end{itemize}
+Challenge:
+\begin{itemize}
+\item divergent research
+\begin{itemize}
+\item same start, different questions $\rightarrow$ different developments
+\item need a unified framework to integrate existing solutions
+\end{itemize}
+\end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]{What is Denotational Semantics?}
-  \begin{columns}
-    \begin{column}{0.3\textwidth}
-      \begin{block}{Code}
- \begin{lstlisting}
+\begin{columns}
+\begin{column}{0.3\textwidth}
+  \begin{block}{Code}
+\begin{lstlisting}
 if (x >= 0) {
-  x--;
+x--;
 } else {
-  neg = true;
-  x = 0;
+neg = true;
+x = 0;
 }
 \end{lstlisting}
-      \end{block}
-   \end{column}
-   \begin{column}{0.7\textwidth}
-     \begin{block}{Abstract Syntax Tree}
-      \includegraphics[width=\textwidth]{AST.pdf}
-     \end{block}
-   \end{column}
-  \end{columns}
+  \end{block}
+\end{column}
+\begin{column}{0.7\textwidth}
+ \begin{block}{Abstract Syntax Tree}
+  \includegraphics[width=\textwidth]{AST.pdf}
+ \end{block}
+\end{column}
+\end{columns}
 \end{frame}
 
 \begin{frame}{This is Denotational Semantics!}
-   \begin{align*}
-    \sem{\tau} &= \gamma \to \tau \times \gamma \\
-    \\ \pause
-    \sem{\texttt{0}} &= \lambda s. (0, s)  \\
-    \sem{\texttt{true}} &= \lambda s. (\top, s) \\
-    \\ \pause
-    \sem{\texttt{x}} &= "x" \\
-    \sem{\texttt{neg}} &= "neg" \\
-    \sem{var} &= \lambda v. \lambda s. (s[v], s) \\
-    \sem{\texttt{=}} &= \lambda v e. \lambda s_1. \text{let}\ (r, s_2) = e\ s\ \text{in}\ (r, s_2[v := r]) \\
-    \\ \pause
-    \sem{\texttt{;}} &= \lambda p_1 p_2. \lambda s_1. \text{let}\ (\_, s_2)
-    = p_1\ s_1\ \text{in}\ p_2\ s_2 \\
-    & \text{et cetera}
-  \end{align*}
+\vspace{-7mm}
+\begin{align*}
+\sem{exp_{\tau}} &= \gamma \to \sem{\tau} \times \gamma \\
+\sem{var} &= symbol \\
+\\ \pause
+\texttt{0} &: exp_{int} \\
+\texttt{true} &: exp_{bool} \\
+\sem{\texttt{0}} &= \lambda s. (0, s)  \\
+\sem{\texttt{true}} &= \lambda s. (\top, s) \\
+\\ \pause
+\texttt{x}, \texttt{neg} &: var \\
+var &: var \to exp_{\tau} \\
+= &: var \to \exp_{\tau} \to \exp_{\tau} \\
+\sem{\texttt{x}} &= "x" \\
+\sem{\texttt{neg}} &= "neg" \\
+\sem{var} &= \lambda v. \lambda s. (s[v], s) \\
+\sem{\texttt{=}} &= \lambda v e. \lambda s_1. \text{let}\ (r, s_2) = e\ s_1\ \text{in}\ (r, s_2[v := r])
+\end{align*}
 \end{frame}
 
 \begin{frame}{What about Natural Language?}
-   \begin{center}
-    \begin{quotation}
-      There is in my opinion no important theoretical difference between
-      natural languages and the artifical languages of logicians; [\ldots]
+\begin{center}
+\begin{quotation}
+  There is in my opinion no important theoretical difference between
+  natural languages and the artifical languages of logicians; [\ldots]
 
-      \raggedleft--- \textup{Richard Montague}, Universal Grammar (1970)
-    \end{quotation}
-  \end{center}
+  \raggedleft--- \textup{Richard Montague}, Universal Grammar (1970)
+\end{quotation}
+\end{center}
 \end{frame}
 
 \begin{frame}{What about Natural Language?}
-  \begin{columns}
-    \begin{column}{0.5\textwidth}
-    \begin{block}{Sentence}
-      Every driver owns a car.
-    \end{block}
-    \end{column}
-    \begin{column}{0.5\textwidth}
-      \begin{block}{Syntactic Tree}
-      \includegraphics[width=\textwidth]{NLAST.pdf}
-      \end{block}
-    \end{column}
-  \end{columns}
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\begin{block}{Sentence}
+  Every driver owns a car.
+\end{block}
+\end{column}
+\begin{column}{0.5\textwidth}
+  \begin{block}{Syntactic Tree}
+  \includegraphics[width=\textwidth]{NLAST.pdf}
+  \end{block}
+\end{column}
+\end{columns}
 \end{frame}
 
 \begin{frame}{Yes, We Can!}
-  \vspace{-5mm}
-  \begin{align*}
-    \textsc{driver}, \textsc{car} &: n \\
-    \sem{n} &= \iota \to o \\
-    \sem{\textsc{driver}} &= \lambda x. \semdom{driver}(x) \\
-    \sem{\textsc{car}} &= \lambda x. \semdom{car}(x) \\
-    \\ \pause
-    \textsc{every}, \textsc{a} &: n \to np \\
-    \sem{np} &= (\iota \to o) \to o \\
-    \sem{\textsc{every}} &= \lambda n. \lambda P. \forall x. (n\ x) \rightarrow (P\ x) \\
-    \sem{\textsc{a}} &= \lambda n. \lambda P. \exists x. (n\ x) \land (P\ x) \\
-    \\ \pause
-    \textsc{bought} &: np \to np \to s \\
-    \sem{s} &= o \\
-    \sem{\textsc{bought}} &= \lambda S O. S (\lambda x. O (\lambda y. \semdom{bought}(x, y))) \\
-    \pause
-    \sem{\text{Every driver bought a car}} &= \forall x. \semdom{driver}(x) \rightarrow \exists y. \semdom{car}(y) \land \semdom{bought}(x, y)
-  \end{align*}
+\vspace{-5mm}
+\begin{align*}
+\textsc{driver}, \textsc{car} &: n \\
+\sem{n} &= \iota \to o \\
+\sem{\textsc{driver}} &= \lambda x. \semdom{driver}(x) \\
+\sem{\textsc{car}} &= \lambda x. \semdom{car}(x) \\
+\\ \pause
+\textsc{every}, \textsc{a} &: n \to np \\
+\sem{np} &= (\iota \to o) \to o \\
+\sem{\textsc{every}} &= \lambda n. \lambda P. \forall x. (n\ x) \rightarrow (P\ x) \\
+\sem{\textsc{a}} &= \lambda n. \lambda P. \exists x. (n\ x) \land (P\ x) \\
+\\ \pause
+\textsc{bought} &: np \to np \to s \\
+\sem{s} &= o \\
+\sem{\textsc{bought}} &= \lambda S O. S (\lambda x. O (\lambda y. \semdom{bought}(x, y))) \\
+\pause
+\sem{\text{Every driver bought a car}} &= \forall x. \semdom{driver}(x) \rightarrow \exists y. \semdom{car}(y) \land \semdom{bought}(x, y)
+\end{align*}
 \end{frame}
 
 
-\begin{frame}{Example of Pragmasemantics}
-  \framesubtitle{de Groote -- Type-Theoretic Dynamic Logic}
-  \begin{columns}
-    \begin{column}{0.5\textwidth}
-      \begin{block}{Montague}
-        \begin{align*}
-          \sem{s} &= o \\
-          \sem{n} &= \iota \to \sem{s} \\
-          \sem{np} &= (\iota \to \sem{s}) \to \sem{s}
-        \end{align*}
-      \end{block}
-    \end{column}
-    \begin{column}{0.5\textwidth}
-      \begin{block}{de Groote}
-         \begin{align*}
-          \sem{s} &= \gamma \to (\gamma \to o) \to o \\
-          \sem{n} &= \iota \to \sem{s} \\
-          \sem{np} &= (\iota \to \sem{s}) \to \sem{s}
-        \end{align*}
-      \end{block}
-    \end{column}
-  \end{columns}
-  \vfill
-  \pause
-  $$
-  \sem{\textit{He bought a car}} = \lambda e \phi.\ \exists
-  x. car(x)\ \land\ bought(\texttt{sel}_{he}(e), x)\ \land\ \phi (x \occons e)
-  $$
+\begin{frame}{Beyond Single Sentences}
+\framesubtitle{de Groote -- Type-Theoretic Dynamic Logic}
+\begin{columns}
+\begin{column}{0.5\textwidth}
+  \begin{block}{Montague}
+    \begin{align*}
+      \sem{s} &= o \\
+      \sem{n} &= \iota \to \sem{s} \\
+      \sem{np} &= (\iota \to \sem{s}) \to \sem{s}
+    \end{align*}
+  \end{block}
+\end{column}
+\begin{column}{0.5\textwidth}
+  \begin{block}{de Groote}
+     \begin{align*}
+      \sem{s} &= \gamma \to (\gamma \to o) \to o \\
+      \sem{n} &= \iota \to \sem{s} \\
+      \sem{np} &= (\iota \to \sem{s}) \to \sem{s}
+    \end{align*}
+  \end{block}
+\end{column}
+\end{columns}
+\vfill
+\pause
+$$
+\sem{\textit{He bought a car}} = \lambda e \phi.\ \exists
+x. car(x)\ \land\ bought(\texttt{sel}_{he}(e), x)\ \land\ \phi (x \occons e)
+$$
 \end{frame}
 
 
 \begin{frame}
   \begin{center}
-    \vfill
-
-    {\huge Drawing Inspiration from Programming Languages}
-
-    \vfill
-
     \begin{quotation}
       There is in my opinion no important theoretical difference between
-      natural languages and the programming languages of computer
-      scientists.
+      natural languages and the \sout{artificial} \textbf{programming}
+      languages of \sout{logicians} \textbf{computer scientists}; [\ldots]
+
+      \raggedleft \textup{Jirka Maršík}, PhD Thesis (2016)
     \end{quotation}
   \end{center}
 \end{frame}
 
 
-\begin{frame}{Side Effects in Programming Languages}
-  \vfill
-  Account for:
+\begin{frame}{Side Effects and Pragmatics}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+   \begin{block}{Side Effects}
+   Account for:
   \pause
   \vfill
   \begin{itemize}
@@ -295,6 +310,29 @@ if (x >= 0) {
       catching exceptions\ldots
     \end{itemize}
   \end{itemize}
+  \end{block}
+   \pause
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{block}{Pragmatics}
+        Account for:
+        \pause
+        \vfill
+        \begin{itemize}
+        \item how language fits into the world of its users
+          \begin{itemize}
+          \item e.g., asking a colleague to print some documents\ldots
+          \end{itemize}
+        \pause \vfill
+        \item phenomena that transcend the bounds of an isolated sentence
+          \begin{itemize}
+          \item e.g., the link between antecedent and pronoun, making and
+            cancelling presuppositions\ldots
+          \end{itemize}
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
   \vfill
   \pause
   \alert{Side effects align with pragmatics in their purpose.}
@@ -380,6 +418,131 @@ if (x >= 0) {
   \end{adjustbox}
 \end{frame}
 
+\begin{frame}{Algebraic Effects\ldots}
+
+  We have been using a framework developed in PL research.
+
+  \vfill
+  
+  In it:
+  \begin{itemize}
+  \item interacting with the context $=$ throwing an exception
+  \item the exception contains a response for every possible outcome of the
+    operation
+  \end{itemize}
+ 
+  \pause
+  \vfill
+  
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+   Denotations are:
+  \begin{itemize}
+  \item algebraic expressions (drawn as trees)
+  \item \textcolor{mygreen}{generators} $=$ values
+  \item \textcolor{red}{operators} $=$ possible interactions with the context
+  \item arity $=$ the number of possible outcomes
+  \item type $= \mathcal{F}_{\textcolor{red}{\Sigma}}(\textcolor{mygreen}{\tau})$
+  \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \only<2>{\includepicturescale{example}{0.4}}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{\ldots and Handlers}
+  Handlers give scope and interpretation to (some of) the effects in a
+  computation.
+
+  \begin{itemize}
+  \item Practically, they are like exception handlers in programming languages.
+  \item Technically, they are catamorphisms (folds) on the algebra of effects.
+  \end{itemize}
+  
+
+  \pause
+  \vfill 
+
+  Examples from Computer Science:
+  \begin{itemize}
+  \item exception handlers and resumable conditions
+  \item STM transactions
+  \item redirecting stdin/stdout to strings or files
+  \end{itemize}
+
+  \vfill
+  \pause
+  
+  Examples from Linguistics:
+  \begin{itemize}
+  \item hypotheseses can cancel presuppositions in their scope
+  \item presuppositions are accomodated if they have not been cancelled
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Proof of Concept}
+  \vfill
+
+  We have used Eff\footnote{\url{http://www.eff-lang.org /}} to build a
+  small prototype to test and explore our approach.
+  
+  \vfill
+  \begin{itemize}
+  \item in-situ quantification
+    \begin{itemize}
+    \item \textit{``Every driver bought a car.''}
+    \end{itemize}
+  \item discourse anaphora
+    \begin{itemize}
+    \item \textit{``John bought a car. He likes it.''}
+    \end{itemize}
+  \item presuppositions (of referentials)
+    \begin{itemize}
+    \item \textit{``John doesn't like my car.''}
+    \end{itemize}
+  \item their interactions
+    \begin{itemize}
+    \item e.g., binding problem
+    \item \textit{``Every driver sold his car.''}
+    \end{itemize}
+  \end{itemize}
+  \vfill
+\end{frame}
+
+\begin{frame}{Summary}
+  \begin{itemize}
+  \item parallels between PLT and natural language semantics
+    \begin{itemize}
+    \item run deep and are not incidental
+    \end{itemize}
+   \vfill
+   \pause
+  \item theory of effects $\rightarrow$ easier to manage multiple phenomena
+    \begin{itemize}
+    \item our driving motivation (empirical coverage)
+    \item stable denotations help avoid generalizing to the worst case
+    \item captures parameters, mutable state, continuations, projections
+      and their filtering/cancelling both flexibly and compositionally
+      \begin{itemize}
+      \item used in PLT research and functional programming too
+      \end{itemize}
+    \end{itemize}
+    \vfill
+    \pause
+    \item next up:
+      \begin{itemize}
+    \item keep growing the system; either it breaks and will be shown
+      insufficient or will provide enough motivation for adoption in
+      linguistic community
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+
+\appendix
+
+
 \begin{frame}{Example from Linguistics}
   \begin{adjustbox}{center}
    \begin{tabular}{|c|c|c|} \hline
@@ -417,16 +580,6 @@ if (x >= 0) {
 
   Its denotation changes even though the meaning stays morally the same.
 \end{frame}
-
-
-
-\newcommand{\includepicturescale}[2]{
-    \includegraphics[scale=#2]{dias/#1.eps}
-}
-
-\newcommand{\includepicturem}[1]{
-    \includegraphics[scale=0.48]{dias/#1.eps}
-}
 
 
 
@@ -477,111 +630,5 @@ $$
   }
 \end{frame}
 
-\begin{frame}{Algebraic Effects\ldots}
-
-  We have been using a framework developed in PL research.
-
-  \vfill
-  
-  In it:
-  \begin{itemize}
-  \item interacting with the context $=$ throwing an exception
-  \item the exception contains a response for every possible outcome of the
-    operation
-  \end{itemize}
- 
-  \pause
-  \vfill
-  
-  \begin{columns}
-    \begin{column}{0.5\textwidth}
-   Denotations are:
-  \begin{itemize}
-  \item algebraic expressions (drawn as trees)
-  \item \textcolor{mygreen}{generators} $=$ values
-  \item \textcolor{red}{operators} $=$ possible interactions with the context
-  \item arity $=$ the number of possible outcomes
-  \item type $= \mathcal{F}_{\textcolor{red}{\Sigma}}(\textcolor{mygreen}{\tau})$
-  \end{itemize}
-    \end{column}
-    \begin{column}{0.5\textwidth}
-      \only<2>{\includepicturescale{example}{0.4}}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-\begin{frame}{\ldots and Handlers}
-  Handlers give scope and interpretation to (some of) the effects in a
-  computation.
-
-  \begin{itemize}
-  \item Practically, they are like exception handlers in programming languages.
-  \item Technically, they are catamorphisms (folds) on the algebra of effects.
-  \end{itemize}
-  
-
-  \pause
-  \vfill 
-
-  Examples:
-  \begin{itemize}
-  \item a tensed verb delimits quantification, creating a scope island
-  \item logical negation blocks referent accessibility (as in DRT or TTDL)
-  \item the common ground accomodates presuppositions if they have not been
-    yet assumed
-  \item hypotheseses can cancel presuppositions in their scope (\text{if
-    \ldots, then \ldots})
-  % \item shifted perspectives and quotation interpret speaker-dependent
-  % expressions
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{Proof of Concept}
-  \vfill
-  We have built a small prototype to test and explore our approach.
-  \vfill
-  \begin{itemize}
-  \item in-situ quantification
-  \item discourse anaphora
-  \item presuppositions (of referentials)
-  \item their interactions
-    \begin{itemize}
-    \item e.g., binding problem
-    \end{itemize}
-  \end{itemize}
-  \vfill
-\end{frame}
-
-\begin{frame}{Summary}
-  \begin{itemize}
-  \item perspective shift
-    \begin{itemize}
-    \item from denotations as complex objects \\
-          to denotations as complex \textcolor{red}{processes} producing simple \textcolor{mygreen}{objects}
-    \item focus on what meanings do, not on what they are
-    \end{itemize}
-    \vfill
-    \pause
-  \item content/context distinction
-    \begin{itemize}
-    \item \textcolor{mygreen}{objects} -- purely truth-conditional material
-    \item \textcolor{red}{process} -- we dump the pragmatic wastebasket here
-    \item placement of non-locality phenomena such as in-situ
-      quantification is to our discretion
-    \end{itemize}
-    \vfill
-    \pause
-  \item easier to manage multiple effects
-    \begin{itemize}
-    \item our driving motivation (empirical coverage)
-    \item stable denotations help avoid generalizing to the worst case
-    \item captures parameters, mutable state, continuations, projections
-      and their filtering/cancelling both flexibly and compositionally
-      \begin{itemize}
-      \item used in PLT research and functional programming too
-      \end{itemize}
-    \end{itemize}
-  \end{itemize}
-\end{frame}
 
 \end{document}
