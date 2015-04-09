@@ -1,0 +1,156 @@
+\documentclass[a4paper,11pt,DIV=12]{scrartcl}
+
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{stmaryrd}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{gb4e}
+\usepackage{bussproofs}
+
+
+\newcommand{\dand}{\mathbin{\overline{\land}}}
+\newcommand{\dnot}{\mathop{\overline{\lnot}}}
+\newcommand{\dimpl}{\mathbin{\overline{\to}}}
+\newcommand{\dexists}{\mathop{\overline{\exists}}}
+\newcommand{\dforall}{\mathop{\overline{\forall}}}
+
+\newcommand{\hsbind}{\mathbin{\texttt{>>=}}}
+\newcommand{\hsrevbind}{\mathbin{\texttt{=<<}}}
+\newcommand{\hsseq}{\mathbin{\texttt{>>}}}
+\newcommand{\occons}{\mathbin{::}}
+
+\newcommand{\statecps}[3]{\llbracket #3 \rrbracket^{#2}_{#1}}
+\newcommand{\cps}[2]{\llbracket #2 \rrbracket^{#1}}
+
+\newcommand{\sem}[1]{\llbracket #1 \rrbracket}
+\newcommand{\intens}[1]{\overline{#1}}
+
+\newcommand{\keyword}[1]{\texttt{#1}}
+\newcommand{\effect}[1]{\textbf{#1}}
+\newcommand{\semdom}[1]{\textbf{#1}}
+\newcommand{\handle}[2]{\keyword{with}\ #1\ \keyword{handle}\ #2}
+
+\def\limp {\mathbin{{-}\mkern-3.5mu{\circ}}}
+
+
+\title{Double Negation with Effects}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{description}
+  \item[The pragmatic effects hypothesis:] The integration of pragmatic
+    phenomena into semantics can be adequately (when compared to existing
+    theories) modelled using a theory of computational side effects, namely
+    using effects and handlers.
+
+  \item[The general effects hypothesis:] The type generalizations proposed
+    in formal semantics of natural language (for in-situ quantification,
+    interrogatives, focus\ldots) can be replaced with the introduction of
+    effects and handlers in some restricted set of lexical items.
+\end{description}
+
+\section{Introduction}
+
+In this document, I will examine the case of the general effects hypothesis
+with respect to the type generalization introduced in
+\cite{saiaccessibilite} to handle double negation.
+
+Qian's proposal takes de Groote's type of dynamic proposition $\Omega =
+\gamma \to (\gamma \to o) \to o$ and replaces it with the type $\Omega^{dn}
+= \Omega \times \Omega$. ...
+
+We will look at two standard monads which are used to describe side effects
+and which fit the type generalization proposed here and we will see that
+their semantics are not fit for the purposes of our theory. To evaluate the
+fitness of a monad w.r.t. our theory, we will first have to pin down the
+crux of the argument of using side effects in semantics.
+
+\subsection{Raising Functions}
+
+Monads are a special case of (lax) monoidal functors (i.e. applicative
+functors), which are in turn a special case of functors. The latter gives
+us an operation $\texttt{fmap} : (\alpha \to \beta) \to F \alpha \to F
+\beta$ while the former gives us $\otimes : F \alpha \to F \beta \to F
+(\alpha \times \beta)$, both of which satisfy certain
+laws\footnote{$\texttt{fmap}$ is homomorphic w.r.t. to composition and
+  identities, $\otimes$ satisfies the monoid laws.}.
+
+Intuitively, $\texttt{fmap}$ tells us how to map a function over the
+contents of some type construction, thereby ``upgrading'' a function over
+simple values to a function over the more elaborate values. The $\otimes$
+operator tells us how to combine the extra material introduced by the type
+construction from multiple sources. Together, these two function let us
+lift functions of arbitrary arity from simple values to the more elaborate
+ones (such as in $(\tau_1 \to \ldots \to \tau_n) \to (F \tau_1 \to \ldots
+\to F \tau_n)$).
+
+The central premise of the side-effects-in-linguistics program is that when
+more complicated types of denotations are introduced for the sake of some
+lexical items (e.g., generalized quantifiers for QNPs, dynamic propositions
+for anaphora, \ldots), raising the types of existing
+denotations \footnote{Lexical items that play a vital role in the
+  phenomenon covered by the new denotation type are an exception since
+  their existing description given in the simpler types lacked an account
+  of their interaction with this new phenomenon. For example, in the case
+  of quantification, if we assume that tensed clauses form scope islands,
+  the denotation of tensed verbs will need to change so that it will
+  actually stop the scope of the quantifier. However, all the other
+  denotations whose lexical items do not interact with the phenomenon
+  (e.g., prepositions) are only raised to the new type without any other
+  change.} using the combinator described above \footnote{Note that the
+  raising combinator depends not only on the type construction itself but
+  also on a specific monad which gives rise to the $\texttt{fmap}$ and
+  $\otimes$ operators it is based on.} produces a valid solution. The extra
+kicker of the general effects hypothesis is the use of effects and
+handlers, which rely on a single parameterized monad, so that existing
+denotations need not be repeatedly raised and stay stable.
+
+The stability condition outlined above has been partly validated by several
+researchers: Barker treated quantification as a side-effect and Lebedeva
+did the same for presuppositions; Marlow and Champollion have been using
+monads for anaphora. In my work, I have ...
+
+\section{Applying Monads}
+
+Let us look at some of the common monads whose type constructions could
+explain the type generalization from $\Omega$ to $\Omega \times \Omega$.
+
+\subsection{Reader}
+
+Let us consider the reader monad. We will focus only on the types it
+uses and the its functor/applicative functor operations.
+
+\begin{align*}
+  F \alpha &= \gamma \to \alpha \\
+  \texttt{pure} &: \alpha \to F \alpha \\
+  \texttt{pure}\ x &= \lambda e. x \\
+  \texttt{fmap}\ f\ m &= \lambda e. f\ (m\ e) \\
+  m_1 \otimes m_2 &= \lambda e. \left<m_1\ e, m_2\ e\right>
+\end{align*}
+
+We can see that the type of $F \alpha$ corresponds to a family of values of
+type $\alpha$ indexed by values of some type $\gamma$. How does this relate
+to the type of $\Omega \times \Omega$? We can see it as a family of two
+values of type $\Omega$. The index then corresponds to \emph{polarity} and
+lets us choose between the positive and negative version of a value
+(proposition).
+
+However, if we look beyond the types at the definition of some of the
+operations of the monad, we see that the similarities do not go
+far. Raising a simple value consists of taking a family 
+
+\subsection{Writer}
+
+We can take the writer monad that takes the type 
+
+\bibliography{refs}
+\bibliographystyle{plain}
+
+\end{document}
+
