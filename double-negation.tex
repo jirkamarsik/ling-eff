@@ -33,6 +33,8 @@
 \newcommand{\semdom}[1]{\textbf{#1}}
 \newcommand{\handle}[2]{\keyword{with}\ #1\ \keyword{handle}\ #2}
 
+\newcommand{\ifte}[3]{\texttt{if}\ #1\ \texttt{then}\ #2\ \texttt{else}\ #3}
+
 \def\limp {\mathbin{{-}\mkern-3.5mu{\circ}}}
 
 
@@ -63,22 +65,30 @@ with respect to the type generalization introduced in
 
 Qian's proposal takes de Groote's type of dynamic proposition $\Omega =
 \gamma \to (\gamma \to o) \to o$ and replaces it with the type $\Omega^{dn}
-= \Omega \times \Omega$. ...
+= \Omega \times \Omega$. The first element of the pair is the proposition's
+positive form and the second is its negative form. The negative form is
+almost always the dynamic negation of the positive form. The only exception
+are propositions which were formed by dynamic negation. In the spirit of
+double negation, their negative forms are equal to the propositions which
+were being negated in the first place. These can then be recovered by a
+second negation so that we arrive back at the argument of the first
+negation.
 
 We will look at two standard monads which are used to describe side effects
 and which fit the type generalization proposed here and we will see that
 their semantics are not fit for the purposes of our theory. To evaluate the
-fitness of a monad w.r.t. our theory, we will first have to pin down the
+fitness of a monad w.r.t.\ our theory, we will first have to pin down the
 crux of the argument of using side effects in semantics.
 
 \subsection{Raising Functions}
+\label{ssec:raise}
 
-Monads are a special case of (lax) monoidal functors (i.e. applicative
+Monads are a special case of (lax) monoidal functors (i.e.\ applicative
 functors), which are in turn a special case of functors. The latter gives
 us an operation $\texttt{fmap} : (\alpha \to \beta) \to F \alpha \to F
 \beta$ while the former gives us $\otimes : F \alpha \to F \beta \to F
 (\alpha \times \beta)$, both of which satisfy certain
-laws\footnote{$\texttt{fmap}$ is homomorphic w.r.t. to composition and
+laws\footnote{$\texttt{fmap}$ is homomorphic w.r.t.\ to composition and
   identities, $\otimes$ satisfies the monoid laws.}.
 
 Intuitively, $\texttt{fmap}$ tells us how to map a function over the
@@ -114,7 +124,10 @@ denotations need not be repeatedly raised and stay stable.
 The stability condition outlined above has been partly validated by several
 researchers: Barker treated quantification as a side-effect and Lebedeva
 did the same for presuppositions; Marlow and Champollion have been using
-monads for anaphora. In my work, I have ...
+monads for anaphora. In my work, I have reformalised different combinations
+of these three phenomena in a single framework to show that extending the
+theory only affects the denotations of lexical items that are somehow
+involved in the extension.
 
 \section{Applying Monads}
 
@@ -122,6 +135,7 @@ Let us look at some of the common monads whose type constructions could
 explain the type generalization from $\Omega$ to $\Omega \times \Omega$.
 
 \subsection{Reader}
+\label{ssec:reader}
 
 Let us consider the reader monad. We will focus only on the types it
 uses and the its functor/applicative functor operations.
@@ -141,13 +155,351 @@ values of type $\Omega$. The index then corresponds to \emph{polarity} and
 lets us choose between the positive and negative version of a value
 (proposition).
 
-However, if we look beyond the types at the definition of some of the
-operations of the monad, we see that the similarities do not go
-far. Raising a simple value consists of taking a family 
+However, if we look beyond the types and at the definition of some of the
+operations of the monad, we see that the similarities do not go that
+far. Raising a simple value gives a family of just the one value assigned
+to all of the indices. Therefore, if we were to raise some propositional
+constant with $\texttt{pure}$, we would assert that it is equal to its
+negation, which is obviously not what we want.
+
+Similarly for $\texttt{fmap}$. If I have a proposition $\overline{A}$ of
+type $F o$ whose positive side we label $A$ and the negative $\lnot A$, the
+result of $\texttt{fmap}\ (\lambda x. x \land B)\ \overline{A}$ will
+produce a proposition whose positive side would be $A \land B$ and whose
+negative side would be $\lnot A \land B$, which is not what we want since
+$\lnot(A \land B) \neq \lnot A \land B$. More specifically, conjunction
+could not be simply raised since it would make $\lnot (A \land B) = \lnot A
+\land \lnot B$.
+
+We see that while the type fits, the semantics of the reader monad do not
+reflect the behavior of the double-negation that we wish to model.
+
+How would we wish to change it? We would like $\texttt{pure}$ to produce a
+pair of dynamic propositions such that negative one is actually the dynamic
+negation of the positive one. Secondly, mapping a function over a
+double-negation proposition using $\texttt{fmap}$ should apply the function
+to the ``official'' positive variant and update the negative variant to be
+its dynamic negation. This leads us to several problems. We no longer
+satisfy the functor law stating that $\texttt{fmap}\ id = id$ since
+$\texttt{fmap}\ id$ recomputes the negative variant of the DN proposition
+as the dynamic negation of its positive variant, which leads to the loss of
+the original negative variant. On top of that, our ``monad'' would only
+make sense for the type $\Omega$ since the $\texttt{pure}$ and
+$\texttt{fmap}$ operations now rely on the fact that their arguments are
+dynamic/DN propositions\footnote{If all values have to carry around their
+  dynamic negation, then how do we represent individuals, functions, tuples
+  or other objects outside of the domain of negation? Sometimes we would
+  like to opt out of providing an alternative negative value. See
+  \ref{ssec:writer}.}.
 
 \subsection{Writer}
+\label{ssec:writer}
 
-We can take the writer monad that takes the type 
+Another monad with a similar type construction is the writer monad detailed
+below.
+
+\begin{align*}
+  F \alpha &= \alpha \times \sigma \\
+  \texttt{pure}\ x &= \left<x, 1\right> \\
+  \texttt{fmap}\ f\ m &= \left<f\ (\pi_1\ m), \pi_2\ m\right> \\
+  m_1 \otimes m_2 &= \left<\left<\pi_1\ m_1, \pi_1\ m_2\right>, \pi_2\ m_1 \times \pi_2\ m_2\right>
+\end{align*}
+
+The monad is parameterized by a monoid $\sigma$ with unit $1$ and
+multiplication $\times$. Which monoid to choose? We would like to annotate
+values with alternate negative variants for expressions that want to
+provide their own negations. We can use a $\texttt{Maybe}$-like type for
+that, $\sigma = \Omega_{\bot} = \Omega \oplus \{\bot\}$ with $1 =
+\bot$.
+
+What is wrong with this proposal? First, we still have to fix the $\times$
+operation of the monoid. We would like to send everything to $\bot$ so that
+even if the arguments proposed some alternative negative variant, the newly
+formed value itself will be ``clean''. However, such a structure would not
+satisfy the monoid laws (and thus the monad would not satisfy the monad
+laws in turn) because there would be no neutral element. We are also not
+satisfied with the way $\texttt{fmap}$ preserves the alternative negative
+value. We would prefer something like $\texttt{fmap} = \lambda f m. \left<
+f\ (\pi_1\ m), 1 \right>$, however this breaks the functor identity law the
+same way as our wishful proposal outlined in \ref{ssec:reader}.
+
+\section{Only Ugly Solutions Past This Point}
+
+In the previous section, I have shown that the two commonly known monads
+that yield types similar to the ones proposed by Qian are not
+satisfactory. This goes hand in hand with the difficulty one might have
+with conceiving the notion that negation should be an involution as some
+kind of side effect generated by dynamic propositions.
+
+Nevertheless, when we look at the effects and handlers framework, it seems
+that we could still treat double negation as some kind of effect. However,
+it will cost us most of the benefits that this kind of analysis was
+supposed to bring.
+
+We would like our denotations to have the shape of a pair of proposition
+computations. Since our denotations have the form of algebraic expression,
+we can introduce a binary operator to construct such pairs. This operator
+would thus correspond to some abstract effect with output type of
+cardinality 2 and no input (i.e., input type of cardinality 1). The output
+of this effect will tell the computation whether to produce its positive or
+negative variant. We will therefore introduce a new effect
+$\texttt{get\_polarity} : 1 \to 2$.
+
+Negating the computation of a proposition could then produce a computation
+that asks for the polarity and then handles any $\texttt{get\_polarity}$
+effects in the argument by providing the opposite polarity. However, this
+would suffer from all of the problems outlined in \ref{ssec:reader}. More
+specifically, computations of propositions that do not use the
+$\texttt{get\_polarity}$ would become fixed points for the negation
+function, which is clearly not what we want.
+
+However, in the effects and handlers framework, we can define a handler
+which is specific to computations of propositions and which provides a
+default negative variant in case the computation does not use
+$\texttt{get\_polarity}$. The strategy behind the handler is to turn a
+computation of a proposition into a function from polarities (a binary
+type) to computations of propositions such that:\footnote{Since a function
+  from a binary type to some type $\alpha$ can be seen as pairs of values
+  of type $\alpha$, we will often make reference to a pair of computations
+  instead of a function yielding computations.}
+
+\begin{itemize}
+\item the resulting computations will not trigger the
+  $\texttt{get\_polarity}$ effect
+\item if the original computation did not use the $\texttt{get\_polarity}$
+  effect, then the positive variant will correspond to the original
+  computation and the negative variant to its dynamic negation
+\item if the original computation used $\texttt{get\_polarity}$, this
+  effect will be handled by providing the polarity passed to the resulting
+  function (i.e., we will have a pair of computations where the first
+  computation handles every $\texttt{get\_polarity}$ with the positive
+  polarity and and the second computation with the negative one)
+\end{itemize}
+
+In effect, the handler will respect computations that explicitly ask for
+polarity, but in the case of computations which don't, it supplies a
+negative variant which is the computation's dynamic negation. We can now
+implement negation on top of this handler by getting the polarity and
+applying the function described above to the opposite of the obtained
+polarity. After this, we will end up with a ``normalized'' computation that
+calls $\texttt{get\_polarity}$ exactly once and does so as its first
+step. As an algebraic expression, the computation thus becomes a pair of
+two computations, a positive and a negative one, neither of which makes any
+more appeals to $\texttt{get\_polarity}$. Negation can thus be seen as a
+process which normalizes the $\texttt{get\_polarity}$ operations in the
+computation to give us a pair of computations and then it swaps them.
+
+Let us look at the definition of this operation. First, we will decompose
+it into the catamorphism that will perform the normalization and into the
+function that will do the swapping.\footnote{We use the notation
+  $\mathcal{F}_\Sigma(\alpha)$ to designate the type of computations having
+  effects at most $\Sigma$ and yielding values of type $\alpha$.}
+
+\begin{align*}
+\texttt{not} &= \texttt{swap} \circ \texttt{normalize} \\
+\texttt{normalize} &: \mathcal{F}_{\Sigma \uplus \{\texttt{get\_polarity}\}}(o) \to
+(2 \to \mathcal{F}_{\Sigma}(o)) \\
+\texttt{swap} &: (2 \to \mathcal{F}_\Sigma(o)) \to \mathcal{F}_{\Sigma \uplus \{\texttt{get\_polarity}\}}(o)
+\end{align*}
+
+We will start with the clauses of $\texttt{normalize}$.
+
+\begin{align*}
+  \texttt{normalize}\ (\texttt{val}\ P) &= \lambda p. \ifte{p}{P}{\lnot P}
+\end{align*}
+
+This clause tells us how to process (normalize) the leaves of the algebraic
+expression. Here, $P$ is a simple proposition of type $o$, $\lnot$
+corresponds to simple negation of truth-values/propositions. The variable
+$p$ will be consistently used for the polarity.
+
+\begin{align*}
+  \texttt{normalize}\ (\texttt{fresh}\ ()\ k) = \ &\texttt{let}\ P = \ (\texttt{fresh}\ ()) \hsbind (\lambda x. k\ x\ \texttt{true})\ \texttt{in} \\
+    & \ \lambda p. \ifte{p}{P}{\dnot P} \\
+  \texttt{normalize}\ (\texttt{get}\ ()\ k) = \ &\texttt{let}\ P = \ (\texttt{get}\ ()) \hsbind (\lambda x. k\ x\ \texttt{true})\ \texttt{in} \\
+    & \ \lambda p. \ifte{p}{P}{\dnot P} \\
+  \texttt{normalize}\ (\texttt{assert}\ prop\ k) = \ &\texttt{let}\ P = \ (\texttt{assert}\ prop) \hsbind (\lambda x. k\ x\ \texttt{true})\ \texttt{in} \\
+    & \ \lambda p. \ifte{p}{P}{\dnot P} \\
+  \texttt{normalize}\ (\texttt{presuppose}\ property\ k) = \ &\texttt{let}\ P = \ (\texttt{presuppose}\ property) \hsbind (\lambda x. k\ x\ \texttt{true})\ \texttt{in} \\
+    & \ \lambda p. \ifte{p}{P}{\dnot P}
+\end{align*}
+
+Before I start explaining these clauses, I will first explain the
+notation. A computation can be formed by an effectful operation together
+with its argument and its continuation. In the expression tree view of the
+computation, the continuation corresponds to the family of children of the
+operation node, indexed by the possible outcomes of the operation. Since
+$\texttt{normalize}$ is a handler/catamorphism, it computes its value from
+the values of its children (and the operation and its argument that label
+the node). In the formulas above, the variable $k$ corresponds to the
+function which maps the possible outcomes of the operation to the values of
+the children. In our case, $k$ maps what would be the result of the
+operation to a function from polarities to computations of propositions.
+
+The $\hsbind$ operator is the bind of the monad in which we represent our
+computations. To simplify a bit, as a special case the operator can serve
+as a constructor that takes an effect with its argument (i.e. the label of
+a node) and its continuation and builds a computation tree with the effect
+and argument as the root's label and the continuation giving the root's
+children.
+
+Now to explain the clauses themselves. The goal of these clauses is to move
+the automatic negation higher, so that it deals not only with the
+propositional contents in the leaves, but also with the dynamic effects. We
+are interested in all effects that could potentially interact with (i.e.,
+be handled by) dynamic negation. We will reconstruct the original
+computation $P$ by cancelling the automatic negation introduced below (this
+we do by passing $\texttt{true}$ to the value $k\ x$ of the child node
+indexed by $x$). Then we examine the polarity $p$ and based on its value,
+we either do or do not apply dynamic negation to the reconstructed
+computation $P$, so that the dynamic negation can handle the operation too.
+
+$$
+\texttt{normalize}\ (\texttt{get\_polarity}\ ()\ k) = \lambda p. k\ p\ \texttt{true} \\
+$$
+
+If the computation of the proposition is curious enough to ask for the
+polarity and therefore provide its own negative variant, we will give the
+computation the polarity $p$ as the result and we will disable the
+automatic negation by passing $\texttt{true}$ to the function that we have
+built up so far.\footnote{This solution actually does not correctly handle
+  the case of very curious computations that ask for the polarity multiple
+  times. In such cases, the true polarity is given correctly only the first
+  time and then is reported as $\texttt{true}$ for all the other
+  occurrences. This is due to the fact that the polarity argument plays two
+  roles: (a) what is the polarity that should be reported to
+  $\texttt{get\_polarity}$ and (b) should we disable the automatic
+  negation. A correct solution could maybe use two bits instead of one for
+  these two separate questions.}
+
+With $\texttt{normalize}$ out of the way, all that is left is the
+$\texttt{swap}$ function.
+
+$$
+\texttt{swap}\ f = \texttt{get\_polarity} \hsbind (\lambda p. f\ (\lnot p))
+$$
+
+Now we have negation in place in a way that lets us plug in old values
+which do not specify their negative forms by appealing to
+$\texttt{get\_polarity}$ with the new negation having the desired meaning
+when applied to them.
+
+However, we still have the problem with mapping functions over computations
+that contain the $\texttt{get\_polarity}$ effect. For example, when taking
+the conjunction of two computations of propositions $A$ and $B$, if $A$
+uses $\texttt{get\_polarity}$ to establish a positive form $A_p$ and a
+negative form $A_n$, we will arrive at an undesirable result. If $B$ is
+also polarity-sensitive, then we will get the positive form $A_p \land B_p$
+(which is fine) and the negative form $A_n \land B_n$ (which is wrong). We
+could work around this by saying that conjunction itself should be
+polarity-sensitive and that it should actually behave as disjunction when
+used in a negative context. However, then we would still have a problem
+with cases when $A$ is polarity-sensitive but $B$ is not. In those cases,
+the former approach would give $A_p \land B$ as the positive form and $A_n
+\land B$ as the negative one, whereas the latter approach would end up with
+$A_p \land B$ and $A_n \lor B$, which is also incorrect.
+
+A general way of solving this problem is to remove all occurrences of
+$\texttt{get\_polarity}$ from a computation anytime you are about to use it
+in something else then negation. For this, we can define a simple one-line
+handler:
+
+$$
+\texttt{unpolarize}\ (\texttt{get\_polarity}\ ()\ k) = k\ \texttt{true}
+$$
+
+With this handler in hand, we can redefine conjunction\footnote{$\dand_1$
+  is the regular $\land$ operator raised to work over monadic
+  values. $\dand_2$ is the modified version for double negation.}.
+
+\begin{align*}
+A \dand_1 B &= \texttt{fmap}\ (\lambda (a, b).\ a \land b)\ (A \otimes B) \\
+A \dand_2 B &= \texttt{unpolarize}\ A \dand_1 \texttt{unpolarize}\ B
+\end{align*}
+
+This solves the problem we had and in general we can avoid this kind of
+situation if we remember to use $\texttt{unpolarize}$ \emph{every time} we
+take some computation of a proposition as an argument to a
+function. However, this is not such a deal-breaker when we realize that the
+only functions that build larger propositions from smaller ones are usually
+only the logical connectives\footnote{TODO: Verify whether
+  $\texttt{unpolarize}$ is also needed in the dynamic existential
+  quantifier and things like relative pronouns in the prototype.}, which
+are of a limited number. In this aspect, this solution does not differ much
+from the one proposed by Qian, because there the logical operators end up
+all being redefined as well. Most importantly, this solution disappoints us
+in that it breaks the stability condition outlined in \ref{ssec:raise} by
+introducing an effect over which it makes no sense to map a function while
+keeping the effect untouched.
+
+\subsection{Alternative Approaches}
+
+Another solution might involve an operation $negation :
+\mathcal{F}_{\Sigma}(o) \to 1$. Instead of putting the positive form and
+the negative form into two subtrees of the computation, we will put the
+negative form into a label, as an argument of an operation. The meaning of
+the effect could then be read as: if you are trying to negate the
+proposition that is being computed by this process, you should just run the
+process that I am giving you here instead of continuing to run my
+continuation.
+
+However, this solution hits the same fundamental obstacle as the one with
+$\texttt{get\_polarity}$, that is, it no longer really makes sense to map a
+function over such a computation. To give an example, if I had a
+proposition $A$ with a suggested negative form $A_n$, trying to conjoin to
+it a propositon $B$ would result in a proposition $A \land B$ with a
+suggested negative form $A_n$, which is incorrect.
+
+Finally, a solution which seems the most natural is to abandon the general
+effects hypothesis and not use effects to model this particular type
+generalization, since it does not seem to behave like a computational
+effect at all. This still remains as a totally valid solution which is not
+any more difficult than it is in frameworks that do not work with
+effects. Even though we would abandon the general effects hypothesis (or at
+least weaken it), the pragmatic effects hypothesis would still stand
+because double negation is not a pragmatic effect.
+
+\section{A Discussion of the Merits of the Approach Described Above, or
+  Rather the Lack of}
+
+We can judge the solution that we have arrived at in several ways. On the
+one hand, it captures the empirical ground covered by the theory we aimed
+to emulate and it does not need to change the grammar more than the
+original approach did (all the logical operators end up rewritten in both
+cases).
+
+On the other hand, the solutions described above break the central premise
+of my framework, which is based on the observation that one can map a
+function over the generalized (monadic) type in a generic way and get a
+correct/reasonable result.
+
+This particular phenomenon might stand as a challenge to the general
+effects hypothesis, the idea that all type generalizations are secretly
+trying to implement some kind of effect. This kind of non-compositionality,
+in which a function depends not just on the value of its argument, but also
+on the way it has been put together, would perhaps need some specific
+machinery if it would prove itself to be more common in semantics.
+
+However, I tend to see this as more of an isolated occurrence. While the
+construction managed to emulate an empirically attested phenomenon, I find
+it slightly ad-hoc and difficult to explain using any kind of linguistic
+intuition. The closest I get to understanding it is that is just a generic
+construction one can use to coerce a function into an involution\footnote{A
+  function which is its own inverse.}.
+
+Let us imagine we have some set $A$ and a function $f : A \to A$ that we
+would like to adapt into some involution $g$. Applying $g$ to a value once
+should have the same (or somehow similar) effect as applying $f$
+once. Applying $g$ twice must be the identity function. We can consider an
+extended domain $A \times A$ and for each value $x \in A$ pairs $p(x)$ of
+the form $(x, f(x))$. The swapping operation $\lambda (a, b).\ (b, a)$ is
+then just the function $g$ we were looking for. We have the following:
+
+\begin{align*}
+\pi_1(p(x)) &= x \\
+\pi_1(g(p(x))) &= f(x) \\
+\pi_1(g(g(p(x)))) &= \pi_1(p(x)) = x
+\end{align*}
 
 \bibliography{refs}
 \bibliographystyle{plain}

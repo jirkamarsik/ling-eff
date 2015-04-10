@@ -198,6 +198,9 @@ let dand p_thunk q_thunk () =
 
 let dexists p =
   p (d#fresh ())
+(* TODO: Why not?
+let dexists p =
+  unpolarize (fun () -> p (d#fresh ())) () *)
 (* let dexists p =
      p (fresh ()) *)
 
