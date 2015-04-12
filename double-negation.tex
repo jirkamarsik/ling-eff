@@ -504,5 +504,128 @@ then just the function $g$ we were looking for. We have the following:
 \bibliography{refs}
 \bibliographystyle{plain}
 
+\appendix
+
+\section{Reply to Maxime}
+
+The main reason I don't like this solution is due to the fact that it
+breaks the stability condition (i.e., the idea that using $\texttt{fmap}$
+to perform operations over the enriched values (computations) in an
+agnostic way should produce correct results). It is this condition, which I
+have observed in several pragmasemantic theories, that drove me to adopt
+effects.
+
+To recount just a few of the examples:
+
+\begin{itemize}
+\item if we have an indefinite NP meaning, like the one of ``\textit{some
+  man}'', we can say that it introduces a new entity $x$ which is a man and
+  when we use this NP in some context, e.g.\ as a subject to a verb like
+  ``\textit{whistles}'', we can apply the verb directly to $x$ to get a
+  meaning $\semdom{whistles}(x)$ which still creates a new entity $x$ which
+  is a man;
+
+\item if we have an anaphoric NP meaning, like the one of ``\textit{he}'',
+  we can say that it accesses the discourse state and looks up a salient
+  antecedent $x$ and when we use this NP in some context, e.g.\ as the
+  argument of a possessive construction involving a relational noun like
+  ``\textit{mother}'', we apply the meaning of the relational noun
+  directly to $x$ to get a meaning $\semdom{mother}(x)$ which still
+  accesses the discourse state to lookup an antecedent $x$ to finally yield
+  its mother;
+
+\item if we have an intensional NP meaning, like the one of ``\textit{the
+  morning star}'', we can say that it accesses the current world $w$ and
+  then has the meaning of $\semdom{the-morning-star}(w)$ and when we use
+  this NP in some context, e.g.\ as the subject of an adjectival predicate
+  like ``\textit{is bright}'', we apply the meaning of the adjective
+  directly to $\semdom{the-morning-star}(w)$ to get a meaning
+  $\semdom{bright}(\semdom{the-morning-star}(w))$ which still access the
+  current world $w$ and assigns to the world a truth value;
+
+\item if we have a deictic NP meaning, like the one of ``\textit{I}''\ldots
+
+\item if we have a presuppositional NP meaning, like the one of
+  ``\textit{the king of France}''\ldots
+
+\item and then if we end up combining different kinds of NP meanings, such
+  as in a phrase like ``\textit{I like her bicycle}'', we produce a meaning
+  which
+  \begin{enumerate}
+  \item asks for the identity of the speaker, $i$,
+  \item accesses the discourse state to find an antecedent $h$ for the
+    pronoun ``\textit{her}'',
+  \item presupposes the existence of a bicycle $b$ owned by $h$
+  \item and finally yields the value of $\semdom{like}(i, b)$.
+\end{enumerate}
+\end{itemize}
+
+The takeaway is that the notion of a side effect introduced a new dimension
+in which we can compose the pragmatic/non-compositional aspects of a
+meaning and that by doing so, we can have meanings for lexical items like
+transitive and intransitive verbs, copular constructions and relational
+nouns which do not need to be adapted to the kind of NP they work on.
+
+The insight motivating and validating this approach is that there exist
+generic formulations for the meanings of lexical items that faithfully
+capture the different shifts these meanings have to undergo when the
+grammar is enriched with anaphora, deixis, quantification, presuppositions
+and other phenomena.
+
+Now when we look at the treatment of double negation as an effect, it does
+not follow the same pattern. Let us look at the VP ``\textit{trusts
+  nobody}'' whose meaning is a polarity-sensitive function from individuals
+to propositions, that when given an individual $x$ will produce a positive
+variant which can be paraphrased as ``\textit{$x$ trusts nobody}'' and a
+negative variant which can be paraphrased as ``\textit{$x$ trusts
+  somebody}''.  If I then embed this VP inside the sentence ``\textit{I met
+  a man who trusts nobody}'', the resulting meaning will be
+polarity-sensitive with a positive variant ``\textit{I met a man who trusts
+  nobody}'' and a negative one ``\textit{I met a man who trusts
+  somebody}'', which is not the desired negation of the sentence. We do not
+want the polarity-sensitivity of the embedded clause to project and become
+the polarity-sensitivity of the matrix clause. Therefore, we have to
+introduce handlers for polarity-sensitivity into our logical operators (and
+other ``primitive'' operators that consume propositions) that block it so
+that the matrix clause of our example can have the expected default
+negation.
+
+The problem can be perhaps more easily illustrated on the alternative
+solution which introduced an effect called $negation$ using which a
+computation of a proposition can suggest a more suitable negative form. In
+this case, the VP ``\textit{trusts nobody}'' would be a function from
+individuals $x$ to the static propositions ``\textit{$x$ trusts nobody}''
+that suggest that ``\textit{$x$ trusts somebody}'' is their negation. If we
+then look at the complex sentence ``\textit{I met a man who trusts
+  nobody}'', its meaning would be a computation that produces ``\textit{I
+  met a man $x$ who trusts nobody}'' but also suggests that ``\textit{$x$
+  trusts somebody}'' is its negation.
+
+I would surmise that the difficulties come from the fact that negation
+belongs to the dimension of logical values and propositions and not to the
+dimension of side effects. For example, an anaphoric expression carries its
+anaphoricity into a larger expression in which it occurs, while when a
+formula that is the negation of $A$ becomes embedded in some larger
+formula, the larger formula does not become the negation of $A$. If we use
+the side effects machinery to implement negation, we can avoid complicating
+our types, but then we have to complicate all our meanings by remembering
+to always scrub any negation effects from a formula before embedding it in
+some context.
+
+As for how to do better?
+
+\begin{itemize}
+\item One way would be to not model double negation as a side effect and
+  use pairs of computations of propositions as the meanings of sentences,
+  as does Sai. This approach could be made maybe more systematic by
+  defining some intermediate representation on which these kinds of
+  non-compositionalities could be implemented more generally.
+\item Or maybe do not copy Sai's approach and explore other ways. I haven't
+  looked into the DN-DRT literature, but it seems to me that we are taking
+  the assumption from DRT that negation completely seals off what we put
+  underneath it and then we have to struggle with it by inventing operators
+  that let us open the negation and recover what was lost.
+\end{itemize}
+
 \end{document}
 
