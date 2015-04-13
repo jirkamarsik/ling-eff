@@ -627,5 +627,27 @@ As for how to do better?
   that let us open the negation and recover what was lost.
 \end{itemize}
 
+\section{}
+
+We can show that the kind of behavior implemented in Sai's thesis is
+impossible to recreate in our framework under the following assumptions:
+
+\begin{itemize}
+\item we want to keep the stability condition (i.e.\ existing denotations
+  should be raised by using the generic monad operations ($\hsbind$,
+  $\texttt{pure}$ or those of the underlying (applicative) functor,
+  $\otimes$ and $\texttt{fmap}$))
+\item we want double negation to be treated as an effect (i.e.\ the
+  denotations of sentences should still be computations of propositions,
+  the denotation should signal any alternative negative forms via an
+  effect)
+\end{itemize}
+
+Now take as a counter-example any operator in our gramamar that wants to
+act on a sentence meaning, besides negation of course. We can take the
+standard meaning of a relative pronoun as an example. The relative pronoun
+will, together with a common noun $n$ and a relative clause $R$, form a new
+predicate. This predicate will take an individual $x$ and state that $R(x)$
+
 \end{document}
 
