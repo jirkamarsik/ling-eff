@@ -20,6 +20,7 @@
 \newcommand{\hsbind}{\mathbin{\texttt{>>=}}}
 \newcommand{\hsrevbind}{\mathbin{\texttt{=<<}}}
 \newcommand{\hsseq}{\mathbin{\texttt{>>}}}
+\newcommand{\hscomp}{\mathbin{\texttt{>=>}}}
 \newcommand{\occons}{\mathbin{::}}
 
 \newcommand{\statecps}[3]{\llbracket #3 \rrbracket^{#2}_{#1}}
@@ -627,27 +628,167 @@ As for how to do better?
   that let us open the negation and recover what was lost.
 \end{itemize}
 
-\section{}
+\section{Second Reply to Maxime}
 
-We can show that the kind of behavior implemented in Sai's thesis is
-impossible to recreate in our framework under the following assumptions:
+\subsection{Sai's Construction is Not a Monad}
+
+I will start off by showing that the construction proposed by Sai is not
+monadic. We can present a monad in terms of a Kleisli triple, which is
+composed of a function $F$ on types and the two operations $\texttt{pure}$
+and $\hscomp$, whose types and laws are given below.
+
+\begin{align*}
+  \texttt{pure} &: \alpha \to F \alpha \\
+  \hscomp &: (\alpha \to F \beta) \to (\beta \to F \gamma) \to (\alpha \to F \gamma)
+\end{align*}
+\begin{align*}
+  \texttt{pure} \hscomp f &= f \\
+  f \hscomp \texttt{pure} &= f \\
+  f \hscomp (g \hscomp h) &= (f \hscomp g) \hscomp h
+\end{align*}
+
+We can now try and fit Sai's system into this framework.
+
+\begin{align*}
+  F \alpha &= \alpha \times \alpha \\
+  \texttt{pure}\ A &= \left< A, \dnot A \right> \\
+  f \hscomp g &= g \circ \pi_1 \circ f
+\end{align*}
+
+This captures the idea behind Sai's approach:
 
 \begin{itemize}
-\item we want to keep the stability condition (i.e.\ existing denotations
-  should be raised by using the generic monad operations ($\hsbind$,
-  $\texttt{pure}$ or those of the underlying (applicative) functor,
-  $\otimes$ and $\texttt{fmap}$))
-\item we want double negation to be treated as an effect (i.e.\ the
-  denotations of sentences should still be computations of propositions,
-  the denotation should signal any alternative negative forms via an
-  effect)
+\item the types are generalized to become pairs of positive and negative
+  variants,
+\item older values (simple dynamic propositions) are lifted by creating
+  pairs in which the second item corresponds to the dynamic negation of the
+  original value
+\item when we have some process $f$ that produces a pair of dynamic
+  propositions and that we want to compose with another process $g$ which
+  does not care about the negative variant and just wants access to the
+  non-negated positive dynamic proposition, we simply apply $\pi_1$ to the
+  pair we got from $f$ and pass the result to $g$
 \end{itemize}
 
-Now take as a counter-example any operator in our gramamar that wants to
-act on a sentence meaning, besides negation of course. We can take the
-standard meaning of a relative pronoun as an example. The relative pronoun
-will, together with a common noun $n$ and a relative clause $R$, form a new
-predicate. This predicate will take an individual $x$ and state that $R(x)$
+We can check that our translation is faithful by trying to use the two
+operations above to automatically raise operators such as dynamic
+conjunction into the new double-negation theory.
+
+\begin{align*}
+  \hsbind &: F \alpha \to (\alpha \to F \beta) \to F \beta \\
+  m \hsbind f &= ((\lambda x. m) \hscomp f)\ () \\
+              &= f (\pi_1(m))
+\end{align*}
+
+We start off by introducing the $\hsbind$ operator. It is essentially a
+variant of the $\hscomp$ operator which is more practical for what
+follows\footnote{The reason I present monads using $\hscomp$ instead of
+  starting directly with $\hsbind$ is that $\hscomp$ makes the monad laws
+  much cleaner.}. The intuition behind the operator is that we have some
+pair of positive/negative dynamic propositions $m$ and we have some
+function $f$ which expects a simple dynamic proposition. What we do is
+simply pass to $f$ the positive variant of $m$.
+
+Now we can look at the general raising function that lifts a function over
+simple values into a function over monadic values that we talked about back
+in \ref{ssec:raise}.
+
+\begin{align*}
+  raise_2 &: (\alpha \to \beta \to \gamma) \to (F \alpha \to F \beta \to F
+  \gamma) \\
+  raise_2\ f &= \lambda X Y.\ X \hsbind (\lambda x.\ Y \hsbind (\lambda
+  y.\ \texttt{pure}\ (f\ x\ y))) \\
+            &= \lambda X Y. \left< f\ (\pi_1 X)\ (\pi_1 Y), \dnot
+  (f\ (\pi_1 X)\ (\pi_1 Y)) \right> \\
+  raise_2\ \dand &= \lambda X Y. \left< (\pi_1X) \dand (\pi_1Y), \dnot
+  ((\pi_1 X) \dand (\pi_1 Y)) \right>
+\end{align*}
+
+By applying $raise_2$ to dynamic conjunction, we arrive at the extended
+definition of conjunction used by Sai. Thus we manage to derive from the
+general idea of the monadic raising function and the two lines that define
+$\texttt{pure}$ and $\hsbind$ the same operator that Sai postulated in his
+thesis. This seems to suggest that this translation is a faithful one
+indeed.
+
+However, there are two problems with the ``monad'' we just
+introduced. First of all, $\texttt{pure}$ is not general and is only
+applicable to values of type $\Omega$ (dynamic propositions). Secondly,
+even if we ignore this and just rest in the domain of dynamic propositions,
+permitting only types $F \Omega$, we run into a more severe problem. The
+``monad'' that we proposed actually does not satisfy the right identity
+law.
+
+$$
+f \hscomp \texttt{pure} = f
+$$
+ 
+The reason is simple. The composition operator $\hscomp$ forgets about the
+negative form produced by $f$ and then $\texttt{pure}$ replaces that
+negative form with the default one produced by dynamic negation. The two
+terms are thus not equal, since the one on the left replaces the proposed
+negative form $f$ with the default dynamic negation.
+
+We can thus see that the construction proposed by Sai does not form a
+monad. A question that we might ask ourselves now is whether Sai's approach
+can still be used in our framework without using the exact same ``monad''
+proposed above.
+
+\subsection{Sai's Approach is Not Functorial}
+
+The problem lies with the fact that the ``monad'' proposed above does not
+only break the monad right identity, but it also breaks the functor laws.
+
+\begin{align*}
+  \texttt{fmap}\ id &= id \\
+  \texttt{fmap}\ (f \circ g) &= \texttt{fmap}\ f \circ \texttt{fmap}\ g
+\end{align*}
+
+The $\texttt{fmap}$ derived from Sai's construction, which raises unary
+functions from simple values to monadic values, is very much like $raise_2$
+in that looks only at the positive variant of its argument and then it
+reintroduces a negative variant using dynamic negation. The law which is
+problematic is the identity law, since mapping the identity function over a
+pair of propositions is not an identity, but something that replaces the
+negative variant of its argumant with a dynamic negation of the positive
+variant.
+
+We can make an informal argument that such strategy would not work in our
+approach either, since our representations of computations are based on a
+monad and we use $\texttt{fmap}$ and the other $raise_n$ operators, which
+assume functoriality.
+
+Let us imagine a computation $A$ of a proposition that explicitly suggests
+some alternative negative variant $A_n$ via an effect. If such a
+proposition is to be embedded in some other construction (e.g.\ as a
+relative clause), we would like that the result not suggest that $A_n$ is
+still its negative variant. We would therefore like it to have a $raise_1$
+(a.k.a.\ $\texttt{fmap}$) which strips any suggested negative variants
+present in the value being mapped over. However, this means that
+$\texttt{fmap}\ id$ is no longer the identity function, but a function that
+erases the suggested negative variants off of propositions. This is in
+contradiction with the functor laws by which our representation is bound.
+
+
+%% We can show that the kind of behavior implemented in Sai's thesis is
+%% impossible to recreate in our framework under the following assumptions:
+
+%% \begin{itemize}
+%% \item we want to keep the stability condition (i.e.\ existing denotations
+%%   should be raised by using the generic monad operations ($\hsbind$,
+%%   $\texttt{pure}$ or those of the underlying (applicative) functor,
+%%   $\otimes$ and $\texttt{fmap}$))
+%% \item we want double negation to be treated as an effect (i.e.\ the
+%%   denotations of sentences should still be computations of propositions,
+%%   the denotation should signal any alternative negative forms via an
+%%   effect)
+%% \end{itemize}
+
+%% Now take as a counter-example any operator in our gramamar that wants to
+%% act on a sentence meaning, besides negation of course. We can take the
+%% standard meaning of a relative pronoun as an example. The relative pronoun
+%% will, together with a common noun $n$ and a relative clause $R$, form a new
+%% predicate. This predicate will take an individual $x$ and state that $R(x)$
 
 \end{document}
 
