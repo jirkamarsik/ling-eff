@@ -16,7 +16,7 @@
   (x ::= variable-not-otherwise-mentioned)
   (c ::= variable-not-otherwise-mentioned)
   (v ::= variable-not-otherwise-mentioned)
-  (op ::= GET FRESH ASSERT SCOPE-OVER)
+  (op ::= variable-not-otherwise-mentioned)
   (G ::= * (x : t G))
   (C ::= * (c : t C))
   (E ::= * (op : (t -> t) E))
@@ -282,6 +282,8 @@
 (define cover (make-coverage eval))
 
 (define (normalizes? e)
+  (print e)
+  (newline)
   (let* ([normal-forms (apply-reduction-relation* eval e)]
          [n (length normal-forms)])
     (set! checked (+ 1 checked))
@@ -301,3 +303,13 @@
     (check-reduction-relation
      eval
      normalizes?)))
+
+
+'['subst (λ (lws) (list (list-ref lws 4) "[" (list-ref lws 2) "/" (list-ref lws 3) "]"))]
+
+(with-compound-rewriters (['no-match (λ (lws) (list (list-ref lws 2) " ∉ " (list-ref lws 3)))]
+                          ['types (λ (lws) (list (list-ref lws 2) " ⊢ " (list-ref lws 5) " : " (list-ref lws 6)))]
+                          ['env (λ (lws) (list (list-ref lws 3) " : " (list-ref lws 4) " ∈ " (list-ref lws 2)))])
+  (begin (render-reduction-relation eval)
+         (render-judgment-form types)))
+
