@@ -8,7 +8,6 @@
          c
          (pure e)
          (op e (λ (x t) e))
-         (e >>= (λ (x t) e))
          (handler (op_!_ e) ... (pure e)))
   (t ::= (t -> t)
          v
@@ -48,16 +47,16 @@
 
 (define-judgment-form
   EH
-  #:mode (env I I O)
-  #:contract (env context key t)
+  #:mode (env I O I)
+  #:contract (env key t context)
   
-  [-------------------
-   (env (key : t context) key t)]
+  [-----------------------------
+   (env key t (key : t context))]
   
-  [(env context key_1 t_1)
+  [(env key_1 t_1 context)
    (side-condition (different key_1 key_2))
-   ------------------------------------
-   (env (key_2 : t_2 context) key_1 t_1)])
+   ----------------------------------------
+   (env key_1 t_1 (key_2 : t_2 context))])
 
 (define-judgment-form
   EH
@@ -73,33 +72,25 @@
    ------------------------------------------
    (types G C E (λ (x t_1) e) (t_1 -> t_2))]
   
-  [-------------------------
-   (types (x : t G) C E x t)]
-  
-  [(env G x t)
+  [(env x t G)
    -----------------
    (types G C E x t)]
   
-  [(env C c t)
+  [(env c t C)
    -----------------
    (types G C E c t)]
-  
-  [(env E op (t_1 -> t_2))
-   (types G C E e_arg t_1)
-   (types G C E e_k (t_2 -> (F (t_3))))
-   ---------------------------------
-   (types G C E (op e_arg e_k) (F t_3))]
   
   [(types G C E e t)
    ----------------------------
    (types G C E (pure e) (F t))]
   
-  [(types G C E e_1 (F t_1))
-   (types G C E e_2 (t_1 -> (F t_2)))
-   -----------------------------------
-   (types G C E (e_1 >>= e_2) (F t_2))]
+  [(env op (t_1 -> t_2) E)
+   (types G C E e_arg t_1)
+   (types G C E e_k (t_2 -> (F (t_3))))
+   ---------------------------------
+   (types G C E (op e_arg e_k) (F t_3))]
   
-  [(env E op (t_arg -> t_res)) ...
+  [(env op (t_arg -> t_res) E) ...
    (types G C E e_h (t_arg -> ((t_res -> (F t_out_h)) -> (F t_out_h)))) ...
    (types G C E e_p (t_in -> (F t_out)))
    (side-condition (all-match t_out (t_out_h ...)))
@@ -125,36 +116,32 @@
    (free-in x e)]
   [(free-in x (op e_arg e_k))
    ,(or (term (free-in x e_arg)) (term (free-in x e_k)))]
-  [(free-in x (e_m >>= e_k))
-   ,(or (term (free-in x e_m)) (term (free-in x e_k)))]
   [(free-in x (handler (op_i e_i) ... (pure e_p)))
    ,(or (ormap identity (term ((free-in x e_i) ...))) (term (free-in x e_p)))])
 
 (define-metafunction EH
-  subst : x e e -> e
-  [(subst x e_new (e_f e_a))
-   ((subst x e_new e_f) (subst x e_new e_a))]
-  [(subst x e_new (λ (x t) e_body))
+  subst : e x e -> e
+  [(subst (e_f e_a) x e_new)
+   ((subst e_f x e_new) (subst e_a x e_new))]
+  [(subst (λ (x t) e_body) x e_new)
    (λ (x t) e_body)]
-  [(subst x e_new (λ (x_arg t) e_body))
+  [(subst (λ (x_arg t) e_body) x e_new)
    ,(if (term (free-in x_arg e_new))
       (let ([x_f (variable-not-in (term (e_new e_body)) (term x_arg))])
-        (term (λ (,x_f t) (subst x e_new (subst x_arg ,x_f e_body)))))
-      (term (λ (x_arg t) (subst x e_new e_body))))]
-  [(subst x e_new x)
+        (term (λ (,x_f t) (subst (subst e_body x_arg ,x_f) x e_new))))
+      (term (λ (x_arg t) (subst e_body x e_new))))]
+  [(subst x x e_new)
    e_new]
-  [(subst x e_new x_different)
+  [(subst x_different x e_new)
    x_different]
-  [(subst x e_new c)
+  [(subst c x e_new)
    c]
-  [(subst x e_new (pure e))
-   (pure (subst x e_new e))]
-  [(subst x e_new (op e_arg e_k))
-   (op (subst x e_new e_arg) (subst x e_new e_k))]
-  [(subst x e_new (e_m >>= e_k))
-   ((subst x e_new e_m) >>= (subst x e_new e_k))]
-  [(subst x e_new (handler (op_i e_i) ... (pure e_p)))
-   (handler (op_i (subst x e_new e_i)) ... (pure (subst x e_new e_p)))])
+  [(subst (pure e) x e_new)
+   (pure (subst e x e_new))]
+  [(subst (op e_arg e_k) x e_new)
+   (op (subst e_arg x e_new) (subst e_k x e_new))]
+  [(subst (handler (op_i e_i) ... (pure e_p)) x e_new)
+   (handler (op_i (subst e_i x e_new)) ... (pure (subst e_p x e_new)))])
 
 (define eval
   (compatible-closure 
@@ -162,30 +149,31 @@
     EH
     #:domain e
     (--> ((λ (x t) e_1) e_2)
-         (subst x e_2 e_1)
+         (subst e_1 x e_2)
          "beta")
-    (--> ((pure e_x) >>= e_k)
-         (e_k e_x)
-         "pure->>=")
-    (--> ((op e_arg (λ (x t) e_1)) >>= e_k2)
-         (op e_arg (λ (x_f t) ((subst x x_f e_1) >>= e_k2)))
-         (fresh x_f)
-         "op->>=")
     (--> ((handler (op_i e_i) ... (pure e_p)) (pure e_v))
          (e_p e_v)
          "handle-pure")
     (--> ((handler (op_1 e_1) ... (op_2 e_2) (op_3 e_3) ... (pure e_p)) (op_2 e_arg (λ (x t) e_m)))
-         ((e_2 e_arg) (λ (x_f t) ((handler (op_1 e_1) ... (op_2 e_2) (op_3 e_3) ... (pure e_p)) (subst x x_f e_m))))
+         ((e_2 e_arg) (λ (x_f t) ((handler (op_1 e_1) ... (op_2 e_2) (op_3 e_3) ... (pure e_p)) (subst e_m x x_f))))
          (fresh x_f)
          "handle-op")
     (--> ((handler (op_i e_i) ... (pure e_p)) (op e_arg (λ (x t) e_m)))
-         (op e_arg (λ (x_f t) ((handler (op_i e_i)... (pure e_p)) (subst x x_f e_m))))
+         (op e_arg (λ (x_f t) ((handler (op_i e_i)... (pure e_p)) (subst e_m x x_f))))
          (side-condition (term (no-match op (op_i ...))))
          (fresh x_f)
          "handle-missing-op"))
    EH
    e))
 
+(define-metafunction EH
+  >>= : e e -> e
+  [(>>= e_m e_k)
+   ((handler (pure e_k)) e_m)])
+
+
+
+;; Some bigger example terms
 
 (define std-consts
   (term (unit : u (
@@ -221,13 +209,13 @@
   (term (handler
           (GET (λ (u u) (λ (k (c -> (F (c -> (F o)))))
                             (pure (λ (e c)
-                                    ((k e) >>=
+                                    (>>= (k e)
                                      (λ (f (c -> (F o))) (f e))))))))
           (ASSERT (λ (p o) (λ (k (u -> (F (c -> (F o)))))
-                    ((k unit) >>=
+                    (>>= (k unit)
                       (λ (Q (c -> (F o)))
                         (pure (λ (e c)
-                                ((Q e) >>=
+                                (>>= (Q e)
                                  (λ (q o) (pure ((and p) q)))))))))))
           (pure (λ (x o) (pure (λ (e c) (pure x))))))))
 
@@ -236,7 +224,7 @@
 (define drs
   (term (λ (e c)
           (λ (P (F o))
-            ((,drs-handler P) >>=
+            (>>= (,drs-handler P)
              (λ (f (c -> (F o))) (f e)))))))
 
 (check-type drs (term (c -> ((F o) -> (F o)))))
@@ -257,6 +245,8 @@
 
 
 
+;; Generating counter-examples to normalization
+
 (define-judgment-form EH
   #:mode (alpha-equiv I I)
   
@@ -268,7 +258,7 @@
    (alpha-equiv (any_1 ...) (any_2 ...))]
 
   [(where x_3 ,(variable-not-in (term (e_1 e_2)) (string->uninterned-symbol "x")))
-   (alpha-equiv (subst x_1 x_3 e_1) (subst x_2 x_3 e_2))
+   (alpha-equiv (subst e_1 x_1 x_3) (subst e_2 x_2 x_3))
    -------------------------------------------------------------------------------
    (alpha-equiv (λ (x_1 t) e_1) (λ (x_2 t) e_2))])
 
@@ -282,8 +272,6 @@
 (define cover (make-coverage eval))
 
 (define (normalizes? e)
-  (print e)
-  (newline)
   (let* ([normal-forms (apply-reduction-relation* eval e)]
          [n (length normal-forms)])
     (set! checked (+ 1 checked))
@@ -305,11 +293,21 @@
      normalizes?)))
 
 
-'['subst (λ (lws) (list (list-ref lws 4) "[" (list-ref lws 2) "/" (list-ref lws 3) "]"))]
 
-(with-compound-rewriters (['no-match (λ (lws) (list (list-ref lws 2) " ∉ " (list-ref lws 3)))]
-                          ['types (λ (lws) (list (list-ref lws 2) " ⊢ " (list-ref lws 5) " : " (list-ref lws 6)))]
-                          ['env (λ (lws) (list (list-ref lws 3) " : " (list-ref lws 4) " ∈ " (list-ref lws 2)))])
-  (begin (render-reduction-relation eval)
-         (render-judgment-form types)))
+;; Typesetting the language definition
 
+(define (render)
+  (with-compound-rewriters (['no-match (λ (lws) (list "" (list-ref lws 2) " ∉ " (list-ref lws 3) ""))]
+                            ['all-match (λ (lws) (list "" (list-ref lws 2) " = " (list-ref lws 3) ""))]
+                            ['subst (λ (lws) (list "" (list-ref lws 2) "[" (list-ref lws 3) "/" (list-ref lws 4) "]"))]
+                            ['types (λ (lws) (list "" (list-ref lws 2) ", " (list-ref lws 3) ", " (list-ref lws 4) " ⊢ " (list-ref lws 5) " : " (list-ref lws 6) ""))]
+                            ['env (λ (lws) (list "" (list-ref lws 2) " : " (list-ref lws 3) " ∈ " (list-ref lws 4) ""))])
+    (with-atomic-rewriter 't "τ"
+    (with-atomic-rewriter '-> "→"
+    (with-atomic-rewriter 'F "𝓕"
+    (with-atomic-rewriter 'G "Γ"
+    (with-atomic-rewriter 'C "Σ"
+    (with-atomic-rewriter '* "·"
+      (begin (render-language EH "grammar.ps")
+             (render-judgment-form types "typings.ps")
+             (render-reduction-relation eval "reductions.ps"))))))))))
