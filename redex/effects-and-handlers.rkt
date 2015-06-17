@@ -8,7 +8,8 @@
          c
          (pure e)
          (op e (λ (x t) e))
-         (handler (op_!_ e) ... (pure e)))
+         (handler (op_!_ e) ... (pure e))
+         (B e))
   (t ::= (t -> t)
          v
          (F t))
@@ -69,7 +70,7 @@
    (types G C E (e_1 e_2) t_3)]
   
   [(types (x : t_1 G) C E e t_2)
-   ------------------------------------------
+   ----------------------------------------
    (types G C E (λ (x t_1) e) (t_1 -> t_2))]
   
   [(env x t G)
@@ -87,15 +88,19 @@
   [(env op (t_1 -> t_2) E)
    (types G C E e_arg t_1)
    (types G C E e_k (t_2 -> (F (t_3))))
-   ---------------------------------
+   ------------------------------------
    (types G C E (op e_arg e_k) (F t_3))]
   
   [(env op (t_arg -> t_res) E) ...
    (types G C E e_h (t_arg -> ((t_res -> (F t_out_h)) -> (F t_out_h)))) ...
    (types G C E e_p (t_in -> (F t_out)))
    (side-condition (all-match t_out (t_out_h ...)))
-   -------------------------------------------------------------------
-   (types G C E (handler (op e_h) ... (pure e_p)) ((F t_in) -> (F t_out)))])
+   ------------------------------------------------------------------------
+   (types G C E (handler (op e_h) ... (pure e_p)) ((F t_in) -> (F t_out)))]
+  
+  [(types G C E e (t_1 -> (F t_2)))
+   ------------------------------------
+   (types G C E (B e) (F (t_1 -> t_2)))])
 
 
 (define-metafunction EH
@@ -117,7 +122,9 @@
   [(free-in x (op e_arg e_k))
    ,(or (term (free-in x e_arg)) (term (free-in x e_k)))]
   [(free-in x (handler (op_i e_i) ... (pure e_p)))
-   ,(or (ormap identity (term ((free-in x e_i) ...))) (term (free-in x e_p)))])
+   ,(or (ormap identity (term ((free-in x e_i) ...))) (term (free-in x e_p)))]
+  [(free-in x (B e))
+   (free-in x e)])
 
 (define-metafunction EH
   subst : e x e -> e
@@ -141,7 +148,9 @@
   [(subst (op e_arg e_k) x e_new)
    (op (subst e_arg x e_new) (subst e_k x e_new))]
   [(subst (handler (op_i e_i) ... (pure e_p)) x e_new)
-   (handler (op_i (subst e_i x e_new)) ... (pure (subst e_p x e_new)))])
+   (handler (op_i (subst e_i x e_new)) ... (pure (subst e_p x e_new)))]
+  [(subst (B e) x e_new)
+   (B (subst e x e_new))])
 
 (define eval
   (compatible-closure 
@@ -151,6 +160,13 @@
     (--> ((λ (x t) e_1) e_2)
          (subst e_1 x e_2)
          "beta")
+    (--> (B (λ (x t) (pure e)))
+         (pure (λ (x t) e))
+         "B-pure")
+    (--> (B (λ (x t) (op e_a (λ (x_k t_k) e_k))))
+         (op e_a (λ (x_k t_k) (B (λ x t) e_k)))
+         (side-condition (not (term (free-in x e_a))))
+         "B-op")
     (--> ((handler (op_i e_i) ... (pure e_p)) (pure e_v))
          (e_p e_v)
          "handle-pure")
@@ -181,23 +197,29 @@
          or : (o -> (o -> o)) (
          imp : (o -> (o -> o)) (
          not : (o -> o) (
+         true : o (
+         false : o (
          ex : ((i -> o) -> o) (
          all : ((i -> o) -> o) (
          sel : (c -> i) (
          nil : c (
          add : (i -> (c -> c)) (
+         eq_i : (i -> (i -> o)) (
+         man : (i -> o) (
+         woman : (i -> o) (
          love : (i -> (i -> o)) (
          john : i (
          mary : i (
          sleep : (i -> o)
-         *))))))))))))))))
+         *)))))))))))))))))))))
 
 (define std-effects
   (term (GET : (u -> c) (
          FRESH : (u -> i) (
          ASSERT : (o -> u) (
-         SCOPE-OVER : (((i -> (F o)) -> (F o)) -> i)
-         *))))))
+         SCOPE-OVER : (((i -> (F o)) -> (F o)) -> i) (
+         PRESUPPOSE : ((i -> o) -> i)
+         *)))))))
 
 (define (check-type exp type)
   (test-equal (judgment-holds
@@ -210,13 +232,26 @@
           (GET (λ (u u) (λ (k (c -> (F (c -> (F o)))))
                             (pure (λ (e c)
                                     (>>= (k e)
-                                     (λ (f (c -> (F o))) (f e))))))))
+                                         (λ (f (c -> (F o))) (f e))))))))
+          (FRESH (λ (u u) (λ (k (i -> (F (c -> (F o)))))
+                            (pure (λ (e c)
+                                    (>>= (B (λ (x i) (>>= (k x)
+                                                          (λ (f (c -> (F o)))
+                                                            (f ((add x) e))))))
+                                         (λ (pred (i -> o)) (pure (ex pred)))))))))
           (ASSERT (λ (p o) (λ (k (u -> (F (c -> (F o)))))
                     (>>= (k unit)
-                      (λ (Q (c -> (F o)))
-                        (pure (λ (e c)
-                                (>>= (Q e)
-                                 (λ (q o) (pure ((and p) q)))))))))))
+                         (λ (Q (c -> (F o)))
+                           (pure (λ (e c)
+                                   (>>= (Q e)
+                                        (λ (q o) (pure ((and p) q)))))))))))
+          (PRESUPPOSE (λ (prop (i -> o)) (λ (k (i -> (F (c -> (F o)))))
+                                           (pure (λ (e c)
+                                                   (>>= (B (λ (x i) (>>= (k x)
+                                                                         (λ (f (c -> (F o)))
+                                                                           (f ((add x) e))))))
+                                                        (λ (pred (i -> o)) (pure (ex (λ (x i) ((and (prop x))
+                                                                                               (pred x))))))))))))
           (pure (λ (x o) (pure (λ (e c) (pure x))))))))
 
 (check-type drs-handler (term ((F o) -> (F (c -> (F o))))))
