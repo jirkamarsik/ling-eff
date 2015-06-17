@@ -9,7 +9,7 @@
          (pure e)
          (op e (λ (x t) e))
          (handler (op_!_ e) ... (pure e))
-         (B e))
+         (C e))
   (t ::= (t -> t)
          v
          (F t))
@@ -18,9 +18,9 @@
   (v ::= variable-not-otherwise-mentioned)
   (op ::= variable-not-otherwise-mentioned)
   (G ::= * (x : t G))
-  (C ::= * (c : t C))
+  (S ::= * (c : t S))
   (E ::= * (op : (t -> t) E))
-  (context ::= G C E)
+  (context ::= G S E)
   (key ::= x c op))
 
 (define-metafunction EH
@@ -62,45 +62,45 @@
 (define-judgment-form
   EH
   #:mode (types I I I I O)
-  #:contract (types G C E e t)
+  #:contract (types G S E e t)
   
-  [(types G C E e_1 (t_2 -> t_3))
-   (types G C E e_2 t_2)
+  [(types G S E e_1 (t_2 -> t_3))
+   (types G S E e_2 t_2)
    ------------------------------
-   (types G C E (e_1 e_2) t_3)]
+   (types G S E (e_1 e_2) t_3)]
   
-  [(types (x : t_1 G) C E e t_2)
+  [(types (x : t_1 G) S E e t_2)
    ----------------------------------------
-   (types G C E (λ (x t_1) e) (t_1 -> t_2))]
+   (types G S E (λ (x t_1) e) (t_1 -> t_2))]
   
   [(env x t G)
    -----------------
-   (types G C E x t)]
+   (types G S E x t)]
   
-  [(env c t C)
+  [(env c t S)
    -----------------
-   (types G C E c t)]
+   (types G S E c t)]
   
-  [(types G C E e t)
+  [(types G S E e t)
    ----------------------------
-   (types G C E (pure e) (F t))]
+   (types G S E (pure e) (F t))]
   
   [(env op (t_1 -> t_2) E)
-   (types G C E e_arg t_1)
-   (types G C E e_k (t_2 -> (F (t_3))))
+   (types G S E e_arg t_1)
+   (types G S E e_k (t_2 -> (F (t_3))))
    ------------------------------------
-   (types G C E (op e_arg e_k) (F t_3))]
+   (types G S E (op e_arg e_k) (F t_3))]
   
   [(env op (t_arg -> t_res) E) ...
-   (types G C E e_h (t_arg -> ((t_res -> (F t_out_h)) -> (F t_out_h)))) ...
-   (types G C E e_p (t_in -> (F t_out)))
+   (types G S E e_h (t_arg -> ((t_res -> (F t_out_h)) -> (F t_out_h)))) ...
+   (types G S E e_p (t_in -> (F t_out)))
    (side-condition (all-match t_out (t_out_h ...)))
    ------------------------------------------------------------------------
-   (types G C E (handler (op e_h) ... (pure e_p)) ((F t_in) -> (F t_out)))]
+   (types G S E (handler (op e_h) ... (pure e_p)) ((F t_in) -> (F t_out)))]
   
-  [(types G C E e (t_1 -> (F t_2)))
+  [(types G S E e (t_1 -> (F t_2)))
    ------------------------------------
-   (types G C E (B e) (F (t_1 -> t_2)))])
+   (types G S E (C e) (F (t_1 -> t_2)))])
 
 
 (define-metafunction EH
@@ -123,7 +123,7 @@
    ,(or (term (free-in x e_arg)) (term (free-in x e_k)))]
   [(free-in x (handler (op_i e_i) ... (pure e_p)))
    ,(or (ormap identity (term ((free-in x e_i) ...))) (term (free-in x e_p)))]
-  [(free-in x (B e))
+  [(free-in x (C e))
    (free-in x e)])
 
 (define-metafunction EH
@@ -149,8 +149,8 @@
    (op (subst e_arg x e_new) (subst e_k x e_new))]
   [(subst (handler (op_i e_i) ... (pure e_p)) x e_new)
    (handler (op_i (subst e_i x e_new)) ... (pure (subst e_p x e_new)))]
-  [(subst (B e) x e_new)
-   (B (subst e x e_new))])
+  [(subst (C e) x e_new)
+   (C (subst e x e_new))])
 
 (define eval
   (compatible-closure 
@@ -160,13 +160,13 @@
     (--> ((λ (x t) e_1) e_2)
          (subst e_1 x e_2)
          "beta")
-    (--> (B (λ (x t) (pure e)))
+    (--> (C (λ (x t) (pure e)))
          (pure (λ (x t) e))
-         "B-pure")
-    (--> (B (λ (x t) (op e_a (λ (x_k t_k) e_k))))
-         (op e_a (λ (x_k t_k) (B (λ x t) e_k)))
+         "C-pure")
+    (--> (C (λ (x t) (op e_a (λ (x_k t_k) e_k))))
+         (op e_a (λ (x_k t_k) (C (λ x t) e_k)))
          (side-condition (not (term (free-in x e_a))))
-         "B-op")
+         "C-op")
     (--> ((handler (op_i e_i) ... (pure e_p)) (pure e_v))
          (e_p e_v)
          "handle-pure")
@@ -235,7 +235,7 @@
                                          (λ (f (c -> (F o))) (f e))))))))
           (FRESH (λ (u u) (λ (k (i -> (F (c -> (F o)))))
                             (pure (λ (e c)
-                                    (>>= (B (λ (x i) (>>= (k x)
+                                    (>>= (C (λ (x i) (>>= (k x)
                                                           (λ (f (c -> (F o)))
                                                             (f ((add x) e))))))
                                          (λ (pred (i -> o)) (pure (ex pred)))))))))
@@ -247,7 +247,7 @@
                                         (λ (q o) (pure ((and p) q)))))))))))
           (PRESUPPOSE (λ (prop (i -> o)) (λ (k (i -> (F (c -> (F o)))))
                                            (pure (λ (e c)
-                                                   (>>= (B (λ (x i) (>>= (k x)
+                                                   (>>= (C (λ (x i) (>>= (k x)
                                                                          (λ (f (c -> (F o)))
                                                                            (f ((add x) e))))))
                                                         (λ (pred (i -> o)) (pure (ex (λ (x i) ((and (prop x))
@@ -341,8 +341,9 @@
     (with-atomic-rewriter '-> "→"
     (with-atomic-rewriter 'F "𝓕"
     (with-atomic-rewriter 'G "Γ"
-    (with-atomic-rewriter 'C "Σ"
+    (with-atomic-rewriter 'S "Σ"
     (with-atomic-rewriter '* "·"
+    (with-atomic-rewriter 'C "𝓒"
       (begin (render-language EH "grammar.ps")
              (render-judgment-form types "typings.ps")
-             (render-reduction-relation eval "reductions.ps"))))))))))
+             (render-reduction-relation eval "reductions.ps")))))))))))
