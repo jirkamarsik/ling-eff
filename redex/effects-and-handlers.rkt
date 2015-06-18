@@ -8,7 +8,7 @@
          c
          (pure e)
          (op e (λ (x t) e))
-         (handler (op_!_ e) ... (pure e))
+         (handler (op e) ... (pure e))
          (C e))
   (t ::= (t -> t)
          v
@@ -164,7 +164,7 @@
          (pure (λ (x t) e))
          "C-pure")
     (--> (C (λ (x t) (op e_a (λ (x_k t_k) e_k))))
-         (op e_a (λ (x_k t_k) (C (λ x t) e_k)))
+         (op e_a (λ (x_k t_k) (C (λ (x t) e_k))))
          (side-condition (not (term (free-in x e_a))))
          "C-op")
     (--> ((handler (op_i e_i) ... (pure e_p)) (pure e_v))
@@ -172,10 +172,11 @@
          "handle-pure")
     (--> ((handler (op_1 e_1) ... (op_2 e_2) (op_3 e_3) ... (pure e_p)) (op_2 e_arg (λ (x t) e_m)))
          ((e_2 e_arg) (λ (x_f t) ((handler (op_1 e_1) ... (op_2 e_2) (op_3 e_3) ... (pure e_p)) (subst e_m x x_f))))
+         (side-condition (term (no-match op_2 (op_1 ...))))
          (fresh x_f)
          "handle-op")
     (--> ((handler (op_i e_i) ... (pure e_p)) (op e_arg (λ (x t) e_m)))
-         (op e_arg (λ (x_f t) ((handler (op_i e_i)... (pure e_p)) (subst e_m x x_f))))
+         (op e_arg (λ (x_f t) ((handler (op_i e_i) ... (pure e_p)) (subst e_m x x_f))))
          (side-condition (term (no-match op (op_i ...))))
          (fresh x_f)
          "handle-missing-op"))
@@ -300,14 +301,14 @@
 (define (alpha-equiv? e1 e2)
   (not (null? (judgment-holds (alpha-equiv ,e1 ,e2) #t))))
 
-(define (normal? e)
-  (null? (apply-reduction-relation eval e)))
-
 (define checked 0)
 (define cover (make-coverage eval))
 
 (define (normalizes? e)
-  (let* ([normal-forms (apply-reduction-relation* eval e)]
+  (print e)
+  (newline)
+  (flush-output)
+  (let* ([normal-forms (apply-reduction-relation* eval e #:cache-all? #t)]
          [n (length normal-forms)])
     (set! checked (+ 1 checked))
     (when (= 0 (modulo checked 100))
@@ -336,14 +337,16 @@
                             ['all-match (λ (lws) (list "" (list-ref lws 2) " = " (list-ref lws 3) ""))]
                             ['subst (λ (lws) (list "" (list-ref lws 2) "[" (list-ref lws 3) "/" (list-ref lws 4) "]"))]
                             ['types (λ (lws) (list "" (list-ref lws 2) ", " (list-ref lws 3) ", " (list-ref lws 4) " ⊢ " (list-ref lws 5) " : " (list-ref lws 6) ""))]
-                            ['env (λ (lws) (list "" (list-ref lws 2) " : " (list-ref lws 3) " ∈ " (list-ref lws 4) ""))])
-    (with-atomic-rewriter 't "τ"
-    (with-atomic-rewriter '-> "→"
-    (with-atomic-rewriter 'F "𝓕"
-    (with-atomic-rewriter 'G "Γ"
-    (with-atomic-rewriter 'S "Σ"
-    (with-atomic-rewriter '* "·"
-    (with-atomic-rewriter 'C "𝓒"
-      (begin (render-language EH "grammar.ps")
-             (render-judgment-form types "typings.ps")
-             (render-reduction-relation eval "reductions.ps")))))))))))
+                            ['env (λ (lws) (list "" (list-ref lws 2) " : " (list-ref lws 3) " ∈ " (list-ref lws 4) ""))]
+                            ['free-in (λ (lws) (list "" (list-ref lws 2) " ∈ FV(" (list-ref lws 3) ")"))]
+                            ['not (λ (lws) (list "¬(" (list-ref lws 2) ")"))])
+      (with-atomic-rewriter 't "τ"
+      (with-atomic-rewriter '-> "→"
+      (with-atomic-rewriter 'F "𝓕"
+      (with-atomic-rewriter 'G "Γ"
+      (with-atomic-rewriter 'S "Σ"
+      (with-atomic-rewriter '* "·"
+      (with-atomic-rewriter 'C "𝓒"
+        (begin (render-language EH "grammar.ps" #:nts (remove* '(context key) (language-nts EH)))
+               (render-judgment-form types "typings.ps")
+               (render-reduction-relation eval "reductions.ps")))))))))))
