@@ -87,7 +87,7 @@
   
   [(env op (t_1 -> t_2) E)
    (types G S E e_arg t_1)
-   (types G S E e_k (t_2 -> (F (t_3))))
+   (types G S E e_k (t_2 -> (F t_3)))
    ------------------------------------ "op"
    (types G S E (op e_arg e_k) (F t_3))]
   
@@ -195,32 +195,29 @@
 (define std-consts
   (term (unit : u (
          and : (o -> (o -> o)) (
-         or : (o -> (o -> o)) (
-         imp : (o -> (o -> o)) (
          not : (o -> o) (
-         true : o (
-         false : o (
          ex : ((i -> o) -> o) (
-         all : ((i -> o) -> o) (
          sel : (c -> i) (
          nil : c (
-         add : (i -> (c -> c)) (
+         cons : (i -> (c -> c)) (
+         cat : (c -> (c -> c)) (
          eq_i : (i -> (i -> o)) (
          man : (i -> o) (
          woman : (i -> o) (
          love : (i -> (i -> o)) (
+         know : (i -> (i -> o)) (
+         say : (i -> (o -> o)) (
          john : i (
          mary : i (
-         sleep : (i -> o)
-         *)))))))))))))))))))))
+         alice : i
+         *)))))))))))))))))))
 
 (define std-effects
   (term (GET : (u -> c) (
          FRESH : (u -> i) (
          ASSERT : (o -> u) (
-         SCOPE-OVER : (((i -> (F o)) -> (F o)) -> i) (
-         PRESUPPOSE : ((i -> o) -> i)
-         *)))))))
+         SCOPE : (((i -> (F o)) -> (F o)) -> i)
+         *))))))
 
 (define (check-type exp type)
   (test-equal (judgment-holds
@@ -232,52 +229,39 @@
   (term (handler
           (GET (λ (u u) (λ (k (c -> (F (c -> (F o)))))
                             (pure (λ (e c)
-                                    (>>= (k e)
-                                         (λ (f (c -> (F o))) (f e))))))))
+                                    (GET unit (λ (e_ c) (>>= (k ((cat e) e_))
+                                                             (λ (f (c -> (F o))) (f e))))))))))
           (FRESH (λ (u u) (λ (k (i -> (F (c -> (F o)))))
                             (pure (λ (e c)
                                     (>>= (C (λ (x i) (>>= (k x)
                                                           (λ (f (c -> (F o)))
-                                                            (f ((add x) e))))))
+                                                            (f ((cons x) e))))))
                                          (λ (pred (i -> o)) (pure (ex pred)))))))))
           (ASSERT (λ (p o) (λ (k (u -> (F (c -> (F o)))))
-                    (>>= (k unit)
-                         (λ (Q (c -> (F o)))
-                           (pure (λ (e c)
-                                   (>>= (Q e)
-                                        (λ (q o) (pure ((and p) q)))))))))))
-          (PRESUPPOSE (λ (prop (i -> o)) (λ (k (i -> (F (c -> (F o)))))
-                                           (pure (λ (e c)
-                                                   (>>= (C (λ (x i) (>>= (k x)
-                                                                         (λ (f (c -> (F o)))
-                                                                           (f ((add x) e))))))
-                                                        (λ (pred (i -> o)) (pure (ex (λ (x i) ((and (prop x))
-                                                                                               (pred x))))))))))))
+                             (pure (λ (e c)
+                                     (>>= (k unit)
+                                          (λ (f (c -> (F o)))
+                                            (>>= (f e)
+                                                 (λ (q o) (pure ((and p) q)))))))))))
           (pure (λ (x o) (pure (λ (e c) (pure x))))))))
 
 (check-type drs-handler (term ((F o) -> (F (c -> (F o))))))
 
-(define drs
-  (term (λ (e c)
-          (λ (P (F o))
-            (>>= (,drs-handler P)
-             (λ (f (c -> (F o))) (f e)))))))
+(define box
+  (term (λ (P (F o))
+          (>>= (,drs-handler P)
+               (λ (f (c -> (F o))) (f nil))))))
 
-(check-type drs (term (c -> ((F o) -> (F o)))))
+(check-type box (term ((F o) -> (F o))))
 
-(define top-drs
-  (term (,drs nil)))
-
-(check-type top-drs (term ((F o) -> (F o))))
-
-(define tensed-clause-handler
+(define SI
   (term (handler
-          (SCOPE-OVER (λ (c ((i -> (F o)) -> (F o)))
+          (SCOPE (λ (c ((i -> (F o)) -> (F o)))
                         (λ (k (i -> (F o)))
                           (c k))))
           (pure (λ (x o) (pure x))))))
 
-(check-type tensed-clause-handler (term ((F o) -> (F o))))
+(check-type SI (term ((F o) -> (F o))))
 
 
 
