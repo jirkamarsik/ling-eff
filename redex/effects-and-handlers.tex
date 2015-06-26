@@ -327,7 +327,7 @@ We will now be enriching grammar by defining extensions, which will be
 functions between grammars. The first extension we will define will add
 some basic logical operators.
 
-The signature $\Sigma_L$ lists the object constants we will be
+The signature $\Sigma^o_L$ lists the object constants we will be
 adding:
 
 \begin{align*}
@@ -359,7 +359,7 @@ We will now define our first extension, $E_L$.\footnote{$\uplus$ stands for
   domain of both of the operands.}
 
 $$
-E_{logic}(\left< \Sigma^a, \Sigma^o, \mathcal{L} \right>) = \left< \Sigma^a, \Sigma^o \uplus \Sigma_L, \mathcal{L} \uplus \mathcal{L}_L \right>
+E_{logic}(\left< \Sigma^a, \Sigma^o, \mathcal{L} \right>) = \left< \Sigma^a, \Sigma^o \uplus \Sigma^o_L, \mathcal{L} \uplus \mathcal{L}_L \right>
 $$
 
 We have introduced new constants into the domain of the lexicon which are
@@ -563,7 +563,7 @@ continuation.
 We have given an interpretation into the type $\mathcal{F}(\gamma \to
 \mathcal{F}(o))$ to be able to track the discourse context $\gamma$ within
 the box. Once we have this interpretation in hand, we can apply it to
-$\mathrm{nil}$ to start the process and reduce it to a $\mathcal{F}(o)$.
+$\mathrm{nil}$ to start the process and reduce it to an $\mathcal{F}(o)$.
 
 So far, we have covered how pronouns find their antecedents in the
 discourse contexts and how entities end up being added to these contexts
@@ -572,5 +572,113 @@ in our grammar that dynamic semantics wants to speak about and those are
 the proper names. On top of just designating certain individuals, we want
 them to have an effect on the discourse by introducing these individuals
 into the context.
+
+\subsubsection{Dynamic Indefinites}
+
+We might ask ourselves why we introduced the $ASSERT$ effect to treat
+proper names instead of directly making appeal to some $PUSH$ effect which
+would add a given entity to the discourse context. The answer is that with
+$ASSERT$ we can unify the treatment of proper names and indefinites in our
+grammar.
+
+Signature $\Sigma^a_A$:
+
+\begin{align*}
+  \abs{a} &: N \to NP
+\end{align*}
+
+Lexicon $\mathcal{L}_A$:
+
+\begin{align*}
+  \lex{a}{\lambda N.\ FRESH\ *\ (\lambda x.\ N \hsbind (\lambda n.\ ASSERT\ (n\ x)\ (\lambda u.\ \eta\ x)))}
+\end{align*}
+
+We can now define $E_A$ and $E_{D'}$:
+
+\begin{align*}
+E_A(\left< \Sigma^a, \Sigma^o, \mathcal{L} \right>) &= \left< \Sigma^a \uplus \Sigma^a_A, \Sigma^o, \mathcal{L} \uplus \mathcal{L}_A \right> \\
+E_{D'} &= E_A \circ E_D
+\end{align*}
+
+
+
+\section{Putting it All Together}
+
+We can now use our extensions to produce a variety of grammars. Below, we
+will use $\mathcal{G}_{1'}$ to stand for $E_L(\mathcal{G}_1)$.
+
+\begin{itemize}
+\item $\mathcal{G}_1$ -- the initial fragment
+
+  Can treat:
+  \begin{itemize}
+  \item John loves Mary.
+  \item John says that Mary loves Alice.
+  \end{itemize}
+
+\item $\mathcal{G}_Q = E_Q(E_N(\mathcal{G}_{1'}))$
+
+  Can treat:
+  \begin{itemize}
+  \item Every man loves a woman.
+  \item John says that Mary loves a woman.
+  \item John knows a man whom Alice says that Mary loves.
+  \end{itemize}
+  
+\item $\mathcal{G}_D = E_D(\mathcal{G}_{1'})$
+
+  Can treat:
+  \begin{itemize}
+  \item John says that Mary loves him.
+  \end{itemize}
+
+\item $\mathcal{G}_{D'} = E_N(E_A(\mathcal{G}_D)) = E_N(E_{D'}(\mathcal{G}_{1'}))$
+
+  Can treat:
+  \begin{itemize}
+  \item John knows she loves a woman.
+  \item A man says that he loves Mary.
+  \item A man who loves Mary knows Mary.
+  \end{itemize}
+
+\item $\mathcal{G}_T = E_D(\mathcal{G}_Q) = E_Q(\mathcal{G}_D)$
+
+  Can treat:
+  \begin{itemize}
+  \item Every man who loves a woman knows her.
+  \end{itemize}
+\end{itemize}
+
+
+\section*{Appendix - QR}
+
+We propose a small extension which adds the $\abs{QR}$ operator in our
+fragment. The goal of this operator is to let us project the effects
+(e.g.\ scope-taking) of any $NP$ outside of its ``usual'' destination.
+
+We give an update to the abstract signature, $\Sigma^a_{QR}$:
+
+\begin{align*}
+  \abs{QR} &: NP \to (NP \to S) \to S
+\end{align*}
+
+And we give a semantics to the $\abs{QR}$ operator in $\mathcal{L}_{QR}$:
+
+\begin{align*}
+  \lex{QR}{\lambda X k.\ X \hsbind (\lambda x.\ k\ (\eta\ x))}
+\end{align*}
+
+Now, the extension is complete.
+
+$$
+E_{QR}(\left< \Sigma^a, \Sigma^o, \mathcal{L} \right>) = \left< \Sigma^a \uplus \Sigma^a_{QR}, \Sigma^o, \mathcal{L} \uplus \mathcal{L}_{QR} \right>
+$$
+
+Another solution which relies more on the object-level terms and the effect
+calculus there would be to make our $\mathrm{box}$ leak. We could introduce
+a choice effect and the $FRESH$ clause of $\mathrm{box}$ would choose
+between two ambiguous readings: one in which it handles the quantifier in
+its usual place and one where it projects the effect out without handling
+it.
 
 \end{document}
