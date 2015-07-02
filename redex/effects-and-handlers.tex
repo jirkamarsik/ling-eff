@@ -641,7 +641,7 @@ will use $\mathcal{G}_{1'}$ to stand for $E_L(\mathcal{G}_1)$.
   \item A man who loves Mary knows Mary.
   \end{itemize}
 
-\item $\mathcal{G}_T = E_D(\mathcal{G}_Q) = E_Q(\mathcal{G}_D)$
+\item $\mathcal{G}_T = E_D(\mathcal{G}_Q) = E_Q(E_N(\mathcal{G}_D))$
 
   Can treat:
   \begin{itemize}
@@ -652,7 +652,7 @@ will use $\mathcal{G}_{1'}$ to stand for $E_L(\mathcal{G}_1)$.
 
 \section*{Appendix - QR}
 
-We propose a small extension which adds the $\abs{QR}$ operator in our
+We propose a small extension which adds the $\abs{QR}$ operator to our
 fragment. The goal of this operator is to let us project the effects
 (e.g.\ scope-taking) of any $NP$ outside of its ``usual'' destination.
 
@@ -675,10 +675,9 @@ E_{QR}(\left< \Sigma^a, \Sigma^o, \mathcal{L} \right>) = \left< \Sigma^a \uplus 
 $$
 
 Another solution which relies more on the object-level terms and the effect
-calculus there would be to make our $\mathrm{box}$ leak. We could introduce
-a choice effect and the $FRESH$ clause of $\mathrm{box}$ would choose
-between two ambiguous readings: one in which it handles the quantifier in
-its usual place and one where it projects the effect out without handling
-it.
+calculus there would be to make our $\mathrm{SI}$ handler ``leak''. We
+could introduce a choice effect and $\mathrm{SI}$ would choose between two
+ambiguous readings: one in which it handles the quantifier in its usual
+place and one where it projects the effect out without handling it.
 
 \end{document}
