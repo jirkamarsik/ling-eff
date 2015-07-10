@@ -636,7 +636,6 @@ will use $\mathcal{G}_{1'}$ to stand for $E_L(\mathcal{G}_1)$.
 
   Can treat:
   \begin{itemize}
-  \item John knows she loves a woman.
   \item A man says that he loves Mary.
   \item A man who loves Mary knows Mary.
   \end{itemize}
@@ -761,7 +760,7 @@ c_2 &= \lambda k.\ \dexists\ (\lambda x.\ (\eta\ (\obj{woman}\ x)) \dand
 
 
 \begin{align*}
-  & \abs{loves}\ (\abs{a}\ \abs{woman})\ (\abs{every}\ \abs{man}) \\
+  & \sem{\abs{loves}\ (\abs{a}\ \abs{woman})\ (\abs{every}\ \abs{man})} \\
   \rightarrow^*\ & \mathrm{SI}\ (SCOPE\ (\mathrm{SL} \circ c_1)\ 
   (\lambda x.\ SCOPE_P\ (\mathrm{SL} \circ c_2)\
   (\lambda y.\ \eta\ (\obj{love}\ x\ y)))) \\
@@ -812,6 +811,58 @@ c_2 &= \lambda k.\ \dexists\ (\lambda x.\ (\eta\ (\obj{woman}\ x)) \dand
   \obj{man}\ x \rightarrow \obj{love}\ x\ y)) \\
   +\ & SCOPE_P\ (\mathrm{SL} \circ c_2)\ (\lambda y.\ \eta\ (\forall x.\
   \obj{man}\ x \rightarrow \obj{love}\ x\ y)) \\
+\end{align*}
+
+\begin{align*}
+  & \sem{\abs{who}\ (\abs{knows}\ (\abs{a}\ \abs{cat}))\ \abs{man}} \\
+  \rightarrow^*\ & \mathcal{C}\ (\lambda x.\ (\eta\ (\obj{man}\ x)) \dand
+  \sem{\abs{knows}\ (\abs{a}\ \abs{cat})\ (\eta\ x)}) \\
+  \rightarrow^*\ & \mathcal{C}\ (\lambda x.\ (\eta\ (\obj{man}\ x)) \dand
+  (\mathrm{SI}\ (SCOPE_P\ c_{cat}\ (\lambda y.\ \eta\ (\obj{know}\ x\ y))))) \\
+  \rightarrow^*\ & \mathcal{C}\ (\lambda x.\ (\eta\ (\obj{man}\ x)) \dand
+  ((c_{cat}\ (\lambda y.\ \eta\ (\obj{know}\ x\ y))) +
+  (SCOPE_P\ c_{cat}\ (\lambda y.\ \eta\ (\obj{know}\ x\ y)))) \\
+  \rightarrow^*\ & \mathcal{C}\ (\lambda x.\ (\eta\ (\obj{man}\ x)) \dand
+  ((\eta\ (\exists y.\ (\obj{cat}\ y \land \obj{know}\ x\ y))) +
+  (SCOPE_P\ c_{cat}\ (\lambda y.\ \eta\ (\obj{know}\ x\ y)))) \\
+  \rightarrow^*\ & \eta\ (\lambda x.\ \obj{man}\ x \land
+  (\exists y.\ \obj{cat}\ y \land \obj{know}\ x\ y)) \\
+  +\ & SCOPE_P\ c_{cat}\ (\lambda y.\ \eta\ (\lambda x.\ (\obj{man}\ x \land \obj{know}\ x\ y))) \\
+\end{align*}
+
+\begin{align*}
+  & \sem{\abs{every}\ (\abs{who}\ (\abs{knows}\ (\abs{a}\ \abs{cat}))\ \abs{man})} \\
+\rightarrow^*\ & SCOPE\ (\lambda k.\ \mathrm{SL}\ ((\dforall x.\
+  \eta\ (\obj{man}\ x \land (\exists y.\ \obj{cat}\ y \land
+  \obj{know}\ x\ y)) \dimpl (k\ x))) \\
+  & \hspace{25mm} + SCOPE_P\ c_{cat}\ (\lambda y.\ \dforall x.\ (\eta\ (\obj{man}\ x
+  \land \obj{know}\ x\ y)) \dimpl (k\ x)))\ \eta \\
+\rightarrow^*\ & SCOPE\ (\lambda k.\ (\mathrm{SL}\ (\dforall x.\
+  \eta\ (\obj{man}\ x \land (\exists y.\ \obj{cat}\ y \land
+  \obj{know}\ x\ y)) \dimpl (k\ x))) \\
+  & \hspace{18mm} + (\mathrm{SL}\ (SCOPE_P\ c_{cat}\ (\lambda y.\ \dforall
+  x.\ (\eta\ (\obj{man}\ x \land \obj{know}\ x\ y)) \dimpl (k\ x))))\ \eta \\
+\rightarrow^*\ & SCOPE\ (\lambda k.\ (\mathrm{SL}\ (\dforall x.\
+  \eta\ (\obj{man}\ x \land (\exists y.\ \obj{cat}\ y \land
+  \obj{know}\ x\ y)) \dimpl (k\ x))) \\
+  & \hspace{18mm} + (c_{cat}\ (\lambda y.\ (\mathrm{SL}\ (\dforall
+  x.\ (\eta\ (\obj{man}\ x \land \obj{know}\ x\ y)) \dimpl (k\ x))))) \\
+  & \hspace{18mm} + (SCOPE_P\ c_{cat}\ (\lambda y.\ \mathrm{SL}\ (\dforall
+  x.\ (\eta\ (\obj{man}\ x \land \obj{know}\ x\ y)) \dimpl (k\ x)))))\ \eta \\
+\rightarrow^*\ & SCOPE\ (\lambda k.\ (\mathrm{SL}\ (\dforall x.\
+  \eta\ (\obj{man}\ x \land (\exists y.\ \obj{cat}\ y \land
+  \obj{know}\ x\ y)) \dimpl (k\ x))) \\
+  & \hspace{18mm} + (\mathrm{SL}\ (\dexists y.\ (\eta\ (\obj{cat}\ y)) \dand (\mathrm{SL}\ \dforall
+  x.\ (\eta\ (\obj{man}\ x \land \obj{know}\ x\ y)) \dimpl (k\ x)))) \\
+  & \hspace{18mm} + (SCOPE_P\ c_{cat}\ (\lambda y.\ \mathrm{SL}\ (\dforall
+  x.\ (\eta\ (\obj{man}\ x \land \obj{know}\ x\ y)) \dimpl (k\ x)))))\ \eta \\
+\end{align*}
+
+\begin{align*}
+  & \sem{\abs{loves}\ (\abs{a}\ \abs{woman})\ (\abs{every}\ (\abs{who}\ (\abs{knows}\ (\abs{a}\ \abs{cat}))\ \abs{man}))} \\
+  \rightarrow^*\ & \mathrm{SI}\ (SCOPE\ (\mathrm{SL} \circ c_{man})\ 
+  (\lambda x.\ SCOPE_P\ (\mathrm{SL} \circ c_{woman})\
+  (\lambda z.\ \eta\ (\obj{love}\ x\ z)))) \\
 \end{align*}
 
 \end{document}
