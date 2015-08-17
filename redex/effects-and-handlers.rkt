@@ -334,3 +334,37 @@
         (begin (render-language EH "grammar.ps" #:nts (remove* '(context key) (language-nts EH)))
                (render-judgment-form types "typings.ps")
                (render-reduction-relation eval "reductions.ps")))))))))))
+
+
+;; Termination counter-example
+
+(define star
+  (term (F u)))
+
+(define fstar
+  (term (,star -> ,star)))
+
+(define dagger
+  (term (λ (y ,star) y)))
+
+(define rec-effect
+  (term (REC : (,fstar -> u) *)))
+
+(define roll
+  (term (λ (x ,fstar) (REC x (λ (z u) (pure z))))))
+
+(define unroll
+  (term (handler (REC (λ (x ,fstar) (λ (k (u -> (F ,fstar))) (pure x))))
+                 (pure (λ (x u) (pure ,dagger))))))
+
+(define app
+  (term (λ (f ,star) (λ (a ,star) (>>= (,unroll f) (λ (f1 (,star -> ,star)) (f1 a)))))))
+
+(define abs
+  roll)
+
+(define delta
+  (term (,abs (λ (x ,star) ((,app x) x)))))
+
+(define omega
+  (term ((,app ,delta) ,delta)))
