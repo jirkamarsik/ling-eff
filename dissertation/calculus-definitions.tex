@@ -1,0 +1,153 @@
+We will start by presenting a calculus suitable for describing the
+denotations of natural language expressions. Our calculus will be an
+extension of the simply-typed lambda calculus. We will enrich STLC with a
+generic datatype for representing effectful computations alongside with
+operations to produce and consume values of this type.
+
+\chapter{Definitions}
+
+\section{Terms}
+
+Without further ado, we give the syntax of the expressions $e$ of our
+language. In the definition below, $x$ ranges over variables from set
+$\mathcal{X}$, $c$ over constants from signature $\Sigma$ and $OP$ over
+operation symbols from signature $E$.
+
+\begin{align*}
+  e ::= \
+  & e\ e \\
+  & \lambda x.\ e \\
+  & x \\
+  & c \\
+  & OP \\
+  & \eta \\
+  & \left[\mathcal{H}\ (OP\ e) \ldots\ (\eta\ e)\right]\\
+  & \mathcal{C}
+\end{align*}
+
+The first 4 lines come directly from STLC with constants. On top of that,
+we add constructors for effectful computations. An operation symbol $OP$
+can be used to construct an effectful computation and $\eta$ can be used to
+inject a pure value into the domain of computations.
+
+$\mathcal{H}$ can be used to construct handlers. Handlers are assembled
+from clauses, one of which is used to interpret pure computations and
+others which interpret the different operation symbols found in
+$E$. Finally, we have a special operator, $\mathcal{C}$, that lets us
+leverage a certain interaction between $\lambda$-bindings and computations.
+
+
+\section{Types}
+
+We now give a syntax for the types of our calculus alongside with a typing
+judgment. In the grammar below, $\nu$ ranges over atomic types from set
+$\mathcal{T}$.
+
+\begin{align*}
+  \tau ::= \
+  & \tau \to \tau \\
+  & \nu \\
+  & \mathcal{F}(\tau)
+\end{align*}
+
+
+\section{Typing Rules}
+
+Now onto the typing judgments. We will be using $\Gamma$ for contexts,
+which map variables to types, $Sigma$ for signatures, which map constants
+to types, and $E$ for effect signatures, which map operation symbols to an
+input and an output type. Metavariables $M$, $N$ stand for expressions and
+$\alpha$, $\beta$, $\gamma$\ldots\ stand for types.
+
+  \def\labelSpacing{4pt}
+  \begin{prooftree}
+    \AxiomC{$\Gamma \vdash_{\Sigma,E} M : \alpha \to \beta$}
+    \AxiomC{$\Gamma \vdash_{\Sigma,E} N : \alpha$}
+    \RightLabel{[app]}
+    \BinaryInfC{$\Gamma \vdash_{\Sigma,E} M N : \beta$}
+  \end{prooftree}
+  \begin{prooftree}
+    \AxiomC{$\Gamma, x : \alpha \vdash_{\Sigma,E} M : \beta$}
+    \RightLabel{[abs]}
+    \UnaryInfC{$\Gamma \vdash_{\Sigma, E} \lambda x.\ M : \alpha \to \beta$}
+  \end{prooftree}
+  \begin{prooftree}
+    \AxiomC{$x : \alpha \in \Gamma$}
+    \RightLabel{[var]}
+    \UnaryInfC{$\Gamma \vdash_{\Sigma,E} x : \alpha$}
+  \end{prooftree}
+  \begin{prooftree}
+    \AxiomC{$c : \alpha \in \Sigma$}
+    \RightLabel{[const]}
+    \UnaryInfC{$\Gamma \vdash_{\Sigma,E} c : \alpha$}
+  \end{prooftree}
+  \begin{prooftree}
+    \AxiomC{$OP : \alpha \to \beta \in E$}
+    \RightLabel{[op]}
+    \UnaryInfC{$\Gamma \vdash_{\Sigma,E} OP : \alpha \to (\beta \to
+      \mathcal{F}(\gamma)) \to \mathcal{F}(\gamma)$}
+  \end{prooftree}
+  \begin{prooftree}
+    \AxiomC{$\Gamma \vdash_{\Sigma,E} \eta : \alpha \to \mathcal{F}(\alpha)
+      $\hskip 4pt [$\eta$]}
+  \end{prooftree}
+  \begin{prooftree}
+    \AxiomC{$OP_i : \alpha_i \to \beta_i \in E$}
+    \noLine
+    \def\extraVskip{0pt}
+    \UnaryInfC{$\Gamma \vdash_{\Sigma,E} M_i : \alpha_i \to (\beta_i \to
+      \mathcal{F}(\delta)) \to \mathcal{F}(\delta)$}
+    \noLine
+    \UnaryInfC{$\Gamma \vdash_{\Sigma,E} M_\eta : \gamma \to \mathcal{F}(\delta)$}
+    \def\extraVskip{2pt}
+    \RightLabel{[$\mathcal{H}$]}
+    \UnaryInfC{$\Gamma \vdash_{\Sigma,E} [\mathcal{H}\ (OP_i\ M_i)_{i \in I}\ (\eta\ M_\eta)] : \mathcal{F}(\gamma) \to \mathcal{F}(\delta)$}
+  \end{prooftree}
+  \begin{prooftree}
+    \AxiomC{$\Gamma \vdash_{\Sigma,E} \mathcal{C} : (\alpha \to
+      \mathcal{F}(\beta)) \to \mathcal{F}(\alpha \to \beta)$\hskip 4pt [$\mathcal{C}$]}
+  \end{prooftree}
+
+The typing rules mirror the syntax of expressions. Again, the first four
+rules come from STLC with constants. The rules $op$ and $\eta$ let us
+construct computations, expressions of type
+$\mathcal{F}(\alpha)$. Computations can then be interpreted using handlers
+whose type is given by the $\mathcal{H}$ rule. Finally, the $\mathcal{C}$
+rule gives a type to the primitive operation of the same name, which
+already gives us an idea of what it will do.
+
+
+\section{Reduction Rules}
+
+We will now present a set of type-preserving rules that we will use to
+evaluate/simplify expressions in our language.
+
+\vspace{3mm}
+
+\begin{tabular}{lr}
+  $(\lambda x.\ M)\ N \rightarrow$ & [$\beta$] \\
+  $M[x/N]$ & \\
+  \\
+  $[\mathcal{H}\ (OP_i\ M_i)\ldots\ (\eta\ M_\eta)]\ (\eta\ N) \rightarrow$ & [$\mathcal{H}$-$\eta$] \\
+  $M_\eta\ N$ & \\
+  \\
+  $[\mathcal{H}\ (OP_i\ M_i)\ldots\ (\eta\ M_\eta)]\ (OP_i\ N_a\ N_k) \rightarrow$ & [$\mathcal{H}$-$OP$] \\
+  $M_i\ N_a\ (\lambda x.\ [\mathcal{H}\ (OP_i\ M_i)\ldots\ (\eta\ M_\eta)]\ (N_k\ x))$ & where $x$ is fresh \\
+  \\
+  $[\mathcal{H}\ (OP_i\ M_i)\ldots\ (\eta\ M_\eta)]\ (OP\ N_a\ N_k) \rightarrow$ & [$\mathcal{H}$-$OP^*$] \\
+  $OP\ N_a\ (\lambda x.\ [\mathcal{H}\ (OP_i\ M_i)\ldots\ (\eta\ M_\eta)]\ (N_k\ x))$ & where $x$ is fresh \\
+  & and $OP \notin \{OP_i\}_i$ \\
+  \\
+  $\mathcal{C}\ (\lambda x.\ \eta\ M) \rightarrow$ & [$\mathcal{C}$-$\eta$] \\
+  $\eta\ (\lambda x.\ M)$ & \\
+  \\
+  $\mathcal{C}\ (\lambda x.\ OP\ M_a\ M_k) \rightarrow$ & [$\mathcal{C}$-$OP$] \\
+  $OP\ M_a\ (\lambda y.\ \mathcal{C}\ (\lambda x.\ M_k\ y))$ & where $y$ is fresh \\
+  & and $x \notin FV(M_a)$
+\end{tabular}
+
+\vspace{3mm}
+
+Besides the standard $\beta$-reduction rule, we have rules that define the
+behavior of the handlers formed using $\mathcal{H}$ and of the
+$\mathcal{C}$ operator.

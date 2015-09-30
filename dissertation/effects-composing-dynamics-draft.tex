@@ -1,0 +1,135 @@
+\subsection{Dynamics}
+
+We now present our final extension that will deal with pronouns and
+anaphora. In our particular implementation, we will make appeal to three
+new effects in our signature $E$: $FRESH$ of type $1 \to \iota$ for
+introducing new discourse referents, $GET$ of type $1 \to \gamma$ for
+accessing the current discourse context and $ASSERT$ of type $o \to 1$ for
+asserting propositions in a context.
+
+$$
+E_D(\left< \Sigma^a, \Sigma^o, \mathcal{L} \right>) = \left< \Sigma^a \uplus \Sigma^a_D, \Sigma^o \uplus \Sigma^o_D, \mathcal{L} \uplus \mathcal{L}_D \right>
+$$
+
+We start with the constants for the new lexical items we will be treating
+(signature $\Sigma^a_D$):
+
+\begin{align*}
+  \abs{him}, \abs{her} &: NP
+\end{align*}
+
+To implement dynamics, we will enrich our object language with constructs
+for manipulating contexts and resolving anaphora (signature $\Sigma^o_D$):
+
+\begin{align*}
+  \mathrm{nil} &: \gamma \\
+  \_ \cons \_ &: \iota \to \gamma \to \gamma \\
+  \_ \cat \_ &: \gamma \to \gamma \to \gamma \\
+  \mathrm{sel_{he}}, \mathrm{sel_{she}}  &: \gamma \to \iota \\
+  * &: 1 \\
+  \_ = \_ &: \iota \to \iota \to o
+\end{align*}
+
+We have a null discourse context $\mathrm{nil}$ and a way to
+introduce entities into the context through $(\cons)$. We also have a
+function for embedding contexts, $\cat$, which boils down to list
+concatenation when we view contexts as lists of entities (this operator is
+not crucial). The $\mathrm{sel}$ operators resolve anaphora and
+retrieve antecedents from contexts. We also add a unit type and an equality
+on individuals since they were absent so far.
+
+Finally, we give the entries in the lexicon $\mathcal{L}_D$:
+
+\begin{align*}
+  \lex{him}{GET\ *\ (\lambda e.\ \eta\ (\mathrm{sel_{he}}\ e))} \\
+  \lex{her}{GET\ *\ (\lambda e.\ \eta\ (\mathrm{sel_{she}}\ e))} \\
+  \dexists &= \lambda P.\ FRESH\ *\ P \\
+  \dnot &= \mathcal{L}(\dnot) \circ \mathrm{box} \\
+  \mathrm{box} &: \mathcal{F}(o) \to \mathcal{F}(o) \\
+  \mathrm{box} &= \lambda A.\ ([\mathcal{H}\ 
+      (GET\ (\lambda u k.\ \eta\ (\lambda e.\ (GET\ *\ (\lambda e'.\ (k\ (e \cat e')) \hsbind (\lambda f.\ f\ e))))))\ \\
+    & \hskip 1.8cm (FRESH\ (\lambda u k.\ \eta\ (\lambda e.\ \mathcal{L}(\dexists)\ (\lambda x.\ (k\ x) \hsbind (\lambda f.\ f\ (x \cons e))))))\ \\
+    & \hskip 1.8cm (ASSERT\ (\lambda p k.\ \eta\ (\lambda e.\ (\eta\ p) \dand ((k\ *) \hsbind (\lambda f.\ f\ e)))))\ \\
+    & \hskip 1.8cm (\eta\ (\lambda x.\ \eta\ (\lambda e.\ \eta\ x)))]\ A) \hsbind (\lambda f.\ f\ \mathrm{nil}) \\
+  \mathrm{add} &: \iota \to \mathcal{F}(\iota) \\
+  \mathrm{add} &= \lambda x.\ FRESH\ *\ (\lambda y.\ ASSERT\ (x = y)\ (\lambda u.\ \eta\ y)) \\
+  \lex{john}{\mathcal{L}(\abs{john}) \hsbind \mathrm{add}} \\
+  \lex{mary}{\mathcal{L}(\abs{mary}) \hsbind \mathrm{add}} \\
+  \lex{alice}{\mathcal{L}(\abs{alice}) \hsbind \mathrm{add}} \\
+\end{align*}
+
+The semantics we give to the new pronouns uses the $GET$ effect to fetch
+the discourse context and then searches for a suitable antecedent. We
+change our definition of existential quantification to use the $FRESH$,
+which, as we will later see, installs an existential quantifier at the
+discourse level and adds the new variable into the context. However, we do
+not want all new discourse referents to project to the top global
+context. Namely we want dynamic effects to be blocked by negation and so we
+insert a handler, $\mathrm{box}$, into the definition of negation.
+
+Now to decipher the $\mathrm{box}$ handler.
+
+First of all, we will look into its $\eta$ clause to see that the handler
+interprets propositions $x : o$ as $\eta\ (\lambda e.\ \eta\ x) :
+\mathcal{F}(\gamma \to \mathcal{F}(o))$\footnote{The outer $\mathcal{F}$ is
+  due to the fact that the computation being handled could produce some
+  other effects that are not handled by $\mathrm{box}$.}. The bodies of the
+other clauses will therefore have this type too and we can see that they
+all start with $\eta\ (\lambda e. \ldots)$ as well.
+
+Next, we notice that there is a pattern that repeats itself in every
+operation clause, $(k\ x) \hsbind (\lambda f.\ f\ e)$. This corresponds to
+calling the continuation $k$ with two arguments, $x$ and $e$, and then
+merging the effects of both of function calls. The slot of $x$ corresponds
+to what the handler returns to the client of the operation and the slot of
+$e$ corresponds to the updated value of the discourse context that the
+handler tracks.
+
+With these two observations out of the way, reading the handler becomes
+easy. The $GET$ clause uses another $GET$ to find the discourse context
+$e'$ in which the box is embedded and combines it with its own context $e$
+to give the client a complete view of the context. The $FRESH$ clause wraps
+the continuation in an existential quantifier, gives the quantified
+variable to the client and adds it to the discourse context that it is
+tracking. The $ASSERT$ clause just conjoins the supplied proposition to the
+continuation.
+
+We have given an interpretation into the type $\mathcal{F}(\gamma \to
+\mathcal{F}(o))$ to be able to track the discourse context $\gamma$ within
+the box. Once we have this interpretation in hand, we can apply it to
+$\mathrm{nil}$ to start the process and reduce it to an $\mathcal{F}(o)$.
+
+So far, we have covered how pronouns find their antecedents in the
+discourse contexts and how entities end up being added to these contexts
+through quantification. There is however still one class of lexical items
+in our grammar that dynamic semantics wants to speak about and those are
+the proper names. On top of just designating certain individuals, we want
+them to have an effect on the discourse by introducing these individuals
+into the context.
+
+\subsubsection{Dynamic Indefinites}
+
+We might ask ourselves why we introduced the $ASSERT$ effect to treat
+proper names instead of directly making appeal to some $PUSH$ effect which
+would add a given entity to the discourse context. The answer is that with
+$ASSERT$ we can unify the treatment of proper names and indefinites in our
+grammar.
+
+Signature $\Sigma^a_A$:
+
+\begin{align*}
+  \abs{a} &: N \to NP
+\end{align*}
+
+Lexicon $\mathcal{L}_A$:
+
+\begin{align*}
+  \lex{a}{\lambda N.\ FRESH\ *\ (\lambda x.\ N \hsbind (\lambda n.\ ASSERT\ (n\ x)\ (\lambda u.\ \eta\ x)))}
+\end{align*}
+
+We can now define $E_A$ and $E_{D'}$:
+
+\begin{align*}
+E_A(\left< \Sigma^a, \Sigma^o, \mathcal{L} \right>) &= \left< \Sigma^a \uplus \Sigma^a_A, \Sigma^o, \mathcal{L} \uplus \mathcal{L}_A \right> \\
+E_{D'} &= E_A \circ E_D
+\end{align*}

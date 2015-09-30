@@ -1,0 +1,45 @@
+\section{Evaluating the Resulting Fragment}
+
+We can now use our extensions to produce a variety of grammars. Below, we
+will use $\mathcal{G}_{1'}$ to stand for $E_L(\mathcal{G}_1)$.
+
+\begin{itemize}
+\item $\mathcal{G}_1$ -- the initial fragment
+
+  Can treat:
+  \begin{itemize}
+  \item John loves Mary.
+  \item John says that Mary loves Alice.
+  \end{itemize}
+
+\item $\mathcal{G}_Q = E_Q(E_N(\mathcal{G}_{1'}))$
+
+  Can treat:
+  \begin{itemize}
+  \item Every man loves a woman.
+  \item John says that Mary loves a woman.
+  \item John knows a man whom Alice says that Mary loves.
+  \end{itemize}
+  
+\item $\mathcal{G}_D = E_D(\mathcal{G}_{1'})$
+
+  Can treat:
+  \begin{itemize}
+  \item John says that Mary loves him.
+  \end{itemize}
+
+\item $\mathcal{G}_{D'} = E_N(E_A(\mathcal{G}_D)) = E_N(E_{D'}(\mathcal{G}_{1'}))$
+
+  Can treat:
+  \begin{itemize}
+  \item A man says that he loves Mary.
+  \item A man who loves Mary knows Mary.
+  \end{itemize}
+
+\item $\mathcal{G}_T = E_D(\mathcal{G}_Q) = E_Q(E_N(\mathcal{G}_D))$
+
+  Can treat:
+  \begin{itemize}
+  \item Every man who loves a woman knows her.
+  \end{itemize}
+\end{itemize}

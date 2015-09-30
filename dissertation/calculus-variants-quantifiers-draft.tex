@@ -1,0 +1,228 @@
+\subsection{Quantifier Ambiguity}
+
+Sentences such as ``Every man loves a woman'' or ``Every owner of a siamese
+cat loves a therapist'' are ambiguous. In ACGs, every abstract derivation
+has exactly one object interpretation. In order to account for ambiguity,
+we have two ways of proceeding. Either we introduce separate derivations to
+account for the different readings or we make our interpretations
+non-deterministic, underspecified. In the next two subsections, we will
+explore both techniques.
+
+\subsubsection{QR}
+
+We propose a small extension which adds the $\abs{QR}$ operator to our
+fragment. The goal of this operator is to let us project the effects
+(e.g.\ scope-taking) of any $NP$ outside of its ``usual'' destination.
+
+We give an update to the abstract signature, $\Sigma^a_{QR}$:
+
+\begin{align*}
+  \abs{QR} &: NP \to (NP \to S) \to S
+\end{align*}
+
+And we give a semantics to the $\abs{QR}$ operator in $\mathcal{L}_{QR}$:
+
+\begin{align*}
+  \lex{QR}{\lambda X k.\ \mathrm{SI}\ (X \hsbind (\lambda x.\ k\ (\eta\ x)))}
+\end{align*}
+
+Now, the extension is complete.
+
+$$
+E_{QR}(\left< \Sigma^a, \Sigma^o, \mathcal{L} \right>) = \left< \Sigma^a \uplus \Sigma^a_{QR}, \Sigma^o, \mathcal{L} \uplus \mathcal{L}_{QR} \right>
+$$
+
+We can now derive the inverse scope reading of ``Every man loves a woman''.
+
+\begin{align*}
+& \sem{\abs{QR}\ (\abs{a}\ \abs{woman})\ (\lambda
+    x.\ \abs{loves}\ x\ (\abs{every}\ \abs{man}))} \\
+\rightarrow^*\ & \mathrm{SI}\ (SCOPE\ (\lambda k.\ \dexists
+x.\ (\eta\ (\obj{woman}\ x)) \dand (k\ x))\ (\lambda x.\ \eta\ (\forall
+y.\ \obj{man}\ y \rightarrow \obj{love}\ y\ x))) \\
+\rightarrow^*\ & (\lambda k.\ \dexists
+x.\ (\eta\ (\obj{woman}\ x)) \dand (k\ x))\ (\lambda x.\ \eta\ (\forall
+y.\ \obj{man}\ y \rightarrow \obj{love}\ y\ x)) \\
+\rightarrow^*\ & \eta\ (\exists x.\ \obj{woman}\ x \land (\forall
+y.\ \obj{man}\ y \rightarrow \obj{love}\ y\ x))
+\end{align*}
+
+The QR operator allows us to displace the scope of any quantifier
+(actually, it can displace any kind of $NP$ effect, including dynamics, so
+it can be used, e.g., to implement a kind of cataphora).
+
+\subsubsection{Leaky Scope Islands}
+
+We will now look at a solution that over-generates a little less and that
+is based on a different strategy. Rather than having different derivations
+that place the quantifier scope at different locations, we will weaken the
+scope islands so that they may choose to let a quantifier escape.
+
+In order to allow for choice and non-determinism, we will add a new effect,
+$CHOOSE : 1 \to 2 \in E$, where $2$ is the Boolean type $1 +
+1$\footnote{For this to work, we assume the presence of standard sum types
+  (intuitionistic disjunction on types) in our calculus.}. We will also
+introduce the following syntactic sugar for non-deterministic computations:
+
+\begin{align*}
+A + B = CHOOSE\ *\ (\lambda b.\ \text{case}\ b\ \text{of}\ &\operatorname{inl}(*) \Rightarrow A \\
+|\ &\operatorname{inr}(*) \Rightarrow B)
+\end{align*}
+
+We would like certain quantifiers (e.g., indefinites) to be able to escape
+scope islands. We will introduce an effect $SCOPE_P : ((\iota \to
+\mathcal{F}(o)) \to \mathcal{F}(o)) \to \iota \in E$, which is a variant of
+the $SCOPE$ effect to be used by quantifiers that ought to be able to
+escape from scope islands.
+
+We can now define our extension $E_{Q'}$, which builds upon $E_Q$:
+
+$$
+E_{Q'}(\left< \Sigma^a, \Sigma^o, \mathcal{L} \right>) =
+\left< \Sigma^a, \Sigma^o, \mathcal{L} \uplus \mathcal{L}_{Q'} \right>
+$$
+
+where, $\mathcal{L}_{Q'}$, the changes we propose to the lexicon, are as
+follows:
+
+\begin{align*}
+  \lex{every}{\lambda N.\ SCOPE\ (\lambda k.\ \mathrm{SL}\ (\dforall\ (\lambda x.\ (N \apl x) \dimpl (k\ x))))}\ \eta \\
+  \sem{\abs{some}} := \sem{\abs{a}} &:= \lambda N.\ SCOPE_P\ (\lambda k.\ \mathrm{SL}\ (\dexists\ (\lambda x.\ (N \apl x) \dand (k\ x))))\ \eta \\
+  \mathrm{SI} &= \mathcal{L}(\mathrm{SI}) \circ \mathrm{SL} \\
+  \mathrm{SL} &: \mathcal{F}(o) \to \mathcal{F}(o) \\
+  \mathrm{SL} &= [\mathcal{H}\ (SCOPE_P\ (\lambda c k.\ (c\ k) + (SCOPE_P\ c\ k)))] 
+\end{align*}
+
+The $\mathrm{SL}$ (Scope Location) handler introduces a possible place for
+a quantifier to take scope.
+
+We will now look again at the sentence ``Every man loves a woman''. First
+off, we will introduce some handy shortcuts:
+
+\begin{align*}
+c_1 &= \lambda k. \dforall\ (\lambda x.\ (\eta\ (\obj{man}\ x)) \dimpl (k\ x)) \\
+c_2 &= \lambda k.\ \dexists\ (\lambda x.\ (\eta\ (\obj{woman}\ x)) \dand
+(k\ x)) \\
+\sem{\abs{every}\ \abs{man}} &= SCOPE\ (\mathrm{SL} \circ c_1)\ \eta \\
+\sem{\abs{a}\ \abs{woman}} &= SCOPE_P\ (\mathrm{SL} \circ c_2)\ \eta
+\end{align*}
+
+
+\begin{align*}
+  & \sem{\abs{loves}\ (\abs{a}\ \abs{woman})\ (\abs{every}\ \abs{man})} \\
+  \rightarrow^*\ & \mathrm{SI}\ (SCOPE\ (\mathrm{SL} \circ c_1)\ 
+  (\lambda x.\ SCOPE_P\ (\mathrm{SL} \circ c_2)\
+  (\lambda y.\ \eta\ (\obj{love}\ x\ y)))) \\
+  \rightarrow^*\ & \mathrm{SL}\ (c_1\
+  (\lambda x.\ \mathrm{SI}\ (SCOPE_P\ (\mathrm{SL} \circ c_2)\
+  (\lambda y.\ \eta\ (\obj{love}\ x\ y))))) \\
+  \rightarrow^*\ & \mathrm{SL}\ (c_1\
+  (\lambda x.\ \mathrm{SL}\ (c_2\ 
+  (\lambda y.\ \mathrm{SI}\ (\eta\ (\obj{love}\ x\ y)))) +
+  SCOPE_P\ (\mathrm{SL} \circ c_2)\
+  (\lambda y.\ \mathrm{SI}\ (\eta\ (\obj{love}\ x\ y))))) \\
+  \rightarrow^*\ & \mathrm{SL}\ (c_1\
+  (\lambda x.\ \mathrm{SL}\ (c_2\ 
+  (\lambda y.\ \eta\ (\obj{love}\ x\ y))) +
+  SCOPE_P\ (\mathrm{SL} \circ c_2)\
+  (\lambda y.\ \eta\ (\obj{love}\ x\ y)))) \\
+  \rightarrow^*\ & \mathrm{SL}\ (c_1\ (\lambda x.\ 
+  \mathrm{SL}\ (\eta\ (\exists y.\ \obj{woman}\ y \land \obj{love}\ x\ y) +
+  SCOPE_P\ (\mathrm{SL} \circ c_2)\
+  (\lambda y.\ \eta\ (\obj{love}\ x\ y)))) \\
+  \rightarrow^*\ & \mathrm{SL}\ (c_1\ (\lambda x.\ 
+  (\eta\ (\exists y.\ \obj{woman}\ y \land \obj{love}\ x\ y) +
+  SCOPE_P\ (\mathrm{SL} \circ c_2)\
+  (\lambda y.\ \eta\ (\obj{love}\ x\ y)))) \\
+  \rightarrow^*\ & \mathrm{SL}\ (\eta\ (\forall x.\ \obj{man}\ x
+  \rightarrow (\exists y.\ \obj{woman}\ y \land \obj{love}\ x\ y)) \\
+  & \hspace{7mm} + SCOPE_P\ (\mathrm{SL} \circ c_2)\ (\lambda y.\ 
+  \eta\ (\forall x.\ \obj{man}\ x \rightarrow \obj{love}\ x\ y))) \\
+  \rightarrow^*\ & \mathrm{SL}\ (\eta\ (\forall x.\ \obj{man}\ x
+  \rightarrow (\exists y.\ \obj{woman}\ y \land \obj{love}\ x\ y))) \\
+  +\ & \mathrm{SL}\ (SCOPE_P\ (\mathrm{SL} \circ c_2)\ (\lambda y.\
+  \eta\ (\forall x.\ \obj{man}\ x \rightarrow \obj{love}\ x\ y))) \\
+  \rightarrow^*\ & \eta\ (\forall x.\ \obj{man}\ x
+  \rightarrow (\exists y.\ \obj{woman}\ y \land \obj{love}\ x\ y)) \\
+  +\ & \mathrm{SL}\ (c_2\ (\lambda y.\ \eta\ (\forall x.\
+  \obj{man}\ x \rightarrow \obj{love}\ x\ y))) \\
+  +\ & SCOPE_P\ (\mathrm{SL} \circ c_2)\ (\lambda y.\ \eta\ (\forall x.\
+  \obj{man}\ x \rightarrow \obj{love}\ x\ y))) \\
+  \rightarrow^*\ & \eta\ (\forall x.\ \obj{man}\ x
+  \rightarrow (\exists y.\ \obj{woman}\ y \land \obj{love}\ x\ y)) \\
+  +\ & \mathrm{SL}\ (\eta\ (\exists y.\ \obj{woman}\ y \land (\forall x.\
+  \obj{man}\ x \rightarrow \obj{love}\ x\ y))) \\
+  +\ & SCOPE_P\ (\mathrm{SL} \circ c_2)\ (\lambda y.\ \eta\ (\forall x.\
+  \obj{man}\ x \rightarrow \obj{love}\ x\ y)) \\
+  \rightarrow^*\ & \eta\ (\forall x.\ \obj{man}\ x
+  \rightarrow (\exists y.\ \obj{woman}\ y \land \obj{love}\ x\ y)) \\
+  +\ & \eta\ (\exists y.\ \obj{woman}\ y \land (\forall x.\
+  \obj{man}\ x \rightarrow \obj{love}\ x\ y)) \\
+  +\ & SCOPE_P\ (\mathrm{SL} \circ c_2)\ (\lambda y.\ \eta\ (\forall x.\
+  \obj{man}\ x \rightarrow \obj{love}\ x\ y)) \\
+\end{align*}
+
+\begin{align*}
+  & \sem{\abs{who}\ (\abs{knows}\ (\abs{a}\ \abs{cat}))\ \abs{man}} \\
+  \rightarrow^*\ & \mathcal{C}\ (\lambda x.\ (\eta\ (\obj{man}\ x)) \dand
+  \sem{\abs{knows}\ (\abs{a}\ \abs{cat})\ (\eta\ x)}) \\
+  \rightarrow^*\ & \mathcal{C}\ (\lambda x.\ (\eta\ (\obj{man}\ x)) \dand
+  (\mathrm{SI}\ (SCOPE_P\ c_{cat}\ (\lambda y.\ \eta\ (\obj{know}\ x\ y))))) \\
+  \rightarrow^*\ & \mathcal{C}\ (\lambda x.\ (\eta\ (\obj{man}\ x)) \dand
+  ((c_{cat}\ (\lambda y.\ \eta\ (\obj{know}\ x\ y))) +
+  (SCOPE_P\ c_{cat}\ (\lambda y.\ \eta\ (\obj{know}\ x\ y)))) \\
+  \rightarrow^*\ & \mathcal{C}\ (\lambda x.\ (\eta\ (\obj{man}\ x)) \dand
+  ((\eta\ (\exists y.\ (\obj{cat}\ y \land \obj{know}\ x\ y))) +
+  (SCOPE_P\ c_{cat}\ (\lambda y.\ \eta\ (\obj{know}\ x\ y)))) \\
+  \rightarrow^*\ & \eta\ (\lambda x.\ \obj{man}\ x \land
+  (\exists y.\ \obj{cat}\ y \land \obj{know}\ x\ y)) \\
+  +\ & SCOPE_P\ c_{cat}\ (\lambda y.\ \eta\ (\lambda x.\ (\obj{man}\ x \land \obj{know}\ x\ y))) \\
+\end{align*}
+
+\begin{align*}
+  & \sem{\abs{every}\ (\abs{who}\ (\abs{knows}\ (\abs{a}\ \abs{cat}))\ \abs{man})} \\
+\rightarrow^*\ & SCOPE\ (\lambda k.\ \mathrm{SL}\ ((\dforall x.\
+  \eta\ (\obj{man}\ x \land (\exists y.\ \obj{cat}\ y \land
+  \obj{know}\ x\ y)) \dimpl (k\ x))) \\
+  & \hspace{25mm} + SCOPE_P\ c_{cat}\ (\lambda y.\ \dforall x.\ (\eta\ (\obj{man}\ x
+  \land \obj{know}\ x\ y)) \dimpl (k\ x)))\ \eta \\
+\rightarrow^*\ & SCOPE\ (\lambda k.\ (\mathrm{SL}\ (\dforall x.\
+  \eta\ (\obj{man}\ x \land (\exists y.\ \obj{cat}\ y \land
+  \obj{know}\ x\ y)) \dimpl (k\ x))) \\
+  & \hspace{18mm} + (\mathrm{SL}\ (SCOPE_P\ c_{cat}\ (\lambda y.\ \dforall
+  x.\ (\eta\ (\obj{man}\ x \land \obj{know}\ x\ y)) \dimpl (k\ x))))\ \eta \\
+\rightarrow^*\ & SCOPE\ (\lambda k.\ (\mathrm{SL}\ (\dforall x.\
+  \eta\ (\obj{man}\ x \land (\exists y.\ \obj{cat}\ y \land
+  \obj{know}\ x\ y)) \dimpl (k\ x))) \\
+  & \hspace{18mm} + (c_{cat}\ (\lambda y.\ (\mathrm{SL}\ (\dforall
+  x.\ (\eta\ (\obj{man}\ x \land \obj{know}\ x\ y)) \dimpl (k\ x))))) \\
+  & \hspace{18mm} + (SCOPE_P\ c_{cat}\ (\lambda y.\ \mathrm{SL}\ (\dforall
+  x.\ (\eta\ (\obj{man}\ x \land \obj{know}\ x\ y)) \dimpl (k\ x)))))\ \eta \\
+\rightarrow^*\ & SCOPE\ (\lambda k.\ (\mathrm{SL}\ (\dforall x.\
+  \eta\ (\obj{man}\ x \land (\exists y.\ \obj{cat}\ y \land
+  \obj{know}\ x\ y)) \dimpl (k\ x))) \\
+  & \hspace{18mm} + (\mathrm{SL}\ (\dexists y.\ (\eta\ (\obj{cat}\ y)) \dand (\mathrm{SL}\ \dforall
+  x.\ (\eta\ (\obj{man}\ x \land \obj{know}\ x\ y)) \dimpl (k\ x)))) \\
+  & \hspace{18mm} + (SCOPE_P\ c_{cat}\ (\lambda y.\ \mathrm{SL}\ (\dforall
+  x.\ (\eta\ (\obj{man}\ x \land \obj{know}\ x\ y)) \dimpl (k\ x)))))\ \eta \\
+\end{align*}
+
+\begin{align*}
+  & \sem{\abs{loves}\ (\abs{a}\ \abs{woman})\ (\abs{every}\ (\abs{who}\ (\abs{knows}\ (\abs{a}\ \abs{cat}))\ \abs{man}))} \\
+  \rightarrow^*\ & \mathrm{SI}\ (SCOPE\ (\mathrm{SL} \circ c_{man})\ 
+  (\lambda x.\ SCOPE_P\ (\mathrm{SL} \circ c_{woman})\
+  (\lambda z.\ \eta\ (\obj{love}\ x\ z)))) \\
+  \rightarrow^*\ & \mathrm{SL}\ (c_{man}\ 
+  (\lambda x.\ \mathrm{SI}\ (SCOPE_P\ (\mathrm{SL} \circ c_{woman})\
+  (\lambda z.\ \eta\ (\obj{love}\ x\ z))))) \\
+  \rightarrow^*\ & \mathrm{SL}\ (c_{man}\ 
+  (\lambda x.\ (\mathrm{SL}\ (c_{woman}\ (\lambda
+  z.\ \mathrm{SI}\ (\eta\ (\obj{love}\ x\ z))))) \\
+  & \hspace{20mm} + (SCOPE_P\ (\mathrm{SL} \circ c_{woman})\
+  (\lambda z.\ \mathrm{SI}\ (\eta\ (\obj{love}\ x\ z)))))) \\
+  \rightarrow^*\ & \mathrm{SL}\ (c_{man}\ 
+  (\lambda x.\ (\mathrm{SL}\ (c_{woman}\ (\lambda
+  z.\ \eta\ (\obj{love}\ x\ z)))) \\
+  & \hspace{20mm} + (SCOPE_P\ (\mathrm{SL} \circ c_{woman})\
+  (\lambda z.\ \eta\ (\obj{love}\ x\ z))))) \\
+\end{align*}

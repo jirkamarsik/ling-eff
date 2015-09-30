@@ -1,0 +1,64 @@
+\subsection{From Values to Computations}
+
+The technique used by our approach is to let every lexical item have an
+effect on the interpretation of the discourse. We will thus interpret
+abstract types as computations types ($S$ and $\overline{S}$ will
+correspond to $\mathcal{F}(o)$ instead of $o$, $NP$ to $\mathcal{F}(\iota)$
+instead of $\iota$ and $N$ to $\mathcal{F}(\iota \to o)$ instead of $\iota
+\to o$).
+
+We could rewrite our fragment $\mathcal{G}_0$ by hand to use computations,
+but since the abstract signature $\Sigma^a_0$ is second-order, we can
+easily automate the process. We define a raising function
+$\mathrm{raise_\alpha}$. In the definitions below, variables such as
+$a$ and $b$ range over atomic types.
+
+\begin{align*}
+  \mathrm{raise_a}(x) &= \eta\ x \\
+  \mathrm{raise_{a \to \beta}}(f) &= \lambda X.\ X \hsbind (\lambda
+  x. \mathrm{raise_\beta}(f\ x))
+\end{align*}
+
+We could now produce a lexicon $\mathcal{L}_1$ such that for every $c :
+\alpha \in \Sigma^a_0$, we have $\mathcal{L}_1(c) =
+\mathrm{raise_\alpha}(\mathcal{L}_0(c))$. There is just one hitch, we
+would end up with $\mathcal{L}_1(\abs{loves}) = \lambda X Y.\ X \hsbind
+(\lambda x.\ Y \hsbind (\lambda y.\ \eta\ (\obj{love}\ y\ x)))$ where $X$
+corresponds to the object and $Y$ to the subject. However, we would
+generally like the evaluation of the lexical items to be sequenced in the
+same order in which the words appear in the source phrase (for reasons of
+anaphora, in-situ quantification\ldots). In other words, we would like to
+have $\mathcal{L}_1(\abs{loves}) = \lambda X Y.\ Y \hsbind (\lambda y.\ X
+\hsbind (\lambda x.\ \eta\ (\obj{love}\ y\ x)))$.
+
+There are several solutions to this problem. First off, we could go back
+and change the abstract syntax so that arguments are supplied in the order
+in which they appear in the surface form (this goes against the most common
+analysis of transitive verbs in which they first merge with objects to form
+verb phrases). Another reasonable solution might be to just change the
+entries for lexical items such as transitive verbs manually without relying
+on an automatic procedure for establishing the order of evaluation.
+
+We will explore a third way that will use a general rule to raise all
+denotations but which will cover the problematic case above
+correctly. Since in categorial grammar, lexical items usually merge first
+with their complements, which are often to the right, and then with their
+arguments, which are often to the left. We will introduce
+$\mathrm{raise^R_\alpha}$ that simulates right-to-left evaluation
+instead of left-to-right. We start by unfolding the recursive definition of
+$\mathrm{raise_\alpha}$ and then modifying it.
+
+\begin{align*}
+  \mathrm{raise_{a_1 \to\ \ldots\ \to a_n \to b}}(f) &= \lambda X_1 \ldots X_n.\ X_1 \hsbind (\lambda x_1.\ \ldots\ X_n \hsbind (\lambda x_n.\ \eta\ (f\ x_1 \ldots x_n))) \\
+  \mathrm{raise^R_{a_1 \to\ \ldots\ \to a_n \to b}}(f) &= \lambda X_1 \ldots X_n.\ X_n \hsbind (\lambda x_n.\ \ldots\ X_1 \hsbind (\lambda x_1.\ \eta\ (f\ x_1 \ldots x_n))) \\
+\end{align*}
+
+We have $\mathrm{raise^R_{NP \to NP \to S}}(\abs{loves}) = \lambda X
+Y.\ Y \hsbind (\lambda y.\ X \hsbind (\lambda
+x.\ \eta\ (\obj{love}\ y\ x)))$.
+
+We now define $\mathcal{G}_1 = \left< \Sigma^a_1, \Sigma^o_1, \mathcal{L}_1
+\right>$, where $\Sigma^a_1 = \Sigma^a_0$, $\Sigma^o_1 = \Sigma^o_0$ and
+where $\mathcal{L}_1$ is such that for every $c : \alpha \in \Sigma^a_1$,
+we have $\mathcal{L}_1(c) =
+\mathrm{raise^R_\alpha}(\mathcal{L}_0(c))$.

@@ -1,0 +1,51 @@
+\subsection{Logical Operators}
+
+We will now be enriching grammar by defining extensions, which will be
+functions between grammars. The first extension we will define will add
+some basic logical operators.
+
+The signature $\Sigma^o_L$ lists the object constants we will be
+adding:
+
+\begin{align*}
+  \lnot &: o \to o \\
+  \land &: o \to o \to o \\
+  \exists &: (\iota \to o) \to o
+\end{align*}
+
+We will also add their raised versions which operate on computations. This
+will let further extensions modify them to add effects and/or handlers to
+the logical operators used in all of the other extensions. Their
+definitions are given in the lexicon $\mathcal{L}_L$ shown below:
+
+\begin{align*}
+  \dnot &: \mathcal{F}(o) \to \mathcal{F}(o) \\
+  \dand, \dimpl, \dor &: \mathcal{F}(o) \to \mathcal{F}(o) \to \mathcal{F}(o) \\
+  \dexists, \dforall &: (\iota \to \mathcal{F}(o)) \to \mathcal{F}(o) \\
+  \dnot &= \mathrm{raise_{o \to o}}(\lnot) = \lambda X.\ X \hsbind (\lambda x.\ \eta\ (\lnot x)) \\
+  \dand &= \mathrm{raise_{o \to o \to o}}(\land) = \lambda X Y.\ X \hsbind (\lambda x.\ Y \hsbind (\lambda y.\ \eta\ (x \land y))) \\
+  \dexists &= \mathcal{F}(\exists) \circ \mathcal{C} = \lambda P.\ (\mathcal{C}\ P) \hsbind (\lambda p.\ \eta\ (\exists\ p)) \\
+  \dimpl &= \lambda X Y.\ \dnot\ (X \dand (\dnot Y)) \\
+  \dor &= \lambda X Y.\ \dnot\ ((\dnot X) \dand (\dnot Y)) \\
+  \dforall &= \lambda P.\ \dnot\ (\dexists\ (\lambda x.\ \dnot\ (P\ x)))
+\end{align*}
+
+We will now define our first extension, $E_L$.\footnote{$\uplus$ stands for
+  a union of signatures/lexicons where the second operand has precedence
+  when it comes to assigning a type/image to an element which is in the
+  domain of both of the operands.}
+
+$$
+E_{logic}(\left< \Sigma^a, \Sigma^o, \mathcal{L} \right>) = \left< \Sigma^a, \Sigma^o \uplus \Sigma^o_L, \mathcal{L} \uplus \mathcal{L}_L \right>
+$$
+
+We have introduced new constants into the domain of the lexicon which are
+not part of the abstract signature. We are working with a variation of an
+ACG lexicon that allows us to define object-level auxiliary terms. We can
+convert such a lexicon to a classical ACG lexicon by taking the fixpoint of
+the homomorphism induced by the lexicon and then restricting it to the
+abstract constants (i.e.\ by replacing occurrences of the auxiliary
+constants in the lexicon with their definitions from the lexicon).
+
+This convenient facility will let extensions modify auxiliary terms and
+thus indirectly modify all the terms that use these auxiliary terms.

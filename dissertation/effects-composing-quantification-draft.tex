@@ -1,0 +1,91 @@
+\subsection{Quantification}
+
+\subsubsection{Common Nouns}
+
+Our first objective will be to extend a grammar with quantificational
+articles like \textit{every} and \textit{some}. However, this presupposes
+that our grammar already has some common nouns to combine these articles
+with. Since nouns themselves are not bound to the phenomenon of
+quantification, we will introduce them in an isolated extension.
+
+We will start by introducing some predicates at the object level (signature
+$\Sigma^o_N$):
+
+\begin{align*}
+  \obj{man}, \obj{woman} &: \iota \to o
+\end{align*}
+
+Now for the abstract constants in signature $\Sigma^a_N$ (we treat
+relativizers in our noun extension, since they form noun modifiers):
+
+\begin{align*}
+  \abs{man}, \abs{woman} &: N \\
+  \abs{who}, \abs{whom} &: (NP \to S) \to N \to N
+\end{align*}
+
+Finally, we give an interpretation for the new abstract constants by
+extending the lexicon with $\mathcal{L}_N$:
+
+\begin{align*}
+  \lex{man}{\eta\ \obj{man}} \\
+  \lex{woman}{\eta\ \obj{woman}} \\
+  \sem{\abs{who}} := \sem{\abs{whom}} &:= \lambda P N.\ N \hsbind (\lambda n.\ \mathcal{C}\ (\lambda x.\ (\eta\ (n\ x)) \dand (P\ (\eta\ x))))
+\end{align*}
+
+We have now finished our extension $E_N$.
+
+$$
+E_N(\left< \Sigma^a, \Sigma^o, \mathcal{L} \right>) = \left< \Sigma^a \uplus
+\Sigma^a_N, \Sigma^o \uplus \Sigma^o_N, \mathcal{L} \uplus \mathcal{L}_N \right>
+$$
+
+
+\subsubsection{Quantifiers}
+
+We will start our treatment of quantification by introducing an operation
+symbol $SCOPE$ into our effect signature $E$. The operation will take
+inputs of type $(\iota \to \mathcal{F}(o)) \to \mathcal{F}(o)$ and provide
+outputs of type $\iota$ (i.e.\ $SCOPE : ((\iota \to \mathcal{F}(o)) \to
+\mathcal{F}(o)) \to \iota \in E$). Our analysis will all revolve around
+producing and handling this particular effect.
+
+$$
+E_Q(\left< \Sigma^a, \Sigma^o, \mathcal{L} \right>) = \left< \Sigma^a \uplus \Sigma^a_Q, \Sigma^o, \mathcal{L} \uplus \mathcal{L}_Q \right>
+$$
+
+First, we start by introducing the abstract constants for the new lexical
+items (signature $\Sigma^a_Q$):
+
+\begin{align*}
+  \abs{every}, \abs{some}, \abs{a} &: N \to NP
+\end{align*}
+
+Now we can add/change the pertinant entries in the lexicon (lexicon $\mathcal{L}_Q$):
+
+\begin{align*}
+  \lex{every}{\lambda N.\ SCOPE\ (\lambda k.\ \dforall\ (\lambda x.\ (N \apl x) \dimpl (k\ x)))\ \eta} \\
+  \sem{\abs{some}} := \sem{\abs{a}} &:= \lambda N.\ SCOPE\ (\lambda k.\ \dexists\ (\lambda x.\ (N \apl x) \dand (k\ x)))\ \eta \\
+  \mathrm{SI} &: \mathcal{F}(o) \to \mathcal{F}(o) \\
+  \mathrm{SI} &= [\mathcal{H}\ (SCOPE\ (\lambda c k.\ c\ k))] \\
+  \lex{loves}{\lambda X Y.\ \mathrm{SI}\ (\mathcal{L}(\abs{loves})\ X\ Y)} \\
+  \lex{knows}{\lambda X Y.\ \mathrm{SI}\ (\mathcal{L}(\abs{knows})\ X\ Y)} \\
+  \lex{says}{\lambda S X.\ \mathrm{SI}\ (\mathcal{L}(\abs{says})\ S\ X)} \\
+\end{align*}
+
+We have given semantics to the new lexical items which make use of the
+$SCOPE$ effect. Quantifier scope is influenced by other lexical items
+resulting in so-called scope islands. We therefore define an auxiliary
+term, a handler called $\mathrm{SI}$. Since tensed clauses form scope
+islands, we insert $\mathrm{SI}$ into the existing lexical entries
+for tensed verbs.
+
+If we had a more fine-grained grammar which would provide a separate
+lexical entry for the finite verb morpheme, we could simply add the
+$\mathrm{SI}$ handler there without having to change all verbs.
+
+A similar solution would work in an unlexicalized grammar in which, e.g.,
+transitive verbs would be decomposed into a computation of some binary
+relation of abstract type $TV$ and a combinator/rule for forming sentences
+using transitive verbs of abstract type $NP \to TV \to NP \to S$. In that
+case, $\mathrm{SI}$ would be inserted into the semantics of every
+such rule which is to be considered a scope island.
