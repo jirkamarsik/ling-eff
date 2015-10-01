@@ -1,10 +1,175 @@
-We will start by presenting a calculus suitable for describing the
-denotations of natural language expressions. Our calculus will be an
-extension of the simply-typed lambda calculus. We will enrich STLC with a
-generic datatype for representing effectful computations alongside with
-operations to produce and consume values of this type.
+We will present a calculus with special constructions for dealing with
+effects and handlers, which we will then apply to problem of natural
+language semantics in the rest of the thesis. Our calculus is an extension
+of the simply-typed lambda calculus (STLC). We enrich STLC with a type for
+representing effectful computations alongside with operations to create and
+process values of this type.
 
 \chapter{Definitions}
+
+We are tempted to start by first giving the formal definitions of all the
+essential components of our calculus:
+
+\begin{itemize}
+\item the syntax of the terms in our calculus
+\item the syntax of the types in our calculus
+\item the judgments that relate types to terms
+\item a reduction semantics
+\end{itemize}
+
+However, before we do so, we will briefly sketch the ideas behind the
+calculus so you can start building an intuition about the meaning of the
+symbols that we will be introducing below.
+
+\section{Sketching Out the Calculus}
+\todo{This now serves both as a sketch and a justification of the calculus,
+  along with the history of the techniques used. This could maybe later
+  live in its own place, somewhere in the introduction.}
+
+We will be adding a new type constructor, $\mathcal{F}$, into our
+language. The type $\mathcal{F}(\alpha)$ will correspond to effectful
+\emph{computations} that produce values of type $\alpha$. The idea comes
+from the programming language Haskell and its use of monads
+\cite{moggi1991notions,wadler1992essence,jones2003haskell}. Our type
+constructor $\mathcal{F}$ will also stand in for a monad, one that has been
+already encoded in Haskell in several ways
+\cite{kiselyov2013extensible,kammar2013handlers}. The motivation behind our
+calculus is thus to build a minimal language which gives us directly the
+primitive operations for working with this particular monad. This way, we
+can avoid having to resort to a complex language such as Haskell and we can
+use a language is feasible
+
+The transition from type $\alpha$ to a type $\mathcal{F}(\alpha)$ is meant
+as a generalization of a scheme often seen in semantics when novel forms of
+meaning are studied (e.g., type raising \cite{montague1973proper},
+dynamization \cite{lebedeva2012expression}, intensionalization
+\cite{de2013note}). The distinction between the type $\alpha$ and the type
+$\mathcal{F}(\alpha)$ will, in different analyses, align with dichotomies
+such as the following:
+
+\begin{itemize}
+\item static/dynamic meaning
+\item extension/intension
+\item semantics/pragmatics
+\end{itemize}
+
+The question then is, what form should our general $\mathcal{F}$ type
+constructor take? We want to have a construction that can combine all the
+existing ones. One can do the combining at the level of monads with the use
+of monad transformers, a technique pioneered by Moggi and very
+well-established in the Haskell programming community
+\cite{moggi1991notions}. Simon Charlow has made the case that this
+technique can be exploited to great benefit in natural language semantics
+as well \cite{charlow2014semantics}.
+
+However, a competing technique has emerged in recent years and it is the
+goal of this thesis to introduce it to semanticists and verify its
+applicability to the study of natural language. The technique goes by many
+names, ``algebraic effects and handlers'' and ``extensible effects'' being
+the most commonly used ones. This is in part due to the fact that it lies
+at the confluence of several research programs. This richness of the
+history behind this technique will allow us to present it from two
+different perspectives, so you can be equipped with two different intuitive
+models.
+
+\subsubsection*{Algebraic Effects and Handlers}
+
+Hyland, Power and Plotkin have studied the problem of deriving denotational
+semantics of programming languages that combine different side effects
+\cite{hyland2006combining}. In their approach, rather then modeling the
+individual effects using monads and combining the monads, every effect is
+expressed in terms of \emph{operators} on computations. Computations thus
+become algebraic expressions with effects as operations and values as part
+of the generator set.
+
+Let us take the example of nondeterminism. In the monadic framework, this
+effect would be analyzed by shifting the type of denotations from $\alpha$
+to the powerset $\mathcal{P}(\alpha)$. In the algebraic framework, a binary
+operator $+$ is introduced and is given meaning through a set of equations.
+In this case, these are the equations of a semilattice (stating the
+operator's associativity, commutativity and idempotence).
+
+When the time comes to combine two effects, their signatures are summed
+together and their theories are combined through either a sum or a tensor
+(a sum that adds commutativity laws for operators coming from the two
+different effects).
+
+In order to fit exception handlers into their theory, Plotkin and Pretnar
+enriched the theory with a general notion of a \emph{handler}
+\cite{plotkin2013handling}. A handler's purpose is to replace occurrences
+of an operator within a computation by another expression. This notion was
+shown to be very useful. Since using a handler on a computation is similar
+to interpreting its algebraic expression in a particular algebra, in many
+practical applications, the use of handlers has replaced equational
+theories altogether
+\cite{bauer2012programming,kammar2013handlers,brady2013programming}.
+
+\subsubsection*{Extensible Effects}
+
+In the early 90's, Cartwright and Felleisen were working on the following
+problem. Imagine you have a simple programming language along with some
+denotational semantics or some other interpretation. In your simple
+language, numerical expressions might be interpreted as numbers. In that
+case, the literal number 3 means the number 3 and the application of the
+sum operator to two numerical expressions means the sum of their
+interpretations. Now consider that you want to add mutable variables to
+your language. Numerical expressions no longer denote specific numbers, but
+rather functions from states of the variable store to both a number and an
+updated variable store (since expressions can now both read from and write
+to variables). The number 3 is thus no longer interpreted as the number 3
+but as a combination of a constant function yielding the number 3 and an
+identity function. The addition operator now has to take care to thread the
+state of the memory through the evaluation of both of its arguments. In
+short, we are forced to give new interpretations for the entire language.
+
+Cartwright and Felleisen proposed a solution to this problem
+\cite{cartwright1994extensible}. In their system, an expression can either
+yield a value or produce an effect. If it produces an effect, the effect
+percolates through the program all the way to the top, with the context
+that the effect projected from stored as a continuation. The effect and the
+continuation are then passed to an external ``authority'' that handles the
+effect, often by producing some output and passing it back to the
+continuation. When a new feature is added to the language, it often
+suffices to add a new kind of effect and introduce a new clause into the
+central ``authority''. The central authority then ends up being a
+collection of small modular interpreters for the various effect
+types. Denotation-wise, every expression can thus have a stable denotation
+which is either a pure value or an effect request coupled with a
+continuation.
+
+Later on, this project was picked up by Oleg Kiselyov, who, following
+Plotkin and Pretnar's work on handlers, proposed to break down the
+``authority'' into the smaller constituent interpreters and have them be
+part of the language themselves \cite{kiselyov2013extensible}.
+
+\subsubsection*{Synthesis}
+
+In our language, we can see values of type $\mathcal{F}(\alpha)$ as
+algebraic expressions built on top of some effect signature and the
+generator set $\alpha$. Since an \todo{Maybe introduce a more precise term
+  which would correspond to an algebraic expression in which variables have
+  been replaced by members of a carrier/generator set.}{algebraic
+  expression} is either a constant or an operator applied to some other
+expressions/computations, we can also use the ``extensible effects''
+perspective and think of them as something which is either a pure value or
+an effect coupled with a continuation\footnote{The operator corresponds to
+  the effect type and the indexed family of operands corresponds to the
+  continuation.}.
+
+Our calculus will contain tools for injecting values of type $\alpha$ into
+the type of algebraic expressions $\mathcal{F}(\alpha)$, as well as tools
+for constructing expressions using operators from the effect
+signature. Under the ``extensible effects'' point of view, the latter can
+be seen as tools for creating a computation that will raise a request to
+perform an effect.
+
+Finally, we will have a special form for defining handlers. In the
+``algebraic effects and handlers'' frame of mind, these can be thought of
+folds or catamorphisms that traverse the algebraic expression and transform
+certain operators within. On the other hand, with ``extensible effects'',
+the intuition is more similar to that of an exception handler which
+intercept requests of a certain type and decide how the computation should
+continue.
 
 \section{Terms}
 
@@ -151,3 +316,33 @@ evaluate/simplify expressions in our language.
 Besides the standard $\beta$-reduction rule, we have rules that define the
 behavior of the handlers formed using $\mathcal{H}$ and of the
 $\mathcal{C}$ operator.
+
+\section{Common Combinators}
+
+Here we will introduce a collection of generally useful syntactic shortcuts
+and combinators for our calculus.
+
+\begin{align*}
+  \_ \circ \_ &: (\beta \to \gamma) \to (\alpha \to \beta) \to (\alpha \to \gamma) \\
+  f \circ g &= \lambda x.\ f\ (g\ x) \\
+  \_^* &: (\alpha \to \mathcal{F}(\beta)) \to (\mathcal{F}(\alpha) \to \mathcal{F}(\beta)) \\
+  f^* &= [\mathcal{H}\ (\eta\ f)] \\
+  \mathcal{F} &: (\alpha \to \beta) \to (\mathcal{F}(\alpha) \to \mathcal{F}(\beta)) \\
+  \mathcal{F} &= \lambda f.\ (\eta \circ f)^* \\
+  \_ \hsbind \_ &: \mathcal{F}(\alpha) \to (\alpha \to \mathcal{F}(\beta)) \to \mathcal{F}(\beta) \\
+  M \hsbind N &= N^*\ M \\
+  \\
+  [\mathcal{H}\ (OP_i\ M_i)\ldots] &= [\mathcal{H}\ (OP_i\ M_i)\ldots\ (\eta\ \eta)]
+\end{align*}
+
+We will also make use of combinators for function application where one or
+more of the arguments are computations.
+
+\begin{align*}
+  \_ \apl \_ &: \mathcal{F}(\alpha \to \beta) \to \alpha \to \mathcal{F}(\beta) \\
+  F \apl x &= F \hsbind (\lambda x.\ \eta\ (f\ x)) \\
+  \_ \apr \_ &: (\alpha \to \beta) \to \mathcal{F}(\alpha) \to \mathcal{F}(\beta) \\
+  f \apr X &= X \hsbind (\lambda x.\ \eta\ (f\ x)) \\
+  \_ \ap \_ &: \mathcal{F}(\alpha \to \beta) \to \mathcal{F}(\alpha) \to \mathcal{F}(\beta) \\
+  F \ap X &= F \hsbind (\lambda f.\ X \hsbind (\lambda x.\ \eta\ (f\ x)))
+\end{align*}

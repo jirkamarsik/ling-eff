@@ -3,35 +3,6 @@
 
 \section{Algebraic Properties}
 
-Here we will introduce a collection of generally useful syntactic shortcuts
-and combinators for our calculus.
-
-\begin{align*}
-  \_ \circ \_ &: (\beta \to \gamma) \to (\alpha \to \beta) \to (\alpha \to \gamma) \\
-  f \circ g &= \lambda x.\ f\ (g\ x) \\
-  \_^* &: (\alpha \to \mathcal{F}(\beta)) \to (\mathcal{F}(\alpha) \to \mathcal{F}(\beta)) \\
-  f^* &= [\mathcal{H}\ (\eta\ f)] \\
-  \mathcal{F} &: (\alpha \to \beta) \to (\mathcal{F}(\alpha) \to \mathcal{F}(\beta)) \\
-  \mathcal{F} &= \lambda f.\ (\eta \circ f)^* \\
-  \_ \hsbind \_ &: \mathcal{F}(\alpha) \to (\alpha \to \mathcal{F}(\beta)) \to \mathcal{F}(\beta) \\
-  M \hsbind N &= N^*\ M \\
-  \\
-  [\mathcal{H}\ (OP_i\ M_i)\ldots] &= [\mathcal{H}\ (OP_i\ M_i)\ldots\ (\eta\ \eta)]
-\end{align*}
-
-We will also make use of combinators for function application where one or
-more of the arguments are computations.
-
-\begin{align*}
-  \_ \apl \_ &: \mathcal{F}(\alpha \to \beta) \to \alpha \to \mathcal{F}(\beta) \\
-  F \apl x &= F \hsbind (\lambda x.\ \eta\ (f\ x)) \\
-  \_ \apr \_ &: (\alpha \to \beta) \to \mathcal{F}(\alpha) \to \mathcal{F}(\beta) \\
-  f \apr X &= X \hsbind (\lambda x.\ \eta\ (f\ x)) \\
-  \_ \ap \_ &: \mathcal{F}(\alpha \to \beta) \to \mathcal{F}(\alpha) \to \mathcal{F}(\beta) \\
-  F \ap X &= F \hsbind (\lambda f.\ X \hsbind (\lambda x.\ \eta\ (f\ x)))
-\end{align*}
-
-
 \section{Subject Reduction}
 
 \section{Termination}
