@@ -1,5 +1,5 @@
 We will present a calculus with special constructions for dealing with
-effects and handlers, which we will then apply to problem of natural
+effects and handlers, which we will then apply to the problem of natural
 language semantics in the rest of the thesis. Our calculus is an extension
 of the simply-typed lambda calculus (STLC). We enrich STLC with a type for
 representing effectful computations alongside with operations to create and
@@ -22,9 +22,9 @@ calculus so you can start building an intuition about the meaning of the
 symbols that we will be introducing below.
 
 \section{Sketching Out the Calculus}
-\todo{This now serves both as a sketch and a justification of the calculus,
-  along with the history of the techniques used. This could maybe later
-  live in its own place, somewhere in the introduction.}
+%% \todo{This now serves both as a sketch and a justification of the calculus,
+%%   along with the history of the techniques used. This could maybe later
+%%   live in its own place, somewhere in the introduction.}
 
 We will be adding a new type constructor, $\mathcal{F}$, into our
 language. The type $\mathcal{F}(\alpha)$ will correspond to effectful
@@ -36,8 +36,12 @@ already encoded in Haskell in several ways
 \cite{kiselyov2013extensible,kammar2013handlers}. The motivation behind our
 calculus is thus to build a minimal language which gives us directly the
 primitive operations for working with this particular monad. This way, we
-can avoid having to resort to a complex language such as Haskell and we can
-use a language is feasible
+end up with a language that:
+\begin{itemize}
+\item is smaller than Haskell (and thus more mananageable to analyse),
+\item is closer to the STLC favored by semanticists,
+\item and which makes more evident the features that our proposal relies on.
+\end{itemize}
 
 The transition from type $\alpha$ to a type $\mathcal{F}(\alpha)$ is meant
 as a generalization of a scheme often seen in semantics when novel forms of
@@ -67,10 +71,12 @@ goal of this thesis to introduce it to semanticists and verify its
 applicability to the study of natural language. The technique goes by many
 names, ``algebraic effects and handlers'' and ``extensible effects'' being
 the most commonly used ones. This is in part due to the fact that it lies
-at the confluence of several research programs. This richness of the
-history behind this technique will allow us to present it from two
-different perspectives, so you can be equipped with two different intuitive
-models.
+at the confluence of several research programs. This fact will allow us to
+present the theory from two different perspectives, so you can be equipped
+with two different intuitive models.
+
+%% Mention Lewis' ``What should meanings do instead of what should meanings
+%% be.'' somewhere?
 
 \subsubsection*{Algebraic Effects and Handlers}
 
@@ -83,8 +89,8 @@ become algebraic expressions with effects as operations and values as part
 of the generator set.
 
 Let us take the example of nondeterminism. In the monadic framework, this
-effect would be analyzed by shifting the type of denotations from $\alpha$
-to the powerset $\mathcal{P}(\alpha)$. In the algebraic framework, a binary
+effect is analyzed by shifting the type of denotations from $\alpha$ to the
+powerset $\mathcal{P}(\alpha)$. In the algebraic framework, a binary
 operator $+$ is introduced and is given meaning through a set of equations.
 In this case, these are the equations of a semilattice (stating the
 operator's associativity, commutativity and idempotence).
@@ -110,8 +116,8 @@ In the early 90's, Cartwright and Felleisen were working on the following
 problem. Imagine you have a simple programming language along with some
 denotational semantics or some other interpretation. In your simple
 language, numerical expressions might be interpreted as numbers. In that
-case, the literal number 3 means the number 3 and the application of the
-sum operator to two numerical expressions means the sum of their
+case, the literal number 3 would denote the number 3 and the application of
+the sum operator to two numerical expressions would denote the sum of their
 interpretations. Now consider that you want to add mutable variables to
 your language. Numerical expressions no longer denote specific numbers, but
 rather functions from states of the variable store to both a number and an
@@ -146,15 +152,16 @@ part of the language themselves \cite{kiselyov2013extensible}.
 
 In our language, we can see values of type $\mathcal{F}(\alpha)$ as
 algebraic expressions built on top of some effect signature and the
-generator set $\alpha$. Since an \todo{Maybe introduce a more precise term
-  which would correspond to an algebraic expression in which variables have
-  been replaced by members of a carrier/generator set.}{algebraic
-  expression} is either a constant or an operator applied to some other
-expressions/computations, we can also use the ``extensible effects''
-perspective and think of them as something which is either a pure value or
-an effect coupled with a continuation\footnote{The operator corresponds to
-  the effect type and the indexed family of operands corresponds to the
-  continuation.}.
+generator set $\alpha$. Since an
+%% \todo{Maybe introduce a more precise term
+%%   which would correspond to an algebraic expression in which variables have
+%%   been replaced by members of a carrier/generator set.}
+{algebraic expression} is either a constant or an operator applied to some
+other expressions/computations, we can also use the ``extensible effects''
+perspective. Under that perspective, we can think of computations as
+something which is either a pure value or an effect coupled with a
+continuation (the effect corresponds to the operator and the continuation
+to the indexed family of operands).
 
 Our calculus will contain tools for injecting values of type $\alpha$ into
 the type of algebraic expressions $\mathcal{F}(\alpha)$, as well as tools
@@ -168,10 +175,16 @@ Finally, we will have a special form for defining handlers. In the
 folds or catamorphisms that traverse the algebraic expression and transform
 certain operators within. On the other hand, with ``extensible effects'',
 the intuition is more similar to that of an exception handler which
-intercept requests of a certain type and decide how the computation should
-continue.
+intercepts requests of a certain type and decides how the computation
+should continue.
 
 \section{Terms}
+
+Having sketched the idea behind our calculus, we will now turn our
+attention to the specifics. We start by defining the syntactic
+constructions used to build the terms of our language.
+
+TODO: Continue writing here.
 
 Without further ado, we give the syntax of the expressions $e$ of our
 language. In the definition below, $x$ ranges over variables from set
@@ -316,6 +329,10 @@ evaluate/simplify expressions in our language.
 Besides the standard $\beta$-reduction rule, we have rules that define the
 behavior of the handlers formed using $\mathcal{H}$ and of the
 $\mathcal{C}$ operator.
+
+
+\section{Sums and Products}
+
 
 \section{Common Combinators}
 
