@@ -184,35 +184,106 @@ Having sketched the idea behind our calculus, we will now turn our
 attention to the specifics. We start by defining the syntactic
 constructions used to build the terms of our language.
 
-TODO: Continue writing here.
+Without further ado, we give the syntax of the expressions of our
+language. First off, let $\XX$ be a set of variables, $\Sigma$ a typed
+signature and $\EE$ a set of operation symbols.
 
-Without further ado, we give the syntax of the expressions $e$ of our
-language. In the definition below, $x$ ranges over variables from set
-$\mathcal{X}$, $c$ over constants from signature $\Sigma$ and $OP$ over
-operation symbols from signature $E$.
+The expressions of our language are comprised of the following:
+\begin{description}
+  \item[abstraction] $\lam{x}{M}$, where $x$ is a variable from $\XX$ and
+    $M$ is an expression
+  \item[application] $\ap{M}{N}$, where $M$ and $N$ are expressions
+  \item[variable] $x$, where $x$ is a variable from $\XX$
+  \item[constant] $c$, where $c$ is a constant from $\Sigma$
+  \item[operation] $\op{op}$, where $\op{op}$ is an operator from $\EE$
+  \item[injection] $\eta$
+  \item[handler] $\banana{\onto{\op{op}_1} M_1,\ \dots,\ \onto{\op{op}_n} M_n,\ 
+                          \onto{\eta} M_\eta}$
+    where $\op{op}_i$ are operators from $\EE$ and $M_i$ and $M_\eta$ are
+    expressions
+  \item[extraction] $\cherry$
+  \item[exchange] $\CC$
+\end{description}
 
-\begin{align*}
-  e ::= \
-  & e\ e \\
-  & \lambda x.\ e \\
-  & x \\
-  & c \\
-  & OP \\
-  & \eta \\
-  & \left[\mathcal{H}\ (OP\ e) \ldots\ (\eta\ e)\right]\\
-  & \mathcal{C}
-\end{align*}
+The first four constructions --- abstraction, application, variables and
+constants --- come directly from STLC with constants.
 
-The first 4 lines come directly from STLC with constants. On top of that,
-we add constructors for effectful computations. An operation symbol $OP$
-can be used to construct an effectful computation and $\eta$ can be used to
-inject a pure value into the domain of computations.
+The next four deal with the algebraic expressions used to encode
+computations. Let us sketch the behaviors of these four kinds of
+expressions under the two readings outlined above.
 
-$\mathcal{H}$ can be used to construct handlers. Handlers are assembled
-from clauses, one of which is used to interpret pure computations and
-others which interpret the different operation symbols found in
-$E$. Finally, we have a special operator, $\mathcal{C}$, that lets us
-leverage a certain interaction between $\lambda$-bindings and computations.
+\subsection*{Algebraic Expressions -- The Denotational View}
+
+The $\eta$ function serves to inject values from the generator set into the
+set of algebraic expressions. It is a constructor for the trivial atomic
+algebraic expression consisting of just a single constant.
+
+Next, for every symbol $\op{op}$ in $\EE$, we have a corresponding function
+$\op{op}$ in our calculus. The function $\op{op}$ is a constructor for
+algebraic expressions whose topmost operation is $\op{op}$. The $\op{op}$
+constructor takes as argument a function that provides its operands, which
+are further algebraic expressions.
+
+The banana brackets $\banana{\onto{\op{op}_1}
+  M_1,\ \dots,\ \onto{\op{op}_n} M_n,\ \onto{\eta} M_\eta}$ contain algebras:
+interpretations of operators and constants. These components are combined
+into a catamorphism that can interpret algebraic expressions (hence the use
+of banana brackets \cite{meijer1991functional})\footnote{Since the banana
+  brackets can contain an arbitrary number of operator clauses, we use the
+  syntax of named parameters/records commonly used in popular programming
+  languages such as Ruby, Python or JavaScript.}.
+
+The extraction function $\cherry$, pronounced ``cherry'', takes an atomic
+algebraic expression (the kind produced by $\eta$) and projects out the
+element of the generator set.
+
+\subsection*{Effectful Computations -- The Operational View}
+
+We will now explain these constructions from the point of view the
+computational point of view.
+
+The $\eta$ function ``returns'' a given value. The result of applying it to
+a value $x$ is a computation that immediately terminates and produces the
+value $x$.
+
+The symbols from $\EE$ become something like system calls. A computation
+can interrupt its execution and throw an exception with a request to
+perform a system-level operation. For every symbol $\op{op}$ in $\EE$,
+there is a constructor $\op{op}$ that produces a computation which issues a
+request to perform the operation $\op{op}$. This constructor takes as an
+argument a continuation which yields the computation that should be pursued
+after the system-level operation $\op{op}$ has been performed.
+
+The banana brackets $\banana{\onto{\op{op}_1}
+  M_1,\ \dots,\ \onto{\op{op}_n} M_n,\ \onto{\eta} M_\eta}$ describe
+handlers: they contain clauses for different kinds of interrupts (operation
+requests) and for successful computations (clause $\eta$). They behave very
+much like handlers in languages with resumable exceptions such as Common
+Lisp or Dylan.
+
+Finally, the cherry function $\cherry$ can take a computation that is
+guaranteed to be free of side effects and run it to capture its result.
+
+\vspace{2em}
+
+The 9th construction in our calculus is the $\CC$ operator. $\CC$ serves as
+a link between the function type discussed by STLC (constructions 1--4) and
+the computation type introduced in our calculus (constructions 5--8). $\CC$
+is a (partial) function that takes a computation that produces a function
+and returns a function that yields computations. In a way, $\CC$ makes
+abstracting over a variable and performing an operation commute
+together\footnote{This is \emph{very} reminiscent of the idea behind Paul
+  Blain Levy's call-by-push-value calculus \cite{levy1999call}, which
+  treats abstracting over a variable as an effectful operation of popping a
+  value from a stack. Using call-by-push-value should prove to be a
+  rewarding way to refine our approach.}.
+
+We will see the utility of $\CC$ later on. The idea came to us from a paper
+by Philippe de Groote \cite{degroote2015conservativity} which tried to
+solve a similar problem. The name comes from the $\mathbf{C}$ combinator,
+which reorders the order of abstractions in a $\lambda$-term. $\mathbf{C}$
+can be seen as a special case of our $\CC$ when the type of computations
+producing values $\alpha$ is $\gamma \to \alpha$ for some $\gamma$.
 
 
 \section{Types}
@@ -294,6 +365,20 @@ whose type is given by the $\mathcal{H}$ rule. Finally, the $\mathcal{C}$
 rule gives a type to the primitive operation of the same name, which
 already gives us an idea of what it will do.
 
+\paragraph{Algebraic Expressions}
+
+The $\eta$ function serves to inject values from the generator set into the
+set of algebraic expressions. It is a constructor for the trivial atomic
+algebraic expression consisting of just a single constant.
+
+Every symbol $\op{op}$ in $\EE$ corresponds to a family of operators
+$\op{OP}$ and gives rise to a constructor $\op{op}$ in our calculus. This
+constructor takes two arguments: the first is an index $i$ which identifies
+a particular operator $\op{OP}_i$ in the family $\op{OP}$, the second is
+the set of operands expected by the operator. The set of operands is
+encoded by a function 
+
+
 
 \section{Reduction Rules}
 
@@ -359,7 +444,5 @@ more of the arguments are computations.
   \_ \apl \_ &: \mathcal{F}(\alpha \to \beta) \to \alpha \to \mathcal{F}(\beta) \\
   F \apl x &= F \hsbind (\lambda x.\ \eta\ (f\ x)) \\
   \_ \apr \_ &: (\alpha \to \beta) \to \mathcal{F}(\alpha) \to \mathcal{F}(\beta) \\
-  f \apr X &= X \hsbind (\lambda x.\ \eta\ (f\ x)) \\
-  \_ \ap \_ &: \mathcal{F}(\alpha \to \beta) \to \mathcal{F}(\alpha) \to \mathcal{F}(\beta) \\
-  F \ap X &= F \hsbind (\lambda f.\ X \hsbind (\lambda x.\ \eta\ (f\ x)))
+  f \apr X &= X \hsbind (\lambda x.\ \eta\ (f\ x))
 \end{align*}
