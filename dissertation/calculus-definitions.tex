@@ -286,55 +286,83 @@ can be seen as a special case of our $\CC$ when the type of computations
 producing values $\alpha$ is $\gamma \to \alpha$ for some $\gamma$.
 
 
-\section{Types}
+\section{Types and Typing Rules}
 
 We now give a syntax for the types of our calculus alongside with a typing
 judgment. In the grammar below, $\nu$ ranges over atomic types from set
 $\mathcal{T}$.
 
-\begin{align*}
-  \tau ::= \
-  & \tau \to \tau \\
-  & \nu \\
-  & \mathcal{F}(\tau)
-\end{align*}
+The types of our language consist of:
+\begin{description}
+\item[function] $\alpha \to \beta$, where $\alpha$ and $\beta$ are types
+\item[atomic] $\nu$, where $\nu$ is an atomic type from $\TT$
+\item[computation] $\FF_E(\alpha)$, where $\alpha$ is a type and $E$ is an
+  effect signature (defined next)
+\end{description}
 
+In giving the typing rules, we will rely on the standard notion of a
+\emph{context}. For us, specifically, a context is a partial mapping from
+the variables in $\XX$ to the types defined above.  We commonly write
+$\Gamma, x : \alpha$ for a context that assigns to $x$ the type $\alpha$
+and to other variables $y$ the type $\Gamma(y)$. We also write $x : \alpha
+\in \Gamma$ to say that the context maps $x$ to $\alpha$. Note, however,
+that for $\Delta = \Gamma, x : \alpha, x : \beta$, $x : \beta \in \Delta$
+while $x : \alpha \notin \Delta$.
 
-\section{Typing Rules}
+\emph{Effect signatures} are very much like contexts. They are partial
+mappings from the set of operation symbols $\EE$ to pairs of types. We will
+write the elements of effect signatures the following way:
+$\typedop{op}{\alpha}{\beta} \in E$ means that $E$ maps $\op{op}$ to the
+pair of types $\alpha$ and $\beta$. When dealing with effect signatures, we
+will often make use of the disjoint union operator $\uplus$. The term $E_1
+\uplus E_2$ serves as a constraint demanding that the domains of $E_1$ and
+$E_2$ be disjoint and the same time it denotes the effect signature that is
+the union of $E_1$ and $E_2$.
 
-Now onto the typing judgments. We will be using $\Gamma$ for contexts,
-which map variables to types, $Sigma$ for signatures, which map constants
-to types, and $E$ for effect signatures, which map operation symbols to an
-input and an output type. Metavariables $M$, $N$ stand for expressions and
-$\alpha$, $\beta$, $\gamma$\ldots\ stand for types.
+The last kind of dictionary used by the type system is a standard
+\emph{higher-order signature} for the constants. For those, we adopt the
+same conventions.
+
+In our typing judgments, contexts will appear to the left of the turnstile
+and they will hold information about the statically (lexically) bound
+variables, as in STLC. Effect signatures will appear as indices of
+computation types and they will hold information about the operations that
+are dynamically bound by handlers. Finally, plain (higher-order) signatures
+will appear below the turnstile and they will give the types to globally
+accessible constants.
+
+The typing judgments are presented in Figure~\ref{fig:types}. $\Gamma$
+stands for contexts, $Sigma$ for higher-order signatures. Metavariables
+$M$, $N$\ldots stand for expressions, $\alpha$, $\beta$,
+$\gamma$\ldots\ stand for types and $E$, $E'$\ldots stand for effect
+signatures.
 
   \def\labelSpacing{4pt}
   \begin{prooftree}
-    \AxiomC{$\Gamma \vdash_{\Sigma,E} M : \alpha \to \beta$}
-    \AxiomC{$\Gamma \vdash_{\Sigma,E} N : \alpha$}
-    \RightLabel{[app]}
-    \BinaryInfC{$\Gamma \vdash_{\Sigma,E} M N : \beta$}
+    \AxiomC{$\Gamma, x : \alpha \vdash_\Sigma M : \beta$}
+    \RightLabel{[abs]}
+    \UnaryInfC{$\Gamma \vdash_\Sigma \lam{x}{M} : \alpha \to \beta$}
   \end{prooftree}
   \begin{prooftree}
-    \AxiomC{$\Gamma, x : \alpha \vdash_{\Sigma,E} M : \beta$}
-    \RightLabel{[abs]}
-    \UnaryInfC{$\Gamma \vdash_{\Sigma, E} \lambda x.\ M : \alpha \to \beta$}
+    \AxiomC{$\Gamma \vdash_\Sigma M : \alpha \to \beta$}
+    \AxiomC{$\Gamma \vdash_\Sigma N : \alpha$}
+    \RightLabel{[app]}
+    \BinaryInfC{$\Gamma \vdash_\Sigma M N : \beta$}
   \end{prooftree}
   \begin{prooftree}
     \AxiomC{$x : \alpha \in \Gamma$}
     \RightLabel{[var]}
-    \UnaryInfC{$\Gamma \vdash_{\Sigma,E} x : \alpha$}
+    \UnaryInfC{$\Gamma \vdash_\Sigma x : \alpha$}
   \end{prooftree}
   \begin{prooftree}
     \AxiomC{$c : \alpha \in \Sigma$}
     \RightLabel{[const]}
-    \UnaryInfC{$\Gamma \vdash_{\Sigma,E} c : \alpha$}
+    \UnaryInfC{$\Gamma \vdash_\Sigma c : \alpha$}
   \end{prooftree}
   \begin{prooftree}
-    \AxiomC{$OP : \alpha \to \beta \in E$}
     \RightLabel{[op]}
-    \UnaryInfC{$\Gamma \vdash_{\Sigma,E} OP : \alpha \to (\beta \to
-      \mathcal{F}(\gamma)) \to \mathcal{F}(\gamma)$}
+    \AxiomC{$\Gamma \vdash_\Sigma \op{op} : \alpha \to (\beta \to
+      \FF_\rho(\gamma)) \to \FF_{\row{\typedop{op}{\alpha}{\beta}}{\rho}}(\gamma)$}
   \end{prooftree}
   \begin{prooftree}
     \AxiomC{$\Gamma \vdash_{\Sigma,E} \eta : \alpha \to \mathcal{F}(\alpha)
