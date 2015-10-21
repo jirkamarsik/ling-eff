@@ -72,7 +72,7 @@ applicability to the study of natural language. The technique goes by many
 names, ``algebraic effects and handlers'' and ``extensible effects'' being
 the most commonly used ones. This is in part due to the fact that it lies
 at the confluence of several research programs. This fact will allow us to
-present the theory from two different perspectives, so you can be equipped
+present the theory from two different perspectives so you can be equipped
 with two different intuitive models.
 
 %% Mention Lewis' ``What should meanings do instead of what should meanings
@@ -239,8 +239,8 @@ element of the generator set.
 
 \subsection*{Effectful Computations -- The Operational View}
 
-We will now explain these constructions from the point of view the
-computational point of view.
+We will now explain these constructions from the computational point of
+view.
 
 The $\eta$ function ``returns'' a given value. The result of applying it to
 a value $x$ is a computation that immediately terminates and produces the
@@ -289,7 +289,7 @@ producing values $\alpha$ is $\gamma \to \alpha$ for some $\gamma$.
 \section{Types and Typing Rules}
 
 We now give a syntax for the types of our calculus alongside with a typing
-judgment. In the grammar below, $\nu$ ranges over atomic types from set
+relation. In the grammar below, $\nu$ ranges over atomic types from set
 $\mathcal{T}$.
 
 The types of our language consist of:
@@ -299,6 +299,18 @@ The types of our language consist of:
 \item[computation] $\FF_E(\alpha)$, where $\alpha$ is a type and $E$ is an
   effect signature (defined next)
 \end{description}
+
+The only novelty here is the $\FF_E(\alpha)$
+computation\footnote{Throughout this manuscript, we will be using the term
+  \emph{computation} to mean values of type $\FF_E(\alpha)$. Programs
+  written in our calculus are simply called terms and their normal forms
+  are called values. To break it down, in our calculus, terms evaluate to
+  values, some of which can be computations (those of an $\FF$ type).}
+type. This type will be inhabited by effectful computations that have
+permission to perform the effects described in $E$ and yield values of type
+$\alpha$. The representation will be that of an algebraic expression with
+operators taken from the signature $E$ and constants (elements of the
+generator set) taken to be in type $\alpha$.
 
 In giving the typing rules, we will rely on the standard notion of a
 \emph{context}. For us, specifically, a context is a partial mapping from
@@ -313,98 +325,190 @@ while $x : \alpha \notin \Delta$.
 mappings from the set of operation symbols $\EE$ to pairs of types. We will
 write the elements of effect signatures the following way:
 $\typedop{op}{\alpha}{\beta} \in E$ means that $E$ maps $\op{op}$ to the
-pair of types $\alpha$ and $\beta$. When dealing with effect signatures, we
-will often make use of the disjoint union operator $\uplus$. The term $E_1
-\uplus E_2$ serves as a constraint demanding that the domains of $E_1$ and
-$E_2$ be disjoint and the same time it denotes the effect signature that is
-the union of $E_1$ and $E_2$.
+pair of types $\alpha$ and $\beta$\footnote{The two types $\alpha$ and
+  $\beta$ are to be seen as the operation's \emph{input} and \emph{output}
+  types, respectively.}. When dealing with effect signatures, we will often
+make use of the disjoint union operator $\uplus$. The term $E_1 \uplus E_2$
+serves as a constraint demanding that the domains of $E_1$ and $E_2$ be
+disjoint and at the same time it denotes the effect signature that is the
+union of $E_1$ and $E_2$.
 
 The last kind of dictionary used by the type system is a standard
-\emph{higher-order signature} for the constants. For those, we adopt the
-same conventions.
+\emph{higher-order signature} for the constants (a map from names of
+constants to types). For those, we adopt the same conventions.
 
 In our typing judgments, contexts will appear to the left of the turnstile
-and they will hold information about the statically (lexically) bound
-variables, as in STLC. Effect signatures will appear as indices of
+and they will hold information about the \emph{statically} (lexically)
+bound variables, as in STLC.\@ Effect signatures will appear as indices of
 computation types and they will hold information about the operations that
-are dynamically bound by handlers. Finally, plain (higher-order) signatures
-will appear below the turnstile and they will give the types to globally
-accessible constants.
+are \emph{dynamically} bound by handlers. Finally, there will be a single
+higher-order signature that will globally characterize all the available
+constants.
 
-The typing judgments are presented in Figure~\ref{fig:types}. $\Gamma$
-stands for contexts, $Sigma$ for higher-order signatures. Metavariables
-$M$, $N$\ldots stand for expressions, $\alpha$, $\beta$,
-$\gamma$\ldots\ stand for types and $E$, $E'$\ldots stand for effect
-signatures.
+The typing judgments are presented in Figure~\ref{fig:types}. Metavariables
+$M$, $N$\ldots\ stand for expressions, $\alpha$, $\beta$,
+$\gamma$\ldots\ stand for types, $\Gamma$, $\Delta$\ldots\ stand for
+contexts and $E$, $E'$\ldots\ stand for effect signatures. $\Sigma$ refers
+to the higher-order signature giving types to constants.
 
+
+\begin{figure}
   \def\labelSpacing{4pt}
-  \begin{prooftree}
-    \AxiomC{$\Gamma, x : \alpha \vdash_\Sigma M : \beta$}
+
+  \begin{subfigure}{.5\textwidth}
+   \begin{prooftree}
+    \AxiomC{$\Gamma, x : \alpha \vdash M : \beta$}
     \RightLabel{[abs]}
-    \UnaryInfC{$\Gamma \vdash_\Sigma \lam{x}{M} : \alpha \to \beta$}
-  \end{prooftree}
-  \begin{prooftree}
-    \AxiomC{$\Gamma \vdash_\Sigma M : \alpha \to \beta$}
-    \AxiomC{$\Gamma \vdash_\Sigma N : \alpha$}
+    \UnaryInfC{$\Gamma \vdash \lam{x}{M} : \alpha \to \beta$}
+   \end{prooftree}
+  \end{subfigure}
+  \begin{subfigure}{.5\textwidth}
+   \begin{prooftree}
+    \AxiomC{$\Gamma \vdash M : \alpha \to \beta$}
+    \AxiomC{$\Gamma \vdash N : \alpha$}
     \RightLabel{[app]}
-    \BinaryInfC{$\Gamma \vdash_\Sigma M N : \beta$}
-  \end{prooftree}
-  \begin{prooftree}
+    \BinaryInfC{$\Gamma \vdash M N : \beta$}
+   \end{prooftree}
+  \end{subfigure}
+
+  \vspace{2mm}
+ 
+  \begin{subfigure}{.5\textwidth}
+   \begin{prooftree}
     \AxiomC{$x : \alpha \in \Gamma$}
     \RightLabel{[var]}
-    \UnaryInfC{$\Gamma \vdash_\Sigma x : \alpha$}
-  \end{prooftree}
-  \begin{prooftree}
+    \UnaryInfC{$\Gamma \vdash x : \alpha$}
+   \end{prooftree}
+  \end{subfigure}
+  \begin{subfigure}{.5\textwidth}
+   \begin{prooftree}
     \AxiomC{$c : \alpha \in \Sigma$}
     \RightLabel{[const]}
-    \UnaryInfC{$\Gamma \vdash_\Sigma c : \alpha$}
-  \end{prooftree}
-  \begin{prooftree}
+    \UnaryInfC{$\Gamma \vdash c : \alpha$}
+   \end{prooftree}
+  \end{subfigure}
+
+  \vspace{6mm}
+
+  \begin{subfigure}{.5\textwidth}
+   \begin{prooftree}
+    \AxiomC{$\Gamma \vdash \eta : \alpha \to \FF_E(\alpha)$
+    \hskip 4pt [$\eta$]}
+   \end{prooftree}
+  \end{subfigure}
+  \begin{subfigure}{.5\textwidth}
+   \begin{prooftree}
+    \AxiomC{$\Gamma \vdash \cherry : \FF_\emptyset(\alpha) \to \alpha$
+    \hskip 4pt [$\cherry$]}
+   \end{prooftree}
+  \end{subfigure}
+
+  \vspace{3mm}
+
+  \hspace{-1.5cm}
+  \begin{subfigure}{.5\textwidth}
+   \begin{prooftree}
+    \AxiomC{$\typedop{op}{\alpha}{\beta} \in E$}
     \RightLabel{[op]}
-    \AxiomC{$\Gamma \vdash_\Sigma \op{op} : \alpha \to (\beta \to
-      \FF_\rho(\gamma)) \to \FF_{\row{\typedop{op}{\alpha}{\beta}}{\rho}}(\gamma)$}
-  \end{prooftree}
-  \begin{prooftree}
-    \AxiomC{$\Gamma \vdash_{\Sigma,E} \eta : \alpha \to \mathcal{F}(\alpha)
-      $\hskip 4pt [$\eta$]}
-  \end{prooftree}
-  \begin{prooftree}
-    \AxiomC{$OP_i : \alpha_i \to \beta_i \in E$}
+    \UnaryInfC{$\Gamma \vdash \op{op} : \alpha \to (\beta \to \FF_E(\gamma)) \to \FF_E(\gamma)$}
+   \end{prooftree}
+  \end{subfigure}
+  \hspace{1cm}
+  \begin{subfigure}{.5\textwidth}
+   \begin{prooftree}
+    \AxiomC{$E = \{\typedopg{\op{op}_i}{\alpha_i}{\beta_i}\}_{i \in I} \uplus E_f$}
     \noLine
     \def\extraVskip{0pt}
-    \UnaryInfC{$\Gamma \vdash_{\Sigma,E} M_i : \alpha_i \to (\beta_i \to
-      \mathcal{F}(\delta)) \to \mathcal{F}(\delta)$}
+    \UnaryInfC{$E' = E'' \uplus E_f$}
     \noLine
-    \UnaryInfC{$\Gamma \vdash_{\Sigma,E} M_\eta : \gamma \to \mathcal{F}(\delta)$}
+    \UnaryInfC{$[\Gamma \vdash M_i : \alpha_i \to (\beta_i \to
+      \FF_{E'}(\delta)) \to \FF_{E'}(\delta)]_{i \in I}$}
+    \noLine
+    \UnaryInfC{$\Gamma \vdash M_\eta : \gamma \to \FF_{E'}(\delta)$}
     \def\extraVskip{2pt}
-    \RightLabel{[$\mathcal{H}$]}
-    \UnaryInfC{$\Gamma \vdash_{\Sigma,E} [\mathcal{H}\ (OP_i\ M_i)_{i \in I}\ (\eta\ M_\eta)] : \mathcal{F}(\gamma) \to \mathcal{F}(\delta)$}
-  \end{prooftree}
-  \begin{prooftree}
-    \AxiomC{$\Gamma \vdash_{\Sigma,E} \mathcal{C} : (\alpha \to
-      \mathcal{F}(\beta)) \to \mathcal{F}(\alpha \to \beta)$\hskip 4pt [$\mathcal{C}$]}
-  \end{prooftree}
+    \RightLabel{[$\banana{}$]}
+    \UnaryInfC{$\Gamma \vdash \banana{(\onto{\op{op}_i}{M_i})_{i \in I},\ \onto{\eta}{M_\eta}} : \FF_{E}(\gamma) \to \FF_{E'}(\delta)$}
+   \end{prooftree}
+  \end{subfigure}
+
+  \vspace{6mm}
+
+  \begin{subfigure}{\textwidth}
+   \begin{prooftree}
+    \AxiomC{$\Gamma \vdash \CC : (\alpha \to \FF_E(\beta)) \to
+      \FF_E(\alpha \to \beta)$
+    \hskip 4pt [$\CC$]}
+   \end{prooftree}
+  \end{subfigure}
+
+  \caption{\label{fig:types}Typing rules for our calculus.}
+\end{figure}
+
 
 The typing rules mirror the syntax of expressions. Again, the first four
-rules come from STLC with constants. The rules $op$ and $\eta$ let us
-construct computations, expressions of type
-$\mathcal{F}(\alpha)$. Computations can then be interpreted using handlers
-whose type is given by the $\mathcal{H}$ rule. Finally, the $\mathcal{C}$
-rule gives a type to the primitive operation of the same name, which
-already gives us an idea of what it will do.
+rules come from STLC.\@ The next four deal with introducing pure
+computations, enriching them with effectful operations, handling those
+operations away and finally eliminating pure computations. The $\CC$ rule
+lets us start to see what we meant by saying that the $\CC$ operator lets
+the function type and the computation type commute.
 
-\paragraph{Algebraic Expressions}
+Let us ponder the types of the new constructions so as to get a grip on the
+interface that the calculus provides us for dealing with computation
+values.
 
-The $\eta$ function serves to inject values from the generator set into the
-set of algebraic expressions. It is a constructor for the trivial atomic
-algebraic expression consisting of just a single constant.
+\subsection*{[$\eta$]}
+
+First off, we have the $\eta$ operator. It takes a value of type $\alpha$
+and injects it into the type $\FF_E(\alpha)$. The meta-variable $E$ is
+free, meaning $\eta$ can take values of type $\alpha$ to type
+$\FF_E(\alpha)$ for any $E$. The algebraic intuition would say that elements
+of the generator set are valid algebraic expressions independent of the
+choice of signature. Computationally, returning a value is always an
+option, independently of the available permissions.
+
+\subsection*{[op]}
+
+More complicated computations can be built up by extending existing
+computations using the \textbf{operation} construction. Let us have an
+effect signature $E$, such that $\typedop{op}{\alpha}{\beta} \in E$. To use
+$\op{op}$, we first apply it to a value of the input type $\alpha$ and to a
+continuation. The continuation is a function of type $\beta \to
+\FF_E(\gamma)$ that accepts a value of the output type $\beta$ (the result
+of performing the operation) and chooses in return a computation that
+should be pursued next. The return type of our new computation will thus be
+the return type $\gamma$ of the computation provided by the
+continuation. The continuation's computation and the new extended
+computation will also share the same effect signature $E$. This means that
+all uses of the operation $\op{op}$ within the created computation have the
+same input and output types\footnote{In general, the same operation symbol
+  can be used in different computations whose types are indexed by
+  different effect signatures.}.
+
+Notice also how the [op] rule is similar to the [var] rule in that it lets
+use a symbol with a certain type given that it exists in some kind of
+signature/context. The crucial difference is that contexts are components
+of judgments whereas effect signatures are components of types. The meaning
+of a variable is determined by inspecting the expression in which it occurs
+and finding the $\lambda$ that binds it (this is known as \emph{lexical} or
+\emph{static binding}). On the other hand, the meaning of an operation in a
+computation is determined by evaluating the term in which the computation
+appears until the computation becomes the argument of a handler. This
+handler will then give meaning to the operation symbol by effectively
+substituting it with a suitable interpretation (this kind of \emph{late}
+binding is known as \emph{dynamic binding}).
+
+We have now seen how to construct pure computations using $\eta$ and extend
+them by adding operations. However, before we go on and start talking about
+handlers, we would like to give the algebraic intuition behind [op] as the
+algebraic point of view makes explaining the handler rule [$\banana{}$]
+easier.
 
 Every symbol $\op{op}$ in $\EE$ corresponds to a family of operators
 $\op{OP}$ and gives rise to a constructor $\op{op}$ in our calculus. This
 constructor takes two arguments: the first is an index $i$ which identifies
 a particular operator $\op{OP}_i$ in the family $\op{OP}$, the second is
 the set of operands expected by the operator. The set of operands is
-encoded by a function 
+encoded by a function
 
 
 
