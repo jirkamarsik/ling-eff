@@ -295,7 +295,7 @@ $\mathcal{T}$.
 The types of our language consist of:
 \begin{description}
 \item[function] $\alpha \to \beta$, where $\alpha$ and $\beta$ are types
-\item[atomic] $\nu$, where $\nu$ is an atomic type from $\TT$
+\item[atom] $\nu$, where $\nu$ is an atomic type from $\TT$
 \item[computation] $\FF_E(\alpha)$, where $\alpha$ is a type and $E$ is an
   effect signature (defined next)
 \end{description}
@@ -348,8 +348,9 @@ constants.
 The typing judgments are presented in Figure~\ref{fig:types}. Metavariables
 $M$, $N$\ldots\ stand for expressions, $\alpha$, $\beta$,
 $\gamma$\ldots\ stand for types, $\Gamma$, $\Delta$\ldots\ stand for
-contexts and $E$, $E'$\ldots\ stand for effect signatures. $\Sigma$ refers
-to the higher-order signature giving types to constants.
+contexts, $\op{op}$, $\op{op}_i$ stand for operation symbols and $E$,
+$E'$\ldots\ stand for effect signatures. $\Sigma$ refers to the
+higher-order signature giving types to constants.
 
 
 \begin{figure}
@@ -503,13 +504,74 @@ handlers, we would like to give the algebraic intuition behind [op] as the
 algebraic point of view makes explaining the handler rule [$\banana{}$]
 easier.
 
-Every symbol $\op{op}$ in $\EE$ corresponds to a family of operators
-$\op{OP}$ and gives rise to a constructor $\op{op}$ in our calculus. This
-constructor takes two arguments: the first is an index $i$ which identifies
-a particular operator $\op{OP}_i$ in the family $\op{OP}$, the second is
-the set of operands expected by the operator. The set of operands is
-encoded by a function
+We can see the effect signature as an algebraic signature. Whenever we have
+$\typedop{op}{\alpha}{\beta} \in E$, we have an $\alpha$-indexed family of
+operators of arity $\beta$. Let's unpack this statement.
 
+\begin{itemize}
+\item First, there is the matter of having an indexed family of
+  operators. A common example of these is the case of scalar multiplication
+  in the algebra of a vector space. A \emph{single-sorted algebraic
+    signature} is a set of operation symbols, each of which is given an
+  arity (a natural number). For vector addition, the arity is 2, since
+  vector addition acts on two vectors (two elements of the
+  domain). Scalar multiplication acts on one scalar and one
+  vector. However, neither arity 1 nor arity 2 adequately express this. We
+  can get around the limitations of a single-sorted signature by
+  introducing for every scalar $k$ an operation of arity 1 that corresponds
+  to multiplying the vector by $k$. Scalar multiplication is therefore not
+  a single operator but a scalar-indexed family of operators.
+
+  The very same strategy is applied here as well. A single operation symbol
+  doesn't need to map to a single operator but can instead map to (possibly
+  infinitely) many operators indexed by values of some type $\alpha$. For
+  example, writing messages to the program's output
+  ($\typedop{print}{string}{1}$) can be seen as a string-indexed family of
+  unary operators on computations. For every string $s$, we get an operator
+  that maps computations $c$ to computations that first print $s$ and then
+  continue as $c$.
+
+\item Next, we were speaking about operators of arity $\beta$. The use of a
+  type in place of a numerical arity is due to a certain generalization. In
+  set theory, natural numbers become sets that have the same cardinality as
+  the number they represent ($\left\vert N \right\vert = N$). We can
+  therefore conservatively generalize the idea of arity to a set by saying
+  that an operator of arity $X$ takes one operand per each element of the
+  set $X$. It's a short step from there to using types as arities, wherein
+  an operator of arity $\beta$ takes one operand per possible value of type
+  $\beta$.
+
+  This will come in very handy in our system. We want our operator
+  $\op{op}$ to have as many operands as there are possible values in the
+  output type $\beta$. Therefore, we simply say the operator has arity
+  $\beta$.
+
+  How do we write down the application of an operator of arity $\beta$ to
+  its operands? We can no longer just list out all the operands, since
+  types in our calculus may have an unbounded number of inhabitants. We
+  will organize operands in \emph{operand clusters}, arity-indexed families
+  of operands. We will write them down as functions, using
+  $\lambda$-abstraction, from the arity type $\beta$ to some operand type,
+  e.g., $\FF_E(\gamma)$.
+\end{itemize}
+
+Now we can understand what it means to say that
+$\typedop{op}{\alpha}{\beta} \in E$ gives rise to a $\alpha$-indexed family
+of operators of arity $\beta$. We apply to $\op{op}$ an index of type
+$\alpha$ to get an operator and then we apply that operator to an operand
+cluster of type $\beta \to \FF_E(\gamma)$ to get a new expression of type
+$\FF_E(\gamma)$.
+
+We suggest visualizing these algebraic expressions as trees. Trees of type
+$\FF_E(\alpha)$ consist of leafs containing values of type $\alpha$ and
+internal nodes labelled with operations and their parameters. Every
+internal node is labelled with some $\typedop{op}{\alpha}{\beta} \in E$ and
+with a parameter of type $\alpha$ and it has a cluster of children indexed
+by $\beta$.
+
+\subsection*{[$\banana{}$]}
+
+TODO: Write about bananas and cherries here.
 
 
 \section{Reduction Rules}
