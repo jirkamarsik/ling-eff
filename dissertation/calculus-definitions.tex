@@ -500,7 +500,7 @@ binding is known as \emph{dynamic binding}).
 
 We have now seen how to construct pure computations using $\eta$ and extend
 them by adding operations. However, before we go on and start talking about
-handlers, we would like to give the algebraic intuition behind [op] as the
+handlers, we would like to give the algebraic intuition behind [op], as the
 algebraic point of view makes explaining the handler rule [$\banana{}$]
 easier.
 
@@ -543,7 +543,7 @@ operators of arity $\beta$. Let's unpack this statement.
 
   This will come in very handy in our system. We want our operator
   $\op{op}$ to have as many operands as there are possible values in the
-  output type $\beta$. Therefore, we simply say the operator has arity
+  output type $\beta$. Therefore, we simply say that the operator has arity
   $\beta$.
 
   How do we write down the application of an operator of arity $\beta$ to
@@ -556,11 +556,11 @@ operators of arity $\beta$. Let's unpack this statement.
 \end{itemize}
 
 Now we can understand what it means to say that
-$\typedop{op}{\alpha}{\beta} \in E$ gives rise to a $\alpha$-indexed family
-of operators of arity $\beta$. We apply to $\op{op}$ an index of type
-$\alpha$ to get an operator and then we apply that operator to an operand
-cluster of type $\beta \to \FF_E(\gamma)$ to get a new expression of type
-$\FF_E(\gamma)$.
+$\typedop{op}{\alpha}{\beta} \in E$ gives rise to an $\alpha$-indexed
+family of operators of arity $\beta$. We apply to $\op{op}$ an index of
+type $\alpha$ to get an operator and then we apply that operator to an
+operand cluster of type $\beta \to \FF_E(\gamma)$ to get a new expression
+of type $\FF_E(\gamma)$.
 
 We suggest visualizing these algebraic expressions as trees. Trees of type
 $\FF_E(\alpha)$ consist of leafs containing values of type $\alpha$ and
@@ -570,6 +570,7 @@ with a parameter of type $\alpha$ and it has a cluster of children indexed
 by $\beta$.
 
 \subsection*{[$\banana{}$]}
+
 
 TODO: Write about bananas and cherries here.
 
