@@ -26,12 +26,12 @@ symbols that we will be introducing below.
 %%   along with the history of the techniques used. This could maybe later
 %%   live in its own place, somewhere in the introduction.}
 
-We will be adding a new type constructor, $\mathcal{F}$, into our
-language. The type $\mathcal{F}(\alpha)$ will correspond to effectful
+We will be adding a new type constructor, $\FF$, into our
+language. The type $\FF(\alpha)$ will correspond to effectful
 \emph{computations} that produce values of type $\alpha$. The idea comes
 from the programming language Haskell and its use of monads
 \cite{moggi1991notions,wadler1992essence,jones2003haskell}. Our type
-constructor $\mathcal{F}$ will also stand in for a monad, one that has been
+constructor $\FF$ will also stand in for a monad, one that has been
 already encoded in Haskell in several ways
 \cite{kiselyov2013extensible,kammar2013handlers}. The motivation behind our
 calculus is thus to build a minimal language which gives us directly the
@@ -43,12 +43,12 @@ end up with a language that:
 \item and which makes more evident the features that our proposal relies on.
 \end{itemize}
 
-The transition from type $\alpha$ to a type $\mathcal{F}(\alpha)$ is meant
+The transition from type $\alpha$ to a type $\FF(\alpha)$ is meant
 as a generalization of a scheme often seen in semantics when novel forms of
 meaning are studied (e.g., type raising \cite{montague1973proper},
 dynamization \cite{lebedeva2012expression}, intensionalization
 \cite{de2013note}). The distinction between the type $\alpha$ and the type
-$\mathcal{F}(\alpha)$ will, in different analyses, align with dichotomies
+$\FF(\alpha)$ will, in different analyses, align with dichotomies
 such as the following:
 
 \begin{itemize}
@@ -57,7 +57,7 @@ such as the following:
 \item semantics/pragmatics
 \end{itemize}
 
-The question then is, what form should our general $\mathcal{F}$ type
+The question then is, what form should our general $\FF$ type
 constructor take? We want to have a construction that can combine all the
 existing ones. One can do the combining at the level of monads with the use
 of monad transformers, a technique pioneered by Moggi and very
@@ -90,7 +90,7 @@ of the generator set.
 
 Let us take the example of nondeterminism. In the monadic framework, this
 effect is analyzed by shifting the type of denotations from $\alpha$ to the
-powerset $\mathcal{P}(\alpha)$. In the algebraic framework, a binary
+powerset $\PP(\alpha)$. In the algebraic framework, a binary
 operator $+$ is introduced and is given meaning through a set of equations.
 In this case, these are the equations of a semilattice (stating the
 operator's associativity, commutativity and idempotence).
@@ -150,7 +150,7 @@ part of the language themselves \cite{kiselyov2013extensible}.
 
 \subsubsection*{Synthesis}
 
-In our language, we can see values of type $\mathcal{F}(\alpha)$ as
+In our language, we can see values of type $\FF(\alpha)$ as
 algebraic expressions built on top of some effect signature and the
 generator set $\alpha$. Since an
 %% \todo{Maybe introduce a more precise term
@@ -164,7 +164,7 @@ continuation (the effect corresponds to the operator and the continuation
 to the indexed family of operands).
 
 Our calculus will contain tools for injecting values of type $\alpha$ into
-the type of algebraic expressions $\mathcal{F}(\alpha)$, as well as tools
+the type of algebraic expressions $\FF(\alpha)$, as well as tools
 for constructing expressions using operators from the effect
 signature. Under the ``extensible effects'' point of view, the latter can
 be seen as tools for creating a computation that will raise a request to
@@ -290,7 +290,7 @@ producing values $\alpha$ is $\gamma \to \alpha$ for some $\gamma$.
 
 We now give a syntax for the types of our calculus alongside with a typing
 relation. In the grammar below, $\nu$ ranges over atomic types from set
-$\mathcal{T}$.
+$\TT$.
 
 The types of our language consist of:
 \begin{description}
@@ -352,6 +352,21 @@ contexts, $\op{op}$, $\op{op}_i$ stand for operation symbols and $E$,
 $E'$\ldots\ stand for effect signatures. $\Sigma$ refers to the
 higher-order signature giving types to constants.
 
+\newcommand{\handlerrule}{
+ \begin{prooftree}
+  \AxiomC{$E = \{\typedopg{\op{op}_i}{\alpha_i}{\beta_i}\}_{i \in I} \uplus E_f$}
+  \noLine
+  \def\extraVskip{0pt}
+  \UnaryInfC{$E' = E'' \uplus E_f$}
+  \noLine
+  \UnaryInfC{$[\Gamma \vdash M_i : \alpha_i \to (\beta_i \to
+    \FF_{E'}(\delta)) \to \FF_{E'}(\delta)]_{i \in I}$}
+  \noLine
+  \UnaryInfC{$\Gamma \vdash M_\eta : \gamma \to \FF_{E'}(\delta)$}
+  \def\extraVskip{2pt}
+  \RightLabel{[$\banana{}$]}
+  \UnaryInfC{$\Gamma \vdash \banana{(\onto{\op{op}_i}{M_i})_{i \in I},\ \onto{\eta}{M_\eta}} : \FF_{E}(\gamma) \to \FF_{E'}(\delta)$}
+ \end{prooftree}}
 
 \begin{figure}
   \def\labelSpacing{4pt}
@@ -416,20 +431,7 @@ higher-order signature giving types to constants.
   \end{subfigure}
   \hspace{1cm}
   \begin{subfigure}{.5\textwidth}
-   \begin{prooftree}
-    \AxiomC{$E = \{\typedopg{\op{op}_i}{\alpha_i}{\beta_i}\}_{i \in I} \uplus E_f$}
-    \noLine
-    \def\extraVskip{0pt}
-    \UnaryInfC{$E' = E'' \uplus E_f$}
-    \noLine
-    \UnaryInfC{$[\Gamma \vdash M_i : \alpha_i \to (\beta_i \to
-      \FF_{E'}(\delta)) \to \FF_{E'}(\delta)]_{i \in I}$}
-    \noLine
-    \UnaryInfC{$\Gamma \vdash M_\eta : \gamma \to \FF_{E'}(\delta)$}
-    \def\extraVskip{2pt}
-    \RightLabel{[$\banana{}$]}
-    \UnaryInfC{$\Gamma \vdash \banana{(\onto{\op{op}_i}{M_i})_{i \in I},\ \onto{\eta}{M_\eta}} : \FF_{E}(\gamma) \to \FF_{E'}(\delta)$}
-   \end{prooftree}
+   \handlerrule
   \end{subfigure}
 
   \vspace{6mm}
@@ -549,7 +551,10 @@ operators of arity $\beta$. Let's unpack this statement.
   How do we write down the application of an operator of arity $\beta$ to
   its operands? We can no longer just list out all the operands, since
   types in our calculus may have an unbounded number of inhabitants. We
-  will organize operands in \emph{operand clusters}, arity-indexed families
+  will organize operands in \emph{operand clusters}\footnote{Our use of the
+  word \emph{cluster} is synonymous with the mathematical term
+  \emph{family}. We will be using the term \emph{cluster} for families of
+  computations passed to operations and handlers.}, arity-indexed families
   of operands. We will write them down as functions, using
   $\lambda$-abstraction, from the arity type $\beta$ to some operand type,
   e.g., $\FF_E(\gamma)$.
@@ -562,7 +567,8 @@ type $\alpha$ to get an operator and then we apply that operator to an
 operand cluster of type $\beta \to \FF_E(\gamma)$ to get a new expression
 of type $\FF_E(\gamma)$.
 
-We suggest visualizing these algebraic expressions as trees. Trees of type
+We suggest visualizing these algebraic expressions as trees (see Section~2
+of \cite{lindley2014algebraic} for the original idea). Trees of type
 $\FF_E(\alpha)$ consist of leafs containing values of type $\alpha$ and
 internal nodes labelled with operations and their parameters. Every
 internal node is labelled with some $\typedop{op}{\alpha}{\beta} \in E$ and
@@ -571,11 +577,196 @@ by $\beta$.
 
 \subsection*{[$\banana{}$]}
 
+Now we are ready to explain the handler rule. Let us have some computation
+$N : \FF_E(\gamma)$ (which we can now think of as an algebraic
+expression or a tree). By applying the handler
+$\banana{(\onto{\op{op}_i}{M_i})_{i \in I},\ \onto{\eta}{M_\eta}}$ to $N$,
+we get a new computation $N' : \FF_{E'}(\delta)$. The typing rule
+for $\banana{}$ is repeated in Figure~\ref{fig:handler-rule}.
 
-TODO: Write about bananas and cherries here.
+\begin{figure}
+  \handlerrule
+  \caption{\label{fig:handler-rule} The typing rule for the handler
+    construction.}
+\end{figure}
+
+To illustrate the constraints on the types of the components, $M_i$ and
+$M_\eta$, of a handler, we will examine its semantics. The handler
+processes the tree $N$ by recursive induction. Depending on the shape of
+the tree, one of the following will happen:
+
+\begin{itemize}
+\item If $N$ is a leaf, then the value stored in the leaf is of type
+  $\gamma$. This is where the $M_\eta$ function comes in. It must take a
+  value of type $\gamma$ and produce a new tree of type $\FF_{E'}(\delta)$,
+  hence the fourth hypothesis of the $\banana{}$ rule.
+
+\item If $N$ is an internal node labelled with the operation symbol
+  $\op{op}_i$ for some $i \in I$ and some parameter, then that parameter
+  must be of type $\alpha_i$. Furthermore, this node will have a
+  $\beta_i$-indexed cluster of children. We know this since $N$ is of type
+  $\FF_E(\gamma)$ and the first hypothesis tells us that
+  $\typedopg{\op{op}_i}{\alpha_i}{\beta_i} \in E$.
+
+  We will recursively apply our handler to the cluster of children,
+  changing their type from $\FF_E(\gamma)$ to $\FF_{E'}(\delta)$. We now
+  need something which takes the parameter in the node, type $\alpha_i$,
+  and the family of the processed subtrees, type $\beta_i \to
+  \FF_{E'}(\delta)$, which is exactly the function $M_i$ in the third
+  hypothesis of the $\banana{}$ rule.
+
+\item If $N$ is an internal node labelled with some operation symbol
+  $\op{op}$ such that $\typedop{op}{\alpha}{\beta} \in E_f$ for some
+  $\alpha$ and $\beta$, then we will ignore the node and process only its
+  children. This means that the resulting tree will contain the operation
+  $\op{op}$ and any other symbols defined in $E_f$\footnote{The $f$ in
+    $E_f$ stands for \emph{forwarded effects}, since it refers to effects
+    that the handler will not interpret but instead forward to some other
+    interpreter.}. In order for such a tree to be of the desired type
+  $\FF_{E'}(\delta)$, $E_f$ must be a subset of $E'$, which is what the
+  second hypothesis of the $\banana{}$ rule guarantees.
+\end{itemize}
+
+We have covered the whole $\banana{}$ rule, except for the presence of the
+effect signature $E''$. It serves two roles.
+
+\begin{itemize}
+\item First of all, it acts as a ``free'' variable over effect
+  signatures. This means that we can give any effect signature $E'$ to the
+  type $\FF_{E'}(\delta)$ of the resulting computation $N'$ as long as $E'$
+  contains $E_f$ ($E''$ represents the relative complement of $E_f$ in
+  $E'$). This is in analogy to the free effect variable $E$ in the [$\eta$]
+  and [op] rules. This freedom of effect variables is a way of implementing
+  the idea that a computation of type $\FF_{E_1}(\alpha)$ can be used
+  anywhere that a computation of type $\FF_{E_2}(\alpha)$ given that $E_1
+  \subseteq E_2$\footnote{This relation is an instance of subtyping and a
+    more robust treatment will be outlined in Section~\ref{sec:subtyping}.}.
+
+\item In the previous paragraph, why did we put the word ``free'' in
+  quotation marks?  Because the effect variable $E''$ is not actually
+  free. It is the complement of $E_f$ in $E'$ and $E'$ is constrained by
+  the types of $M_i$ and $M_\eta$ in the third and fourth hypotheses,
+  respectively. The handler's clauses might themselves introduce new
+  effects, which will in turn translate into constraints on $E'$ and
+  $E''$. This happens when a handler interprets an operation by making an
+  appeal to some other operation (e.g.\ a handler can interpret
+  computations using n-ary choice into computation using binary choice).
+
+  As the simplest example, we can take a handler that replaces one
+  operation symbol with another,
+  $\banana{\onto{\op{old}} \op{new},\ \onto{\eta} \eta}$. The type scheme
+  corresponding to the term is $\FF_{\{\typedop{old}{\alpha}{\beta}\}
+    \uplus E_f}(\gamma) \to \FF_{\{\typedop{new}{\alpha}{\beta}\} \uplus
+    E^3 \uplus E_f}(\gamma)$. In this scheme, $\alpha$, $\beta$ and
+  $\gamma$ are free meta-variables ranging over types and $E_f$ and $E^3$
+  are free over effect signatures. The $E''$ of the $\banana{}$ rule
+  corresponds to $\{\typedop{new}{\alpha}{\beta}\} \uplus E^3$. The handler
+  has eliminated the $\op{old}$ effect but it has also introduced the
+  $\op{new}$ effect.
+\end{itemize}
+
+This concludes our exploration of the $\banana{}$ rule. We have explained
+it in terms of algebraic expressions and trees, using the denotational
+intution. We will develop the operational intuition, which talks about
+handlers in terms of computations and continuations, in
+Section~\ref{sec:reductions}, where we will give the semantics of our
+language using reduction rules.
+
+\subsection*{[cherry]}
+
+Next up is the cherry operator, $\cherry$. Its type is
+$\FF_\emptyset(\alpha) \to \alpha$ and it serves as a kind of dual to the
+$\eta$ opertator, an elimination for the $\FF$ type.
+
+The type $\FF_\emptyset(\alpha)$ demands that the effect signature be
+empty. In such a case, the tree has no internal nodes and is composed of
+just a leaf containing a value of the type $\alpha$. The $\cherry$ operator
+serves to extract that value.
+
+Another way to look at it is to say that a computation of type
+$\FF_\emptyset(\alpha)$ cannot perform any ``unsafe'' operations and it is
+therefore always safe to execute it and get the resulting value of type
+$\alpha$.
+
+\subsection*{[$\CC$]}
+
+Finally, we take a look at the $\CC$ operator. The type of the operator is
+$(\alpha \to \FF_E(\beta)) \to \FF_E(\alpha \to \beta)$. Its input is an
+$\alpha$-indexed family of computations and its output is a computation of
+$\alpha$-indexed families. The operator applies only in the case when all
+the computations in the family share the same \emph{internal structure}. By
+sharing the same \emph{internal structure}, we mean that the trees can only
+differ in their leaves. What the $\CC$ operator then does is to push the
+$\lambda$-binder down this common internal structure into the leaves (see
+Figure~\ref{fig:c-illustration} for an example). This way, we can
+evaluate/handle the common operations without commiting to a specific value
+of type $\alpha$.
+
+\begin{figure}
+  \includegraphics[width=\textwidth]{doodles/c-illustration}
+  \caption{\label{fig:c-illustration} Example of applying the $\CC$
+    operator to a term. Functions/families are drawn as trees. In this
+    example, the $\lambda$ binds a variable of a binary type, the output of
+    $\op{op}_1$ is binary and the output of $\op{op}_2$ is unary. TODO:
+    This doodle is a placeholder for a cleaner picture generated by a
+    program (or at least until I learn to draw).}
+\end{figure}
+
+We can also explain the action of $\CC$ in operational terms. As in
+call-by-push-value~\cite{levy1999call}, we can think of abstraction over
+$\alpha$ as some effectful operation that tries to pop a value $x : \alpha$
+off a stack. The input of $\CC$ can then be seen as a continuation waiting
+for this $x$ and wanting to perform some further operations. $\CC$ assumes
+that the continuation performs operations independently of
+$x$\footnote{Violating this assumption will yield terms which get stuck
+  during evaluation (we will see the partial reduction rules in
+  Section~\ref{sec:reductions}). Sam Lindley presented a refined type
+  system for a similar calculus to track the use of variables
+  \cite{lindley2014algebraic}. A similar refinement should be possible in
+  our case as well but it would obscure the already dense type notation.}
+and it can thus postpone popping $x$ off the stack until after the
+operations dictated by the continuation have been evaluated. $\CC$ is thus
+a kind of commutativity law for operations and abstraction (the popping of
+a value off the operand stack): as long as one does not depend on the
+other, it does not matter whether we first perform an operation and then
+abstract over an argument or whether we do so the other way
+around\footnote{The other direction, typed $\FF_E(\alpha \to \beta) \to
+  (\alpha \to \FF_E(\beta))$, is already possible without introducing a
+  special operator since $\FF_E$ is a functor (as we will show later).}.
 
 
 \section{Reduction Rules}
+\label{sec:reductions}
+
+We will now finally give a semantics to our calculus. The semantics will be
+given in the form of a reduction relation on terms. Even though the point
+of the calculus is to talk about effects, the reduction semantics will have
+no notion of order of evaluation or evaluation context; any subexpression
+that is reducible can be reduced in any context.
+
+Before we dive into the reduction rules proper we will first have to handle
+some formal paperwork.
+
+\begin{definition}
+  Let $\sim$ be a binary relation on the terms of our calculus. We define
+  the relation $\syntclos{\sim}$, called the \emph{syntactic closure} of
+  $\sim$, as the smallest relation that contains $\sim$ and satisfies the
+  following conditions:
+
+  \begin{itemize}
+  \item if $M \sim M'$, then $\lam{x}{M} \syntclos{\sim} \lam{x}{N}$
+  \item if $M \sim M'$, then $\ap{M}{N} \syntclos{\sim} \ap{M'}{N}$
+  \item if $N \sim N'$, then $\ap{M}{N} \syntclos{\sim} \ap{M}{N'}$
+  \item if $M_i \sim M_i'$, then $\banana{\onto{\op{op}_1}
+    M_1,\ \dots,\ \onto{\op{op}_i} M_i,\ \dots,\ \onto{\op{op}_n}
+    M_n,\ \onto{\eta}{M_\eta}} \syntclos{\sim} \banana{\onto{\op{op}_1}
+    M_1,\ \dots,\ \onto{\op{op}_i} M_i',\ \dots,\ \onto{\op{op}_n}
+    M_n,\ \onto{\eta} M_\eta}$
+  \item if $M_\eta \sim M_\eta'$, then
+    $\banana{(\onto{\op{op}_i}{M_i})_{i \in I},\ \onto{\eta}{M_\eta}}
+    \syntclos{\sim} \banana{(\onto{\op{op}_i}{M_i})_{i \in I},\ \onto{\eta}{M_\eta'}}$
+  \end{itemize}
+\end{definition}
 
 We will now present a set of type-preserving rules that we will use to
 evaluate/simplify expressions in our language.
@@ -584,7 +775,7 @@ evaluate/simplify expressions in our language.
 
 \begin{tabular}{lr}
   $(\lambda x.\ M)\ N \rightarrow$ & [$\beta$] \\
-  $M[x/N]$ & \\
+  $M[x \coloneqq N]$ & \\
   \\
   $[\mathcal{H}\ (OP_i\ M_i)\ldots\ (\eta\ M_\eta)]\ (\eta\ N) \rightarrow$ & [$\mathcal{H}$-$\eta$] \\
   $M_\eta\ N$ & \\
