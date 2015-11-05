@@ -283,6 +283,7 @@ producing values $\alpha$ is $\gamma \to \alpha$ for some $\gamma$.
 
 
 \section{Types and Typing Rules}
+\label{sec:types}
 
 We now give a syntax for the types of our calculus alongside with a typing
 relation. In the grammar below, $\nu$ ranges over atomic types from set
@@ -764,15 +765,26 @@ $\alpha$-equivalence.
   \end{align*}
 \end{definition}
 
+Most often, we will make use of $\FV$ indirectly, using the following
+notion.
+
+\begin{definition}
+  We say that $x$ is \textbf{fresh} for $M$ iff $x \notin \FV(M)$.
+\end{definition}
+
 \begin{definition}
   Let $M$ and $N$ be terms and $x$ a variable. We define the
-  \textbf{capture-avoiding substitution} of $N$ for $x$ in $M$, written as
+  \textbf{capture-avoiding substitution}\footnote{\TODO{Maybe add a small
+      note for readers not aware of the capture problem? I do not expect
+      people to be unfamiliar with it, but I do spend a few pages talking
+      about the trouble with substitutions and variables so it might be
+      worth it to have a small intro.}} of $N$ for $x$ in $M$, written as
   $\subst{M}{x}{N}$, using the following equations:
 
   \begin{align*}
     \subst{(\lam{x}{M})}{x}{N} &= \lam{x}{M} \\
     \subst{(\lam{y}{M})}{x}{N} &= \lam{y}{(\subst{M}{x}{N})} \textrm{ given
-      that } x \neq y \textrm{ and } y \notin \FV(N) \\
+      that } y \neq x \textrm{ and $y$ is fresh for $N$} \\
     \subst{(\ap{M}{K})}{x}{N} &= \ap{(\subst{M}{x}{N})}{(\subst{K}{x}{N})} \\
     \subst{x}{x}{N} &= N \\
     \subst{y}{x}{N} &= y \textrm{ given that } x \neq y \\
@@ -798,15 +810,15 @@ $\alpha$-equivalence.
   the following conditions:
 
   \begin{itemize}
-  \item if $M \sim M'$, then $(\lam{x}{M}) \syntclos{\sim} (\lam{x}{N})$
-  \item if $M \sim M'$, then $(\ap{M}{N}) \syntclos{\sim} (\ap{M'}{N})$
-  \item if $N \sim N'$, then $(\ap{M}{N}) \syntclos{\sim} (\ap{M}{N'})$
-  \item if $M_i \sim M_i'$, then $\banana{\onto{\op{op}_1}
+  \item if $M \syntclos{\sim} M'$, then $(\lam{x}{M}) \syntclos{\sim} (\lam{x}{M'})$
+  \item if $M \syntclos{\sim} M'$, then $(\ap{M}{N}) \syntclos{\sim} (\ap{M'}{N})$
+  \item if $N \syntclos{\sim} N'$, then $(\ap{M}{N}) \syntclos{\sim} (\ap{M}{N'})$
+  \item if $M_i \syntclos{\sim} M_i'$, then $\banana{\onto{\op{op}_1}
     M_1,\ \dots,\ \onto{\op{op}_i} M_i,\ \dots,\ \onto{\op{op}_n}
     M_n,\ \onto{\eta}{M_\eta}} \syntclos{\sim} \banana{\onto{\op{op}_1}
     M_1,\ \dots,\ \onto{\op{op}_i} M_i',\ \dots,\ \onto{\op{op}_n}
     M_n,\ \onto{\eta} M_\eta}$
-  \item if $M_\eta \sim M_\eta'$, then
+  \item if $M_\eta \syntclos{\sim} M_\eta'$, then
     $\cibanana \syntclos{\sim}
      \banana{(\onto{\op{op}_i}{M_i})_{i \in I},\ \onto{\eta}{M_\eta'}}$
   \end{itemize}
@@ -833,21 +845,24 @@ can be transformed by transforming any of its parts.
 
   \begin{itemize}
   \item $\lam{x}{M} \swap \lam{y}{(\subst{M}{x}{y})}$ given that $y \notin
-    \FV(M)$\footnote{Also under the condition that $\subst{M}{x}{y}$
-      exists. We will not mention this proviso in further definitions.
+    \FV(M)$ and that $\subst{M}{x}{y}$ exists
 
-      Whenever we will try to define a relation between elements $f(X)$ and
-      $g(X)$, where $f$ and $g$ are partial functions, and either $f(X)$ or
-      $g(X)$ will not exist, then we will ignore the pair (i.e. $f(X)$ and
-      $g(X)$ will not enter into the relation since one of them does not
-      even exist).
+    %% \footnote{Also under the condition that $\subst{M}{x}{y}$
+    %%   exists. We will not mention this proviso in further definitions.
 
-      Linguistically speaking, the presuppositions triggered by the
-      definite descriptions $f(X)$ and $g(X)$ in the sentence ``$f(X)$
-      relates to $g(X)$'' are resolved by adding an implicit conditional
-      ``if $f(X)$ and $g(X)$ both exist''. This handler will be specific to
-      the way we define relations. Dangling presuppositions in other parts
-      of the math should be seen as mistakes or omissions.}
+    %%   Whenever we will try to define a relation between elements $f(X)$ and
+    %%   $g(X)$, where $f$ and $g$ are partial functions, and either $f(X)$ or
+    %%   $g(X)$ will not exist, then we will ignore the pair (i.e. $f(X)$ and
+    %%   $g(X)$ will not enter into the relation since one of them does not
+    %%   even exist).
+
+    %%   Linguistically speaking, the presuppositions triggered by the
+    %%   definite descriptions $f(X)$ and $g(X)$ in the sentence ``$f(X)$
+    %%   relates to $g(X)$'' are resolved by adding an implicit conditional
+    %%   ``if $f(X)$ and $g(X)$ both exist''. This handler will be specific to
+    %%   the way we define relations. Dangling presuppositions in other parts
+    %%   of the math should be seen as mistakes or omissions.}
+    
   \end{itemize}
 \end{definition}
 
@@ -866,67 +881,267 @@ can be transformed by transforming any of its parts.
   transitivity are guaranteed by the reflexive-transitive closure.
 \end{proof}
 
-We will now present a set of type-preserving rules that we will use to
-evaluate/simplify expressions in our language.
+The notion of $\alpha$-equivalence will be very useful. We will use it so
+much that we will actually quotient the set of terms and start talking
+about $\alpha$-equivalence classes instead of specific terms. However,
+talking all the time about $\alpha$-equivalence classes of terms instead of
+just terms would not be practical. We will keep using the same notation and
+so from now on, terms written in the syntax of our calculus no longer
+designate individual terms but rather $\alpha$-equivalence classes of
+terms. The term ``term'' will itself be freely used to actually mean an
+$\alpha$-equivalence class of terms.
 
-\vspace{3mm}
+However, before we start using individual terms while having them represent
+entire $\alpha$-equivalence classes, we should better make sure that the
+operations that we will perform with these terms are congruent with
+$\alpha$-equivalence\footnote{Congruence means that equivalent inputs are
+  mapped to equivalent outputs.}. Is it the case that the operations we
+have introduced in this section are congruent with $\alpha$-equivalence?
 
-\begin{tabular}{lr}
-  $(\lambda x.\ M)\ N \rightarrow$ & [$\beta$] \\
+$\FV$ is congruent: swapping names bound by $\lambda$ does not change the
+set of free variables in a term.
+
+The definition of syntactic closure works for $\alpha$-equivalence classes
+as well.
+
+What about substitution? As we have already seen, capture-avoiding
+substitution is a partial operation: $\subst{(\lam{y}{x})}{x}{y}$ does not
+exist. However, $\lam{z}{x}$ is $\alpha$-equivalent to $\lam{y}{x}$ and
+$\subst{(\lam{z}{x})}{x}{y}$ exists; it is $\lam{z}{y}$. Not congruent.
+
+We will introduce an alternative notion, \emph{capture-resolving
+  substitution}. While capture-avoiding substitution was a partial function
+on terms, capture-resolving substitution will be a total function on
+$\alpha$-equivalence classes. Furthermore, the new function will be an
+extension of the old one. If capture-avoiding substitution would have
+mapped $A$ to $B$, then capture-resolving substitution will map the
+$=_\alpha$ class of $A$ to the $=_\alpha$ class of $B$.
+
+In defining capture-resolving substitution, we will demonstrate a technique
+that is made possible by the transition from single terms to $=_\alpha$
+classes of terms. When we have a variable $x$ bound in a term, we can
+always assume, without loss of generality, that it is distinct from another
+variable $y$ (since inside our term, we can swap $x$ with any variable from
+$\XX$ which is different from $y$ and end up in the same $=_\alpha$
+class). By extension, we can also assume that a variable $x$ bound in some
+term is fresh in some other term.
+
+\begin{definition}
+  Let $M$ and $N$ be terms and $x$ a variable. We define the
+  \textbf{(capture-resolving) substitution} of $N$ for $x$ in $M$, written as
+  $\subst{M}{x}{N}$\footnote{From now on, this notation will be used for
+    capture-resolving substitution only.}, using the following equations:
+
+  \begin{align*}
+    \subst{(\lam{y}{M})}{x}{N} &= \lam{y}{(\subst{M}{x}{N})} \textrm{ assuming
+      that } y \neq x \textrm{ and $y$ is fresh for $N$} \footnotemark \\
+    \subst{(\ap{M}{K})}{x}{N} &= \ap{(\subst{M}{x}{N})}{(\subst{K}{x}{N})} \\
+    \subst{x}{x}{N} &= N \\
+    \subst{y}{x}{N} &= y \textrm{ given that } x \neq y \footnotemark \\
+    \subst{c}{x}{N} &= c \\
+    \subst{\op{op}}{x}{N} &= \op{op} \\
+    \subst{\eta}{x}{N} &= \eta \\
+    \subst{\cibanana}{x}{N} &= \banana{(\onto{\op{op}_i}
+      (\subst{M_i}{x}{N}))_{i \in I},\ \onto{\eta} (\subst{M_\eta}{x}{N})} \\
+    \subst{\cherry}{x}{N} &= \cherry \\
+    \subst{\CC}{x}{N} &= \CC
+  \end{align*}
+\end{definition}
+
+\addtocounter{footnote}{-1}
+\footnotetext{Here, $y$ is a bound variable and we can simply \emph{assume}
+  that it is different from $x$ and proceed\dots}
+\stepcounter{footnote}
+\footnotetext{\dots whereas here, $y$ is a free variable and therefore, we
+  have to \emph{examine} whether it is different from $x$ or not.}
+
+We are now at a point where we can easily lay down the reduction rules for
+our calculus. A reduction rule $\xi$ will be a relation on terms. Most of
+the time, we will deal with their syntactic closures, $[\xi]$, for which we
+will also adopt the notation $\to_\xi$. We will also use the notation
+$\to_{\xi_1,\dots,\xi_n}$ for the composition $\to_{\xi_n} \circ \dots
+\circ \to_{\xi_1}$. The \emph{small-step semantics} of our calculus will be
+given by the union of the $\to_\xi$ relations for every reduction rule
+$\xi$ and we will represent it with the plain symbol $\to$. The
+\emph{big-step semantics} will be $\to^*$, the reflexive-transitive closure
+of $\to$, and we will write it down using the symbol $\tto$. 
+
+We will now go through the reduction rules of our calculus, presented in
+Figure~\ref{fig:reductions}, one by one.
+
+
+\begin{figure}
+  \begin{tabular}{lr}
+  $\ap{(\lam{x}{M})}{N} \to$ & rule $\beta$-$\to$ \\
   $\subst{M}{x}{N}$ & \\
   \\
-  $[\mathcal{H}\ (OP_i\ M_i)\ldots\ (\eta\ M_\eta)]\ (\eta\ N) \rightarrow$ & [$\mathcal{H}$-$\eta$] \\
-  $M_\eta\ N$ & \\
+  $\ap{\cibanana}{(\ap{\eta}{N})} \to$ & rule $\banana{\eta}$ \\
+  $\ap{M_\eta}{N}$ & \\
   \\
-  $[\mathcal{H}\ (OP_i\ M_i)\ldots\ (\eta\ M_\eta)]\ (OP_i\ N_a\ N_k) \rightarrow$ & [$\mathcal{H}$-$OP$] \\
-  $M_i\ N_a\ (\lambda x.\ [\mathcal{H}\ (OP_i\ M_i)\ldots\ (\eta\ M_\eta)]\ (N_k\ x))$ & where $x$ is fresh \\
+  $\ap{\cibanana}{(\ap{\ap{\op{op}_i}{N_p}}{N_c})} \to$ & rule $\banana{\op{op}}$ \\
+  $\ap{M_i}{\ap{N_p}{(\lam{x}{\ap{\cibanana}{(\ap{N_c}{x})}})}}$
+  & where $x$ is fresh for $M_\eta$ \\ & and $M_i$ for all $i \in I$ \\
   \\
-  $[\mathcal{H}\ (OP_i\ M_i)\ldots\ (\eta\ M_\eta)]\ (OP\ N_a\ N_k) \rightarrow$ & [$\mathcal{H}$-$OP^*$] \\
-  $OP\ N_a\ (\lambda x.\ [\mathcal{H}\ (OP_i\ M_i)\ldots\ (\eta\ M_\eta)]\ (N_k\ x))$ & where $x$ is fresh \\
-  & and $OP \notin \{OP_i\}_i$ \\
+  $\ap{\cibanana}{(\ap{\ap{\op{op}'}{N_p}}{N_c})} \to$ & rule $\banana{\op{op}'}$ \\
+  $\ap{\op{op}'}{\ap{N_p}{(\lam{x}{\ap{\cibanana}{(\ap{N_c}{x})}})}}$
+  & where $\op{op}' \notin \{\op{op}_i\}_{i \in I}$ \\
+  & and $x$ is fresh for $M_\eta$ \\ & and $M_i$ for all $i \in I$ \\
   \\
-  $\mathcal{C}\ (\lambda x.\ \eta\ M) \rightarrow$ & [$\mathcal{C}$-$\eta$] \\
-  $\eta\ (\lambda x.\ M)$ & \\
+  $\ap{\cherry}{(\ap{\eta}{M})} \to$ & rule $\cherry$ \\
+  $M$ & \\
   \\
-  $\mathcal{C}\ (\lambda x.\ OP\ M_a\ M_k) \rightarrow$ & [$\mathcal{C}$-$OP$] \\
-  $OP\ M_a\ (\lambda y.\ \mathcal{C}\ (\lambda x.\ M_k\ y))$ & where $y$ is fresh \\
-  & and $x \notin FV(M_a)$
-\end{tabular}
+  $\ap{\CC}{(\lam{x}{\ap{\eta}{M}})} \to$ & rule $\CC$-$\eta$ \\
+  $\ap{\eta}{(\lam{x}{M})}$ & \\
+  \\
+  $\ap{\CC}{(\lam{x}{\ap{\ap{\op{op}}{M_p}}{M_c}})} \to$ & rule $\CC$-$\op{op}$ \\
+  $\ap{\ap{\op{op}}{M_p}}{(\lam{y}{\ap{\CC}{(\lam{x}{\ap{M_c}{y}})}})}$
+  & where $x$ is fresh for $M_p$ \\ & and $y$ is fresh for $M_c$
+  \end{tabular}
+  
+  \caption{\label{fig:reductions} The reduction rules of our calculus.}
+\end{figure}
 
-\vspace{3mm}
 
-Besides the standard $\beta$-reduction rule, we have rules that define the
-behavior of the handlers formed using $\mathcal{H}$ and of the
-$\mathcal{C}$ operator.
+First off, we have the $\beta$-$\to$ rule. By no coincidence, it is the
+same rule as the one found in STLC.
+
+Next we have the three rules that govern the behavior of handlers. We
+recognize the three different rules as the three different cases in the
+informal denotational semantics given in Section~\ref{sec:types}.
+
+\begin{itemize}
+\item When the tree is just a leaf (i.e. $\ap{\eta}{N}$), rule
+  $\banana{\eta}$ applies the clause $M_\eta$ to the value $N$ contained
+  within.
+\item When the tree is an internal node labelled with $\op{op}_i$
+  (i.e. $\ap{\ap{\op{op}_i}{N_p}}{N_c}$), we first recursively apply the
+  handler to every child $\ap{N_c}{x}$. We then pass the parameter $N_p$
+  stored in the node along with the cluster of the processed children to
+  the clause $M_i$.
+\item When the tree is an internal node labelled with $\op{op}'$ not
+  accounted for by the handler, we leave the node as it is and just recurse
+  down on to the children (effectively using $\op{op}'$ as the handler
+  clause for $\op{op}'$).
+\end{itemize}
+
+By looking at these rules, we also notice that all they do is just traverse
+the continuations ($N_c$) and replace $\eta$ with $M_\eta$ and $\op{op}_i$
+with $M_i$. This justifies thinking of $\eta$ and the operation symbols as
+special variables which are bound to a value when being passed through a
+handler. This substitutability is already hinted at by the types of
+$M_\eta$ and $M_i$ in the $\banana{}$ typing rule and their correspondence
+with the typing rules [$\eta$] and [$\op{op}$], respectively.
+
+The next rule talks about the cherry operator. It does what we would expect
+it to do\footnote{Based on what we said about it in
+  Section~\ref{sec:types}, not on its name.}. It expects its argument to
+always be a leaf, a pure computation, and it extracts the argument that was
+passed to the $\eta$ constructor.
+
+Finally, we have the two rules defining the behavior of $\CC$. We remind
+ourselves that the goal of $\CC$ is to make computations and abstractions
+commute by pushing $\lambda$ below operation symbols and $\eta$.
+
+\begin{itemize}
+\item Rule $\CC$-$\eta$ treats the base case where the computation that we
+  try to push $\lambda$ through is a pure computation. In that case, we
+  just reorder the $\lambda$ binder and the $\eta$ operator.
+
+\item Rule $\CC$-$\op{op}$ deals with the case of the $\lambda$ meeting an
+  operation symbol. The solution is to just continue down on to the
+  children. The operation $\ap{\CC}{(\lam{x}{\dots})}$ is applied
+  recursively to every child $\ap{M_c}{y}$. However, this strategy is sound
+  only when $M_p$ has no free occurrence of $x$ (which would have been
+  bound by the $\lambda$ in the redex but would become unbound in the
+  contractum). We therefore have a constraint saying that $x$ must not
+  occur free in $M_p$. Unlike the other freshness constraints, this one
+  cannot be fixed by a simple renaming of variables. If this constraint is
+  not met, the $\CC$ will not be able to reduce.
+
+  When talking about the $\CC$ operator in Section~\ref{sec:types}, we
+  talked about how it applies only to families of computations that share
+  the same internal structure (i.e.\ functions of $x$ where the internal
+  structure does not depend on $x$). This is reflected in the reduction
+  rules in two ways:
+  \begin{itemize}
+  \item Firstly, in order for $\CC$-$\op{op}$ to kick in, the body of the
+    function must have already reduced to something of the form
+    $\ap{\ap{\op{op}}{M_p}}{M_c}$. This means that the next operation to be
+    performed has already been determined to be $\op{op}$ without needing
+    to wait for the value of $x$.
+  \item Secondly, the reduction can only proceed if $M_p$ does not contain
+    a free occurrence of $x$. This means that $M_p$ is independent of $x$.
+  \end{itemize}
+\end{itemize}
 
 
 \section{Sums and Products}
 
+\TODO{A terse rehash of the standard constructions of sums and products
+  (syntax for terms and types, typing and reduction rules).}
 
 \section{Common Combinators}
 
-Here we will introduce a collection of generally useful syntactic shortcuts
-and combinators for our calculus.
+Here we will introduce a collection of useful syntactic shortcuts and
+combinators for our calculus.
+
+First of all, in Section~\ref{sec:reductions}, we have seen how the
+reduction rules treat unknown operation symbols: by leaving them
+intact. With some syntactic sugar, we can extend this behavior to the
+$\eta$ operator as well. We will sometimes write a handler and omit giving
+the $\eta$ clause. In that case, the $\eta$ clause is presumed to be just
+$\eta$\footnote{This is not a part of the core calculus as this is only
+  sound when the type of the handler is of the shape $\FF_E(\gamma) \to
+  \FF_{E'}(\gamma)$ (i.e.\ when the handler preserves the type of values
+  yielded by the computation).}. Schematically, we can define this piece of
+new syntax in the following way:
+
+$$
+\banana{(\onto{\op{op}_i} M_i)_{i \in I}} = \cibanana
+$$
+
+We now show some useful combinators. First of all, to save some space and
+write functions in a terse ``point-free'' style\footnote{\TODO{When
+    actually using $\circ$ later on, make sure that I am not relying on
+    extensionality ($\eta$-reduction) without properly introducing it.}},
+we introduce the composition operator (known as the $\textbf{B}$ combinator
+in combinatory logic).
 
 \begin{align*}
   \_ \circ \_ &: (\beta \to \gamma) \to (\alpha \to \beta) \to (\alpha \to \gamma) \\
-  f \circ g &= \lambda x.\ f\ (g\ x) \\
-  \_^* &: (\alpha \to \mathcal{F}(\beta)) \to (\mathcal{F}(\alpha) \to \mathcal{F}(\beta)) \\
-  f^* &= [\mathcal{H}\ (\eta\ f)] \\
-  \mathcal{F} &: (\alpha \to \beta) \to (\mathcal{F}(\alpha) \to \mathcal{F}(\beta)) \\
-  \mathcal{F} &= \lambda f.\ (\eta \circ f)^* \\
-  \_ \hsbind \_ &: \mathcal{F}(\alpha) \to (\alpha \to \mathcal{F}(\beta)) \to \mathcal{F}(\beta) \\
-  M \hsbind N &= N^*\ M \\
-  \\
-  [\mathcal{H}\ (OP_i\ M_i)\ldots] &= [\mathcal{H}\ (OP_i\ M_i)\ldots\ (\eta\ \eta)]
+  f \circ g &= \lam{x}{\ap{f}{(\ap{g}{x})}}
 \end{align*}
 
-We will also make use of combinators for function application where one or
-more of the arguments are computations.
+Later on, in Section~\ref{sec:algebraic-properties}, we will see that our
+$\FF_E$ is a functor which, combined with some other elements, forms a
+monad, or equivalently, a Kleisli triple. We use a star to denote the
+\emph{extension} of a function from values to computations, as in
+\cite{moggi1991notions}, and we use $\hsbind$ to denote the \emph{bind} of
+a monad, as in Haskell.
 
 \begin{align*}
-  \_ \apl \_ &: \mathcal{F}(\alpha \to \beta) \to \alpha \to \mathcal{F}(\beta) \\
-  F \apl x &= F \hsbind (\lambda x.\ \eta\ (f\ x)) \\
-  \_ \apr \_ &: (\alpha \to \beta) \to \mathcal{F}(\alpha) \to \mathcal{F}(\beta) \\
-  f \apr X &= X \hsbind (\lambda x.\ \eta\ (f\ x))
+  \_^* &: (\alpha \to \FF_E(\beta)) \to (\FF_E(\alpha) \to \FF_E(\beta)) \\
+  f^* &= \banana{\onto{\eta} f} \\
+  \_ \hsbind \_ &: \FF_E(\alpha) \to (\alpha \to \FF_E(\beta)) \to \FF_E(\beta) \\
+  M \hsbind N &= \ap{N^*}{M} \\
 \end{align*}
+
+Finally, we will define operators for performing function application in
+cases when either the function or argument (or both) are wrapped in a
+computation.
+
+\begin{align*}
+  \_ \apl \_ &: \FF_E(\alpha \to \beta) \to \alpha \to \FF_E(\beta) \\
+  F \apl x &= F \hsbind (\lam{f}{\ap{\eta}{(\ap{f}{x})}}) \\
+  \_ \apr \_ &: (\alpha \to \beta) \to \FF_E(\alpha) \to \FF_E(\beta) \\
+  f \apr X &= X \hsbind (\lam{x}{\ap{\eta}{(\ap{f}{x})}}) \\
+  \_ \aplr \_ &: \FF_E(\alpha \to \beta) \to \FF_E(\alpha) \to \FF_E(\beta) \\
+  f \aplr X &= F \hsbind (\lam{f}{X \hsbind (\lam{x}{\ap{\eta}{(\ap{f}{x})}})}) \\
+\end{align*}
+
+The second of these three, $\apr$, is the morphism component of the $\FF_E$ functor
+(which we will show in Section~\ref{sec:algebraic-properties}). $\FF_E$ is
+also an applicative functor and the third operator in the list above, $\aplr$, is the
+operator for application within the functor.
+
+\TODO{Maybe introduce do-notation here? It ought to be useful later.}
