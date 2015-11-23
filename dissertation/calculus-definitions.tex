@@ -962,9 +962,9 @@ $\to_{\xi_1,\dots,\xi_n}$ for the composition $\to_{\xi_n} \circ \dots
 given by the union of the $\to_\xi$ relations for every reduction rule
 $\xi$ and we will represent it with the plain symbol $\to$. The
 \emph{big-step semantics} will be $\to^*$, the reflexive-transitive closure
-of $\to$, and we will write it down using the symbol
-$\tto$\footnote{\TODO{Filter down to only normal forms. Define normal
-    forms.}}.
+of $\to$, with its codomain restricted to normal forms and we will write it
+down using the symbol $\tto$. A \emph{normal form} is defined as a term $M$
+for which there exists no other term $N$ such that $M \to N$.
 
 We will now go through the reduction rules of our calculus, presented in
 Figure~\ref{fig:reductions}, one by one.
@@ -972,10 +972,10 @@ Figure~\ref{fig:reductions}, one by one.
 
 \begin{figure}
   \begin{tabular}{lr}
-  $\ap{(\lam{x}{M})}{N} \to$ & rule $\beta$-$\to$ \\
+  $\ap{(\lam{x}{M})}{N} \to$ & rule $\beta_\to$ \\
   $\subst{M}{x}{N}$ & \\
   \\
-  $\lam{x}{\ap{M}{x}} \to$ & rule $\eta$-$\to$ \\
+  $\lam{x}{\ap{M}{x}} \to$ & rule $\eta_\to$ \\
   $M$ & where $x$ is fresh for $M$ \\
   \\
   $\ap{\cibanana}{(\ap{\eta}{N})} \to$ & rule $\banana{\eta}$ \\
@@ -993,10 +993,10 @@ Figure~\ref{fig:reductions}, one by one.
   $\ap{\cherry}{(\ap{\eta}{M})} \to$ & rule $\cherry$ \\
   $M$ & \\
   \\
-  $\ap{\CC}{(\lam{x}{\ap{\eta}{M}})} \to$ & rule $\CC$-$\eta$ \\
+  $\ap{\CC}{(\lam{x}{\ap{\eta}{M}})} \to$ & rule $\CC_\eta$ \\
   $\ap{\eta}{(\lam{x}{M})}$ & \\
   \\
-  $\ap{\CC}{(\lam{x}{\ap{\ap{\op{op}}{M_p}}{M_c}})} \to$ & rule $\CC$-$\op{op}$ \\
+  $\ap{\CC}{(\lam{x}{\ap{\ap{\op{op}}{M_p}}{M_c}})} \to$ & rule $\CC_\op{op}$ \\
   $\ap{\ap{\op{op}}{M_p}}{(\lam{y}{\ap{\CC}{(\lam{x}{\ap{M_c}{y}})}})}$
   & where $x$ is fresh for $M_p$ \\ & and $y$ is fresh for $M_c$
   \end{tabular}
@@ -1005,8 +1005,8 @@ Figure~\ref{fig:reductions}, one by one.
 \end{figure}
 
 
-First off, we have the $\beta$-$\to$ rule. By no coincidence, it is the
-same rule as the one found in STLC.
+First off, we have the $\beta_\to$ and $\eta_\to$ rules. By no
+coincidence, they are the same rules as the ones found in STLC.
 
 Next we have the three rules that govern the behavior of handlers. We
 recognize the three different rules as the three different cases in the
@@ -1046,11 +1046,11 @@ ourselves that the goal of $\CC$ is to make computations and abstractions
 commute by pushing $\lambda$ below operation symbols and $\eta$.
 
 \begin{itemize}
-\item Rule $\CC$-$\eta$ treats the base case where the computation that we
+\item Rule $\CC_\eta$ treats the base case where the computation that we
   try to push $\lambda$ through is a pure computation. In that case, we
   just reorder the $\lambda$ binder and the $\eta$ operator.
 
-\item Rule $\CC$-$\op{op}$ deals with the case of the $\lambda$ meeting an
+\item Rule $\CC_\op{op}$ deals with the case of the $\lambda$ meeting an
   operation symbol. The solution is to just continue down on to the
   children. The operation $\ap{\CC}{(\lam{x}{\dots})}$ is applied
   recursively to every child $\ap{M_c}{y}$. However, this strategy is sound
@@ -1067,7 +1067,7 @@ commute by pushing $\lambda$ below operation symbols and $\eta$.
   structure does not depend on $x$). This is reflected in the reduction
   rules in two ways:
   \begin{itemize}
-  \item Firstly, in order for $\CC$-$\op{op}$ to kick in, the body of the
+  \item Firstly, in order for $\CC_\op{op}$ to kick in, the body of the
     function must have already reduced to something of the form
     $\ap{\ap{\op{op}}{M_p}}{M_c}$. This means that the next operation to be
     performed has already been determined to be $\op{op}$ without needing
@@ -1107,7 +1107,11 @@ $\FF_E$ is a functor which, combined with some other elements, forms a
 monad, or equivalently, a Kleisli triple. We use a star to denote the
 \emph{extension} of a function from values to computations, as in
 \cite{moggi1991notions}, and we use $\hsbind$ to denote the \emph{bind} of
-a monad, as in Haskell.
+a monad, as in Haskell.\footnote{In the types of the operators given below,
+  we use the same effect signature $E$ everywhere. Technically, a more
+  general type could be derived for these terms given our system. However,
+  we will rarely need this extra flexibility and so we stick with these
+  simpler types.}
 
 \begin{align*}
   \_^* &: (\alpha \to \FF_E(\beta)) \to (\FF_E(\alpha) \to \FF_E(\beta)) \\
@@ -1144,24 +1148,116 @@ to compose computations, we can simplify the way we write effectful
 operations.
 
 $$
-  \op{op}! &= \lam{x}{\ap{\ap{\op{op}}{x}}{\eta}}
+\op{op}! = \lam{x}{\ap{\ap{\op{op}}{x}}{\eta}}
 $$
 
-This basically 
+The exclamation mark partially applies an operation by giving it the
+trivial continuation $\eta$. However, we can still recover $\op{op}$ from
+$\op{op}!$ using $\hsbind$:
 
-First of all, in Section~\ref{sec:reductions}, we have seen how the
-reduction rules treat unknown operation symbols: by leaving them
-intact. With some syntactic sugar, we can extend this behavior to the
-$\eta$ operator as well. We will sometimes write a handler and omit giving
-the $\eta$ clause. In that case, the $\eta$ clause is presumed to be just
-$\eta$\footnote{This is not a part of the core calculus as this is only
-  sound when the type of the handler is of the shape $\FF_E(\gamma) \to
-  \FF_{E'}(\gamma)$ (i.e.\ when the handler preserves the type of values
-  yielded by the computation).}. Schematically, we can define this piece of
-new syntax in the following way:
+\begin{align*}
+  \ap{\op{op}!}{x} \hsbind k
+  &= \ap{(\lam{x}{\ap{\ap{\op{op}}{x}}{\eta}})}{x} \hsbind k \\
+  &\to_{\beta_\to} \ap{\ap{\op{op}}{x}}{\eta} \hsbind k \\
+  &= \ap{k^*}{(\ap{\ap{\op{op}}{x}}{\eta})} \\
+  &= \ap{\banana{\onto{\eta}{k}}}{(\ap{\ap{\op{op}}{x}}{\eta})} \\
+  &\to_{\banana{\op{op}'}} \ap{\ap{\op{op}}{x}}{(\lam{y}{\ap{\banana{\onto{\eta}{k}}}{(\ap{\eta}{y})}})} \\
+  &\to_{\banana{\eta}} \ap{\ap{\op{op}}{x}}{(\lam{y}{\ap{k}{y}})} \\
+  &\to_{\eta} \ap{\ap{\op{op}}{x}}{k}
+\end{align*}
+
+The exclamation mark streamlines the typing rule for operations, as you can
+see on the pair of rules below:
+
+\vspace{2mm}
+\begin{minipage}{0.5\textwidth}
+   \begin{prooftree}
+    \AxiomC{$\typedop{op}{\alpha}{\beta} \in E$}
+    \RightLabel{[$\op{op}$]}
+    \UnaryInfC{$\Gamma \vdash \op{op} : \alpha \to (\beta \to \FF_E(\gamma)) \to \FF_E(\gamma)$}
+  \end{prooftree}
+\end{minipage}
+\hfill
+\begin{minipage}{0.4\textwidth}
+  \begin{prooftree}
+    \AxiomC{$\typedop{op}{\alpha}{\beta} \in E$}
+    \RightLabel{[$\op{op}!$]}
+    \UnaryInfC{$\Gamma \vdash \op{op}! : \alpha \to \FF_E(\beta)$}
+  \end{prooftree}
+\end{minipage}
+\vspace{3mm}
+
+We can also see that the $\rightarrowtail$ arrow used in effect signatures
+gives rise to a Kleisli arrow since $\FF_E$ is a monad (more on that in
+Chapter~\ref{chap:properties}).
+
+\subsubsection{Handlers}
+
+In Section~\ref{sec:reductions}, we have seen how the reduction rules treat
+unknown operation symbols: by leaving them intact. With some syntactic
+sugar, we can extend this behavior to the $\eta$ operator as well. We will
+sometimes write a handler and omit giving the $\eta$ clause. In that case,
+the $\eta$ clause is presumed to be just $\eta$\footnote{This is not a part
+  of the core calculus as this is only sound when the type of the handler
+  is of the shape $\FF_E(\gamma) \to \FF_{E'}(\gamma)$ (i.e.\ when the
+  handler preserves the type of values yielded by the
+  computation).}. Schematically, we can define this piece of new syntax in
+the following way:
 
 $$
 \banana{(\onto{\op{op}_i} M_i)_{i \in I}} = \cibanana
 $$
+
+Finally, we will introduce a special syntax for \emph{closed
+  handlers}\cite{kammar2013handlers}. A \emph{closed handler} is a handler
+that interprets the entire computation that is given as its input (it must
+have a clause for every operator appear within). Since all effects are
+handled and none are forwarded, the codomain of the handler can be
+something else than a computation. However, if you try writing handlers
+that want to exploit this possibility, you will find that there is a lot of
+translating between $\alpha$ types and $\FF_\emptyset(\alpha)$ types that
+needs to be done and that clouds the inherent simplicity of a closed
+handler. We introduce syntax for closed handlers which takes care of this
+problem.
+
+$$
+\cibbanana = \cherry \circ \banana{\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})},\ \onto{\eta}{(\eta \circ M_\eta)}}
+$$
+
+As we can see, that only material added by the closed handler brackets are
+the functions $\eta$ and $\cherry$\footnote{Composing the $\cherry$
+  operator with a $\banana{}$ handler is an identifying characteristic of
+  closed handlers: a closed handler is a banana with a cherry on the top.},
+which simply translate between the types $\alpha$ and
+$\FF_\emptyset(\alpha)$. Rather than looking at the definition, the idea of
+a closed handler is better conveyed by a giving its typing rule. The
+following rule will be proven sound in Chapter~\ref{chap:properties}:
+
+\begin{prooftree}
+  \AxiomC{$E = \{\typedopg{\op{op}_i}{\alpha_i}{\beta_i}\}_{i \in I}$}
+  \noLine
+  \def\extraVskip{0pt}
+  \UnaryInfC{$[\Gamma \vdash M_i : \alpha_i \to (\beta_i \to \delta) \to \delta]_{i \in I}$}
+  \noLine
+  \UnaryInfC{$\Gamma \vdash M_\eta : \gamma \to \delta$}
+  \def\extraVskip{2pt}
+  \RightLabel{[$\bbanana{}$]}
+  \UnaryInfC{$\Gamma \vdash \cibbanana : \FF_{E}(\gamma) \to \delta$}
+\end{prooftree}
+
+The lack of multiple effect signatures to implement effect forwarding makes
+the $\bbanana{}$ rule simpler:
+
+\begin{itemize}
+\item $M_\eta$ gives $\delta$-typed interpretations to the terminal
+  values (leaves) of type $\gamma$
+\item $M_i$ maps the parameter of type $\alpha_i$ and the $\delta$-typed
+  interpretations of the $\beta_i$-indexed family of children to a
+  $\delta$-typed interpretation of an internal node
+\end{itemize}
+
+The $\eta$ clause in a closed handler is optional. Similarly to open
+handlers, we will assume that $\gamma = \delta$ and that $M_\eta$ is the
+identity function.
 
 \TODO{Maybe introduce do-notation here? It ought to be useful later.}

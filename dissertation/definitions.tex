@@ -19,8 +19,8 @@
 
 \newcommand{\limp}{\mathbin{{-}\mkern-3.5mu{\circ}}}
 
-\newcommand{\llbparenthesis}{\includegraphics{symbols/llbparenthesis.png}}
-\newcommand{\rrbparenthesis}{\includegraphics{symbols/rrbparenthesis.png}}
+\newcommand{\llbparenthesis}{\vcenter{\hbox{\includegraphics{symbols/llbparenthesis.png}}}}
+\newcommand{\rrbparenthesis}{\vcenter{\hbox{\includegraphics{symbols/rrbparenthesis.png}}}}
 \newcommand{\lban}{\llparenthesis \,}
 \newcommand{\rban}{\, \rrparenthesis}
 \newcommand{\lbban}{\llbparenthesis \,}
@@ -56,6 +56,8 @@
 \newcommand{\cibanana}{\banana{(\onto{\op{op}_i} M_i)_{i \in I},\ \onto{\eta} M_\eta}}
 \newcommand{\cdbanana}{\banana{\onto{\op{op}_1} M_1,\ \dots,\ \onto{\op{op}_n} M_n,\ \onto{\eta} M_\eta}}
 
+\newcommand{\cibbanana}{\bbanana{(\onto{\op{op}_i} M_i)_{i \in I},\ \onto{\eta} M_\eta}}
+
 \newcommand{\TODO}[1]{\textcolor{red}{\textbf{TODO}: #1}}
 
 \newcommand{\relR}{\mathbin{R}}
@@ -63,3 +65,5 @@
 \newcommand{\swap}{\mathbin{\textbf{swap}}}
 
 \newcommand{\tto}{\twoheadrightarrow}
+
+\mathchardef\mhyphen="2D
