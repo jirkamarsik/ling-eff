@@ -67,3 +67,13 @@
 \newcommand{\tto}{\twoheadrightarrow}
 
 \mathchardef\mhyphen="2D
+
+\newcommand{\pair}[2]{\left<#1, #2\right>}
+\newcommand{\inl}{\operatorname{inl}}
+\newcommand{\inr}{\operatorname{inr}}
+\newcommand{\case}[5]{\text{\textbf{case} $#1$ \textbf{of} $\{ \ap{\inl}{#2} \to #3;\ \ap{\inr}{#4} \to #5 \}$}}
+\newcommand{\absurd}[1]{\text{\textbf{case} $#1$ \textbf{of} \{\,\}}}
+
+\newcommand{\true}{\textbf{T}}
+\newcommand{\false}{\textbf{F}}
+\newcommand{\ifte}[3]{\text{\textbf{if} $#1$ \textbf{then} $#2$ \textbf{else} $#3$}}

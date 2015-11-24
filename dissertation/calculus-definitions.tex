@@ -971,11 +971,12 @@ Figure~\ref{fig:reductions}, one by one.
 
 
 \begin{figure}
+  \centering
   \begin{tabular}{lr}
-  $\ap{(\lam{x}{M})}{N} \to$ & rule $\beta_\to$ \\
+  $\ap{(\lam{x}{M})}{N} \to$ & rule $\beta.\to$ \\
   $\subst{M}{x}{N}$ & \\
   \\
-  $\lam{x}{\ap{M}{x}} \to$ & rule $\eta_\to$ \\
+  $\lam{x}{\ap{M}{x}} \to$ & rule $\eta.\to$ \\
   $M$ & where $x$ is fresh for $M$ \\
   \\
   $\ap{\cibanana}{(\ap{\eta}{N})} \to$ & rule $\banana{\eta}$ \\
@@ -1005,7 +1006,7 @@ Figure~\ref{fig:reductions}, one by one.
 \end{figure}
 
 
-First off, we have the $\beta_\to$ and $\eta_\to$ rules. By no
+First off, we have the $\beta.\to$ and $\eta.\to$ rules. By no
 coincidence, they are the same rules as the ones found in STLC.
 
 Next we have the three rules that govern the behavior of handlers. We
@@ -1080,8 +1081,196 @@ commute by pushing $\lambda$ below operation symbols and $\eta$.
 
 \section{Sums and Products}
 
-\TODO{A terse rehash of the standard constructions of sums and products
-  (syntax for terms and types, typing and reduction rules).}
+In the examples throughout this manuscript, we will assume that our
+calculus has facilities for dealing with sum types and product types
+(variants and pairs). In this section, we give a brief formal definition of
+the standard components that will provide these facilities in our calculus.
+
+\subsection{New Terms}
+
+First, we add new expressions into our language:
+
+\begin{description}
+  \item[pair] $\pair{M}{N}$ where $M$ and $N$ are expressions
+  \item[unit] $\star$
+  \item[first projection] $\pi_1$
+  \item[second projection] $\pi_2$
+  \item[left injection] $\inl$
+  \item[right injection] $\inr$
+  \item[case analysis] \hspace{1mm} $\case{M}{x}{N_l}{y}{N_r}$ where $M$, $N_l$ and
+    $N_r$ are expressions and $x$ and $y$ are variables from $\XX$
+  \item[absurdity] \hspace{1mm} $\absurd{M}$ where $M$ is an expression
+\end{description}
+
+The first four concern products. We can construct a pair and then we can
+project out both of its components. We can also create values of the unit
+type. The other four implement sums. We can construct two disjoint variants
+and then we can do case analysis on the results. We can also treat the
+empty type by handling its zero possible cases.
+
+\subsection{New Types}
+
+We also add new types and type operators:
+
+\begin{description}
+  \item[product] $\alpha \times \beta$ where $\alpha$ and $\beta$ are types
+  \item[unit] $1$
+  \item[sum] $\alpha + \beta$ where $\alpha$ and $\beta$ are types
+  \item[empty] $0$
+\end{description}
+
+The unit type serves as a unit to the product operator insofar as $\alpha
+\times 1$, $1 \times \alpha$ and $\alpha$ are isomorphic. It will be used
+as the input type of operations that do not need to be parameterized and as
+the output type of operations that do not return any interesting value.
+
+Analogously, the empty type serves as a unit to the sum type since $\alpha
++ 0$, $0 + \alpha$ and $\alpha$ are isomorphic. The empty type is useful as
+the output type of operations that never return (such as
+$\typedop{fail}{1}{0}$, which terminates a computation signalling failure).
+
+The standard typing rules of the constructions concerning sums and products
+are given in Figure~\ref{fig:types-of-sums-and-products}\footnote{There is
+  a slight difference between the standard formulation and the one we have
+  here. The types of $\pi_1$, $\pi_2$, $\inl$ and $\inr$ are given as
+  axioms and not as inference rules. This goes back to our decision to make
+  operators like $\pi_1$ terms of our language rather than admitting only
+  terms of the shape $\ap{\pi_1}{M}$. The reason for this divergence is
+  that this formulation lets us treat projections and injections as
+  functions instead of having to write things like
+  $\lam{x}{\ap{\pi_1}{x}}$.}. In the typing rules, we can witness the
+duality of $\times$ and $+$. There is one introduction rule and two
+elimination rule for pairs, whereas we have two introduction rules and one
+elimination rule for variants. We also have an introduction rule for the
+unit type and an elimination for the empty type.
+
+\begin{figure}
+  \def\labelSpacing{4pt}
+
+  \begin{subfigure}{.5\textwidth}
+   \begin{prooftree}
+    \AxiomC{$\Gamma \vdash M : \alpha$}
+    \AxiomC{$\Gamma \vdash N : \beta$}
+    \RightLabel{[$\times$]}
+    \BinaryInfC{$\Gamma \vdash \pair{M}{N} : \alpha \times \beta$}
+   \end{prooftree}
+  \end{subfigure}
+  \begin{subfigure}{.5\textwidth}
+   \begin{prooftree}
+    \AxiomC{$\Gamma \vdash \star : 1$
+    \hskip 4pt [$\star$]}
+   \end{prooftree}
+  \end{subfigure}
+
+  \vspace{2mm}
+ 
+  \begin{subfigure}{.5\textwidth}
+   \begin{prooftree}
+    \AxiomC{$\Gamma \vdash \pi_1 : (\alpha \times \beta) \to \alpha$
+    \hskip 4pt [$\pi_1$]}
+   \end{prooftree}
+  \end{subfigure}
+  \begin{subfigure}{.5\textwidth}
+   \begin{prooftree}
+    \AxiomC{$\Gamma \vdash \pi_2 : (\alpha \times \beta) \to \beta$
+    \hskip 4pt [$\pi_2$]}
+   \end{prooftree}
+  \end{subfigure}
+
+  \vspace{6mm}
+
+  \begin{subfigure}{.5\textwidth}
+   \begin{prooftree}
+    \AxiomC{$\Gamma \vdash \inl : \alpha \to (\alpha + \beta)$
+    \hskip 4pt [$\inl$]}
+   \end{prooftree}
+  \end{subfigure}
+  \begin{subfigure}{.5\textwidth}
+   \begin{prooftree}
+    \AxiomC{$\Gamma \vdash \inr : \beta \to (\alpha + \beta)$
+    \hskip 4pt [$\inr$]}
+   \end{prooftree}
+  \end{subfigure}
+
+  \vspace{2mm}
+
+  \begin{prooftree}
+    \AxiomC{$\Gamma \vdash M : \alpha + \beta$}
+    \AxiomC{$\Gamma, x : \alpha \vdash N_l : \gamma$}
+    \AxiomC{$\Gamma, y : \beta \vdash N_r : \gamma$}
+    \RightLabel{[\textbf{case}]}
+    \TrinaryInfC{$\Gamma \vdash \case{M}{x}{N_l}{y}{N_r} : \gamma$}
+  \end{prooftree}
+  \begin{prooftree}
+    \AxiomC{$\Gamma \vdash M : 0$}
+    \RightLabel{[empty]}
+    \UnaryInfC{$\Gamma \vdash \absurd{M} : \alpha$}
+  \end{prooftree}
+ 
+  \caption{\label{fig:types-of-sums-and-products} The typing rules for sums
+    and products.}
+\end{figure}
+
+\subsection{New Reduction Rules}
+
+Now that we know how to correctly write terms with sums and products after
+having introduced the syntax and the typing rules, we will look at how to
+simplify and evaluate such terms. We will extend the set of reduction rules
+in our calculus with the ones in
+Figure~\ref{fig:reductions-of-sums-and-products}. As before, we take the
+syntactic closure of these rules $\xi$ to get relations $\to_\xi$ and then
+we include these relations into our small-step semantics $\to$ and big-step
+semantics $\tto$.
+
+\begin{figure}
+  \centering
+  \begin{tabular}{lr}
+  $\ap{\pi_1}{\pair{M}{N}} \to$ & rule $\beta.\times_1$ \\
+  $M$ & \\
+  \\
+  $\ap{\pi_2}{\pair{M}{N}} \to$ & rule $\beta.\times_2$ \\
+  $N$ & \\
+  \\
+  $\case{(\ap{\inl}{M})}{x}{N_l}{y}{N_r}$ & rule $\beta.+_1$ \\
+  $\subst{N_l}{x}{M}$ & \\
+  \\
+  $\case{(\ap{\inr}{M})}{x}{N_l}{y}{N_r}$ & rule $\beta.+_2$ \\
+  $\subst{N_r}{y}{M}$ & \\
+  \end{tabular}
+  
+  \caption{\label{fig:reductions-of-sums-and-products} Reduction rules for
+    sums and products.}
+\end{figure}
+ 
+\subsection{Booleans}
+
+The most simple use of a sum type is to serve as a binary Boolean
+type. Since this comes very handy in examples, we will introduce the
+typical syntax one expects with Booleans.
+
+We first define the Boolean type $2$ to be a type whose value might be
+either the true element or the false element:
+
+$$
+2 = 1 + 1
+$$
+
+True and False are then constructed by injecting $\star$ into $2$ using the
+two different injections:
+
+\begin{align*}
+  \true &= \ap{\inl}{\star} \\
+  \false &= \ap{\inr}{\star}
+\end{align*}
+
+Finally, we can also simplify the case analysis expression into an
+if-then-else expression:
+
+$$
+\ifte{M}{N_\true}{N_\false} = \case{M}{x}{N_\true}{y}{N_\false}
+$$
+
+where $x$ is fresh for $N_\true$ and $y$ is fresh for $N_\false$.
 
 \section{Common Combinators}
 
@@ -1158,12 +1347,12 @@ $\op{op}!$ using $\hsbind$:
 \begin{align*}
   \ap{\op{op}!}{x} \hsbind k
   &= \ap{(\lam{x}{\ap{\ap{\op{op}}{x}}{\eta}})}{x} \hsbind k \\
-  &\to_{\beta_\to} \ap{\ap{\op{op}}{x}}{\eta} \hsbind k \\
+  &\to_{\beta.\to} \ap{\ap{\op{op}}{x}}{\eta} \hsbind k \\
   &= \ap{k^*}{(\ap{\ap{\op{op}}{x}}{\eta})} \\
   &= \ap{\banana{\onto{\eta}{k}}}{(\ap{\ap{\op{op}}{x}}{\eta})} \\
   &\to_{\banana{\op{op}'}} \ap{\ap{\op{op}}{x}}{(\lam{y}{\ap{\banana{\onto{\eta}{k}}}{(\ap{\eta}{y})}})} \\
   &\to_{\banana{\eta}} \ap{\ap{\op{op}}{x}}{(\lam{y}{\ap{k}{y}})} \\
-  &\to_{\eta} \ap{\ap{\op{op}}{x}}{k}
+  &\to_{\eta.\to} \ap{\ap{\op{op}}{x}}{k}
 \end{align*}
 
 The exclamation mark streamlines the typing rule for operations, as you can
@@ -1205,14 +1394,14 @@ the $\eta$ clause is presumed to be just $\eta$\footnote{This is not a part
 the following way:
 
 $$
-\banana{(\onto{\op{op}_i} M_i)_{i \in I}} = \cibanana
+\banana{(\onto{\op{op}_i} M_i)_{i \in I}} = \banana{(\onto{\op{op}_i} M_i)_{i \in I},\ \onto{\eta} \eta}
 $$
 
 Finally, we will introduce a special syntax for \emph{closed
   handlers}\cite{kammar2013handlers}. A \emph{closed handler} is a handler
 that interprets the entire computation that is given as its input (it must
-have a clause for every operator appear within). Since all effects are
-handled and none are forwarded, the codomain of the handler can be
+have a clause for every operator that appears within). Since all effects
+are handled and none are forwarded, the codomain of the handler can be
 something else than a computation. However, if you try writing handlers
 that want to exploit this possibility, you will find that there is a lot of
 translating between $\alpha$ types and $\FF_\emptyset(\alpha)$ types that
@@ -1221,17 +1410,18 @@ handler. We introduce syntax for closed handlers which takes care of this
 problem.
 
 $$
-\cibbanana = \cherry \circ \banana{\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})},\ \onto{\eta}{(\eta \circ M_\eta)}}
+\cibbanana = \cherry \circ \banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\ \onto{\eta}{(\eta \circ M_\eta)}}
 $$
 
-As we can see, that only material added by the closed handler brackets are
+As we can see, the only material added by the closed handler brackets are
 the functions $\eta$ and $\cherry$\footnote{Composing the $\cherry$
   operator with a $\banana{}$ handler is an identifying characteristic of
   closed handlers: a closed handler is a banana with a cherry on the top.},
 which simply translate between the types $\alpha$ and
-$\FF_\emptyset(\alpha)$. Rather than looking at the definition, the idea of
-a closed handler is better conveyed by a giving its typing rule. The
-following rule will be proven sound in Chapter~\ref{chap:properties}:
+$\FF_\emptyset(\alpha)$. Rather than closely studying the definition and
+scrutinizing the etas and the cherries, the idea of a closed handler is
+better conveyed by giving its typing rule. The following rule will be
+proven sound in Chapter~\ref{chap:properties}:
 
 \begin{prooftree}
   \AxiomC{$E = \{\typedopg{\op{op}_i}{\alpha_i}{\beta_i}\}_{i \in I}$}
@@ -1246,7 +1436,7 @@ following rule will be proven sound in Chapter~\ref{chap:properties}:
 \end{prooftree}
 
 The lack of multiple effect signatures to implement effect forwarding makes
-the $\bbanana{}$ rule simpler:
+the $\bbanana{}$ rule simpler than the one of $\banana{}$:
 
 \begin{itemize}
 \item $M_\eta$ gives $\delta$-typed interpretations to the terminal
@@ -1258,6 +1448,17 @@ the $\bbanana{}$ rule simpler:
 
 The $\eta$ clause in a closed handler is optional. Similarly to open
 handlers, we will assume that $\gamma = \delta$ and that $M_\eta$ is the
-identity function.
+identity function. This is the same as saying that a closed handler without
+an $\eta$ clause is translated into an open handler without an $\eta$
+clause.
+
+\begin{align*}
+\bbanana{(\onto{\op{op}_i}{M_i})_{i \in I}} &= \cherry \circ \banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I}} \\
+ &= \cherry \circ \banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\ \onto{\eta}{\eta}} \\
+ &= \cherry \circ \banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\ \onto{\eta}{(\eta \circ (\lam{x}{x}))}} \\
+ &= \bbanana{(\onto{\op{op}_i}{M_i})_{i \in I},\ \onto{\eta}{(\lam{x}{x})}}
+\end{align*}
+
+
 
 \TODO{Maybe introduce do-notation here? It ought to be useful later.}
