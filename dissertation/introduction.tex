@@ -1,0 +1,161 @@
+\chapter{Introduction}
+
+The motivation behind this thesis is to advance the automatic process of
+translating natural language into logical representations. The interest
+behind this translation procedure is two-fold: linguists use it to give a
+formal semantics to natural languages and computer scientists use it to
+perform automated reasoning on natural language data.
+
+There has been considerable research into translating parts of English and
+other natural languages. When looking at a sentence of English, we can
+identify many of the problems inherent in the translation and point to
+papers that have proposed solutions.
+
+\begin{exe}
+  \ex She must still be dating that idiot.
+\end{exe}
+
+\begin{enumerate}
+  \item \label{item:first-feature} We have anaphoric expressions,
+    \emph{she} and \emph{that}. We know that we can translate sentences
+    containing those into Discourse Representation Theory (DRT)
+    \cite{kamp1993discourse} structures, Dynamic Predicate Logic (DPL)
+    \cite{groenendijk1991dynamic} formulas or continuation-passing style
+    $\lambda$-terms \cite{de2006towards}.
+  \item We have the modal auxiliary \emph{must} that we can translate into
+    an operator of a modal logic or directly to some universal
+    quantification over possible worlds.
+  \item We have the progressive present tense in \emph{be
+    dating}. Similarly to the modal, we can translate this into an operator
+    of a temporal logic or directly posit the existence of some interval of
+    time during which the dating takes place and assert that the time of
+    utterance lies in that interval.
+  \item We have the presupposition trigger \emph{still} that will tell us
+    that the dating must have been going on for some time already. We will
+    have to possess some mechanism to project this contribution outside the
+    scope of any of the logical operators present (including \emph{must} in
+    this example\footnote{Consider the same example with \emph{should}
+      instead of \emph{must}.}). We can adopt the strategy of Lebedeva
+    \cite{lebedeva2012expression} and raise exceptions to perform the
+    projection.
+  \item \label{item:last-feature} We have the expressive epithet
+    \emph{idiot}. Following the theory of conventional implicatures of
+    Potts \cite{potts2005logic}, elaborated by Gutzmann
+    \cite{gutzmann2015use}, we know that we should introduce a second
+    dimension into which we tuck away the speaker's negative attitude
+    towards the date-ee so that it does not interfere with the at-issue
+    content.
+\end{enumerate}
+
+All of the advice given above seems sound. We could follow these guidelines
+to intuitively arrive at some reasonable logical representation. Now how do
+we write down this joint translation process? Most of the theories
+mentioned above come with their own language: their sets of definitions,
+notations and operations.
+
+DRT introduces its own encoding of logical formulas and states an algorithm
+that builds them up incrementally from the input sentence. Potts's logic of
+conventional implicatures introduces two-dimensional logical formulas and
+defines new modes of combination to compute with them. Compositional
+treatments of intensionality or tense tend to use the simply-typed lambda
+calculus, as is the case in de Groote's treatment of anaphora
+\cite{de2006towards}. Lebedeva then refines the calculus of de Groote and
+integrates exceptions to the semantics of the calculus
+\cite{lebedeva2012expression}.
+
+It seems clear that in order to arrive at a precise notion of what it means
+do all of \ref{item:first-feature}--\ref{item:last-feature}, we will first
+have to be able to express the theories behind
+\ref{item:first-feature}--\ref{item:last-feature} using a single formal
+language.
+
+\section{Enter Monads}
+
+We will base our universal language on the $\lambda$-calculus. Thanks to
+Richard Montague's hugely influential work \cite{montague1973proper}, the
+$\lambda$-calculus is already a very popular formalism in formal
+compositional semantics\footnote{Frege's compositionality principle states
+  that the meanings of complex expressions should be determined by
+  (i.e.\ be functions of) the meanings of its constituents. If meanings are
+  defined in terms of meaning functions, it makes sense to use a calculus
+  of functions.}. Many phenomena are analyzed using the $\lambda$-calculus
+and the rest tend to get translated to $\lambda$-calculus as well (see, for
+example, $\lambda$-DRT \cite{kuschert1995type} or de Groote's
+continuation-based approach to dynamics \cite{de2006towards}).
+
+However, even though we have several theories which are all formalised in
+$\lambda$-calculus, it does not necessarily mean that they are compatible
+or that we know how to combine them together. A theory of intensionality
+might state that sentences ought to be translated to terms that have the
+type $\sigma \to o$, the type of functions from possible worlds to truth
+values. On the other hand, an account of expressives would argue that
+sentences ought to correspond to terms of type $o \times \epsilon$, the
+types of pairs of truth values (propositional content) and expressive
+markers (expressive content). The two theories would be compatible at the
+calculus-level but not at the term-level. A function operating with
+intensional propositions would not be directly applicable to an expressive
+proposition.
+
+To continue our quest for uniformity and compatibility of semantic
+operations, we will look at the terms and types used by the different
+$\lambda$-theoretic treatments of semantics and try to find a common
+structure underneath. We notice that all such approaches share at least the
+following structure:
+
+\begin{enumerate}
+\item \label{item:type-transformation} The types of some of the denotations
+  get expanded. For example, when dealing with quantifiers, the type of
+  denotations of noun phrases goes from $\iota$ (single individuals) to
+  $(\iota \to o) \to o$ (generalized quantifiers over individuals); in
+  intensional semantics, the type of denotations of sentences goes from $o$
+  (truth values) to $\sigma \to o$ (functions from possible worlds to truth
+  values, i.e.\ sets of possible worlds); and with expressives, the type of
+  denotations of sentences goes from $o$ to $o \times \epsilon$ (truth
+  values coupled with expressive markers).
+\item \label{item:monad-eta} There is a process that can lift denotations
+  of the old type into denotations of the new type. In the quantifier
+  example, this is the famous type raising operation. In the intensional
+  example, this is the $\textbf{K}$ combinator that turns a truth value
+  into a constant function that assigns that truth value to all worlds. In
+  the expressive example, this is the function that couples a proposition
+  with a neutral/empty expressive marker.
+\item Then there are of course other inhabitants of the expanded type that
+  are not found by using the lifting function described above. Those are
+  the ones that we expanded the type for. Quantificational noun phrases
+  such as \emph{everyone} are not the result of type raising any specific
+  individual. Intensional propositions such as \emph{Hespherus is
+    Phosphorus} have extensions that vary from world to world. Expressives
+  such as the diminutive \emph{Wolfie} will point to some individual and
+  also carry some expressive marker that conveys the speaker's attitude
+  towards the referent.
+\item \label{item:monad-mu} Finally, these approaches also have some
+  general way of composing smaller denotations into larger ones and dealing
+  with the added complexity caused by the more elaborate types. When
+  applying a transitive verb to a quantificational subject and object, we
+  let one (often the subject) first take scope and then we let the other
+  take scope. When applying the verb to a intensional arguments, we pass
+  down the world at which we are evaluating the sentence down to both the
+  subject and the object. When applying it to expressive arguments, we
+  apply the verb to the referents of both the subject and the object and on
+  the side we collect the expressive content of both.
+\end{enumerate}
+
+This kind of structure is very commonly seen in functional programming and
+in denotational semantics of programming languages. It is the structure of
+an \emph{applicative functor} \cite{mcbride2008applicative} (or
+\emph{strong lax monoidal functor}, for the categorically-inclined). The
+above examples are also instances of a more special structure called a
+\emph{monad} \cite{moggi1991notions}.
+
+We will not go into the minutiae of the definition of a monad here but we
+will give a rough sketch nonetheless. A monad is a triple $(T, \eta, \mu)$
+where $T$ is a function on types (the type expansion we saw in
+\ref{item:type-transformation}), $\eta$ is some way of lifting simple
+values into expanded values (the lifting functions in \ref{item:monad-eta})
+and $\mu$ gives us a general way of combining values of this expanded type
+(similar to the examples given in \ref{item:monad-mu}). The triple also has
+to satisfy some algebraic properties which guarantee that composing
+functions of expanded types is associative and that the lifting function
+serves as a unit for this composition operator.
+
+The examples given above are all instances of monads. This has al
