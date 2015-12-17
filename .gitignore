@@ -10,5 +10,6 @@
 *.snm
 *.toc
 *.vrb
+.stfolder
 paper
 dias/*-eps-converted-to.pdf
