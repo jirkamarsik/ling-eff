@@ -1,13 +1,429 @@
 \chapter{Examples}
 
-We have given a formal definition of our calculus we have not shown 
+We have given a formal definition of our calculus but we have not shown how
+to use it to model side effects and what are the benefits. In this chapter,
+we will present an example problem and as we explore it deeper, we will see
+emerge some of the properties behind our calculus.
 
-\section{Exceptions}
+\section{Introducing Our Running Example}
+
+We will try to build a calculator. Given some arithmetic expression, we
+would like to reduce it to a simple number. 
+
+$$
+\app{\sume}{(\ap{\lite}{1})}{(\app{\prode}{(\ap{\lite}{2})}{(\ap{\lite}{4})})}
+\quad \to \quad 9
+$$
+
+In the above, expressions are formed using the constructors $\sume$,
+$\prode$ and $\lite$ which stand for sums, products and literals,
+respectively. Expressions in our calculator have the type $exp$, the
+types of the constructors (formation rules) are given below:
+
+\begin{align*}
+  \sume &: exp \to exp \to exp \\
+  \prode &: exp \to exp \to exp \\
+  \lite &: \NN \to exp
+\end{align*}
+
+The exercise is similar to our enterprise of formal semantics. We have a
+language (fragment) with a formal grammar and we try to find a systematic
+way of identifying sentences of this language with their senses or
+references. Our methodology will also be the same of formal semantics: a
+composition of meanings that mirrors the syntactic structure.
+
+Before we go on, a quick technical remark about the $exp$ type and its
+encoding. A common approach is to model $exp$ as an inductive
+algebraic data type\footnote{This would be something called an
+  \emph{initial encoding} of a language.} and then have our calculator be a
+function from $exp$ to $\NN$ or some other domain of
+interpretation. Our calculus does not directly provide inductive types but
+the $\FF$ type constructor is built on top of them and since it is
+parameterizable by an effect signature, it can be used to implement a
+variety of inductive types. In this particular scenario, we could use
+$\FF_{\{\typedop{sum}{1}{2},\typedop{prod}{1}{2}\}}(\NN)$ as
+$exp$. The notion of a closed handler ($\bbanana{}$, see
+$\ref{ssec:operations-and-handlers}$) would then give use the induction
+principle over these arithmetic expression, i.e.\ a way to compositionally
+compute some value from the arithmetic expression.
+
+We will not be using the encoding described above. The point of this
+chapter is to make the reader familiar with the notion of using the
+$\FF$-types to model computations. We will therefore restrict their use to
+computations.
+
+We can avoid introducing any kind of type for encoding arithmetic
+expressions. The reduction step from an arithmetic expression to a simple
+number can be realized by adding equations that ``define'' the functions
+$\sume$, $\prode$, $\lite$ and the type $exp$. We thus take $exp$ to be the
+name of the type of our desired interpretations and we take $\sume$,
+$\prode$ and $\lite$ to be some functions that compute directly with these
+interpretations\footnote{This is known as a \emph{final encoding} of a
+  language.}. The task of the semanticist is to fix some specific
+interpretation for the abstract type $exp$ and figuring out the definitions
+of the abstract functions $\sume$, $\prode$ and $\lite$\footnote{This is
+  exactly the idea behind abstract categorial grammars
+  \cite{de2001towards}.}. Within our tiny fragment, this is quite easy to do:
+
+\begin{align*}
+  exp &= \NN \\
+  \sume &= \lam{x y}{x + y} \\
+  \prode &= \lam{x y}{x \times y} \\
+  \lite &= \lam{x}{x}
+\end{align*}
+
+Applying these equations to the term
+$\app{\sume}{(\ap{\lite}{1})}{(\app{\prode}{(\ap{\lite}{2})}{(\ap{\lite}{4})})}$
+and then reducing according to the reduction rules of our calculus
+(alongside with rules/equations to perform arithmetic operations), we get
+the result, $9$.
 
 
-\section{State}
+\section{Adding Errors}
+
+We will now try expanding our fragment by adding integer division.
+
+\begin{align*}
+  \dive &: exp \to exp \to exp
+\end{align*}
+
+We could be tempted to treat this the same way and simply give this
+semantics to $\dive$:
+
+\begin{align*}
+  \dive &= \lam{x y}{x / y}
+\end{align*}
+
+However, this assumes that we have a division operator that defines the
+division $x/y$ for all naturals $x$ and $y$. This is not the case when $y =
+0$. Defining $x/0$ to be some specific natural $d$ is not satisfactory
+since then we cannot distinguish between the cases when $x/y$ is $d$ and
+when $x/y$ is not defined. Fortunately, this is what sum types are very
+useful for. We will have the type of $x/y$ be $\NN + 1$, $x/0$ will reduce
+to $(\ap{\inr}{\star})$ and $x/y$ for $y \neq 0$ will reduce to
+$(\ap{\inl}{q})$ where $q$ is the greatest natural such that $q y \le
+x$.
+
+Now the cases when $x/y$ is and is not defined are clearly
+delimited\footnote{Realizing that $x/y$ is not defined for $y = 0$ and then
+  changing the type and behavior of the underlying division operator is
+  very much like semanticists taking into account that expressions such as
+  \emph{the King of France} need not have a reference and then changing the
+  underlying model by switching from functions to
+  relations.}. Nevertheless, we just made ourselves a new problem. The
+result of a division is something of type $\NN + 1$ and so in our
+interpretation, $exp$ will correspond to $\NN + 1$. This is in line with
+our intuition that arithmetic expressions which contain division can
+sometimes be undefined. However, the implications of having $exp = \NN + 1$
+begin to sting when we consider the cases of $\sume$ and
+$\prode$\footnote{As a convention, we use $\_$ as a variable name for
+  variables whose values are never used.}.
+
+\begin{align*}
+  exp &= \NN + 1 \\
+  \dive &= \lam{X Y}{\case{X}{x}{\case{Y}{y}{x / y}{\_}{\ap{\inr}{\star}}}{\_}{\ap{\inr}{\star}}} \\ 
+  \sume &= \lam{X Y}{\case{X}{x}{\case{Y}{y}{\ap{\inl}{(x + y)}}{\_}{\ap{\inr}{\star}}}{\_}{\ap{\inr}{\star}}} \\ 
+  \prode &= \lam{X Y}{\case{X}{x}{\case{Y}{y}{\ap{\inl}{(x \times y)}}{\_}{\ap{\inr}{\star}}}{\_}{\ap{\inr}{\star}}} \\ 
+  \lite &= \lam{x}{\ap{\inr}{x}}
+\end{align*}
+
+We now have to inspect the results of both of the operands and proceed with
+the calculation only if both of the operands successfully yield a
+natural. In $\sume$, $\prode$ and $\lite$, we also have to wrap the result
+in $\inl$ in order to go from $\NN$ to $\NN + 1$. This seems a heavy price
+to pay just to include division.
+
+We can make this solution look a little bit better. We can introduce a
+function on types and a pair of combinators that will allow us to be a
+little less repetitive.
+
+\begin{align*}
+  T_\bot &= \Lambda \alpha.\ \alpha + 1 \\
+  \eta_\bot &: \alpha \to T_\bot(\alpha) \\
+  \eta_\bot &= \inr \\
+  (\hsbind_\bot) &: T_\bot(\alpha) \to (\alpha \to T_\bot(\beta)) \to T_\bot(\beta) \\
+  (\hsbind_\bot) &= \lam{X k}{\case{X}{x}{\ap{k}{x}}{\_}{\ap{\inr}{\star}}}
+\end{align*}
+
+With these in our hands, we can now straighten out our interpretation.
+
+\begin{align*}
+  exp &= T_\bot(\NN) \\
+  \dive &= \lam{X Y}{X \hsbind_\bot (\lam{x}{Y \hsbind_\bot (\lam{y}{x / y})})} \\
+  \sume &= \lam{X Y}{X \hsbind_\bot (\lam{x}{Y \hsbind_\bot (\lam{y}{\ap{\eta_\bot}{(x + y)}})})} \\
+  \prode &= \lam{X Y}{X \hsbind_\bot (\lam{x}{Y \hsbind_\bot (\lam{y}{\ap{\eta_\bot}{(x \times y)}})})} \\
+  \lite &= \lam{x}{\ap{\eta_\bot}{x}}
+\end{align*}
+
+This pattern that we uncovered in the type $\NN + 1$ and the terms defining
+$\dive$, $\sume$, $\prode$ and $\lite$ is not incidental. The triple
+$\left<T_\bot, \eta_\bot, \hsbind_\bot \right>$ forms a
+monad\footnote{Modulo some differences in presentation.}. This formulation
+in terms of monadic operations will allow us to transition more easily into
+our proposed solution since, as we will show
+in~\ref{sec:algebraic-properties}, $\left< \FF_E, \eta, \hsbind \right>$
+also forms a monad.
+
+We will now explore an alternative solution which takes advantage of the
+$\FF$-types in our calculus. We will interpret expressions as computations
+of naturals, $exp = \FF_E(\NN)$. Computations will have the ability to fail
+by using the operation $\typedop{fail}{1}{0}$. The input type $1$ means
+that there is only one way to fail (i.e.\ $\op{fail}$ does not distinguish
+failure states) and the output type $0$ means that there is no continuation
+(formally there is a dummy continuation that accepts the impossible type
+$0$). There is a natural way to generalize this approach by using
+$\typedop{error}{\chi}{0}$ instead. Computations can now terminate by
+throwing exceptions of type $\chi$, allowing us to distinguish failure
+states. To identify the division-by-zero failure state, we will introduce
+$\dbzelong : \chi$. A computation that uses the $\op{error}$ operation to
+throw a division-by-zero exception would look like the following:
+
+\begin{align*}
+  \dbze &: \FF_{\{\typedop{error}{\chi}{0}\}}(\alpha) \\
+  \dbze &= \app{\op{error}}{\dbzelong}{(\lam{o}{\absurd{o}})}
+\end{align*}
+
+The continuation uses the [empty] rule to turn the $o$ of type $0$ into
+something of type $\FF_E(\alpha)$. Since the [empty] rule can do so for any
+$\alpha$, the type of $\dbze$ is free in $\alpha$.
+
+\begin{align*}
+  exp &= \FF_{\{\typedop{error}{\chi}{0}\}}(\NN) \\
+  \dive &= \lam{X Y}{X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\case{(x / y)}{z}{\ap{\eta}{z}}{\_}{\dbze}})})} \\
+  \sume &= \lam{X Y}{X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\ap{\eta}{(x + y)}})})} \\
+  \prode &= \lam{X Y}{X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\ap{\eta}{(x \times y)}})})} \\
+  \lite &= \lam{x}{\ap{\eta}{x}}
+\end{align*}
+
+What has changed since last time?
+
+\begin{itemize}
+\item We replaced the $\left< T_\bot, \eta_\bot, \hsbind_\bot \right>$ monad
+  with the $\left< \FF_{\{\typedop{error}{\chi}{0}\}}, \eta, \hsbind \right>$ monad.
+\item Since the type of $x / y$ is not the same as the type of our
+  interpretations, we need to translate from the type $\NN + 1$ to the type
+  $\FF_{\{\typedop{error}{\chi}{0}\}}(\NN)$ by case analysis.
+\end{itemize}
+
+The advantage to using the $\FF_E$ monad instead of the $T_\bot$ monad is
+that the $\FF_E$ can be extended to handle other kinds of effects besides
+exceptions whereas the $T_\bot$ monad need would need to be replaced by a
+different one. We will see an example of this later
+in~\ref{sec:enriching-the-context-with-variables}. For now, we still have
+something more to explore regarding errors.
+
+\subsection{Handling Errors}
+
+We can now use division in our small calculator language. However, division
+can make the evaluation of an expression fail and yield no useful
+result. We could thus ask for a way to speculatively evaluate a
+subexpression and if it fails, recover by providing some default value and
+carry on evaluating the rest of the expression.
+
+We add a new construction into our language:
+
+$$
+\trye : exp \to exp \to exp
+$$
+
+Its intended meaning is to return the value of its second
+argument. However, if the second argument fails to evaluate, the value of
+the first argument should be used instead.
+
+$$
+\app{\trye}{(\ap{\lite}{42})}{(\app{\dive}{(\ap{\lite}{1})}{(\ap{\lite}{0})})}
+\quad \to \quad \ap{\eta}{42}
+$$
+
+Our task now is to give a formal semantics to $\trye$.
+
+$$
+\trye = \lam{X Y}{\ap{\banana{\onto{\op{error}}{(\lam{e k}{X})}}}{Y}}
+$$
+
+Instead of passing $Y$ through the $\hsbind$ operator, which basically says
+to do whatever $Y$ would do (i.e.\ fail whenever $Y$ fails), we apply a
+handler to $Y$\footnote{Feeding it into $\hsbind$ or applying a handler to
+  it are the two most common ways we will be using computations.}. This
+handler is very simple, it replaces any failed computation with the
+computation $X$ (the backup computation that should yield the default
+value). It behaves like the exception handlers of common programming
+languages, whenever the computation $Y$ would throw an $\op{error}$, we
+handle it by running computation $X$ instead.
+
+\subsection{Examples of Errors}
+
+We now have enough interesting material to play around with a little bit
+and see if (and why) it really works as it should. We will take an
+expression large enough to contain all the features which we added and we
+will evaluate it piece by piece.
+
+$$
+\app{\sume}{\litec{5}}{\tryec{\litec{0}}{\prodec{\litec{3}}{\divec{\litec{2}}{\litec{0}}}}}
+$$
+
+Let's start with $\app{\dive}{\litec{2}}{\litec{0}}$.
+
+\begin{align*}
+  \app{\dive}{\litec{2}}{\litec{0}}
+  &= \app{\dive}{(\ap{(\lam{x}{\ap{\eta}{x}})}{2})}
+                {(\ap{(\lam{x}{\ap{\eta}{x}})}{0})} \\
+  &\to_{\beta.\to,\beta.\to} \app{\dive}{(\ap{\eta}{2})}
+                {(\ap{\eta}{0})} \\
+  &= \app{(\lam{X Y}{X \hsbind (\lam{x}{Y \hsbind (\lam{y}
+          {\case{(x / y)}{z}{\ap{\eta}{z}}{\_}{\dbze}})})})}
+                {(\ap{\eta}{2})} {(\ap{\eta}{0})} \\
+  &\to_{\beta.\to,\beta.\to} (\ap{\eta}{2}) \hsbind (\lam{x}{(\ap{\eta}{0}) \hsbind (\lam{y}
+          {\case{(x / y)}{z}{\ap{\eta}{z}}{\_}{\dbze}})}) \\
+  &= \ap{(\lam{x}{(\ap{\eta}{0}) \hsbind (\lam{y}
+          {\case{(x / y)}{z}{\ap{\eta}{z}}{\_}{\dbze}})})^*}{(\ap{\eta}{2})} \\
+  &= \ap{\banana{\onto{\eta}{(\lam{x}{(\ap{\eta}{0}) \hsbind (\lam{y}
+          {\case{(x / y)}{z}{\ap{\eta}{z}}{\_}{\dbze}})})}}}{(\ap{\eta}{2})} \\
+  &\to_{\banana{\eta}} \ap{(\lam{x}{(\ap{\eta}{0}) \hsbind (\lam{y}
+          {\case{(x / y)}{z}{\ap{\eta}{z}}{\_}{\dbze}})})}{2} \\
+  &\to_{\beta.\to} (\ap{\eta}{0}) \hsbind (\lam{y}
+          {\case{(2 / y)}{z}{\ap{\eta}{z}}{\_}{\dbze}}) \\
+  &\to_{\ldots} \case{(2 / 0)}{z}{\ap{\eta}{z}}{\_}{\dbze} \\
+  &\to_{/} \case{(\ap{\inr}{\star})}{z}{\ap{\eta}{z}}{\_}{\dbze} \\
+  &\to_{\beta.+_2} \dbze \\
+\end{align*}
+
+The reductions state which rule was used to perform the step.  The
+equalities on lines 1 and 3 are due to our interpretations of $\lite$ and
+$\dive$. Those lines 5 and 6 come from the definitions of $\hsbind$ and
+$^*$ in~\ref{ssec:composing-functions}. The step on line 9 is just a repeat
+of the steps on lines 5 to 8. This sequence of steps will be quite common
+and we will from now on refer to it as the reduction rule $\eta.\hsbind$
+(formally introduced in~\ref{chap:properties}).
+
+The result of this first elaboration was not surprising: dividing 2 by 0
+throws a $\dbzelong$ exception. We will now try to see what happens when
+this faulty expression appears within another expression.
+
+\begin{align*}
+  \app{\prode}{\litec{3}}{\dbze}
+  &= \app{\prode}{(\ap{(\lam{x}{\ap{\eta}{x}})}{3})}{\dbze} \\
+  &\to_{\beta.\to} \app{\prode}{(\ap{\eta}{3})}{\dbze} \\
+  &= \app{(\lam{X Y}{X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\ap{\eta}
+          {(x \times y)}})})})}
+      {(\ap{\eta}{3})}{\dbze} \\
+  &\to_{\beta.\to,\beta.\to} (\ap{\eta}{3}) \hsbind (\lam{x}{\dbze \hsbind (\lam{y}{\ap{\eta}
+          {(x \times y)}})}) \\
+  &\to_{\eta.\hsbind} \dbze \hsbind (\lam{y}{\ap{\eta} {(3 \times y)}}) \\
+  &= (\app{\op{error}}{\dbzelong}{(\lam{o}{\absurd{o}})}) \hsbind (\lam{y}{\ap{\eta} {(3 \times y)}}) \\
+  &= \ap{(\lam{y}{\ap{\eta} {(3 \times y)}})^*}{(\app{\op{error}}{\dbzelong}{(\lam{o}{\absurd{o}})})} \\
+  &= \ap{\banana{\onto{\eta}{(\lam{y}{\ap{\eta} {(3 \times y)}})}}}{(\app{\op{error}}{\dbzelong}{(\lam{o}{\absurd{o}})})} \\
+  &\to_{\banana{\op{op}'}} \app{\op{error}}{\dbzelong}{(\lam{z}{\ap{\banana{\onto{\eta}{(\lam{y}{\ap{\eta} {(3 \times y)}})}}}{(\ap{(\lam{o}{\absurd{o}})}{z})}})} \\
+  &\to_{\beta.\to} \app{\op{error}}{\dbzelong}{(\lam{z}{\ap{\banana{\onto{\eta}{(\lam{y}{\ap{\eta} {(3 \times y)}})}}}{(\absurd{z})}})} \\
+  &\simeq \dbze
+\end{align*}
+
+Lines 1 and 3 are due to our interpretations of $\lite$ and $\prode$. Line
+5 is due to the $\eta.\hsbind$ rule that we have demonstrated in the last
+example. Lines 6, 7 and 8 expand the definitions of $\dbze$, $\hsbind$ and
+$^*$. On line 11, we equate the term with $\dbze$. The terms differ in the
+continuation but since the continuation can never be
+called\footnote{Technical aside: To be precise, we should define $\dbze$ to
+  be a class of terms of the shape $\app{\op{error}}{\dbzelong}{M}$ for any
+  term $M$. The only operations we will ever perform on $\dbze$ in these
+  examples will be congruent with the equivalence relation of our calculus
+  refined by adding equalities between terms of the shape
+  $\app{\op{error}}{\dbzelong}{M}$. Therefore, so long as we end up
+  removing the $\dbze$ terms from our result, we can treat them as
+  equivalent during our calculations.}, we can consider them equal.
+
+We have seen the $\dbzelong$ exception propagate. Now let's see what
+happens when it hits a $\trye$ construction.
+
+\begin{align*}
+  \app{\trye}{\litec{0}}{\dbze}
+  &= \app{\trye}{(\ap{(\lam{x}{\ap{\eta}{x}})}{0})}{\dbze} \\
+  &\to_{\beta.\to} \app{\trye}{(\ap{\eta}{0})}{\dbze} \\
+  &= \app{(\lam{X Y}{\ap{\banana{\onto{\op{error}}{(\lam{e k}{X})}}}{Y}})}{(\ap{\eta}{0})}{\dbze} \\
+  &\to_{\beta.\to,\beta.\to} \ap{\banana{\onto{\op{error}}{(\lam{e k}{\ap{\eta}{0}})}}}{\dbze} \\
+  &= \ap{\banana{\onto{\op{error}}{(\lam{e k}{\ap{\eta}{0}})}}}{(\app{\op{error}}{\dbzelong}{(\lam{o}{\absurd{o}})})} \\
+  &\to_{\banana{\op{op}}} \app{(\lam{e k}{\ap{\eta}{0}})}{\dbzelong}{(\lam{z}{\ap{\banana{\onto{\op{error}}{(\lam{e k}{\ap{\eta}{0}})}}}{(\ap{(\lam{o}{\absurd{o}})}{z})}})} \\
+  &\to_{\beta.\to,\beta.\to} \ap{\eta}{0}
+\end{align*}
+
+Lines 1 and 3 are our interpretations of $\lite$ and $\trye$. Line 5 is the
+definition of $\dbze$.
+
+We see that since the embedded expression failed to evaluate (its sense was
+$\dbze$), we have evaluated the literal 0 instead. We now have an actual
+number again and we can try feeding it into another operation.
+
+\begin{align*}
+  \app{\sume}{\litec{5}}{(\ap{\eta}{0})}
+  &= \app{\sume}{(\ap{(\lam{x}{\ap{\eta}{x}})}{5})}{(\ap{\eta}{0})} \\
+  &\to_{\beta.\to} \app{\sume}{(\ap{\eta}{5})}{(\ap{\eta}{0})} \\
+  &= \app{(\lam{X Y}{X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\ap{\eta}{(x + y)}})})})}{(\ap{\eta}{5})}{(\ap{\eta}{0})} \\
+  &\to_{\beta.\to,\beta.\to} (\ap{\eta}{5}) \hsbind (\lam{x}{(\ap{\eta}{0}) \hsbind (\lam{y}{\ap{\eta}{(x + y)}})}) \\
+  &\to_{\eta.\hsbind} (\ap{\eta}{0}) \hsbind (\lam{y}{\ap{\eta}{(5 + y)}}) \\
+  &\to_{\eta.\hsbind} \ap{\eta}{(5 + 0)} \\
+  &\to_+ \ap{\eta}{5}
+\end{align*}
+
+Lines 1 and 3 are our interpretations of $\lite$ and $\sume$. The others
+are reductions of the kind we have seen before.
+
+Finally, we see the simplest case when an operator just reaches into the
+results of both operands using $\to_{\eta.\hsbind}$ and carries out its
+operation. This also concludes our evaluation of the expression we have
+presented at the beginning of this subsection. We can therefore now
+conclude that:
+
+$$
+\app{\sume}{\litec{5}}{\tryec{\litec{0}}{\prodec{\litec{3}}{\divec{\litec{2}}{\litec{0}}}}}
+\quad \to \quad \ap{\eta}{5}
+$$
 
 
-\section{Effects Combined}
+\section{Enriching the Context with Variables}
+\label{sec:enriching-the-context-with-variables}
 
+Sometimes, when writing down arithmetic expressions, it becomes useful to
+introduce variables for intermediate expressions and that build up the
+final result using those. Let's try and add such a facility to our
+calculator.
 
+\begin{align*}
+  \lete &: var \to exp \to exp \to exp \\
+  \vare &: var \to exp
+\end{align*}
+
+$\lete$ binds a variable to the result of the first expression; this
+variable stays available during the evaluation of the second
+expression. $\vare$ then lets us use the variable in place of an
+expression.
+
+We introduce constants for the different variables that can be used in our
+calculator. They look the same as variables in our calculus but with a bar
+on top. We will also introduce an equality relation between the variables.
+
+\begin{align*}
+  \bar{x}, \bar{y}, \bar{z},\ldots &: var \\
+  (=) &: var \to var \to 2
+\end{align*}
+
+In order to give a semantics to $\lete$ and $\vare$, we will need to
+augment the set of operations that the computations we use to interpret the
+expressions can use. We want computations to be able to ask for the values
+of variables and so we will introduce $\typedop{get}{var}{\NN}$. In our new
+interpretation, we will have $exp =
+\FF_{\{\typedop{error}{\chi}{0},\typedop{get}{var}{\NN}\}}(\NN)$. Though it
+might seem that we are changing our domain of interpretation and will thus
+need to redo our existing interpretations, it is actually not the case. The
+type that we associated with $exp$ before could have been more precisely
+written as $\FF_{\{\typedop{error}{\chi}{0}\} \uplus E}(\NN)$, where $E$ is
+a free variable ranging over effect signatures. What we are doing is simply
+specifying $E = \{\typedop{get}{var}{\NN}\} \uplus E'$, where $E'$ is again
+free.
+
+\begin{align*}
+  \lete &= \lam{v X Y}{X \hsbind
+    (\lam{x}{\ap{\banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = v}{(\ap{k}{x})}{(\app{\op{get}}{u}{k})}})}}}{Y}})} \\
+  \vare &= \lam{v}{\ap{\op{get}!}{v}}
+\end{align*}
+
+And that is all we need.

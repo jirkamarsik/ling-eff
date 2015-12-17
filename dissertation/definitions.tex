@@ -31,6 +31,7 @@
 
 \newcommand{\lam}[2]{\lambda #1.\, #2}
 \newcommand{\ap}[2]{#1\,#2}
+\newcommand{\app}[3]{\ap{\ap{#1}{#2}}{#3}}
 \newcommand{\op}[1]{\mathtt{#1}}
 \newcommand{\onto}[1]{#1 \mathalpha{:\,}}
 \newcommand{\typedop}[3]{\op{#1} : #2 \rightarrowtail #3}
@@ -77,3 +78,24 @@
 \newcommand{\true}{\textbf{T}}
 \newcommand{\false}{\textbf{F}}
 \newcommand{\ifte}[3]{\text{\textbf{if} $#1$ \textbf{then} $#2$ \textbf{else} $#3$}}
+
+
+% Examples
+\newcommand{\expr}[1]{\textsc{#1}}
+\newcommand{\sume}{\expr{sum}}
+\newcommand{\prode}{\expr{prod}}
+\newcommand{\lite}{\expr{lit}}
+\newcommand{\dive}{\expr{div}}
+\newcommand{\trye}{\expr{try}}
+\newcommand{\lete}{\expr{let}}
+\newcommand{\vare}{\expr{var}}
+\newcommand{\sumec}[2]{(\app{\sume}{#1}{#2})}
+\newcommand{\prodec}[2]{(\app{\prode}{#1}{#2})}
+\newcommand{\litec}[1]{(\ap{\lite}{#1})}
+\newcommand{\divec}[2]{(\app{\dive}{#1}{#2})}
+\newcommand{\tryec}[2]{(\app{\trye}{#1}{#2})}
+
+
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\dbze}{\frac{\cdot}{0}}
+\newcommand{\dbzelong}{\operatorname{DivisionByZero}}
