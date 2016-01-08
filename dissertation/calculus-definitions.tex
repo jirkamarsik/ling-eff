@@ -1081,6 +1081,7 @@ commute by pushing $\lambda$ below operation symbols and $\eta$.
 
 
 \section{Sums and Products}
+\label{sec:sums-and-products}
 
 In the examples throughout this manuscript, we will assume that our
 calculus has facilities for dealing with sum types and product types
@@ -1339,7 +1340,7 @@ to compose computations, we can simplify the way we write effectful
 operations.
 
 $$
-\op{op}! = \lam{x}{\ap{\ap{\op{op}}{x}}{\eta}}
+\op{op}! = \lam{x}{\app{\op{op}}{x}{\eta}}
 $$
 
 The exclamation mark partially applies an operation by giving it the

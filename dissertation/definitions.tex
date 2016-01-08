@@ -32,6 +32,7 @@
 \newcommand{\lam}[2]{\lambda #1.\, #2}
 \newcommand{\ap}[2]{#1\,#2}
 \newcommand{\app}[3]{\ap{\ap{#1}{#2}}{#3}}
+\newcommand{\appp}[4]{\ap{\ap{\ap{#1}{#2}}{#3}}{#4}}
 \newcommand{\op}[1]{\mathtt{#1}}
 \newcommand{\onto}[1]{#1 \mathalpha{:\,}}
 \newcommand{\typedop}[3]{\op{#1} : #2 \rightarrowtail #3}
@@ -89,11 +90,23 @@
 \newcommand{\trye}{\expr{try}}
 \newcommand{\lete}{\expr{let}}
 \newcommand{\vare}{\expr{var}}
-\newcommand{\sumec}[2]{(\app{\sume}{#1}{#2})}
-\newcommand{\prodec}[2]{(\app{\prode}{#1}{#2})}
-\newcommand{\litec}[1]{(\ap{\lite}{#1})}
-\newcommand{\divec}[2]{(\app{\dive}{#1}{#2})}
-\newcommand{\tryec}[2]{(\app{\trye}{#1}{#2})}
+\newcommand{\sumecn}[2]{\app{\sume}{#1}{#2}}
+\newcommand{\prodecn}[2]{\app{\prode}{#1}{#2}}
+\newcommand{\litecn}[1]{\ap{\lite}{#1}}
+\newcommand{\divecn}[2]{\app{\dive}{#1}{#2}}
+\newcommand{\tryecn}[2]{\app{\trye}{#1}{#2}}
+\newcommand{\letecn}[3]{\appp{\lete}{\bar{#1}}{#2}{#3}}
+\newcommand{\varecn}[1]{\ap{\vare}{#1}}
+
+\newcommand{\paren}[1]{(#1)}
+
+\newcommand{\sumec}[2]{\paren{\sumecn{#1}{#2}}}
+\newcommand{\prodec}[2]{\paren{\prodecn{#1}{#2}}}
+\newcommand{\litec}[1]{\paren{\litecn{#1}}}
+\newcommand{\divec}[2]{\paren{\divecn{#1}{#2}}}
+\newcommand{\tryec}[2]{\paren{\tryecn{#1}{#2}}}
+\newcommand{\letec}[3]{\paren{\letecn{#1}{#2}{#3}}}
+\newcommand{\varec}[1]{\paren{\varecn{\bar{#1}}}}
 
 
 \newcommand{\NN}{\mathbb{N}}

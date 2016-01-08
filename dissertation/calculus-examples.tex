@@ -17,8 +17,12 @@ $$
 
 In the above, expressions are formed using the constructors $\sume$,
 $\prode$ and $\lite$ which stand for sums, products and literals,
-respectively. Expressions in our calculator have the type $exp$, the
-types of the constructors (formation rules) are given below:
+respectively. Expressions in our calculator have the type $exp$, the types
+of the constructors (formation rules) are given below\footnote{The type
+  $\NN$ is the type of natural numbers. Since our examples will deal with
+  numbers, we will treat naturals as terms of our calculus that have the
+  type $\NN$. Their syntax and equational theory are both standard so we
+  will not repeat it here.}:
 
 \begin{align*}
   \sume &: exp \to exp \to exp \\
@@ -61,9 +65,11 @@ $\prode$ and $\lite$ to be some functions that compute directly with these
 interpretations\footnote{This is known as a \emph{final encoding} of a
   language.}. The task of the semanticist is to fix some specific
 interpretation for the abstract type $exp$ and figuring out the definitions
-of the abstract functions $\sume$, $\prode$ and $\lite$\footnote{This is
+of the abstract functions $\sume$, $\prode$ and $\lite$\footnote{As we will
+  see in Chapter~\ref{chap:intro-fs} when we introduce them, this is
   exactly the idea behind abstract categorial grammars
-  \cite{de2001towards}.}. Within our tiny fragment, this is quite easy to do:
+  \cite{de2001towards}.}. Within our tiny fragment, this is quite easy to
+do:
 
 \begin{align*}
   exp &= \NN \\
@@ -104,6 +110,8 @@ to $(\ap{\inr}{\star})$ and $x/y$ for $y \neq 0$ will reduce to
 $(\ap{\inl}{q})$ where $q$ is the greatest natural such that $q y \le
 x$.
 
+\subsection{Raising the Type of $exp$}
+
 Now the cases when $x/y$ is and is not defined are clearly
 delimited\footnote{Realizing that $x/y$ is not defined for $y = 0$ and then
   changing the type and behavior of the underlying division operator is
@@ -124,23 +132,31 @@ $\prode$\footnote{As a convention, we use $\_$ as a variable name for
   \dive &= \lam{X Y}{\case{X}{x}{\case{Y}{y}{x / y}{\_}{\ap{\inr}{\star}}}{\_}{\ap{\inr}{\star}}} \\ 
   \sume &= \lam{X Y}{\case{X}{x}{\case{Y}{y}{\ap{\inl}{(x + y)}}{\_}{\ap{\inr}{\star}}}{\_}{\ap{\inr}{\star}}} \\ 
   \prode &= \lam{X Y}{\case{X}{x}{\case{Y}{y}{\ap{\inl}{(x \times y)}}{\_}{\ap{\inr}{\star}}}{\_}{\ap{\inr}{\star}}} \\ 
-  \lite &= \lam{x}{\ap{\inr}{x}}
+  \lite &= \lam{x}{\ap{\inl}{x}} \\
+        &\to_{\eta.\to} \inl
 \end{align*}
 
 We now have to inspect the results of both of the operands and proceed with
 the calculation only if both of the operands successfully yield a
-natural. In $\sume$, $\prode$ and $\lite$, we also have to wrap the result
-in $\inl$ in order to go from $\NN$ to $\NN + 1$. This seems a heavy price
-to pay just to include division.
+natural\footnote{If you are unfamiliar with the notation used in the terms
+  above, consult Section~\ref{sec:sums-and-products} where we introduced
+  sums and products into our calculus.}. In $\sume$, $\prode$ and $\lite$,
+we also have to wrap the result in $\inl$ in order to go from $\NN$ to $\NN
++ 1$\footnote{We $\eta.\to$ reduce the definition of $\lite$ for
+  convenience.}. In $\dive$, we do not wrap the result using $\inl$ since
+division already produces a value of type $\NN + 1$. All this seems a heavy
+price to pay just to include division.
+
+\subsection{Refactoring with Monads}
 
 We can make this solution look a little bit better. We can introduce a
 function on types and a pair of combinators that will allow us to be a
 little less repetitive.
 
 \begin{align*}
-  T_\bot &= \Lambda \alpha.\ \alpha + 1 \\
+  T_\bot(\alpha) &= \alpha + 1 \\
   \eta_\bot &: \alpha \to T_\bot(\alpha) \\
-  \eta_\bot &= \inr \\
+  \eta_\bot &= \inl \\
   (\hsbind_\bot) &: T_\bot(\alpha) \to (\alpha \to T_\bot(\beta)) \to T_\bot(\beta) \\
   (\hsbind_\bot) &= \lam{X k}{\case{X}{x}{\ap{k}{x}}{\_}{\ap{\inr}{\star}}}
 \end{align*}
@@ -152,17 +168,22 @@ With these in our hands, we can now straighten out our interpretation.
   \dive &= \lam{X Y}{X \hsbind_\bot (\lam{x}{Y \hsbind_\bot (\lam{y}{x / y})})} \\
   \sume &= \lam{X Y}{X \hsbind_\bot (\lam{x}{Y \hsbind_\bot (\lam{y}{\ap{\eta_\bot}{(x + y)}})})} \\
   \prode &= \lam{X Y}{X \hsbind_\bot (\lam{x}{Y \hsbind_\bot (\lam{y}{\ap{\eta_\bot}{(x \times y)}})})} \\
-  \lite &= \lam{x}{\ap{\eta_\bot}{x}}
+  \lite &= \eta_\bot
 \end{align*}
 
 This pattern that we uncovered in the type $\NN + 1$ and the terms defining
 $\dive$, $\sume$, $\prode$ and $\lite$ is not incidental. The triple
-$\left<T_\bot, \eta_\bot, \hsbind_\bot \right>$ forms a
-monad\footnote{Modulo some differences in presentation.}. This formulation
-in terms of monadic operations will allow us to transition more easily into
+$\left<T_\bot, \eta_\bot, \hsbind_\bot \right>$ forms a monad\footnote{This
+  way of presenting a monad (a type constructor, $\eta$ and $\hsbind$) is
+  particular to functional programming. Note that this presentation differs
+  from the category-theoretical one which replaces $\hsbind$ with a natural
+  transformation $\mu$ \cite{mac1978categories}.}. This formulation in
+terms of monadic operations will allow us to transition more easily into
 our proposed solution since, as we will show
 in~\ref{sec:algebraic-properties}, $\left< \FF_E, \eta, \hsbind \right>$
 also forms a monad.
+
+\subsection{Interpreting Expressions as Computations}
 
 We will now explore an alternative solution which takes advantage of the
 $\FF$-types in our calculus. We will interpret expressions as computations
@@ -184,18 +205,17 @@ throw a division-by-zero exception would look like the following:
 \end{align*}
 
 The continuation uses the [empty] rule to turn the $o$ of type $0$ into
-something of type $\FF_E(\alpha)$. Since the [empty] rule can do so for any
-$\alpha$, the type of $\dbze$ is free in $\alpha$.
+something of type $\FF_E(\alpha)$.
 
 \begin{align*}
   exp &= \FF_{\{\typedop{error}{\chi}{0}\}}(\NN) \\
   \dive &= \lam{X Y}{X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\case{(x / y)}{z}{\ap{\eta}{z}}{\_}{\dbze}})})} \\
   \sume &= \lam{X Y}{X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\ap{\eta}{(x + y)}})})} \\
   \prode &= \lam{X Y}{X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\ap{\eta}{(x \times y)}})})} \\
-  \lite &= \lam{x}{\ap{\eta}{x}}
+  \lite &= \eta
 \end{align*}
 
-What has changed since last time?
+Let us compare this with the last set of definitions:
 
 \begin{itemize}
 \item We replaced the $\left< T_\bot, \eta_\bot, \hsbind_\bot \right>$ monad
@@ -266,9 +286,7 @@ Let's start with $\app{\dive}{\litec{2}}{\litec{0}}$.
 
 \begin{align*}
   \app{\dive}{\litec{2}}{\litec{0}}
-  &= \app{\dive}{(\ap{(\lam{x}{\ap{\eta}{x}})}{2})}
-                {(\ap{(\lam{x}{\ap{\eta}{x}})}{0})} \\
-  &\to_{\beta.\to,\beta.\to} \app{\dive}{(\ap{\eta}{2})}
+  &= \app{\dive}{(\ap{\eta}{2})}
                 {(\ap{\eta}{0})} \\
   &= \app{(\lam{X Y}{X \hsbind (\lam{x}{Y \hsbind (\lam{y}
           {\case{(x / y)}{z}{\ap{\eta}{z}}{\_}{\dbze}})})})}
@@ -283,18 +301,21 @@ Let's start with $\app{\dive}{\litec{2}}{\litec{0}}$.
           {\case{(x / y)}{z}{\ap{\eta}{z}}{\_}{\dbze}})})}{2} \\
   &\to_{\beta.\to} (\ap{\eta}{0}) \hsbind (\lam{y}
           {\case{(2 / y)}{z}{\ap{\eta}{z}}{\_}{\dbze}}) \\
-  &\to_{\ldots} \case{(2 / 0)}{z}{\ap{\eta}{z}}{\_}{\dbze} \\
+  &\to_{\ldots} \ap{(\lam{y}{\case{(2 / y)}{z}{\ap{\eta}{z}}{\_}{\dbze}})}{0} \\
+  &\to_{\beta.\to} \case{(2 / 0)}{z}{\ap{\eta}{z}}{\_}{\dbze} \\
   &\to_{/} \case{(\ap{\inr}{\star})}{z}{\ap{\eta}{z}}{\_}{\dbze} \\
   &\to_{\beta.+_2} \dbze \\
 \end{align*}
 
-The reductions state which rule was used to perform the step.  The
-equalities on lines 1 and 3 are due to our interpretations of $\lite$ and
-$\dive$. Those lines 5 and 6 come from the definitions of $\hsbind$ and
-$^*$ in~\ref{ssec:composing-functions}. The step on line 9 is just a repeat
-of the steps on lines 5 to 8. This sequence of steps will be quite common
-and we will from now on refer to it as the reduction rule $\eta.\hsbind$
-(formally introduced in~\ref{chap:properties}).
+The reductions state which rule was used to perform the step. The equality
+on line 2 is due to our interpretation of $\dive$. Those on lines 4 and 5
+come from the definitions of $\hsbind$ and $^*$
+in~\ref{ssec:composing-functions}. The step on line 8 is just a repeat of
+the steps on lines 4 to 6. This sequence of steps will be quite common and
+we will from now on refer to it as the reduction rule
+$\eta.\hsbind$\footnote{This rule will be formally introduced in
+  Chapter~\ref{chap:properties}. It says that whenever we have
+  $(\ap{\eta}{x}) \hsbind k$, we can reduce this to $\ap{k}{x}$.}
 
 The result of this first elaboration was not surprising: dividing 2 by 0
 throws a $\dbzelong$ exception. We will now try to see what happens when
@@ -302,14 +323,15 @@ this faulty expression appears within another expression.
 
 \begin{align*}
   \app{\prode}{\litec{3}}{\dbze}
-  &= \app{\prode}{(\ap{(\lam{x}{\ap{\eta}{x}})}{3})}{\dbze} \\
-  &\to_{\beta.\to} \app{\prode}{(\ap{\eta}{3})}{\dbze} \\
+  &= \app{\prode}{(\ap{\eta}{3})}{\dbze} \\
   &= \app{(\lam{X Y}{X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\ap{\eta}
           {(x \times y)}})})})}
       {(\ap{\eta}{3})}{\dbze} \\
   &\to_{\beta.\to,\beta.\to} (\ap{\eta}{3}) \hsbind (\lam{x}{\dbze \hsbind (\lam{y}{\ap{\eta}
           {(x \times y)}})}) \\
-  &\to_{\eta.\hsbind} \dbze \hsbind (\lam{y}{\ap{\eta} {(3 \times y)}}) \\
+  &\to_{\eta.\hsbind} \ap{(\lam{x}{\dbze \hsbind (\lam{y}{\ap{\eta}
+          {(x \times y)}})})}{3} \\
+  &\to_{\beta.\to} \dbze \hsbind (\lam{y}{\ap{\eta} {(3 \times y)}}) \\
   &= (\app{\op{error}}{\dbzelong}{(\lam{o}{\absurd{o}})}) \hsbind (\lam{y}{\ap{\eta} {(3 \times y)}}) \\
   &= \ap{(\lam{y}{\ap{\eta} {(3 \times y)}})^*}{(\app{\op{error}}{\dbzelong}{(\lam{o}{\absurd{o}})})} \\
   &= \ap{\banana{\onto{\eta}{(\lam{y}{\ap{\eta} {(3 \times y)}})}}}{(\app{\op{error}}{\dbzelong}{(\lam{o}{\absurd{o}})})} \\
@@ -318,27 +340,25 @@ this faulty expression appears within another expression.
   &\simeq \dbze
 \end{align*}
 
-Lines 1 and 3 are due to our interpretations of $\lite$ and $\prode$. Line
-5 is due to the $\eta.\hsbind$ rule that we have demonstrated in the last
-example. Lines 6, 7 and 8 expand the definitions of $\dbze$, $\hsbind$ and
-$^*$. On line 11, we equate the term with $\dbze$. The terms differ in the
-continuation but since the continuation can never be
-called\footnote{Technical aside: To be precise, we should define $\dbze$ to
-  be a class of terms of the shape $\app{\op{error}}{\dbzelong}{M}$ for any
-  term $M$. The only operations we will ever perform on $\dbze$ in these
-  examples will be congruent with the equivalence relation of our calculus
-  refined by adding equalities between terms of the shape
-  $\app{\op{error}}{\dbzelong}{M}$. Therefore, so long as we end up
-  removing the $\dbze$ terms from our result, we can treat them as
-  equivalent during our calculations.}, we can consider them equal.
+Line 2 is due to our interpretation of $\prode$. Line 4 is due to the
+$\eta.\hsbind$ rule that we have demonstrated in the last example. Lines 6,
+7 and 8 expand the definitions of $\dbze$, $\hsbind$ and $^*$. On line 11,
+we equate the term with $\dbze$. The terms differ in the continuation but
+since the continuation can never be called\footnote{Technical aside: To be
+  precise, we should define $\dbze$ to be a class of terms of the shape
+  $\app{\op{error}}{\dbzelong}{M}$ for any term $M$. The only operations we
+  will ever perform on $\dbze$ in these examples will be congruent with the
+  equivalence relation of our calculus refined by adding equalities between
+  terms of the shape $\app{\op{error}}{\dbzelong}{M}$. Therefore, so long
+  as we end up removing the $\dbze$ terms from our result, we can treat
+  them as equivalent during our calculations.}, we can consider them equal.
 
 We have seen the $\dbzelong$ exception propagate. Now let's see what
 happens when it hits a $\trye$ construction.
 
 \begin{align*}
   \app{\trye}{\litec{0}}{\dbze}
-  &= \app{\trye}{(\ap{(\lam{x}{\ap{\eta}{x}})}{0})}{\dbze} \\
-  &\to_{\beta.\to} \app{\trye}{(\ap{\eta}{0})}{\dbze} \\
+  &= \app{\trye}{(\ap{\eta}{0})}{\dbze} \\
   &= \app{(\lam{X Y}{\ap{\banana{\onto{\op{error}}{(\lam{e k}{X})}}}{Y}})}{(\ap{\eta}{0})}{\dbze} \\
   &\to_{\beta.\to,\beta.\to} \ap{\banana{\onto{\op{error}}{(\lam{e k}{\ap{\eta}{0}})}}}{\dbze} \\
   &= \ap{\banana{\onto{\op{error}}{(\lam{e k}{\ap{\eta}{0}})}}}{(\app{\op{error}}{\dbzelong}{(\lam{o}{\absurd{o}})})} \\
@@ -346,8 +366,8 @@ happens when it hits a $\trye$ construction.
   &\to_{\beta.\to,\beta.\to} \ap{\eta}{0}
 \end{align*}
 
-Lines 1 and 3 are our interpretations of $\lite$ and $\trye$. Line 5 is the
-definition of $\dbze$.
+Line 2 is our interpretation of $\trye$. Line 4 is the definition of
+$\dbze$.
 
 We see that since the embedded expression failed to evaluate (its sense was
 $\dbze$), we have evaluated the literal 0 instead. We now have an actual
@@ -355,17 +375,18 @@ number again and we can try feeding it into another operation.
 
 \begin{align*}
   \app{\sume}{\litec{5}}{(\ap{\eta}{0})}
-  &= \app{\sume}{(\ap{(\lam{x}{\ap{\eta}{x}})}{5})}{(\ap{\eta}{0})} \\
-  &\to_{\beta.\to} \app{\sume}{(\ap{\eta}{5})}{(\ap{\eta}{0})} \\
+  &= \app{\sume}{(\ap{\eta}{5})}{(\ap{\eta}{0})} \\
   &= \app{(\lam{X Y}{X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\ap{\eta}{(x + y)}})})})}{(\ap{\eta}{5})}{(\ap{\eta}{0})} \\
   &\to_{\beta.\to,\beta.\to} (\ap{\eta}{5}) \hsbind (\lam{x}{(\ap{\eta}{0}) \hsbind (\lam{y}{\ap{\eta}{(x + y)}})}) \\
-  &\to_{\eta.\hsbind} (\ap{\eta}{0}) \hsbind (\lam{y}{\ap{\eta}{(5 + y)}}) \\
-  &\to_{\eta.\hsbind} \ap{\eta}{(5 + 0)} \\
+  &\to_{\eta.\hsbind} \ap{(\lam{x}{(\ap{\eta}{0}) \hsbind (\lam{y}{\ap{\eta}{(x + y)}})})}{5} \\
+  &\to_{\beta.\to} (\ap{\eta}{0}) \hsbind (\lam{y}{\ap{\eta}{(5 + y)}}) \\
+  &\to_{\eta.\hsbind} \ap{(\lam{y}{\ap{\eta}{(5 + y)}})}{0} \\
+  &\to_{\beta.\to} \ap{\eta}{(5 + 0)} \\
   &\to_+ \ap{\eta}{5}
 \end{align*}
 
-Lines 1 and 3 are our interpretations of $\lite$ and $\sume$. The others
-are reductions of the kind we have seen before.
+Line 2 is our interpretation of $\sume$. The others are reductions of the
+kind we have seen before.
 
 Finally, we see the simplest case when an operator just reaches into the
 results of both operands using $\to_{\eta.\hsbind}$ and carries out its
@@ -383,33 +404,35 @@ $$
 \label{sec:enriching-the-context-with-variables}
 
 Sometimes, when writing down arithmetic expressions, it becomes useful to
-introduce variables for intermediate expressions and that build up the
+introduce variables for intermediate expressions and then build up the
 final result using those. Let's try and add such a facility to our
 calculator.
 
 \begin{align*}
   \lete &: var \to exp \to exp \to exp \\
-  \vare &: var \to exp
+  \vare &: var \to exp \\
+  \bar{x}, \bar{y}, \bar{z},\ldots &: var
 \end{align*}
 
 $\lete$ binds a variable to the result of the first expression; this
 variable stays available during the evaluation of the second
 expression. $\vare$ then lets us use the variable in place of an
-expression.
+expression. We also introduce terms for the different variables that can be
+used in our calculator. They look the same as the variables in our calculus
+but with a bar on top.
 
-We introduce constants for the different variables that can be used in our
-calculator. They look the same as variables in our calculus but with a bar
-on top. We will also introduce an equality relation between the variables.
+Here is a term that uses the new constructions:
 
 \begin{align*}
-  \bar{x}, \bar{y}, \bar{z},\ldots &: var \\
-  (=) &: var \to var \to 2
+& \letecn{x}{\sumec{\litec{2}}{\litec{3}}}
+ {\\ & \hspace{9mm} \letec{y}{\prodec{\varec{x}}{\varec{x}}}
+ {\\ & \hspace{19mm} \prodec{\varec{y}}{\litec{2}}}} \quad \to \quad \ap{\eta}{50}
 \end{align*}
 
-In order to give a semantics to $\lete$ and $\vare$, we will need to
-augment the set of operations that the computations we use to interpret the
-expressions can use. We want computations to be able to ask for the values
-of variables and so we will introduce $\typedop{get}{var}{\NN}$. In our new
+In order to give a semantics to $\lete$ and $\vare$, we will augment the
+set of operations in the computations we use to interpret the
+expressions. We want computations to be able to ask for the values of
+variables and so we will introduce $\typedop{get}{var}{\NN}$. In our new
 interpretation, we will have $exp =
 \FF_{\{\typedop{error}{\chi}{0},\typedop{get}{var}{\NN}\}}(\NN)$. Though it
 might seem that we are changing our domain of interpretation and will thus
@@ -423,7 +446,316 @@ free.
 \begin{align*}
   \lete &= \lam{v X Y}{X \hsbind
     (\lam{x}{\ap{\banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = v}{(\ap{k}{x})}{(\app{\op{get}}{u}{k})}})}}}{Y}})} \\
-  \vare &= \lam{v}{\ap{\op{get}!}{v}}
+  \vare &= \op{get}!
 \end{align*}
 
-And that is all we need.
+In the implementation above, we also rely on the presence of an equality
+predicate on the $var$ type:
+
+ $$
+  (=) : var \to var \to 2
+ $$
+
+And that is all we need. We can put these two combinators side-by-side with
+the existing ones like $\dive$ and $\trye$ and we will have a semantics for
+a calculator with exceptions and variables.
+
+\subsection{Example with Variables}
+
+To get some practice with the calculus, we will evaluate a simple
+expression with multiple variables, step by step.
+
+$$
+\letecn{x}{\litec{1}}{\letec{y}{\litec{2}}{\sumec{\varec{x}}{\varec{y}}}}
+$$
+
+Let us start off with the innermost expression, the sum of $\bar{x}$ and
+$\bar{y}$.
+
+\begin{align*}
+  \sumecn{\varec{x}}{\varec{y}}
+& = \sumecn{(\ap{\op{get}!}{\bar{x}})}
+           {(\ap{\op{get}!}{\bar{y}})} \\
+& = \app{(\lam{X Y}{X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\ap{\eta}{(x + y)}})})})}
+        {(\ap{\op{get}!}{\bar{x}})}
+        {(\ap{\op{get}!}{\bar{y}})} \\
+& \to_{\beta.\to,\beta.\to} (\ap{\op{get}!}{\bar{x}}) \hsbind (\lam{x}{
+                       (\ap{\op{get}!}{\bar{y}}) \hsbind (\lam{y}{
+                        \ap{\eta}{(x + y)}})}) \\
+& = (\ap{(\lam{x}{\app{\op{get}}{x}{\eta}})}{\bar{x}}) \hsbind (\lam{x}{
+    (\ap{\op{get}!}{\bar{y}}) \hsbind (\lam{y}{
+     \ap{\eta}{(x + y)}})}) \\
+& \to_{\beta.\to} (\app{\op{get}}{\bar{x}}{\eta}) \hsbind (\lam{x}{
+    (\ap{\op{get}!}{\bar{y}}) \hsbind (\lam{y}{
+     \ap{\eta}{(x + y)}})}) \\
+& = \ap{\banana{\onto{\eta}{(\lam{x}{(\ap{\op{get}!}{\bar{y}}) \hsbind (\lam{y}{
+    \ap{\eta}{(x + y)}})})}}}{(\app{\op{get}}{\bar{x}}{\eta})} \\
+& \to_{\banana{\op{op}'}} \app{\op{get}}{\bar{x}}
+        {(\lam{x}{\ap{\banana{\onto{\eta}{(\lam{x}{(\ap{\op{get}!}{\bar{y}})
+                    \hsbind (\lam{y}{\ap{\eta}{(x + y)}})})}}}{(\ap{\eta}{x})}})} \\
+& \to_{\banana{\eta}} \app{\op{get}}{\bar{x}}
+        {(\lam{x}{\ap{(\lam{x}{(\ap{\op{get}!}{\bar{y}})
+                    \hsbind (\lam{y}{\ap{\eta}{(x + y)}})})}{x}})} \\
+& \to_{\beta.\to} \app{\op{get}}{\bar{x}}
+        {(\lam{x}{(\ap{\op{get}!}{\bar{y}})
+                    \hsbind (\lam{y}{\ap{\eta}{(x + y)}})})} \\
+& \to_{\ldots} \app{\op{get}}{\bar{x}}
+        {(\lam{x}{\app{\op{get}}{\bar{y}}{(\lam{y}{\ap{\eta}{(x + y)}})}})} \\
+\end{align*}
+
+The first three lines are the usual. First, we expand the definitions of
+the operands (the $\vare$ operator). Then we do the same for the operation
+$\sume$ and we $\beta.\to$ reduce.
+
+On line 4, we substitute $\op{get}!$ with the definition of the exclamation
+mark that we provided in~\ref{ssec:operations-and-handlers}. Similarly, on
+line 6, we expand the definition of $\hsbind$\footnote{$\hsbind$ is defined
+  in terms of $^*$, which is itself defined in terms of $\banana{}$. Here,
+  we expand both in one go, i.e.\ $(x \hsbind f) =
+  (\ap{\banana{\onto{\eta}{f}}}{x})$}.
+
+If you compare line 3 and line 9 (the second to last line), you will
+notice that they are practically identical. The $(\ap{\op{get}!}{\bar{x}})
+\hsbind k$ on line 3 has been replaced with
+$\app{\op{get}}{\bar{x}}{k}$. This is encapsulated in a rule named
+$\op{op}!.\hsbind$ that will be introduced in Chapter~\ref{chap:properties}
+and which lets us replace $(\ap{\op{op}!}{x}) \hsbind k$ with
+$\app{\op{op}}{x}{k}$.
+
+On the last line, we simply repeat the last 6 steps (which we now packaged
+into the $\op{op}!.\hsbind$ rule) for $\ap{\op{get}!}{\bar{y}}$.
+
+We have our result, a computation that asks for the values of the variables
+$\bar{x}$ and $\bar{y}$ to compute their sum. Now we will compute the value
+of $\app{\lete}{\bar{y}}{\litec{2}}$.
+
+\begin{align*}
+  \app{\lete}{\bar{y}}{\litec{2}}
+&= \app{\lete}{\bar{y}}{(\ap{\eta}{2})} \\
+&= \appp{(\lam{v X Y}{X \hsbind (\lam{x}{\ap{\banana{\onto{\op{get}} {(\lam{u k}{\ifte{u = v}{(\ap{k}{x})} {(\app{\op{get}}{u}{k})}})}}}{Y}})})} {\bar{y}}{(\ap{\eta}{2})} \\
+&\to_{\beta.\to,\beta.\to} \lam{Y}{(\ap{\eta}{2}) \hsbind (\lam{x}{\ap{\banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = \bar{y}}{(\ap{k}{x})}{(\app{\op{get}}{u}{k})}})}}}{Y}})} \\
+&\to_{\eta.\hsbind} \lam{Y}{\ap{(\lam{x}{\ap{\banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = \bar{y}}{(\ap{k}{x})}{(\app{\op{get}}{u}{k})}})}}}{Y}})}{2}} \\
+&\to_{\beta.\to} \lam{Y}{\ap{\banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = \bar{y}}{(\ap{k}{2})}{(\app{\op{get}}{u}{k})}})}}}{Y}} \\
+&\to_{\eta.\to} \banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = \bar{y}}{(\ap{k}{2})}{(\app{\op{get}}{u}{k})}})}}
+\end{align*}
+
+Lines 1 and 2 are our interpretations of $\lite$ and $\lete$ and the rest
+are applications of rules we have seen before. We find out that the
+semantic action of $\app{\lete}{\bar{y}}{\litec{2}}$ is a handler. This
+handler is only interested in $\op{get}$ operations that act on the
+variable $\bar{y}$. It interprets such operations by returning the value
+$2$, otherwise it leaves them untouched.
+
+We will now apply this handler to the meaning of
+$\sumecn{\varec{x}}{\varec{y}}$ to get the meaning of
+$\letecn{y}{\litec{2}}{\sumec{\varec{x}}{\varec{y}}}$.
+
+\begin{align*}
+  & \letecn{y}{\litec{2}}{\sumec{\varec{x}}{\varec{y}}} \\
+= & \letecn{y}{\litec{2}}
+       {(\app{\op{get}}{\bar{x}} {(\lam{x}{
+         \app{\op{get}}{\bar{y}}{(\lam{y}{\ap{\eta}{(x + y)}})}})})} \\
+= & \ap{\banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = \bar{y}}
+        {(\ap{k}{2})}{(\app{\op{get}}{u}{k})}})}}}
+       {(\app{\op{get}}{\bar{x}} {(\lam{x}{
+         \app{\op{get}}{\bar{y}}{(\lam{y}{\ap{\eta}{(x + y)}})}})})} \\
+\to_{\banana{\op{op}},\beta.\to} &
+  \app{(\lam{u k}{\ifte{u = \bar{y}}{(\ap{k}{2})}{(\app{\op{get}}{u}{k})}})}
+      {\bar{x}}
+      {(\lam{x}{\appp{\lete}{\bar{y}}{\litec{2}}
+                   {(\app{\op{get}}{\bar{y}}{(\lam{y}{\ap{\eta}{(x + y)}})})}})} \\
+\to_{\beta.\to} &
+  \ap{(\lam{k}{\ifte{\bar{x} = \bar{y}}{(\ap{k}{2})}{(\app{\op{get}}{\bar{x}}{k})}})}
+     {(\lam{x}{\appp{\lete}{\bar{y}}{\litec{2}}
+                  {(\app{\op{get}}{\bar{y}}{(\lam{y}{\ap{\eta}{(x + y)}})})}})} \\
+\to_= &
+  \ap{(\lam{k}{\ifte{\false}{(\ap{k}{2})}{(\app{\op{get}}{\bar{x}}{k})}})}
+     {(\lam{x}{\appp{\lete}{\bar{y}}{\litec{2}}
+                  {(\app{\op{get}}{\bar{y}}{(\lam{y}{\ap{\eta}{(x + y)}})})}})} \\
+\to_{\textbf{if}.\false} &
+  \ap{(\lam{k}{(\app{\op{get}}{\bar{x}}{k})})}
+     {(\lam{x}{\appp{\lete}{\bar{y}}{\litec{2}}
+                  {(\app{\op{get}}{\bar{y}}{(\lam{y}{\ap{\eta}{(x + y)}})})}})} \\
+\to_{\beta.\to} &
+  \app{\op{get}}{\bar{x}}
+     {(\lam{x}{\appp{\lete}{\bar{y}}{\litec{2}}
+                  {(\app{\op{get}}{\bar{y}}{(\lam{y}{\ap{\eta}{(x + y)}})})}})} \\
+= &
+  \app{\op{get}}{\bar{x}}
+     {(\lam{x}{\ap{\banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = \bar{y}}
+                                          {(\ap{k}{2})}{(\app{\op{get}}{u}{k})}})}}}
+                  {(\app{\op{get}}{\bar{y}}{(\lam{y}{\ap{\eta}{(x + y)}})})}})} \\
+\to_{\banana{\op{op}},\beta.\to} &
+  \app{\op{get}}{\bar{x}}
+     {(\lam{x}{(\app{(\lam{u k}{\ifte{u = \bar{y}}
+                                     {(\ap{k}{2})}{(\app{\op{get}}{u}{k})}})}
+                    {\bar{y}}{(\lam{y}{\appp{\lete}{\bar{y}}{\litec{2}}{(\ap{\eta}{(x + y)})}})})})} \\
+\to_{\beta.\to} &
+  \app{\op{get}}{\bar{x}}
+     {(\lam{x}{(\ap{(\lam{k}{\ifte{\bar{y} = \bar{y}}
+                                     {(\ap{k}{2})}{(\app{\op{get}}{\bar{y}}{k})}})}
+                    {(\lam{y}{\appp{\lete}{\bar{y}}{\litec{2}}{(\ap{\eta}{(x + y)})}})})})} \\
+\to_= &
+  \app{\op{get}}{\bar{x}}
+     {(\lam{x}{(\ap{(\lam{k}{\ifte{\true}
+                                     {(\ap{k}{2})}{(\app{\op{get}}{\bar{y}}{k})}})}
+                    {(\lam{y}{\appp{\lete}{\bar{y}}{\litec{2}}{(\ap{\eta}{(x + y)})}})})})} \\
+\to_{\textbf{if}.\true} &
+  \app{\op{get}}{\bar{x}}
+     {(\lam{x}{(\ap{(\lam{k}{\ap{k}{2}})}
+                   {(\lam{y}{\appp{\lete}{\bar{y}}{\litec{2}}{(\ap{\eta}{(x + y)})}})})})} \\
+\to_{\beta.\to} &
+  \app{\op{get}}{\bar{x}}
+     {(\lam{x}{\ap{(\lam{y}{\appp{\lete}{\bar{y}}{\litec{2}}{(\ap{\eta}{(x + y)})}})}
+                  {2}})} \\
+\to_{\beta.\to} &
+  \app{\op{get}}{\bar{x}}
+     {(\lam{x}{\appp{\lete}{\bar{y}}{\litec{2}}{(\ap{\eta}{(x + 2)})}})} \\
+= &
+  \app{\op{get}}{\bar{x}}
+     {(\lam{x}{\ap{\banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = \bar{y}}
+                                          {(\ap{k}{2})}{(\app{\op{get}}{u}{k})}})}}}
+                  {(\ap{\eta}{(x + 2)})}})} \\
+\to_{\banana{\eta}} & \app{\op{get}}{\bar{x}} {(\lam{x}{\ap{\eta}{(x + 2)}})} \\
+\end{align*}
+
+This one is a bit more complicated and so we will go through it line by
+line:
+
+
+\begin{description}
+
+  \item[Line 2 ($=$)] We replace the expression
+    $\sumecn{\varec{x}}{\varec{y}}$ with its denotation that we computed
+    earlier.
+
+  \item[Line 3 ($=$)] We do the same for the construction
+    $\app{\lete}{\bar{y}}{\litec{2}}$.
+
+  \item[Line 4 ($\to_{\banana{\op{op}},\beta.\to}$)] The let-binder is a
+    handler with a clause for $\op{get}$ and its argument is a computation
+    that performs $\op{get}$. This means we do two things: we replace
+    $\op{get}$ with the clause ($\lam{u k}{\ldots}$) from the handler and
+    we move the handler inside the continuation. In order to save space, we
+    contract the handler back to $\app{\lete}{\bar{y}}{\litec{2}}$.
+
+    Looking at the subscript on the arrow, you can see that we have also
+    performed a $\beta.\to$ reduction. This is part of a pattern we will
+    repeat often. The rule $\banana{\op{op}}$ allows us to rewrite
+    $\ap{\banana{\onto{\op{op}}{f}}}{(\app{\op{op}}{x}{k})}$ into
+    $\app{f}{x}{(\lam{y}{\ap{\banana{\onto{\op{op}}{f}}}{(\ap{k}{y})}})}$. We
+    see that we had to introduce a new $\lambda$ binder in order to compose
+    $k$ and $\banana{\onto{\op{op}}{f}}$. However, quite often it will be
+    the case that $k$ will already be of the form $(\lam{y}{M})$. In that
+    case, the $\banana{\op{op}}$ rule would translate
+    $\ap{\banana{\onto{\op{op}}{f}}}{(\app{\op{op}}{x}{(\lam{y}{M})})}$ to
+    $\app{f}{x}{(\lam{y}{\ap{\banana{\onto{\op{op}}{f}}}{(\ap{(\lam{y}{M})}{y})}})}$. Now
+    we have two $\lambda$ binders in the continuation but we can
+    immediately $\beta.\to$ reduce away the second one to get
+    $\app{f}{x}{(\lam{y}{\ap{\banana{\onto{\op{op}}{f}}}{M}})}$. By
+    composing the $\banana{\op{op}}$ rule and the $\beta.\to$ rule, we can
+    therefore get the following useful rule:
+
+    $$
+    \ap{\banana{\onto{\op{op}}{f}}}{(\app{\op{op}}{x}{(\lam{y}{M})})}
+    \to_{\banana{\op{op}},\beta.\to}
+    \app{f}{x}{(\lam{y}{\ap{\banana{\onto{\op{op}}{f}}}{M}})}
+    $$
+
+  \item[Line 5 ($\beta.\to$)] Here we apply the handler clause to the
+    operation's argument, the variable $\bar{x}$. We do not do the same for
+    the continuation argument $k$ since we would have to copy it twice and
+    we can avoid that by reducing the conditional expression first.
+
+  \item[Line 6 ($=$)] Since $\bar{x}$ and $\bar{y}$ are different
+    variables, we expect the equality predicate to return false ($\false$).
+
+  \item[Line 7 ($\textbf{if}.\false$)] Since the condition evaluated to
+    $\false$, we choose the second branch of the conditional. We are
+    invoking a derived rule that we have not shown before. The rule
+    consists simply of expanding the definitions of $\false$ and
+    $\textbf{if}$ and performing a $\beta.+_2$ reduction. You can find the
+    rule in Chapter~\ref{chap:properties}.
+
+  \item[Line 8 ($\beta.\to$)] We have simplified the handler clause and so
+    we are ready to substitute in the continuation. Remark the similarity
+    between this line and line 2. The only difference is the position of
+    the $\app{\lete}{\bar{y}}{\litec{2}}$ handler. It has moved from the
+    first $\op{get}$ down to the second $\op{get}$.
+
+  \item[Line 9 ($=$)] We will proceed as we did from line 3 onwards. We
+    expand $\app{\lete}{\bar{y}}{\litec{2}}$ to reveal the handler.
+
+  \item[Line 10 ($\banana{\op{op}},\beta.\to$)] We have another $\op{get}$
+    computation and so we pull out the handler clause for $\op{get}$. We
+    contract the handler back into $\app{\lete}{\bar{y}}{\litec{2}}$ and
+    move it down, applying it to the next step of the computation in the
+    same way as was described at line 4.
+
+  \item[Line 11 ($\beta.\to$)] We pass the variable $\bar{y}$ into the
+    handler clause so we can decide the condition.
+
+  \item[Line 12 ($=$)] This time, we are comparing a variable to itself and
+    so the equality predicate will yield true ($\true$).
+
+  \item[Line 13 ($\textbf{if}.\true$)] Since the condition is true, we
+    choose the first branch of the conditional. The rule
+    $\textbf{if}.\true$ is analogous to the $\textbf{if}.\false$ described
+    at line 7.
+
+  \item[Line 14 ($\beta.\to$)] Having simplified the handler clause, we can
+    pass in the continuation so that we can supply it with the value of the
+    variable $bar{y}$ that it was looking for.
+
+  \item[Line 15 ($\beta.\to$)] We pass $2$ to the continuation.
+
+  \item[Line 16 ($=$)] Now we will use the handler one last time so we
+    reveal it first by expanding $\app{\lete}{\bar{y}}{\litec{2}}$.
+
+  \item[Line 17 ($\banana{\eta}$)] The handler has no clause for
+    $\eta$. In~\ref{ssec:operations-and-handlers}, we have declared that
+    this is just a syntactic shortcut for the handler having a default
+    clause $\onto{\eta}{\eta}$. Applying the $\banana{\eta}$ rule has two
+    effects: we replace $\eta$ with its handler clause, $\eta$, and we
+    discard the handler since there is no continuation.
+\end{description}
+
+We have started with $\app{\op{get}}{\bar{x}}
+{(\lam{x}{\app{\op{get}}{\bar{y}}{(\lam{y}{\ap{\eta}{(x + y)}})}})}$ as the
+denotation of $\sumecn{\varec{x}}{\varec{y}}$. By applying the denotation
+of $\app{\lete}{\bar{y}}{\litec{2}}$, we have interpreted away the
+$\ap{\op{get}}{\bar{y}}$ request by providing the value $2$ as the
+response, leaving us with $\app{\op{get}}{\bar{x}} {(\lam{x}{\ap{\eta}{(x +
+      2)}})}$. We will resolve the variable $\bar{x}$ by analogy.
+
+\begin{align*}
+  \app{\lete}{\bar{x}}{\litec{1}}
+&\to_{\ldots} \banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = \bar{x}}{(\ap{k}{1})}{(\app{\op{get}}{u}{k})}})}}
+\end{align*}
+
+This computation goes down the same way as the one for
+$\app{\lete}{\bar{x}}{\litec{1}}$, only the number and the variable name
+are different.
+
+
+\begin{align*}
+\letecn{x}{\litec{1}}{\letec{y}{\litec{2}}{\sumec{\varec{x}}{\varec{y}}}}
+& = \letecn{x}{\litec{1}}{(\app{\op{get}}{\bar{x}} {(\lam{x}{\ap{\eta}{(x + 2)}})})} \\
+& \to_{\ldots} \ap{\eta}{(1 + 2)} \\
+& \to_{+} \ap{\eta}{3}
+\end{align*}
+
+We can perform the reduction from the first line to the second line by
+repeating the exact same steps as we did from line 8 to line 17 when
+simplifying $\appp{\lete}{\bar{y}}{\litec{2}}
+{(\app{\op{get}}{\bar{y}}{(\lam{y}{\ap{\eta}{(x + y)}})})}$.
+
+Finally, we can conclude that according to our interpretations, the
+value of the expression we started off with is $3$. In other words, the
+following holds:
+
+$$
+\letecn{x}{\litec{1}}{\letec{y}{\litec{2}}{\sumec{\varec{x}}{\varec{y}}}}
+\quad \to \quad
+\ap{\eta}{3}
+$$
