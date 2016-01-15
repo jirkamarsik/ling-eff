@@ -111,6 +111,7 @@ $(\ap{\inl}{q})$ where $q$ is the greatest natural such that $q y \le
 x$.
 
 \subsection{Raising the Type of $exp$}
+\label{ssec:raising-the-type-of-exp}
 
 Now the cases when $x/y$ is and is not defined are clearly
 delimited\footnote{Realizing that $x/y$ is not defined for $y = 0$ and then
@@ -136,7 +137,7 @@ $\prode$\footnote{As a convention, we use $\_$ as a variable name for
         &\to_{\eta.\to} \inl
 \end{align*}
 
-We now have to inspect the results of both of the operands and proceed with
+
 the calculation only if both of the operands successfully yield a
 natural\footnote{If you are unfamiliar with the notation used in the terms
   above, consult Section~\ref{sec:sums-and-products} where we introduced
@@ -148,6 +149,7 @@ division already produces a value of type $\NN + 1$. All this seems a heavy
 price to pay just to include division.
 
 \subsection{Refactoring with Monads}
+\label{ssec:refactoring-with-monads}
 
 We can make this solution look a little bit better. We can introduce a
 function on types and a pair of combinators that will allow us to be a
@@ -759,3 +761,117 @@ $$
 \quad \to \quad
 \ap{\eta}{3}
 $$
+
+
+\subsection{Treating Variables without Computations}
+
+Before we proceed onto the next chapter, let us compare the calculator
+semantics that we have developed so far with an alternative that does not
+rely on the computation abstraction.
+
+As a reminder, this is our calculator semantics
+from~\ref{ssec:raising-the-type-of-exp}, along with a semantics for
+$\trye$.
+
+\begin{align*}
+  exp &= \NN + 1 \\
+  \dive &= \lam{X Y}{\case{X}{x}{\case{Y}{y}{x / y}{\_}{\ap{\inr}{\star}}}{\_}{\ap{\inr}{\star}}} \\ 
+  \trye &= \lam{X Y}{\case{X}{x}{\case{Y}{y}{\ap{\inl}{y}}{\_}{\ap{\inl}{x}}}{\_}{\ap{\inr}{\star}}} \\ 
+  \sume &= \lam{X Y}{\case{X}{x}{\case{Y}{y}{\ap{\inl}{(x + y)}}{\_}{\ap{\inr}{\star}}}{\_}{\ap{\inr}{\star}}} \\ 
+  \prode &= \lam{X Y}{\case{X}{x}{\case{Y}{y}{\ap{\inl}{(x \times y)}}{\_}{\ap{\inr}{\star}}}{\_}{\ap{\inr}{\star}}} \\ 
+  \lite &= \lam{x}{\ap{\inl}{x}}
+\end{align*}
+
+What denotation should we assign to $\varecn{x}$? It does not correspond to
+any particular natural nor is it an expression that should always fail. We
+can find an answer to our question by expanding the domain from $\NN + 1$
+to $\gamma \to (\NN + 1)$ where $\gamma = var \to (\NN + 1)$ is the type of
+environments\footnote{Environments are partial functions from variable
+  names to naturals, hence the $+ 1$ in the result type.}.
+
+\begin{align*}
+  exp &= \gamma \to \NN + 1 \\
+  \gamma &= var \to \NN + 1 \\
+  \lete &= \lam{v X Y e}{\case{\ap{X}{e}}{x}{\ap{Y}{(\lam{u}{\ifte{u = v}{\ap{\inl}{x}}{\ap{e}{u}}})}}{\_}{\ap{\inr}{\star}}} \\
+  \vare &= \lam{v e}{\ap{e}{v}} \\
+  \dive &= \lam{X Y e}{\case{\ap{X}{e}}{x}{\case{\ap{Y}{e}}{y}{x / y}{\_}{\ap{\inr}{\star}}}{\_}{\ap{\inr}{\star}}} \\ 
+  \trye &= \lam{X Y e}{\case{\ap{Y}{e}}{y}{\ap{\inl}{y}}{\_}{\ap{X}{e}}} \\ 
+  \sume &= \lam{X Y e}{\case{\ap{X}{e}}{x}{\case{\ap{Y}{e}}{y}{\ap{\inl}{(x + y)}}{\_}{\ap{\inr}{\star}}}{\_}{\ap{\inr}{\star}}} \\ 
+  \prode &= \lam{X Y e}{\case{\ap{X}{e}}{x}{\case{\ap{Y}{e}}{y}{\ap{\inl}{(x \times y)}}{\_}{\ap{\inr}{\star}}}{\_}{\ap{\inr}{\star}}} \\ 
+  \lite &= \lam{x e}{\ap{\inl}{x}}
+\end{align*}
+
+Since we needed to expand the type $exp$ into $\gamma \to \NN + 1$, we need
+to make appropriate changes to the previous denotations. When producing
+values of type $exp$, we now abstract over an argument $e$ of type
+$\gamma$. When consuming values of type $exp$, we apply to them an
+environment of type $\gamma$ to get a value of the old type $\NN + 1$.
+
+In the rule for $\vare$, we just lookup the value of the variable in the
+environment. If the environment does not contain a value for this variable,
+it returns $\inr{\star}$ of type $\NN + 1$. In that case, $\vare$ returns
+the same to indicate that the expression has no reference. In $\lete$,
+evaluate $X$ in the current environment $e$ and if it has a value, we also
+evaluate $Y$. However, $Y$ itself is evaluated in an environment in which
+$v$ is bound to $x$, the value of $X$.
+
+
+\begin{align*}
+  exp &= \FF_{\{\typedop{error}{\chi}{0},\typedop{get}{var}{\NN}\}}(\NN) \\
+  \lete &= \lam{v X Y}{X \hsbind
+    (\lam{x}{\ap{\banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = v}{(\ap{k}{x})}{(\app{\op{get}}{u}{k})}})}}}{Y}})} \\
+  \vare &= \op{get}! \\
+  \dive &= \lam{X Y}{X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\case{(x / y)}{z}{\ap{\eta}{z}}{\_}{\dbze}})})} \\
+  \trye &= \lam{X Y}{\ap{\banana{\onto{\op{error}}{(\lam{e k}{X})}}}{Y}} \\
+  \sume &= \lam{X Y}{X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\ap{\eta}{(x + y)}})})} \\
+  \prode &= \lam{X Y}{X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\ap{\eta}{(x \times y)}})})} \\
+  \lite &= \eta
+\end{align*}
+
+We notice that $\op{get}$ is used in $\lete$ and $\vare$ but it is not
+mentioned in other parts of the fragment. $\op{error}$ is used in $\dive$
+(through $\dbze$) and in $\trye$ and again it is absent in the rest of the
+fragment. Compare this with the approach that models $exp$ as $\gamma \to
+\NN + 1$. In all of the entries, we abstract over a variable of type
+$\gamma$ for the current environment and we explicitly pass it around. We
+also do explicit case analysis on all intermediate results and we wrap all
+our results in $\inl$. Furthermore, changing the type $exp$ to accomodate
+$\lete$ and $\vare$ forced us to change the definitions of $\dive$,
+$\trye$, $\sume$, $\prode$ and $\lite$ (i.e.\ all the other constructions
+in our fragment).
+
+We could mitigate both of these problems using the same technique we have
+seen in~\ref{ssec:refactoring-with-monads}. We can find a monad whose type
+constructor is $T(\alpha) = \gamma \to \alpha + 1$, whose unit is $\eta =
+(\lam{x e}{\ap{\inl}{x}})$ and whose bind simultaneously takes care of
+passing around the environment and performing case analysis on intermediate
+results. However, as we will see in~\ref{sec:monads}, we will still be
+motivated to recreate something like the abstract operations that we are
+using in our proposed solution.
+
+
+\section{Summary}
+
+In this chapter, we have hoped to convey two things:
+
+\begin{itemize}
+\item Some sense of familiarity with our calculus. 
+
+  We have performed long reduction chains which illustrated a large part of
+  the reduction rules and syntax introduced in
+  Chapter~\ref{ch:definitions}. The goal of that was to build up our
+  intuition of how terms written in our calculus actually look like and how
+  to use them to write computations.
+
+\item A glimpse of the methodology we would like to adopt.
+
+  As a running example in this chapter, we have studied a simple formal
+  language and gave it a compositional semantics. In the process of doing
+  that, we have seen some advantages of using computations as opposed to
+  using simpler terms. Notably the fact that we could extend the fragment
+  with new constructions that demonstrate new semantic phenomena, such as
+  errors or variables, without having to rewrite existing denotations. One
+  of the principal motivations of this thesis is to apply this technique to
+  the problem of natural language semantics and verify whether we can enjoy
+  the same properties.
+\end{itemize}

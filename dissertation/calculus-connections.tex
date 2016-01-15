@@ -1,0 +1,128 @@
+\chapter{Connections}
+
+In this chapter, we will draw some connections to related formalisms.
+
+\begin{itemize}
+\item In~\ref{sec:continuations}, we will see how the semantics of our
+  calculus echoes those of calculi that offer control operators for
+  delimited continuations.
+\item In \ref{sec:monads}, \ldots
+\item In \ref{sec:translation-to-coc}, \ldots
+\item In \ref{sec:reason-for-c}, \ldots
+\end{itemize}
+
+\section{Continuations}
+\label{sec:continuations}
+
+We will try to show the connection between the operational semantics of
+operators for delimited control and the reduction semantics of our
+calculus. The nature of control operators is that their evaluation depends
+on their context. In order for a language with such control operators to be
+deterministic, it must have a fixed evaluation order. So in order to set up
+the stage for our study of delimited control, we will start by simulating
+the call-by-value $\lambda$-calculus in $\banana{\lambda}$.
+
+\subsection{Introducing Call-by-Value}
+
+First, we introduce some key notions of call-by-value and ordered
+evaluation.
+
+We will single out some of the expressions in the $\lambda$-calculus and
+call them values.
+
+\begin{align*}
+  V ::= & \lam{x}{M} \\
+   | \, & x \\
+  M,N ::= & (\ap{M}{N})
+\end{align*}
+
+The idea behind this distinction is that values ($V$) are terms that have
+already been reduced/evaluated. This distinction will become useful in
+definining the notion of an \emph{evaluation context} $C$:
+
+$$
+C ::= [] | (\ap{C}{M}) | (\ap{V}{C})
+$$
+
+We make use of evaluation contexts by replacing the placeholder $[]$ by
+another term $M$, an operation we write down as $C[M]$. We can now define
+the semantics:
+
+$$
+C[\ap{(\lam{x}{M})}{V}] \to_\beta C[\subst{M}{x}{V}]
+$$
+
+Here we see that we only substitute \emph{values} for the variables in a
+$\lambda$-abstraction. Also note that we can only perform reductions inside
+an evaluation context. Given our definition of $C$, this enforces a
+left-to-right evaluation order.
+
+\subsection{Simulating Call-by-Value}
+
+We first present the translation from call-by-value $\lambda$-calculus
+($\lambda_v$) to $\banana{\lambda}$ and then we elaborate on it.
+
+\begin{align*}
+  \sem{x} &= \ap{\eta}{x} \\
+  \sem{\lam{x}{M}} &= \ap{\eta}{(\lam{x}{\sem{M}})} \\
+  \sem{\ap{M}{N}} &= \sem{M} \hsbind (\lam{m}{\sem{N} \hsbind (\lam{n}{\ap{m}{n}})})
+\end{align*}
+
+An expression of $\lambda_v$ is modelled in $\banana{\lambda}$ as a
+computation. The values form a special case since they are all interpreted
+as pure computations, terms of the form $(\ap{\eta}{M})$ for some $M$. In
+interpreting an application $(\ap{M}{N})$, we first evaluate $M$ and then
+$N$, reflecting the behavior we have defined for $\lambda_v$ above.
+
+$\lambda_v$ can be typed with the type system of the simply-typed
+$\lambda$-calculus. A well-typed $\lambda_v$ term will then yield a
+well-typed $\banana{\lambda}$ term since our translation satisifies a
+property of the following form:
+
+$$
+\Gamma \vdash M : \alpha
+\quad \Rightarrow \quad
+\sem{\Gamma} \vdash \sem{M} : \FF_E(\sem{\alpha})
+$$
+
+We see that we model $\lambda_v$ expressions of type $\alpha$ using
+computations that yield values of type $\sem{\alpha}$. The translation
+$\sem{.}$ is defined just below. It is responsible for translating the
+function type so that it takes values but produces computations (since the
+body of a $\lambda$-abstraction can in general be any expression and the
+denotation of an expression is a computation). In the formulas below, $\nu$
+stands for an atomic type.
+
+\begin{align*}
+  \sem{\alpha \to \beta} &= \sem{\alpha} \to \FF_E(\sem{\beta}) \\
+  \sem{\nu} &= \nu
+\end{align*}
+
+The type-preserving property\footnote{The proof of the property is a simple
+  proof by induction on the structure of the $\lambda_v$ term.} outlined
+above is important. It tells us that simply-typed $\lambda_v$ can be
+simulated in\ldots
+
+\begin{align*}
+  \sem{\ap{(\lam{x}{M})}{V}}
+&= \sem{\lam{x}{M}} \hsbind (\lam{f}{\sem{V} \hsbind (\lam{a}{\ap{f a}})}) \\
+&= (\ap{\eta}{(\lam{x}{\sem{M}})}) \hsbind (\lam{f}{(\ap{\eta}{v}) \hsbind (\lam{a}{\ap{f a}})}) \\
+&= \ap{(\lam{x}{\sem{M}})}{v} \\
+&= \subst{\sem{M}}{x}{v} \\
+&= \sem{\subst{M}{x}{V}}
+\end{align*}
+
+where $\sem{V} = \ap{\eta}{v}$.
+
+\section{Monads}
+\label{sec:monads}
+
+
+\section{Partial Translation to the Calculus of Constructions}
+\label{sec:translation-to-coc}
+
+
+\section{Reason for $\mathcal{C}$}
+\label{sec:reason-for-c}
+
+
