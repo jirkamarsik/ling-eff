@@ -31,9 +31,10 @@ We will single out some of the expressions in the $\lambda$-calculus and
 call them values.
 
 \begin{align*}
-  V ::= & \lam{x}{M} \\
-   | \, & x \\
-  M,N ::= & (\ap{M}{N})
+  V ::= &\ \lam{x}{M} \\
+   | \, &\ x \\
+  M, N ::= &\ V \\
+   | \, &\ (\ap{M}{N})
 \end{align*}
 
 The idea behind this distinction is that values ($V$) are terms that have
@@ -74,10 +75,15 @@ as pure computations, terms of the form $(\ap{\eta}{M})$ for some $M$. In
 interpreting an application $(\ap{M}{N})$, we first evaluate $M$ and then
 $N$, reflecting the behavior we have defined for $\lambda_v$ above.
 
+Before we show that this translation is indeed a faithful one, we will
+discuss the types of the interpretations to get a better understanding of
+the structures involved.
+
 $\lambda_v$ can be typed with the type system of the simply-typed
 $\lambda$-calculus. A well-typed $\lambda_v$ term will then yield a
 well-typed $\banana{\lambda}$ term since our translation satisifies a
-property of the following form:
+property of the following form\footnote{The proof of the property is a
+  routine proof by induction on the structure of the $\lambda_v$ term.}:
 
 $$
 \Gamma \vdash M : \alpha
@@ -86,33 +92,95 @@ $$
 $$
 
 We see that we model $\lambda_v$ expressions of type $\alpha$ using
-computations that yield values of type $\sem{\alpha}$. The translation
-$\sem{.}$ is defined just below. It is responsible for translating the
-function type so that it takes values but produces computations (since the
-body of a $\lambda$-abstraction can in general be any expression and the
-denotation of an expression is a computation). In the formulas below, $\nu$
-stands for an atomic type.
+computations that yield values of type $\sem{\alpha}$. The type-level
+translation $\sem{.}$ is defined below. It is responsible for translating
+the function type so that it takes values but produces computations (since
+the body of a $\lambda$-abstraction can in general be any expression and
+the denotation of an expression is a computation). In the formulas below,
+$\nu$ stands for an atomic type, $\emptyset$ is the empty environment.
 
 \begin{align*}
   \sem{\alpha \to \beta} &= \sem{\alpha} \to \FF_E(\sem{\beta}) \\
-  \sem{\nu} &= \nu
+  \sem{\nu} &= \nu \\
+  \sem{\Gamma, x: \alpha} &= \sem{\Gamma}, x: \sem{\alpha} \\
+  \sem{\emptyset} &= \emptyset
 \end{align*}
 
-The type-preserving property\footnote{The proof of the property is a simple
-  proof by induction on the structure of the $\lambda_v$ term.} outlined
-above is important. It tells us that simply-typed $\lambda_v$ can be
-simulated in\ldots
+To show that our translation simulates the behavior of $\lambda_v$, we will
+prove that any reduction chain $M \tto N$ in $\lambda_v$ gives rise to a
+reduction chain $\sem{M} \tto \sem{N}$ in $\banana{\lambda}$. We start by
+proving $\sem{\ap{(\lam{x}{M})}{V}} \tto \sem{\subst{M}{x}{V}}$.
 
 \begin{align*}
   \sem{\ap{(\lam{x}{M})}{V}}
-&= \sem{\lam{x}{M}} \hsbind (\lam{f}{\sem{V} \hsbind (\lam{a}{\ap{f a}})}) \\
-&= (\ap{\eta}{(\lam{x}{\sem{M}})}) \hsbind (\lam{f}{(\ap{\eta}{v}) \hsbind (\lam{a}{\ap{f a}})}) \\
-&= \ap{(\lam{x}{\sem{M}})}{v} \\
-&= \subst{\sem{M}}{x}{v} \\
+&= \sem{\lam{x}{M}} \hsbind (\lam{m}{\sem{V} \hsbind (\lam{n}{\ap{m}{n}})}) \\
+&= (\ap{\eta}{(\lam{x}{\sem{M}})}) \hsbind (\lam{m}{(\ap{\eta}{v}) \hsbind (\lam{n}{\ap{m}{n}})}) \\
+&\to_{\eta.\hsbind,\beta.\to} (\ap{\eta}{v}) \hsbind (\lam{n}{\ap{(\lam{x}{\sem{M}})}{n}}) \\
+&\to_{\eta.\hsbind,\beta.\to} \ap{(\lam{x}{\sem{M}})}{v} \\
+&\to_{\beta.\to} \subst{\sem{M}}{x}{v} \\
 &= \sem{\subst{M}{x}{V}}
 \end{align*}
 
-where $\sem{V} = \ap{\eta}{v}$.
+where $\sem{V} = \ap{\eta}{v}$. We first expand the definition of $\sem{.}$
+for the application, the abstraction and the argument value (we note that
+$\sem{V}$ is always equal to $\ap{\eta}{v}$ for some $v$). Since we have
+two occurrences of a pure computation being piped into a bind
+($(\ap{\eta}{x}) \hsbind k$), we can simplify using $\eta.\hsbind$ and
+$\beta.\to$. On line 5, we finally get to the point where we perform the
+$\banana{\lambda}$ $\beta$-reduction that actually corresponds to the
+$\lambda_v$ $\beta$-reduction that we are modelling.
+
+Finally, on line 6, we push the substitution under the $\sem{.}$
+operator. This is valid, since any free $x$ in $\sem{M}$ must have
+originated as a translation of a free $x$ in $M$. In the first expression,
+such an $x$ would get interpreted as $\ap{\eta}{x}$ and then $x$ would get
+replaced with $v$ to get $\ap{\eta}{v}$. In the second expression, the $x$
+would first get replaced by $V$ and then $V$ would be interpreted as
+$\ap{\eta}{v}$. In both cases, we get the same result.
+
+We have proven that our simulation preserves the reduction
+$\ap{(\lam{x}{M})}{V} \to \subst{M}{x}{V}$. However, it might seem that our
+work is not over since this is just a special case of the rule in
+$\lambda_v$, which licenses the reduction $C[\ap{(\lam{x}{M})}{V}] \to
+C[\subst{M}{x}{V}]$. Nevertheless, our calculus is pure and lets us perform
+reductions in any syntactic context (see the notion of syntactic closure
+from~\ref{sec:reductions}). This means that whenever we have $\sem{M} \to
+\sem{N}$, we also always have $\sem{C}[\sem{M}] \to
+\sem{C}[\sem{N}]$\footnote{We have not defined the $\sem{.}$ interpretation
+  operator for contexts. Contexts are simply terms with a $[]$ inside so we
+  just extend the $\sem{.}$ for terms with the clause $\sem{[]} = []$.},
+which is the same as $\sem{C[M]} \to \sem{C[N]}$.
+
+We have shown that for any reduction chain $M \tto N$ in $\lambda_V$, we
+have a corresponding chain in $\sem{M} \tto \sem{N}$ in
+$\banana{\lambda}$. Can we get anything stronger?
+
+The inverse is not true since the reductions in $\banana{\lambda}$ are more
+fine-grained. For a pair $M \to N$ and the corresponding chain $\sem{M} \to
+\ldots \to M_i \to \ldots \to \sem{N}$, the intermediate terms $M_i$ might
+not correspond to any particular term in $\lambda_v$.
+
+For normalizing calculi, the preservation of reduction chains upon
+translation entails that whenever $M = N$, then also $\sem{M} = \sem{N}$
+(where $=$ stands for having the same normal form). However, in our case,
+the inverse implication is not true. Our simulation can sometime simplify
+things ``ahead of time'' compared to $\lambda_v$. As an example,
+$\lam{x}{(\ap{(\lam{y}{y})}{x})}$ and $\lam{x}{x}$ do not have the same
+normal form in $\lambda_v$ (they are both already values) but their
+translations into $\banana{\lambda}$ both reduce to
+$\ap{\eta}{(\lam{x}{\ap{\eta}{x}})}$. In a way, the reduction rules of
+$\banana{\lambda}$ can reduce certain expressions earlier than $\lambda_v$
+if it is safe to do so without affecting the semantics.
+
+We have also established that the translation preserves types. This means
+that we have a way of simulating simply-typed $\lambda_v$ in our typed
+$\banana{\lambda}$ and a way of simulating untyped $\lambda_v$ in an
+untyped version of $\banana{\lambda}$.
+
+\subsection{Introducing Control Operators}
+
+
+
 
 \section{Monads}
 \label{sec:monads}
