@@ -293,7 +293,7 @@ Let's start with $\app{\dive}{\litec{2}}{\litec{0}}$.
   &= \app{(\lam{X Y}{X \hsbind (\lam{x}{Y \hsbind (\lam{y}
           {\case{(x / y)}{z}{\ap{\eta}{z}}{\_}{\dbze}})})})}
                 {(\ap{\eta}{2})} {(\ap{\eta}{0})} \\
-  &\to_{\beta.\to,\beta.\to} (\ap{\eta}{2}) \hsbind (\lam{x}{(\ap{\eta}{0}) \hsbind (\lam{y}
+  &\to_{\beta,\beta} (\ap{\eta}{2}) \hsbind (\lam{x}{(\ap{\eta}{0}) \hsbind (\lam{y}
           {\case{(x / y)}{z}{\ap{\eta}{z}}{\_}{\dbze}})}) \\
   &= \ap{(\lam{x}{(\ap{\eta}{0}) \hsbind (\lam{y}
           {\case{(x / y)}{z}{\ap{\eta}{z}}{\_}{\dbze}})})^*}{(\ap{\eta}{2})} \\
@@ -301,10 +301,10 @@ Let's start with $\app{\dive}{\litec{2}}{\litec{0}}$.
           {\case{(x / y)}{z}{\ap{\eta}{z}}{\_}{\dbze}})})}}}{(\ap{\eta}{2})} \\
   &\to_{\banana{\eta}} \ap{(\lam{x}{(\ap{\eta}{0}) \hsbind (\lam{y}
           {\case{(x / y)}{z}{\ap{\eta}{z}}{\_}{\dbze}})})}{2} \\
-  &\to_{\beta.\to} (\ap{\eta}{0}) \hsbind (\lam{y}
+  &\to_{\beta} (\ap{\eta}{0}) \hsbind (\lam{y}
           {\case{(2 / y)}{z}{\ap{\eta}{z}}{\_}{\dbze}}) \\
   &\to_{\ldots} \ap{(\lam{y}{\case{(2 / y)}{z}{\ap{\eta}{z}}{\_}{\dbze}})}{0} \\
-  &\to_{\beta.\to} \case{(2 / 0)}{z}{\ap{\eta}{z}}{\_}{\dbze} \\
+  &\to_{\beta} \case{(2 / 0)}{z}{\ap{\eta}{z}}{\_}{\dbze} \\
   &\to_{/} \case{(\ap{\inr}{\star})}{z}{\ap{\eta}{z}}{\_}{\dbze} \\
   &\to_{\beta.+_2} \dbze \\
 \end{align*}
@@ -329,16 +329,16 @@ this faulty expression appears within another expression.
   &= \app{(\lam{X Y}{X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\ap{\eta}
           {(x \times y)}})})})}
       {(\ap{\eta}{3})}{\dbze} \\
-  &\to_{\beta.\to,\beta.\to} (\ap{\eta}{3}) \hsbind (\lam{x}{\dbze \hsbind (\lam{y}{\ap{\eta}
+  &\to_{\beta,\beta} (\ap{\eta}{3}) \hsbind (\lam{x}{\dbze \hsbind (\lam{y}{\ap{\eta}
           {(x \times y)}})}) \\
   &\to_{\eta.\hsbind} \ap{(\lam{x}{\dbze \hsbind (\lam{y}{\ap{\eta}
           {(x \times y)}})})}{3} \\
-  &\to_{\beta.\to} \dbze \hsbind (\lam{y}{\ap{\eta} {(3 \times y)}}) \\
+  &\to_{\beta} \dbze \hsbind (\lam{y}{\ap{\eta} {(3 \times y)}}) \\
   &= (\app{\op{error}}{\dbzelong}{(\lam{o}{\absurd{o}})}) \hsbind (\lam{y}{\ap{\eta} {(3 \times y)}}) \\
   &= \ap{(\lam{y}{\ap{\eta} {(3 \times y)}})^*}{(\app{\op{error}}{\dbzelong}{(\lam{o}{\absurd{o}})})} \\
   &= \ap{\banana{\onto{\eta}{(\lam{y}{\ap{\eta} {(3 \times y)}})}}}{(\app{\op{error}}{\dbzelong}{(\lam{o}{\absurd{o}})})} \\
   &\to_{\banana{\op{op}'}} \app{\op{error}}{\dbzelong}{(\lam{z}{\ap{\banana{\onto{\eta}{(\lam{y}{\ap{\eta} {(3 \times y)}})}}}{(\ap{(\lam{o}{\absurd{o}})}{z})}})} \\
-  &\to_{\beta.\to} \app{\op{error}}{\dbzelong}{(\lam{z}{\ap{\banana{\onto{\eta}{(\lam{y}{\ap{\eta} {(3 \times y)}})}}}{(\absurd{z})}})} \\
+  &\to_{\beta} \app{\op{error}}{\dbzelong}{(\lam{z}{\ap{\banana{\onto{\eta}{(\lam{y}{\ap{\eta} {(3 \times y)}})}}}{(\absurd{z})}})} \\
   &\simeq \dbze
 \end{align*}
 
@@ -362,10 +362,10 @@ happens when it hits a $\trye$ construction.
   \app{\trye}{\litec{0}}{\dbze}
   &= \app{\trye}{(\ap{\eta}{0})}{\dbze} \\
   &= \app{(\lam{X Y}{\ap{\banana{\onto{\op{error}}{(\lam{e k}{X})}}}{Y}})}{(\ap{\eta}{0})}{\dbze} \\
-  &\to_{\beta.\to,\beta.\to} \ap{\banana{\onto{\op{error}}{(\lam{e k}{\ap{\eta}{0}})}}}{\dbze} \\
+  &\to_{\beta,\beta} \ap{\banana{\onto{\op{error}}{(\lam{e k}{\ap{\eta}{0}})}}}{\dbze} \\
   &= \ap{\banana{\onto{\op{error}}{(\lam{e k}{\ap{\eta}{0}})}}}{(\app{\op{error}}{\dbzelong}{(\lam{o}{\absurd{o}})})} \\
   &\to_{\banana{\op{op}}} \app{(\lam{e k}{\ap{\eta}{0}})}{\dbzelong}{(\lam{z}{\ap{\banana{\onto{\op{error}}{(\lam{e k}{\ap{\eta}{0}})}}}{(\ap{(\lam{o}{\absurd{o}})}{z})}})} \\
-  &\to_{\beta.\to,\beta.\to} \ap{\eta}{0}
+  &\to_{\beta,\beta} \ap{\eta}{0}
 \end{align*}
 
 Line 2 is our interpretation of $\trye$. Line 4 is the definition of
@@ -379,11 +379,11 @@ number again and we can try feeding it into another operation.
   \app{\sume}{\litec{5}}{(\ap{\eta}{0})}
   &= \app{\sume}{(\ap{\eta}{5})}{(\ap{\eta}{0})} \\
   &= \app{(\lam{X Y}{X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\ap{\eta}{(x + y)}})})})}{(\ap{\eta}{5})}{(\ap{\eta}{0})} \\
-  &\to_{\beta.\to,\beta.\to} (\ap{\eta}{5}) \hsbind (\lam{x}{(\ap{\eta}{0}) \hsbind (\lam{y}{\ap{\eta}{(x + y)}})}) \\
+  &\to_{\beta,\beta} (\ap{\eta}{5}) \hsbind (\lam{x}{(\ap{\eta}{0}) \hsbind (\lam{y}{\ap{\eta}{(x + y)}})}) \\
   &\to_{\eta.\hsbind} \ap{(\lam{x}{(\ap{\eta}{0}) \hsbind (\lam{y}{\ap{\eta}{(x + y)}})})}{5} \\
-  &\to_{\beta.\to} (\ap{\eta}{0}) \hsbind (\lam{y}{\ap{\eta}{(5 + y)}}) \\
+  &\to_{\beta} (\ap{\eta}{0}) \hsbind (\lam{y}{\ap{\eta}{(5 + y)}}) \\
   &\to_{\eta.\hsbind} \ap{(\lam{y}{\ap{\eta}{(5 + y)}})}{0} \\
-  &\to_{\beta.\to} \ap{\eta}{(5 + 0)} \\
+  &\to_{\beta} \ap{\eta}{(5 + 0)} \\
   &\to_+ \ap{\eta}{5}
 \end{align*}
 
@@ -481,13 +481,13 @@ $\bar{y}$.
 & = \app{(\lam{X Y}{X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\ap{\eta}{(x + y)}})})})}
         {(\ap{\op{get}!}{\bar{x}})}
         {(\ap{\op{get}!}{\bar{y}})} \\
-& \to_{\beta.\to,\beta.\to} (\ap{\op{get}!}{\bar{x}}) \hsbind (\lam{x}{
+& \to_{\beta,\beta} (\ap{\op{get}!}{\bar{x}}) \hsbind (\lam{x}{
                        (\ap{\op{get}!}{\bar{y}}) \hsbind (\lam{y}{
                         \ap{\eta}{(x + y)}})}) \\
 & = (\ap{(\lam{x}{\app{\op{get}}{x}{\eta}})}{\bar{x}}) \hsbind (\lam{x}{
     (\ap{\op{get}!}{\bar{y}}) \hsbind (\lam{y}{
      \ap{\eta}{(x + y)}})}) \\
-& \to_{\beta.\to} (\app{\op{get}}{\bar{x}}{\eta}) \hsbind (\lam{x}{
+& \to_{\beta} (\app{\op{get}}{\bar{x}}{\eta}) \hsbind (\lam{x}{
     (\ap{\op{get}!}{\bar{y}}) \hsbind (\lam{y}{
      \ap{\eta}{(x + y)}})}) \\
 & = \ap{\banana{\onto{\eta}{(\lam{x}{(\ap{\op{get}!}{\bar{y}}) \hsbind (\lam{y}{
@@ -498,7 +498,7 @@ $\bar{y}$.
 & \to_{\banana{\eta}} \app{\op{get}}{\bar{x}}
         {(\lam{x}{\ap{(\lam{x}{(\ap{\op{get}!}{\bar{y}})
                     \hsbind (\lam{y}{\ap{\eta}{(x + y)}})})}{x}})} \\
-& \to_{\beta.\to} \app{\op{get}}{\bar{x}}
+& \to_{\beta} \app{\op{get}}{\bar{x}}
         {(\lam{x}{(\ap{\op{get}!}{\bar{y}})
                     \hsbind (\lam{y}{\ap{\eta}{(x + y)}})})} \\
 & \to_{\ldots} \app{\op{get}}{\bar{x}}
@@ -507,7 +507,7 @@ $\bar{y}$.
 
 The first three lines are the usual. First, we expand the definitions of
 the operands (the $\vare$ operator). Then we do the same for the operation
-$\sume$ and we $\beta.\to$ reduce.
+$\sume$ and we $\beta$ reduce.
 
 On line 4, we substitute $\op{get}!$ with the definition of the exclamation
 mark that we provided in~\ref{ssec:operations-and-handlers}. Similarly, on
@@ -535,9 +535,9 @@ of $\app{\lete}{\bar{y}}{\litec{2}}$.
   \app{\lete}{\bar{y}}{\litec{2}}
 &= \app{\lete}{\bar{y}}{(\ap{\eta}{2})} \\
 &= \appp{(\lam{v X Y}{X \hsbind (\lam{x}{\ap{\banana{\onto{\op{get}} {(\lam{u k}{\ifte{u = v}{(\ap{k}{x})} {(\app{\op{get}}{u}{k})}})}}}{Y}})})} {\bar{y}}{(\ap{\eta}{2})} \\
-&\to_{\beta.\to,\beta.\to} \lam{Y}{(\ap{\eta}{2}) \hsbind (\lam{x}{\ap{\banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = \bar{y}}{(\ap{k}{x})}{(\app{\op{get}}{u}{k})}})}}}{Y}})} \\
+&\to_{\beta,\beta} \lam{Y}{(\ap{\eta}{2}) \hsbind (\lam{x}{\ap{\banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = \bar{y}}{(\ap{k}{x})}{(\app{\op{get}}{u}{k})}})}}}{Y}})} \\
 &\to_{\eta.\hsbind} \lam{Y}{\ap{(\lam{x}{\ap{\banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = \bar{y}}{(\ap{k}{x})}{(\app{\op{get}}{u}{k})}})}}}{Y}})}{2}} \\
-&\to_{\beta.\to} \lam{Y}{\ap{\banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = \bar{y}}{(\ap{k}{2})}{(\app{\op{get}}{u}{k})}})}}}{Y}} \\
+&\to_{\beta} \lam{Y}{\ap{\banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = \bar{y}}{(\ap{k}{2})}{(\app{\op{get}}{u}{k})}})}}}{Y}} \\
 &\to_{\eta.\to} \banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = \bar{y}}{(\ap{k}{2})}{(\app{\op{get}}{u}{k})}})}}
 \end{align*}
 
@@ -561,12 +561,12 @@ $\letecn{y}{\litec{2}}{\sumec{\varec{x}}{\varec{y}}}$.
         {(\ap{k}{2})}{(\app{\op{get}}{u}{k})}})}}}
        {(\app{\op{get}}{\bar{x}} {(\lam{x}{
          \app{\op{get}}{\bar{y}}{(\lam{y}{\ap{\eta}{(x + y)}})}})})} \\
-\to_{\banana{\op{op}},\beta.\to} &
+\to_{\banana{\op{op}},\beta} &
   \app{(\lam{u k}{\ifte{u = \bar{y}}{(\ap{k}{2})}{(\app{\op{get}}{u}{k})}})}
       {\bar{x}}
       {(\lam{x}{\appp{\lete}{\bar{y}}{\litec{2}}
                    {(\app{\op{get}}{\bar{y}}{(\lam{y}{\ap{\eta}{(x + y)}})})}})} \\
-\to_{\beta.\to} &
+\to_{\beta} &
   \ap{(\lam{k}{\ifte{\bar{x} = \bar{y}}{(\ap{k}{2})}{(\app{\op{get}}{\bar{x}}{k})}})}
      {(\lam{x}{\appp{\lete}{\bar{y}}{\litec{2}}
                   {(\app{\op{get}}{\bar{y}}{(\lam{y}{\ap{\eta}{(x + y)}})})}})} \\
@@ -578,7 +578,7 @@ $\letecn{y}{\litec{2}}{\sumec{\varec{x}}{\varec{y}}}$.
   \ap{(\lam{k}{(\app{\op{get}}{\bar{x}}{k})})}
      {(\lam{x}{\appp{\lete}{\bar{y}}{\litec{2}}
                   {(\app{\op{get}}{\bar{y}}{(\lam{y}{\ap{\eta}{(x + y)}})})}})} \\
-\to_{\beta.\to} &
+\to_{\beta} &
   \app{\op{get}}{\bar{x}}
      {(\lam{x}{\appp{\lete}{\bar{y}}{\litec{2}}
                   {(\app{\op{get}}{\bar{y}}{(\lam{y}{\ap{\eta}{(x + y)}})})}})} \\
@@ -587,12 +587,12 @@ $\letecn{y}{\litec{2}}{\sumec{\varec{x}}{\varec{y}}}$.
      {(\lam{x}{\ap{\banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = \bar{y}}
                                           {(\ap{k}{2})}{(\app{\op{get}}{u}{k})}})}}}
                   {(\app{\op{get}}{\bar{y}}{(\lam{y}{\ap{\eta}{(x + y)}})})}})} \\
-\to_{\banana{\op{op}},\beta.\to} &
+\to_{\banana{\op{op}},\beta} &
   \app{\op{get}}{\bar{x}}
      {(\lam{x}{(\app{(\lam{u k}{\ifte{u = \bar{y}}
                                      {(\ap{k}{2})}{(\app{\op{get}}{u}{k})}})}
                     {\bar{y}}{(\lam{y}{\appp{\lete}{\bar{y}}{\litec{2}}{(\ap{\eta}{(x + y)})}})})})} \\
-\to_{\beta.\to} &
+\to_{\beta} &
   \app{\op{get}}{\bar{x}}
      {(\lam{x}{(\ap{(\lam{k}{\ifte{\bar{y} = \bar{y}}
                                      {(\ap{k}{2})}{(\app{\op{get}}{\bar{y}}{k})}})}
@@ -606,11 +606,11 @@ $\letecn{y}{\litec{2}}{\sumec{\varec{x}}{\varec{y}}}$.
   \app{\op{get}}{\bar{x}}
      {(\lam{x}{(\ap{(\lam{k}{\ap{k}{2}})}
                    {(\lam{y}{\appp{\lete}{\bar{y}}{\litec{2}}{(\ap{\eta}{(x + y)})}})})})} \\
-\to_{\beta.\to} &
+\to_{\beta} &
   \app{\op{get}}{\bar{x}}
      {(\lam{x}{\ap{(\lam{y}{\appp{\lete}{\bar{y}}{\litec{2}}{(\ap{\eta}{(x + y)})}})}
                   {2}})} \\
-\to_{\beta.\to} &
+\to_{\beta} &
   \app{\op{get}}{\bar{x}}
      {(\lam{x}{\appp{\lete}{\bar{y}}{\litec{2}}{(\ap{\eta}{(x + 2)})}})} \\
 = &
@@ -634,7 +634,7 @@ line:
   \item[Line 3 ($=$)] We do the same for the construction
     $\app{\lete}{\bar{y}}{\litec{2}}$.
 
-  \item[Line 4 ($\to_{\banana{\op{op}},\beta.\to}$)] The let-binder is a
+  \item[Line 4 ($\to_{\banana{\op{op}},\beta}$)] The let-binder is a
     handler with a clause for $\op{get}$ and its argument is a computation
     that performs $\op{get}$. This means we do two things: we replace
     $\op{get}$ with the clause ($\lam{u k}{\ldots}$) from the handler and
@@ -642,7 +642,7 @@ line:
     contract the handler back to $\app{\lete}{\bar{y}}{\litec{2}}$.
 
     Looking at the subscript on the arrow, you can see that we have also
-    performed a $\beta.\to$ reduction. This is part of a pattern we will
+    performed a $\beta$ reduction. This is part of a pattern we will
     repeat often. The rule $\banana{\op{op}}$ allows us to rewrite
     $\ap{\banana{\onto{\op{op}}{f}}}{(\app{\op{op}}{x}{k})}$ into
     $\app{f}{x}{(\lam{y}{\ap{\banana{\onto{\op{op}}{f}}}{(\ap{k}{y})}})}$. We
@@ -653,18 +653,18 @@ line:
     $\ap{\banana{\onto{\op{op}}{f}}}{(\app{\op{op}}{x}{(\lam{y}{M})})}$ to
     $\app{f}{x}{(\lam{y}{\ap{\banana{\onto{\op{op}}{f}}}{(\ap{(\lam{y}{M})}{y})}})}$. Now
     we have two $\lambda$ binders in the continuation but we can
-    immediately $\beta.\to$ reduce away the second one to get
+    immediately $\beta$ reduce away the second one to get
     $\app{f}{x}{(\lam{y}{\ap{\banana{\onto{\op{op}}{f}}}{M}})}$. By
-    composing the $\banana{\op{op}}$ rule and the $\beta.\to$ rule, we can
+    composing the $\banana{\op{op}}$ rule and the $\beta$ rule, we can
     therefore get the following useful rule:
 
     $$
     \ap{\banana{\onto{\op{op}}{f}}}{(\app{\op{op}}{x}{(\lam{y}{M})})}
-    \to_{\banana{\op{op}},\beta.\to}
+    \to_{\banana{\op{op}},\beta}
     \app{f}{x}{(\lam{y}{\ap{\banana{\onto{\op{op}}{f}}}{M}})}
     $$
 
-  \item[Line 5 ($\beta.\to$)] Here we apply the handler clause to the
+  \item[Line 5 ($\beta$)] Here we apply the handler clause to the
     operation's argument, the variable $\bar{x}$. We do not do the same for
     the continuation argument $k$ since we would have to copy it twice and
     we can avoid that by reducing the conditional expression first.
@@ -679,7 +679,7 @@ line:
     $\textbf{if}$ and performing a $\beta.+_2$ reduction. You can find the
     rule in Chapter~\ref{chap:properties}.
 
-  \item[Line 8 ($\beta.\to$)] We have simplified the handler clause and so
+  \item[Line 8 ($\beta$)] We have simplified the handler clause and so
     we are ready to substitute in the continuation. Remark the similarity
     between this line and line 2. The only difference is the position of
     the $\app{\lete}{\bar{y}}{\litec{2}}$ handler. It has moved from the
@@ -688,13 +688,13 @@ line:
   \item[Line 9 ($=$)] We will proceed as we did from line 3 onwards. We
     expand $\app{\lete}{\bar{y}}{\litec{2}}$ to reveal the handler.
 
-  \item[Line 10 ($\banana{\op{op}},\beta.\to$)] We have another $\op{get}$
+  \item[Line 10 ($\banana{\op{op}},\beta$)] We have another $\op{get}$
     computation and so we pull out the handler clause for $\op{get}$. We
     contract the handler back into $\app{\lete}{\bar{y}}{\litec{2}}$ and
     move it down, applying it to the next step of the computation in the
     same way as was described at line 4.
 
-  \item[Line 11 ($\beta.\to$)] We pass the variable $\bar{y}$ into the
+  \item[Line 11 ($\beta$)] We pass the variable $\bar{y}$ into the
     handler clause so we can decide the condition.
 
   \item[Line 12 ($=$)] This time, we are comparing a variable to itself and
@@ -705,11 +705,11 @@ line:
     $\textbf{if}.\true$ is analogous to the $\textbf{if}.\false$ described
     at line 7.
 
-  \item[Line 14 ($\beta.\to$)] Having simplified the handler clause, we can
+  \item[Line 14 ($\beta$)] Having simplified the handler clause, we can
     pass in the continuation so that we can supply it with the value of the
     variable $bar{y}$ that it was looking for.
 
-  \item[Line 15 ($\beta.\to$)] We pass $2$ to the continuation.
+  \item[Line 15 ($\beta$)] We pass $2$ to the continuation.
 
   \item[Line 16 ($=$)] Now we will use the handler one last time so we
     reveal it first by expanding $\app{\lete}{\bar{y}}{\litec{2}}$.

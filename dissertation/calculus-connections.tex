@@ -41,9 +41,11 @@ The idea behind this distinction is that values ($V$) are terms that have
 already been reduced/evaluated. This distinction will become useful in
 definining the notion of an \emph{evaluation context} $C$:
 
-$$
-C ::= [] | (\ap{C}{M}) | (\ap{V}{C})
-$$
+\begin{align*}
+  C ::= &\ [] \\
+  | \, &\ (\ap{C}{M}) \\
+  | \, &\ (\ap{V}{C})
+\end{align*}
 
 We make use of evaluation contexts by replacing the placeholder $[]$ by
 another term $M$, an operation we write down as $C[M]$. We can now define
@@ -59,6 +61,7 @@ an evaluation context. Given our definition of $C$, this enforces a
 left-to-right evaluation order.
 
 \subsection{Simulating Call-by-Value}
+\label{ssec:simulating-cbv}
 
 We first present the translation from call-by-value $\lambda$-calculus
 ($\lambda_v$) to $\banana{\lambda}$ and then we elaborate on it.
@@ -115,9 +118,9 @@ proving $\sem{\ap{(\lam{x}{M})}{V}} \tto \sem{\subst{M}{x}{V}}$.
   \sem{\ap{(\lam{x}{M})}{V}}
 &= \sem{\lam{x}{M}} \hsbind (\lam{m}{\sem{V} \hsbind (\lam{n}{\ap{m}{n}})}) \\
 &= (\ap{\eta}{(\lam{x}{\sem{M}})}) \hsbind (\lam{m}{(\ap{\eta}{v}) \hsbind (\lam{n}{\ap{m}{n}})}) \\
-&\to_{\eta.\hsbind,\beta.\to} (\ap{\eta}{v}) \hsbind (\lam{n}{\ap{(\lam{x}{\sem{M}})}{n}}) \\
-&\to_{\eta.\hsbind,\beta.\to} \ap{(\lam{x}{\sem{M}})}{v} \\
-&\to_{\beta.\to} \subst{\sem{M}}{x}{v} \\
+&\to_{\eta.\hsbind,\beta} (\ap{\eta}{v}) \hsbind (\lam{n}{\ap{(\lam{x}{\sem{M}})}{n}}) \\
+&\to_{\eta.\hsbind,\beta} \ap{(\lam{x}{\sem{M}})}{v} \\
+&\to_{\beta} \subst{\sem{M}}{x}{v} \\
 &= \sem{\subst{M}{x}{V}}
 \end{align*}
 
@@ -126,7 +129,7 @@ for the application, the abstraction and the argument value (we note that
 $\sem{V}$ is always equal to $\ap{\eta}{v}$ for some $v$). Since we have
 two occurrences of a pure computation being piped into a bind
 ($(\ap{\eta}{x}) \hsbind k$), we can simplify using $\eta.\hsbind$ and
-$\beta.\to$. On line 5, we finally get to the point where we perform the
+$\beta$. On line 5, we finally get to the point where we perform the
 $\banana{\lambda}$ $\beta$-reduction that actually corresponds to the
 $\lambda_v$ $\beta$-reduction that we are modelling.
 
@@ -179,8 +182,256 @@ untyped version of $\banana{\lambda}$.
 
 \subsection{Introducing Control Operators}
 
+Now that we have introduced how a $\lambda$-calculus with a notion of
+evaluation order is to be interpreted in $\banana{\lambda}$, we are ready
+to introduce control operators. Our claim is that effects and handlers are
+very close to delimited continuations. The pair of operators that resembles
+the behavior of handlers the most are the operators $\shifto$ and
+$\reseto$.
 
+\begin{align*}
+  V ::= &\ \lam{x}{M} \\
+   | \, &\ x \\
+  M, N ::= &\ V \\
+   | \, &\ (\ap{M}{N}) \\
+   | \, &\ (\ap{\shifto}{M}) \\
+   | \, &\ (\ap{\reseto}{M})
+\end{align*}
 
+The terms of this new calculus, $\lambda_{\shifto}$, are just the terms of
+$\lambda_v$ extended with the operators $\shifto$ and $\reseto$. Before we
+give the reduction rules, we will also have to refine our notion of an
+evaluation context.
+
+\begin{align*}
+  C ::= &\ [] \\
+   | \, &\ (\ap{C}{M}) \\
+   | \, &\ (\ap{V}{C}) \\
+   | \, &\ (\ap{\shifto}{C}) \\
+   | \, &\ (\ap{\reseto}{C}) \\
+  F ::= &\ [] \\
+   | \, &\ (\ap{F}{M}) \\
+   | \, &\ (\ap{V}{F}) \\
+   | \, &\ (\ap{\shifto}{F})
+\end{align*}
+
+For evaluation contexts ($C$), we add rules saying that when evaluating
+applications of either $\shifto$ or $\reseto$, we can evaluate their
+arguments. We also introduce a notion of an \emph{evaluation frame}
+($F$). Similarly to how values are a subset of terms, evaluation frames are
+a subset of evaluation context. A frame is a context which does not embed
+$[]$ inside a $\reseto$.
+
+\vspace{4mm}
+\begin{tabular}{>{$}r<{$} >{$}c<{$} >{$}l<{$}}
+  C[\ap{(\lam{x}{M})}{V}] & \to_\beta & C[\subst{M}{x}{V}] \\
+  C[\ap{\reseto}{V}] & \to_{\reseto} & C[V] \\
+  C[\ap{\reseto}{(F[\ap{\shifto}{V}])}] & \to_{\shifto} & C[\ap{V}{(\lam{x}{\ap{\reseto}{(F[x])}})}]
+\end{tabular}
+\vspace{4mm}
+
+We keep the reduction rule $\beta$ and we add two new rules for $\reseto$
+and $\shifto$. The rule for $\reseto$ makes $\reseto$ look redundant but
+its importance shows up in the rule for $\shifto$. In the $\shifto$ rule,
+we have an application of $\shifto$ buried inside the context
+$C[\ap{\reseto}{F}]$. This kind of context corresponds to a context which
+embeds $[]$ inside at least one $\reseto$. The $F$ then corresponds to the
+frame which separates the $\shifto$ from the nearest enclosing
+$\reseto$. The only role of $\reseto$ is thus to serve as a kind of marker
+to delimit the context/continuation $F$ of $\shifto$. The argument to
+$\shifto$ then receives this continuation $F$, composed with $\reseto$, as
+its argument\footnote{You may already start to see similarities with the
+  $\banana{\op{op}}$ rule of $\banana{\lambda}$ and why we chose $\shifto$
+  and $\reseto$ in particular.}.
+
+\subsection{Simulating $\shifto$ and $\reseto$}
+
+To simulate $\lambda_{\shifto}$ in $\banana{\lambda}$, all we have to do is
+extend the simulation of $\lambda_v$ with interpretations of the two new
+syntactic forms:
+
+\begin{align*}
+  \sem{\ap{\shifto}{M}} &= \sem{M} \hsbind (\lam{m}{\ap{\op{shift0}!}{m}}) \\
+  \sem{\ap{\reseto}{M}} &= \ap{\resetobanana}{\sem{M}}
+\end{align*}
+
+The above translation also gives us a general template for simulating
+effectful calculi in $\banana{\lambda}$. Amongst the impure operators of a
+calculus, we identify those that manipulate a context (raising an
+exception, modifying a variable, reading a dynamically bound value,
+accessing the continuation\ldots) and those that establish a context
+(exception handlers, transactions, binders for dynamic variables,
+continuation delimiters such as $\texttt{prompt}$ or
+$\texttt{reset}$\ldots). Operators that manipulate the context are
+translated into operations in $\banana{\lambda}$,
+i.e.\ $\sem{\ap{\texttt{op}}{M}} = \sem{M} \hsbind
+(\lam{m}{\ap{\op{op}!}{m}})$. Operators that establish a context are
+translated into handlers, i.e.\ $\sem{\ap{\texttt{op}}{M}} =
+\ap{\banana{\ldots}}{\sem{M}}$.
+
+To show that this simulation is faithful, we will prove that $M \to N$ in
+$\lambda_{\shifto}$ implies $\sem{M} \tto \sem{N}$ in
+$\banana{\lambda}$. We have three reduction rules to tackle: $\to_\beta$,
+$\to_\reseto$ and $\to_\shifto$.
+
+We have proven the case of $\to_\beta$ in~\ref{ssec:simulating-cbv} and
+that proof still holds in this extended interpretation. We also reuse our
+observation from~\ref{ssec:simulating-cbv} that in order to prove
+$\sem{C[M]} \tto \sem{C[N]}$, it is enough to prove $\sem{M} \tto
+\sem{N}$. The case of $\to_\reseto$ is a simple one so we will deal with
+that first:
+
+\begin{align*}
+  \sem{\ap{\reseto}{V}}
+  &= \ap{\resetobanana}{\sem{V}} \\
+  &= \ap{\resetobanana}{(\ap{\eta}{v})} \\
+  &\to_{\banana{\eta}} \ap{\eta}{v} \\
+  &= \sem{V}
+\end{align*}
+
+where $\sem{V} = \ap{\eta}{v}$. As we have said
+in~\ref{ssec:operations-and-handlers}, an (open) handler without an
+explicit clause for $\eta$ is presumed to handle $\eta$ with $\eta$. In
+this case, the $\lambda_\shifto$ reduction ends up corresponding to exactly
+one $\banana{\eta}$ reduction in $\banana{\lambda}$.
+
+Now, let's deal with the last reduction rule, $\to_\shifto$.
+
+\begin{align*}
+  \sem{\ap{\reseto}{(F[\ap{\shifto}{V}])}}
+  &= \ap{\resetobanana}{\sem{F[\ap{\shifto}{V}]}} \\
+  &\ttoffrom \ap{\resetobanana}{(\app{\op{shift0}}{v}{(\lam{x}{\sem{F[x]}})})} \\
+  &\to_{\banana{\op{op}}} \app{(\lam{c k}{\ap{c}{k}})}{v}{(\lam{x}{\ap{\resetobanana}{\sem{F[x]}}})} \\
+  &\to_{\beta,\beta} \ap{v}{(\lam{x}{\ap{\resetobanana}{\sem{F[x]}}})} \\
+  &= \ap{v}{(\lam{x}{\sem{\ap{\reseto}{(F[x])}}})} \\
+  &\from_{\beta,\eta.\hsbind} (\ap{\eta}{(\lam{x}{\sem{\ap{\reseto}{(F[x])}}})}) \hsbind (\lam{n}{\ap{v}{n}}) \\
+  &= \sem{\lam{x}{\ap{\reseto}{(F[x])}}} \hsbind (\lam{n}{\ap{v}{n}}) \\
+  &\from_{\beta,\eta.\hsbind} (\ap{\eta}{v}) \hsbind (\lam{m}{\sem{\lam{x}{\ap{\reseto}{(F[x])}}} \hsbind (\lam{n}{\ap{m}{n}})}) \\
+  &= \sem{V} \hsbind (\lam{m}{\sem{\lam{x}{\ap{\reseto}{(F[x])}}} \hsbind (\lam{n}{\ap{m}{n}})}) \\
+  &= \sem{\ap{V}{(\lam{x}{\ap{\reseto}{(F[x])}})}}
+\end{align*}
+
+where $\sem{V} = \ap{\eta}{v}$. Lines 2 and 3 are the crucial lines. On
+line 2, we use an upcoming lemma that will show that through a series of
+reductions and expansions\footnote{We use the notation $M \ttoffrom N$ to
+  indicate that we can go from $M$ to $N$ via a series of reductions and
+  expansions.}, we can go from $\sem{F[\ap{\shifto}{V}]}$ to
+$(\app{\op{shift0}}{v}{(\lam{x}{\sem{F[x]}})})$ where $\sem{V} =
+\ap{\eta}{v}$. Since we have moved $\op{shift0}$ to the head of the
+handler's argument, we can apply the $\banana{\op{op}}$ rule on line
+3. Since the handler clause is basically the identity function, it
+disappears on line 4 after two $\beta$-reductions.
+
+From then on, we perform a series of expansions while trying to push the
+interpretation operator $\sem{.}$ outwards from just $F[x]$ to the entire
+expression. The expansions used above are a reversal of a common idiom we
+have used before. We used to go from $(\ap{\eta}{M}) \hsbind (\lam{m}{N})$
+to $\subst{N}{m}{M}$ using $\eta.\hsbind$ and then a
+$\beta$-reduction. Here, we go the other way from $\subst{N}{m}{M}$ to
+$(\ap{\eta}{M}) \hsbind (\lam{m}{N})$ using a $\beta$-expansion and the
+derived expansion $\eta.\hsbind$ (lines 6 and 8).
+
+\subsubsection*{Contexts $=$ Continuations: Proving the Lemma}
+
+All that is left to show is a proof of the lemma we mentioned above:
+
+$$
+\sem{F[\ap{\shifto}{V}]} \ttoffrom (\app{\op{shift0}}{v}{(\lam{x}{\sem{F[x]}})})
+$$
+
+where $\sem{V} = \ap{\eta}{v}$. This lemma not only allows us to prove the
+simulation property that is the focus of this section, but it also gives us
+more insight into $\banana{\lambda}$. If we read it from right to left and
+slightly generalizing, it tells us how to think of terms of the form
+$\app{\op{op}}{x}{k}$. They represent computations where the next point of
+evaluation is a contextually dependent operation $\op{op}$. $x$ is the
+operation's argument and $k$ captures the context in which $\op{op}$ is
+being used inside the computation.
+
+Our proof will proceed by induction on the structure of $F$. We will start
+with the base case, $F = []$.
+
+\begin{align*}
+  \sem{F[\ap{\shifto}{V}]}
+  &= \sem{\ap{\shifto}{V}} \\
+  &= \sem{V} \hsbind (\lam{m}{\ap{\op{shift0}!}{m}}) \\
+  &\to_{\eta.\hsbind,\beta} \ap{\op{shift0}!}{v} \\
+  &= \ap{(\lam{x}{\app{\op{shift0}}{x}{\eta}})}{v} \\
+  &\to_\beta \app{\op{shift0}}{v}{\eta} \\
+  &\from_{\eta.\to} \app{\op{shift0}}{v}{(\lam{x}{\ap{\eta}{x}})} \\
+  &= \app{\op{shift0}}{v}{(\lam{x}{\sem{x}})} \\
+  &= \app{\op{shift0}}{v}{(\lam{x}{\sem{F[x]}})} \\
+\end{align*}
+
+The individual steps are pretty self-explanatory. The steps that might be
+unfamiliar occur on lines 4 and 6. On line 4, we expand the definition of
+the exclamation mark defined in~\ref{ssec:operations-and-handlers} and on
+line 6, we perform an $\eta$-expansion.
+
+Next case, $F = (\ap{F'}{M})$:
+
+\begin{align*}
+  \sem{F[\ap{\shifto}{V}]}
+  &= \sem{\ap{(F'[\ap{\shifto}{V}])}{M}} \\
+  &= \sem{F'[\ap{\shifto}{V}]} \hsbind (\lam{m}{\sem{M} \hsbind (\lam{n}{\ap{m}{n}})}) \\
+  &\ttoffrom (\app{\op{shift0}}{v}{(\lam{x}{\sem{F'[x]}})}) \hsbind (\lam{m}{\sem{M} \hsbind (\lam{n}{\ap{m}{n}})}) \\
+  &\to_{\op{op}.\hsbind} \app{\op{shift0}}{v}{(\lam{x}{\sem{F'[x]} \hsbind (\lam{m}{\sem{M} \hsbind (\lam{n}{\ap{m}{n}})})})} \\
+  &= \app{\op{shift0}}{v}{(\lam{x}{\sem{\ap{(F'[x])}{M}}})} \\
+  &= \app{\op{shift0}}{v}{(\lam{x}{\sem{F[x]}})} \\
+\end{align*}
+
+Again, the steps are quite mechanical. Line 3 uses the induction hypothesis
+and on line 4, we see the derived $\op{op}.\hsbind$ rule introduced in
+Chapter~\ref{chap:properties}\footnote{Make this reference more precise
+  once the Properties chapter has been written.} pushing the $\hsbind$
+inside the continuation.
+
+Case $F = (\ap{V'}{F'})$:
+
+\begin{align*}
+  \sem{F[\ap{\shifto}{V}]}
+  &= \sem{\ap{V'}{(F'[\ap{\shifto}{V}])}} \\
+  &= \sem{V'} \hsbind (\lam{m}{\sem{F'[\ap{\shifto}{V}]} \hsbind (\lam{n}{\ap{m}{n}})}) \\
+  &\to_{\eta.\hsbind,\beta} \sem{F'[\ap{\shifto}{V}]} \hsbind (\lam{n}{\ap{v'}{n}}) \\
+  &\ttoffrom (\app{\op{shift0}}{v}{(\lam{x}{\sem{F'[x]}})}) \hsbind (\lam{n}{\ap{v'}{n}}) \\
+  &\to_{\op{op}.\hsbind} \app{\op{shift0}}{v}{(\lam{x}{\sem{F'[x]} \hsbind (\lam{n}{\ap{v'}{n}})})}\\
+  &\from_{\beta,\eta.\hsbind} \app{\op{shift0}}{v}{(\lam{x}{\sem{V'} \hsbind (\lam{m}{\sem{F'[x]} \hsbind (\lam{n}{\ap{m}{n}})})})}\\
+  &= \app{\op{shift0}}{v}{(\lam{x}{\sem{\ap{V'}{(F'[x])}}})} \\
+  &= \app{\op{shift0}}{v}{(\lam{x}{\sem{F[x]}})}
+\end{align*}
+
+where $\sem{V'} = \ap{\eta}{v'}$. This proof is very similar to the one for
+the case before. We have just two extra steps, on lines 3 and 6, where we
+first push the $\sem{V'}$ ($= \ap{\eta}{v'}$) in through the $\hsbind$
+using $\eta.\hsbind$ and $\beta$ and then we pull it out in a different
+context by reversing the process.
+
+Finally, the last case, where $F = (\ap{\shifto}{F'})$:
+
+\begin{align*}
+  \sem{F[\ap{\shifto}{V}]}
+  &= \sem{\ap{\shifto}{(F'[\ap{\shifto}{V}])}} \\
+  &= \sem{F'[\ap{\shifto}{V}]} \hsbind (\lam{m}{\ap{\op{shift0}!}{m}}) \\
+  &\ttoffrom (\app{\op{shift0}}{v}{(\lam{x}{\sem{F'[x]}})}) \hsbind (\lam{m}{\ap{\op{shift0}!}{m}}) \\
+  &\to_{\op{op}.\hsbind} \app{\op{shift0}}{v}{(\lam{x}{\sem{F'[x]} \hsbind (\lam{m}{\ap{\op{shift0}!}{m}})})} \\
+  &= \app{\op{shift0}}{v}{(\lam{x}{\sem{\ap{\shifto}{(F'[x])}}})} \\
+  &= \app{\op{shift0}}{v}{(\lam{x}{\sem{F[x]}})}
+\end{align*}
+
+And this case is just as simple as the $F = (\ap{F'}{M})$ one. This
+concludes our proof of this lemma. Note that we did not include a case for
+$F = (\ap{\reseto}{F'})$. Such a context is not a frame, since it embeds
+$[]$ inside a $\reseto$. We can also check that our property would no
+longer hold in this case, since the $\shifto$ coming from $F'$ would get
+handled by the $\reseto$.
+
+By proving this lemma, we have also finished our proof of the fact that
+whenever we have $M \ttoffrom N$ in $\lambda_\shifto$, we also have
+$\sem{M} \ttoffrom N$ in $\banana{\lambda}$.
+
+\subsubsection*{Considering Types}
+
+\subsection{Other Control Operators}
 
 \section{Monads}
 \label{sec:monads}
