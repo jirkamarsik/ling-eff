@@ -270,16 +270,29 @@ translated into handlers, i.e.\ $\sem{\ap{\texttt{op}}{M}} =
 \ap{\banana{\ldots}}{\sem{M}}$.
 
 To show that this simulation is faithful, we will prove that $M \to N$ in
-$\lambda_{\shifto}$ implies $\sem{M} \tto \sem{N}$ in
-$\banana{\lambda}$. We have three reduction rules to tackle: $\to_\beta$,
-$\to_\reseto$ and $\to_\shifto$.
+$\lambda_{\shifto}$ implies $\sem{M} \ttoffrom \sem{N}$ in
+$\banana{\lambda}$. $\sem{M} \ttoffrom \sem{N}$ says that we can go from
+$\sem{M}$ to $\sem{N}$ through a series of reductions and
+expansions\footnote{We will need the expansions when ``unevaluating'' some
+  of the monadic binds that have been introduced by our translations.}. In
+this case, our simulation property will prove that equivalence given by the
+calculus' equational theory is preserved\footnote{Such a one-sided property
+  is also satisfied by trivial interpretations so the property itself does
+  not do the interpretation justice. In other words, this interpretation is
+  complete but not sound (consider already the $\lambda_v$ example towards
+  the end of \ref{ssec:simulating-cbv}). TODO: Is there some better
+  characterization of this kind of simulation? Check out Plotkin's seminal
+  paper on Call-by-value, call-by-name and the lambda-calculus.}, i.e.\ $M
+= N$ in $\lambda_\shifto$ implies $\sem{M} = \sem{N}$ in $\banana{\lambda}$
+(where $X = Y$ is to be read as $X \ttoffrom Y$).
 
-We have proven the case of $\to_\beta$ in~\ref{ssec:simulating-cbv} and
-that proof still holds in this extended interpretation. We also reuse our
-observation from~\ref{ssec:simulating-cbv} that in order to prove
-$\sem{C[M]} \tto \sem{C[N]}$, it is enough to prove $\sem{M} \tto
-\sem{N}$. The case of $\to_\reseto$ is a simple one so we will deal with
-that first:
+We have three reduction rules to tackle: $\to_\beta$, $\to_\reseto$ and
+$\to_\shifto$.  We have proven the case of $\to_\beta$
+in~\ref{ssec:simulating-cbv} and that proof still holds in this extended
+interpretation. We also reuse our observation
+from~\ref{ssec:simulating-cbv} that in order to prove $\sem{C[M]} \tto
+\sem{C[N]}$, it is enough to prove $\sem{M} \tto \sem{N}$. The case of
+$\to_\reseto$ is a simple one so we will deal with that first:
 
 \begin{align*}
   \sem{\ap{\reseto}{V}}
@@ -313,9 +326,7 @@ Now, let's deal with the last reduction rule, $\to_\shifto$.
 
 where $\sem{V} = \ap{\eta}{v}$. Lines 2 and 3 are the crucial lines. On
 line 2, we use an upcoming lemma that will show that through a series of
-reductions and expansions\footnote{We use the notation $M \ttoffrom N$ to
-  indicate that we can go from $M$ to $N$ via a series of reductions and
-  expansions.}, we can go from $\sem{F[\ap{\shifto}{V}]}$ to
+reductions and expansions, we can go from $\sem{F[\ap{\shifto}{V}]}$ to
 $(\app{\op{shift0}}{v}{(\lam{x}{\sem{F[x]}})})$ where $\sem{V} =
 \ap{\eta}{v}$. Since we have moved $\op{shift0}$ to the head of the
 handler's argument, we can apply the $\banana{\op{op}}$ rule on line
@@ -427,11 +438,16 @@ handled by the $\reseto$.
 
 By proving this lemma, we have also finished our proof of the fact that
 whenever we have $M \ttoffrom N$ in $\lambda_\shifto$, we also have
-$\sem{M} \ttoffrom N$ in $\banana{\lambda}$.
+$\sem{M} \ttoffrom \sem{N}$ in $\banana{\lambda}$.
 
 \subsubsection*{Considering Types}
 
+
+
+
 \subsection{Other Control Operators}
+
+
 
 \section{Monads}
 \label{sec:monads}
