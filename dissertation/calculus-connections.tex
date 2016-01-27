@@ -219,7 +219,7 @@ For evaluation contexts ($C$), we add rules saying that when evaluating
 applications of either $\shifto$ or $\reseto$, we can evaluate their
 arguments. We also introduce a notion of an \emph{evaluation frame}
 ($F$). Similarly to how values are a subset of terms, evaluation frames are
-a subset of evaluation context. A frame is a context which does not embed
+a subset of evaluation contexts. A frame is a context which does not embed
 $[]$ inside a $\reseto$.
 
 \vspace{4mm}
@@ -280,11 +280,12 @@ calculus' equational theory is preserved\footnote{Such a one-sided property
   is also satisfied by trivial interpretations so the property itself does
   not do the interpretation justice. In other words, this interpretation is
   complete but not sound (consider already the $\lambda_v$ example towards
-  the end of \ref{ssec:simulating-cbv}). TODO: Is there some better
-  characterization of this kind of simulation? Check out Plotkin's seminal
-  paper on Call-by-value, call-by-name and the lambda-calculus.}, i.e.\ $M
-= N$ in $\lambda_\shifto$ implies $\sem{M} = \sem{N}$ in $\banana{\lambda}$
-(where $X = Y$ is to be read as $X \ttoffrom Y$).
+  the end of \ref{ssec:simulating-cbv}). \TODO{Is there some better
+    characterization of this kind of simulation? Check out Plotkin's
+    seminal paper on Call-by-value, call-by-name and the
+    lambda-calculus.}}, i.e.\ $M = N$ in $\lambda_\shifto$ implies $\sem{M}
+= \sem{N}$ in $\banana{\lambda}$ (where $X = Y$ is to be read as $X
+\ttoffrom Y$).
 
 We have three reduction rules to tackle: $\to_\beta$, $\to_\reseto$ and
 $\to_\shifto$.  We have proven the case of $\to_\beta$
@@ -393,9 +394,9 @@ Next case, $F = (\ap{F'}{M})$:
 
 Again, the steps are quite mechanical. Line 3 uses the induction hypothesis
 and on line 4, we see the derived $\op{op}.\hsbind$ rule introduced in
-Chapter~\ref{chap:properties}\footnote{Make this reference more precise
-  once the Properties chapter has been written.} pushing the $\hsbind$
-inside the continuation.
+Chapter~\ref{chap:properties}\footnote{\TODO{Make this reference more
+    precise once the Properties chapter has been written.}} pushing the
+$\hsbind$ inside the continuation.
 
 Case $F = (\ap{V'}{F'})$:
 
@@ -448,6 +449,13 @@ $\sem{M} \ttoffrom \sem{N}$ in $\banana{\lambda}$.
 \subsection{Other Control Operators}
 
 
+\TODO{
+  \begin{itemize}
+  \item Diagram
+  \item Lemmas, properties, proofs done right (syntactically)
+  \item Move Quantifier Ambiguity to Part 2
+  \end{itemize}
+}
 
 \section{Monads}
 \label{sec:monads}
@@ -459,5 +467,4 @@ $\sem{M} \ttoffrom \sem{N}$ in $\banana{\lambda}$.
 
 \section{Reason for $\mathcal{C}$}
 \label{sec:reason-for-c}
-
 
