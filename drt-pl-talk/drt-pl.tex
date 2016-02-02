@@ -6,6 +6,8 @@
 \usepackage{array}
 \usepackage{drs}
 \input{qobitree}
+\usepackage{listings}
+
 
 \setbeamertemplate{navigation symbols}{}
 \setbeamertemplate{footline}
@@ -30,6 +32,8 @@
 \newcommand{\obj}[1]{\textbf{#1}}
 \newcommand{\sem}[1]{\llbracket #1 \rrbracket}
 \newcommand{\lex}[2]{\sem{\abs{#1}} &:= #2}
+
+\newcommand{\semdom}[1]{\textbf{#1}}
 
 \newcommand{\dand}{\mathbin{\overline{\land}}}
 \newcommand{\dnot}{\mathop{\overline{\lnot}}}
@@ -163,6 +167,7 @@
 
 \newcommand{\set}{\texttt{set}}
 \newcommand{\get}{\texttt{get}}
+\newcommand{\sel}{\texttt{sel}}
 
 
 \begin{document}
@@ -224,7 +229,11 @@
 \end{frame}
 
 
-\section{Discoure Reprensentation Theory}
+\section{Discourse Representation Theory}
+
+\begin{frame}{DRS Construction Algorithm}
+  TODO: Scan DRS-Construction algorithm here, page 86.
+\end{frame}
 
 \begin{frame}{Example DRS Derivations}
  \begin{center}
@@ -232,22 +241,22 @@
    \drs{ \quad }{
      A boy sleeps
    }
- & \pause \to
+ & \pause $\to$
  & \drs{ x }{
-     boy(x) \\
-     x sleeps
+     $\semdom{boy}(x)$ \\
+     $x$ sleeps
    } \\ \\ \\
    \pause \drs{ x }{
-     boy(x) \\
-     x sleeps \\
+     $\semdom{boy}(x)$ \\
+     $x$ sleeps \\
      He dreams
    }
- & \pause \to
+ & \pause $\to$
  & \drs{ x, y }{
-     boy(x) \\
-     x sleeps \\
-     y = x \\
-     y dreams
+     $\semdom{boy}(x)$ \\
+     $x$ sleeps \\
+     $y = x$ \\
+     $y$ dreams
    }
   \end{tabular}
  \end{center}
@@ -255,7 +264,7 @@
 
 \begin{frame}{DRT --- Terms and Values}
   \begin{itemize}
-  \item values: semantic objects (discourse refs, conditions)
+  \item values: semantic objects (discourse referents)
   \item terms: syntactic objects (parse trees)
     \begin{itemize}
     \item May contain traces of semantic objects.
@@ -286,6 +295,106 @@
       \tree
     \end{column}
   \end{columns}
+\end{frame}
+
+\begin{frame}{DRT --- Contexts}
+  We can reduce\ldots
+  \begin{itemize}
+  \item within any sub-tree
+  \item within any (uninterpreted) condition
+  \item within any DRS 
+  \end{itemize}
+  \pause
+  provided that
+  \begin{itemize}
+    \item there is no other redex containing our redex.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{DRT --- Contexts, Formally}
+  \begin{align*}
+  C ::= &\ \drs{ $x_1$, \ldots, $x_n$ }
+               { $\gamma_1$ \\ \ldots \\ $C_\gamma$ \\ \ldots
+                 \\ $\gamma_m$}
+         \quad | \quad \drs{ $x_1$, \ldots, $x_n$ }
+               { $\gamma_1$ \\ \ldots \\ $\lnot C$ \\ \ldots \\ $\gamma_m$ } \\ \\
+  C_\gamma ::= &\ []\ |\ \leaf{$C_\gamma$} \leaf{VP} \branch{2}{S} \tree
+                    \ |\ \leaf{NP} \leaf{$C_\gamma$} \branch{2}{S} \tree
+                    \ |\ \leaf{$C_\gamma$} \leaf{NP} \branch{2}{VP} \tree
+                    \ |\ \leaf{V} \leaf{$C_\gamma$} \branch{2}{VP} \tree \ |\ \ldots
+  \end{align*}
+\end{frame}
+
+\begin{frame}{DRT Construction Rules}
+  \includegraphics[width=\textwidth]{cr-id}
+\end{frame}
+
+\begin{frame}{DRT Construction Rules}
+  \includegraphics[height=\textheight]{cr-pro}
+\end{frame}
+
+\begin{frame}{DRT, Reduction Style}
+  $$
+  C\left[\ \drs{$x_1$, \ldots, $x_n$}
+        {$\gamma_1$ \\
+         \ldots \\
+         \left( \leaf{$\alpha$} \branch{1}{PRO} \branch{1}{NP$_{Gen=\beta}$}
+         \leaf{VP$'$} \branch{2}{S} \tree \right) \\
+         \ldots \\
+         $\gamma_m$}\ \right]
+  \to_{\texttt{CR.PRO}}
+  C\left[\ \drs{$x_1$, \ldots, $x_n$, $u$}
+        {$\gamma_1$ \\
+         \ldots \\
+         $u = v$ \\
+         $Gen(u) = \beta$ \\
+         \left( \leaf{$u$} \leaf{VP$'$} \branch{2}{S} \tree \right) \\
+         \ldots \\
+         $\gamma_m$}\ \right]
+  $$
+
+  where $v$ is a suitable accessible that is accessible and for which
+  $Gen(v) = \beta$.
+\end{frame}
+
+\begin{frame}[fragile]{DRT, ML Style}
+  \begin{lstlisting}
+cr_pro (S (NP beta (PRO alpha)) vp') =
+  let v = choose (fun v -> gen v = beta) in
+  let u = introduce () in
+  assert (u = v)
+  assert (gen u = beta)
+  u
+  \end{lstlisting}
+\end{frame}
+
+\begin{frame}{DRT, Continuation Passing Style}
+  \begin{align*}
+    \texttt{CR.PRO}_\beta =
+    & \app{\op{choose}}{(\lam{v}{Gen(v) = \beta})}{ \only<2->{&} (\lam{v} \\
+    & {\ap{\op{introduce}}{ \only<2->{&} (\lam{u} \\
+    & {\app{\op{assert}}{(u = v)}{ \only<2->{&} ( \\
+    & {\app{\op{assert}}{(Gen(u) = \beta)}{ \only<2->{&} ( \\
+    & {\ap{\eta}{u}})}})}})}})}
+  \end{align*}
+  \pause
+  \pause
+  \begin{align*}
+    \op{choose} &: (\iota \to o) \to \only<4->{&} (\iota \to \FF(\alpha)) \to \FF(\alpha) \\
+    \op{introduce} &: \only<4->{&} (\iota \to \FF(\alpha)) \to \FF(\alpha) \\
+    \op{assert} &: o \to \only<4->{&} \FF(\alpha) \to \FF(\alpha) \\
+    \eta &: \alpha \to \FF(\alpha)
+  \end{align*}
+\end{frame}
+
+\begin{frame}{DRT, Philippe de Groote Style}
+  \begin{align*}
+    \FF(\alpha) &= \gamma \to (\alpha \times \gamma \to o) \to o \\
+    \FF(1) &\simeq \gamma \to (\gamma \to o) \to o \quad (= \bar{o}) \\
+    \op{choose} &= \lam{f k e \phi}{\appp{k}{(\app{\sel}{f}{e})}{e}{\phi}} \\
+    \op{introduce} &= \lam{k e \phi}{\exists x. \appp{k}{x}{e}{\phi}} \quad (= \bar{\exists}\ ) \\
+    \op{assert} &= \lam{p k e \phi}{p \land (\appp{k}{e}{\phi})}
+  \end{align*}
 \end{frame}
 
 
