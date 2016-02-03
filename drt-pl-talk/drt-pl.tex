@@ -1,5 +1,7 @@
 \documentclass{beamer}
 
+\usepackage{bussproofs}
+\usepackage{stmaryrd}
 \usepackage[utf8]{inputenc}
 \usepackage{pgfpages}
 \usepackage{mathtools}
@@ -66,6 +68,7 @@
 
 \newcommand{\CC}{\mathcal{C}}
 \newcommand{\FF}{\mathcal{F}}
+\newcommand{\GG}{\mathcal{G}}
 \newcommand{\XX}{\mathcal{X}}
 \newcommand{\EE}{\mathcal{E}}
 \newcommand{\TT}{\mathcal{T}}
@@ -168,12 +171,25 @@
 \newcommand{\set}{\texttt{set}}
 \newcommand{\get}{\texttt{get}}
 \newcommand{\sel}{\texttt{sel}}
+\newcommand{\boxop}{\texttt{BOX}}
+\newcommand{\oboxop}{\texttt{BOX'}}
+\newcommand{\scope}{\texttt{scope}}
+\newcommand{\siop}{\texttt{SI}}
+
+
+\title{DRT as a Programming Language}
+\author{Jirka Maršík}
+\date{Feb 4, 2016}
+\institute{INRIA/LORIA}
 
 
 \begin{document}
 
+\begin{frame}
+  \maketitle
+\end{frame}
 
-\section{$\lambda$-calculus with state}
+\section{$\lambda$-calculus with State}
 
 \begin{frame}{$\lambda_\set$ --- Syntax}
   \begin{align*}
@@ -224,15 +240,44 @@
   \end{center}
 \end{frame}
 
-\begin{frame}{$\lambda_\set$ --- Example}
-  Do an example here.
+\begin{frame}{$\lambda_\set$ --- Semantics, DRT Style}
+  \begin{block}{$\set$}
+   \vspace{4mm}
+   \begin{tabular}{ll}
+    \textbf{Triggering configuration in $C[M]$:} & $(\ap{\set}{V})$ \\
+    \textbf{Set:} & the state to the value $V$ \\
+    \textbf{Substitute in $M$:} & $V$ for $(\ap{\set}{V})$
+  \end{tabular}
+  \end{block}
+  \pause
+  \vspace{1cm}
+  \begin{block}{\get}
+   \vspace{4mm}
+   \begin{tabular}{ll}
+    \textbf{Triggering configuration in $C[M]$:} & $\get$ \\
+    \textbf{Get:} & the current state $\sigma$ \\
+    \textbf{Substitute in $M$:} & $\sigma$ for $\get$
+  \end{tabular}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]{$\lambda_\set$ --- Example}
+  \begin{lstlisting}
+let t = set (fun x y -> x) in
+let f = set (fun x y -> y) in
+get (fun f x -> f x) (fun f x -> x)
+  \end{lstlisting}
+  \vfill
+  $$
+  \ap{(\lam{{\color{red}{t}}}{\ap{(\lam{{\color{blue}{f}}}{\app{\get}{(\lam{f x}{\ap{f}{x}})}{(\lam{f x}{x})}})}{{\color{blue}{(\ap{\set}{(\lam{x y}{y})})}}}})}{{\color{red}{(\ap{\set}{(\lam{x y}{x})})}}}
+  $$
 \end{frame}
 
 
 \section{Discourse Representation Theory}
 
 \begin{frame}{DRS Construction Algorithm}
-  TODO: Scan DRS-Construction algorithm here, page 86.
+  \includegraphics[width=\textwidth]{cr-algo}
 \end{frame}
 
 \begin{frame}{Example DRS Derivations}
@@ -338,8 +383,8 @@
   C\left[\ \drs{$x_1$, \ldots, $x_n$}
         {$\gamma_1$ \\
          \ldots \\
-         \left( \leaf{$\alpha$} \branch{1}{PRO} \branch{1}{NP$_{Gen=\beta}$}
-         \leaf{VP$'$} \branch{2}{S} \tree \right) \\
+         $\left( \leaf{$\alpha$} \branch{1}{PRO} \branch{1}{NP$_{Gen=\beta}$}
+         \leaf{VP$'$} \branch{2}{S} \tree \right)$ \\
          \ldots \\
          $\gamma_m$}\ \right]
   \to_{\texttt{CR.PRO}}
@@ -348,7 +393,7 @@
          \ldots \\
          $u = v$ \\
          $Gen(u) = \beta$ \\
-         \left( \leaf{$u$} \leaf{VP$'$} \branch{2}{S} \tree \right) \\
+         $\left( \leaf{$u$} \leaf{VP$'$} \branch{2}{S} \tree \right)$ \\
          \ldots \\
          $\gamma_m$}\ \right]
   $$
@@ -359,12 +404,12 @@
 
 \begin{frame}[fragile]{DRT, ML Style}
   \begin{lstlisting}
-cr_pro (S (NP beta (PRO alpha)) vp') =
+cr_pro (S (NP beta (PRO alpha)) vp) =
   let v = choose (fun v -> gen v = beta) in
   let u = introduce () in
   assert (u = v)
   assert (gen u = beta)
-  u
+  (S u vp)
   \end{lstlisting}
 \end{frame}
 
@@ -392,22 +437,372 @@ cr_pro (S (NP beta (PRO alpha)) vp') =
     \FF(\alpha) &= \gamma \to (\alpha \times \gamma \to o) \to o \\
     \FF(1) &\simeq \gamma \to (\gamma \to o) \to o \quad (= \bar{o}) \\
     \op{choose} &= \lam{f k e \phi}{\appp{k}{(\app{\sel}{f}{e})}{e}{\phi}} \\
-    \op{introduce} &= \lam{k e \phi}{\exists x. \appp{k}{x}{e}{\phi}} \quad (= \bar{\exists}\ ) \\
-    \op{assert} &= \lam{p k e \phi}{p \land (\appp{k}{e}{\phi})}
+    \op{introduce} &= \lam{k e \phi}{\exists x. \appp{k}{x}{(x \cons e)}{\phi}} \quad (= \bar{\exists}\ ) \\
+    \op{assert} &= \lam{p k e \phi}{p \land (\appp{k}{(p \cons e)}{\phi})} \\
+    \eta &= \lam{x e \phi}{\ap{\phi}{(x, e)}}
   \end{align*}
 \end{frame}
 
 
-\section{Translating to Philippe's work}
+\section{Smoothing Out the Differences}
+
+\begin{frame}{Simple Example}
+  A boy sleeps. He dreams.
+  \vfill
+  \pause
+  In DRT:
+  \begin{align*}
+    &\ap{\op{introduce}}{&(\lam{x} \\
+      {&\app{\op{assert}}{(\semdom{boy}(x))}{&( \\
+      {&\app{\op{assert}}{(\semdom{sleeps}(x))}{&( \\
+       &\app{\op{choose}}{(\lam{v}{Gen(v) = male})}{&(\lam{v}{ \\
+       &\ap{\op{introduce}}{&(\lam{y} \\
+      {&\app{\op{assert}}{(y = v)}{&( \\
+       &\app{\op{assert}}{(\semdom{dreams}(y))}{&( \\
+       &\ap{\eta}{\star})})}})}})})}})}})}
+  \end{align*}
+\end{frame}
+
+\begin{frame}{Simple Example, Cont'd}
+  A boy sleeps. He dreams.
+  \vfill
+  DRT, result:
+
+  \drs{ $x$, $y$ }
+      { $\semdom{boy}(x)$ \\
+        $\semdom{sleeps}(x)$ \\
+        $y = x$ \\
+        $\semdom{dreams}(y)$ }
+
+  \vfill
+  \pause
+  Static version:
+  $$
+    \exists x y.\ \semdom{boy}(x) \land \semdom{sleeps}(x) \land y = x
+    \land \semdom{dreams}(y)
+  $$
+\end{frame}
+
+\begin{frame}{Simple Example, in Continuation-based Dynamic Logic}
+  A boy sleeps. He dreams.
+  \vfill
+  In continuation-based dynamic logic:
+  \begin{align*}
+  \lam{e \phi}{\exists x y.\ &\semdom{boy}(x) \land \semdom{sleeps}(x)
+    \land y = x \land \semdom{dreams}(y) \\ & \land
+    \ap{\phi}{(\semdom{dreams}(y) \cons (y = x) \cons y \cons \semdom{sleeps}(x)
+      \cons \semdom{boy}(x) \cons x \cons e)}}
+  \end{align*}
+  since
+  $$
+  \appp{\sel}{(\lam{v}{Gen(v) = male})}{(\semdom{sleeps}(x) \cons
+    \semdom{boy}(x) \cons x \cons e)} = x
+  $$
+  \vfill
+  \pause
+  Static version:
+  $$
+    \exists x y.\ \semdom{boy}(x) \land \semdom{sleeps}(x) \land y = x
+    \land \semdom{dreams}(y)
+  $$
+\end{frame}
+
+\begin{frame}{Negation}
+  $$
+  \bar{\lnot} A = \lam{e \phi}{\lnot(\app{A}{e}{(\lam{e'}{\top})}) \land \ap{\phi}{e}}
+  $$
+  \pause
+  \begin{itemize}
+  \item no abstract operations to handle this
+  \item let's make new ones
+  \end{itemize}
+  \pause
+  \begin{align*}
+  \boxop &: \FF(1) \to \gamma \to o \\
+  \boxop &= \lam{A e}{\app{A}{e}{(\lam{e'}{\top})}} \\
+  \op{get} &: (\gamma \to \FF(\alpha)) \to \FF(\alpha) \\
+  \op{get} &= \lam{k e \phi}{\app{k}{e}{\phi}}
+  \end{align*}
+\end{frame}
+
+\begin{frame}{Negation, Abstractly}
+  Old negation:
+  $$
+  \bar{\lnot} A = \lam{e \phi}{\lnot(\app{A}{e}{(\lam{e'}{\top})}) \land \ap{\phi}{e}}
+  $$
+  \pause
+  \vfill
+  New negation:
+  \begin{align*}
+    \bar{\lnot} A =\ & \ap{\op{get}}{(\lam{e}{ \\
+                    & \app{\op{assert}}{(\lnot(\app{\boxop}{e}{A}))}{( \\
+                     & \ap{\eta}{\star})}})}
+  \end{align*}
+\end{frame}
+
+\begin{frame}{Negation, in DRT}
+  \begin{align*}
+    \bar{\lnot} A =\ & \ap{\op{get}}{(\lam{e}{ \\
+                    & \app{\op{assert}}{(\lnot(\app{\boxop}{e}{A}))}{( \\
+                     & \ap{\eta}{\star})}})}
+  \end{align*}
+
+  \begin{center}
+  Compare with:
+
+  \includegraphics[height=0.5\textheight]{cr-neg}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Note: $\op{choose}$ is derivable from $\op{get}$ and $\sel$}
+  \begin{align*}
+    \op{choose} &: (\iota \to o) \to (\iota \to \FF(\alpha)) \to \FF(\alpha) \\
+    \op{choose} &= \lam{f k}{\ap{\op{get}}{(\lam{e}{\ap{k}{(\app{\sel}{f}{e})}})}}
+  \end{align*}
+\end{frame}
+
+\begin{frame}{The DRT Abstract Signature}
+  \begin{align*}
+    \op{introduce} &: \alt<1>{(\iota \to \FF(\alpha)) \to \FF(\alpha)}
+                             {1 \to (\iota \to \FF(\alpha)) \to \FF(\alpha)} \\
+    \op{assert} &: \alt<1>{o \to \FF(\alpha) \to \FF(\alpha)}
+                          {o \to (1 \to \FF(\alpha)) \to \FF(\alpha)} \\
+    \op{get} &: \alt<1>{(\gamma \to \FF(\alpha)) \to \FF(\alpha)}
+                       {1 \to (\gamma \to \FF(\alpha)) \to \FF(\alpha)}\\
+    \boxop &: \FF(1) \to \gamma \to o
+  \end{align*}
+  \pause \pause \vfill Or with $\beta_i \rightarrowtail \beta_o = \beta_i
+  \to (\beta_o \to \FF(\alpha)) \to \FF(\alpha)$
+  \begin{align*}
+    \op{introduce} &: 1 \rightarrowtail \iota \\
+    \op{assert} &: o \rightarrowtail 1 \\
+    \op{get} &: 1 \rightarrowtail \gamma \\
+    \boxop &: \FF(1) \to \gamma \to o
+  \end{align*}
+\end{frame}
+
+\begin{frame}{Note: There is also quantification}
+  \begin{align*}
+    \sem{NP} &: (\iota \to \gamma \to (\gamma \to o) \to o) \to \gamma \to (\gamma \to o) \to o \\
+    &= (\iota \to \FF(1)) \to \FF(1) \\
+    &= \GG(\iota) \\
+    \GG(\alpha) &= (\alpha \to \FF(1)) \to \FF(1) \\
+  \end{align*}
+  \pause
+  we can distill a signature as well\ldots
+  \begin{align*}
+    \scope &: ((\iota \to \FF(1)) \to \FF(1)) \to (\iota \to \GG(\FF(1))) \to \GG(\FF(1)) \\
+    \scope &= \lam{c k \psi}{\ap{c}{(\lam{x}{\ap{\psi}{(\ap{\siop}{(\ap{k}{x})})}})}} \\
+    \siop &: \GG(\FF(1)) \to \FF(1) \\
+    \siop &= \lam{f}{\ap{f}{(\lam{x}{x})}}
+  \end{align*}
+  \pause
+  but we will not dwell on it.
+\end{frame}
 
 
-\section{Adding new effects --- presuppositions}
+
+\section{Switching to a Different Model}
+
+\newcommand{\handlerrule}{
+ \begin{prooftree}
+  \AxiomC{$E = \{\typedopg{\op{op}_i}{\alpha_i}{\beta_i}\}_{i \in I} \uplus E_f$}
+  \noLine
+  \def\extraVskip{0pt}
+  \UnaryInfC{$E' = E'' \uplus E_f$}
+  \noLine
+  \UnaryInfC{$[\Gamma \vdash M_i : \alpha_i \to (\beta_i \to
+    \FF_{E'}(\delta)) \to \FF_{E'}(\delta)]_{i \in I}$}
+  \noLine
+  \UnaryInfC{$\Gamma \vdash M_\eta : \gamma \to \FF_{E'}(\delta)$}
+  \def\extraVskip{2pt}
+  \RightLabel{[$\banana{}$]}
+  \UnaryInfC{$\Gamma \vdash \cibanana : \FF_{E}(\gamma) \to \FF_{E'}(\delta)$}
+ \end{prooftree}}
+
+\begin{frame}{Introducing $\banana{\lambda}$}
+ 
+  \begin{itemize}
+  \item terms for computations (operations and $\eta$)
+  \end{itemize}
+  
+   \begin{prooftree}
+    \AxiomC{$\Gamma \vdash \eta : \alpha \to \FF_E(\alpha)$
+    \hskip 4pt [$\eta$]}
+   \end{prooftree}
+
+   \begin{prooftree}
+    \AxiomC{$\typedop{op}{\alpha}{\beta} \in E$}
+    \RightLabel{[op]}
+    \UnaryInfC{$\Gamma \vdash \op{op} : \alpha \to (\beta \to \FF_E(\gamma)) \to \FF_E(\gamma)$}
+   \end{prooftree}
+
+\end{frame}
+
+\begin{frame}{$\banana{\lambda}$ --- Example}
+  \begin{align*}
+    &\ap{\op{introduce}}{&(\lam{x} \\
+      {&\app{\op{assert}}{(\semdom{boy}(x))}{&( \\
+      {&\app{\op{assert}}{(\semdom{sleeps}(x))}{&( \\
+       &\app{\op{choose}}{(\lam{v}{Gen(v) = male})}{&(\lam{v}{ \\
+       &\ap{\op{introduce}}{&(\lam{y} \\
+      {&\app{\op{assert}}{(y = v)}{&( \\
+       &\app{\op{assert}}{(\semdom{dreams}(y))}{&( \\
+       &\ap{\eta}{\star})})}})}})})}})}})}
+  \end{align*}
+  \vfill
+  \pause
+  This $\banana{\lambda}$ term has type $\FF_{E_d}(1)$, where
+  \begin{align*}
+    E_d = \{ & \typedop{introduce}{1}{\iota}, \\
+             & \typedop{assert}{o}{1}, \\
+             & \typedop{choose}{(\iota \to o)}{\iota} \}
+  \end{align*}
+\end{frame}
+
+\begin{frame}{Handlers}
+\begin{prooftree}
+  \AxiomC{$E = \{\typedopg{\op{op}_i}{\alpha_i}{\beta_i}\}_{i \in I}$}
+  \noLine
+  \def\extraVskip{0pt}
+  \UnaryInfC{$[\Gamma \vdash M_i : \alpha_i \to (\beta_i \to \delta) \to \delta]_{i \in I}$}
+  \noLine
+  \UnaryInfC{$\Gamma \vdash M_\eta : \gamma \to \delta$}
+  \def\extraVskip{2pt}
+  \RightLabel{[$\bbanana{}$]}
+  \UnaryInfC{$\Gamma \vdash \cibbanana : \FF_{E}(\gamma) \to \delta$}
+\end{prooftree}
+\vfill
+Handlers interpret operations (and $\eta$)
+\vfill
+\pause
+$$
+\boxop : \FF_{E_d}(1) \to \gamma \to o
+$$
+\begin{align*}
+  \boxop = \bbanana{
+    & \onto{\op{introduce}}
+    {(\lam{\_ k e}{\exists x.\ \app{k}{x}{(x \cons e)}})}, \\
+    & \onto{\op{assert}}
+    {(\lam{p k e}{p \land \app{k}{\star}{(p \cons e)}})}, \\
+    & \onto{\op{get}}
+    {(\lam{\_ k e}{\app{k}{e}{e}})}, \\
+    & \onto{\eta}{(\lam{\_ e}{\top})}
+  }
+\end{align*}
+\end{frame}
+
+\begin{frame}{Open Handlers}
+\handlerrule
+\vfill Handlers interpret \demph{some} operations
+\pause
+$$
+\oboxop : \FF_{E_d \uplus E_f}(1) \to \gamma \to \FF_{E_f}(1)
+$$
+\begin{align*}
+  \oboxop = \lam{A e}{(\ap{\banana{
+    & \onto{\op{introduce}}{(\lam{\_ k}{\ap{\eta}{(\lam{e}{\exists \apr
+                  {(\ap{\CC}{(\lam{x}{(\ap{k}{x}) \apl (x \cons e)})})}})}})}, \\
+    & \onto{\op{assert}}{(\lam{p k}{\ap{\eta}{(\lam{e}{(\lam{q}{p \land q}) \apr
+                  ((\ap{k}{x}) \apl (p \cons e))})}})}, \\
+    & \onto{\op{get}}{(\lam{\_ k}{\ap{\eta}{(\lam{e}{(\ap{k}{e}) \apl e})}})}, \\
+    & \onto{\eta}{(\lam{x}{\ap{\eta}{(\lam{e}{\ap{\eta}{x}})}})}
+  }}{A}) \apl e}
+\end{align*}
+\end{frame}
 
 
-\section{Adding new effects --- deixis}
+
+\section{Adding More Effects}
+
+\begin{frame}{Proper Names in DRT}
+  \includegraphics[width=\textwidth]{cr-pn}
+\end{frame}
+
+\begin{frame}{Adding Presuppositions}
+  introduce a new abstract operation
+  $$
+  E_p = \{ \typedop{presuppose}{(\iota \to o)}{\iota} \}
+  $$
+  \vfill
+  \pause
+  and a corresponding open handler
+  \begin{align*}
+  \texttt{ACCOMODATE} &: \FF_{E_p \uplus E_f}(\alpha) \to \FF_{E_d \uplus E_f}(\alpha) \\
+  \end{align*}
+  \vspace{-1cm}
+  \begin{align*}
+    \texttt{ACCOMODATE} = \banana{\onto{\op{presuppose}}{(\lam{p k}
+        {&\app{\op{introduce}}{\star}{(\lam{u}\\
+        {&\app{\op{assert}}{(\ap{p}{u})}{(\lam{\_}\\
+        {&\ap{k}{u}})}})}})}}
+  \end{align*}
+  \vfill
+  \pause
+  Note:
+  \begin{itemize}
+  \item needs slight change to $\get$
+  \item supports local/intermediate accomodation also
+    \begin{itemize}
+    \item just add a $\op{presuppose}$ clause in $\oboxop$
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Adding Deixis}
+  introduce a new abstract operation
+  $$
+  E_m = \{ \typedop{me}{1}{\iota} \}
+  $$
+  \vfill
+  \pause
+  and a corresponding open handler
+  \begin{align*}
+    \texttt{IDENTIFY} &: \iota \to \FF_{E_m \uplus E_f}(\alpha) \to \FF_{E_f}(\alpha) \\
+    \texttt{IDENTIFY} &= \lam{i A}{\ap{\banana{\onto{\op{me}}{(\lam{\_ k}{\ap{k}{i}})}}}{A}}
+  \end{align*}
+  \vfill
+  \pause
+  and then use in lexical entries
+  \pause
+
+  Note:
+  \begin{itemize}
+  \item can also be used for time, current world and other indices
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Adding Expressives}
+  introduce a new abstract operation
+  $$
+  E_e = \{ \typedop{express}{\epsilon}{1} \}
+  $$
+  \vfill
+  \pause
+  and a corresponding open handler
+  \begin{align*}
+    \texttt{COLLECT} &: \FF_{E_e \uplus E_f}(\alpha) \to \FF_{E_f}(\alpha \times \epsilon) \\
+  \end{align*}
+  \vspace{-1cm}
+  \begin{align*}
+    \texttt{COLLECT} = \banana{&\onto{\op{express}}{(\lam{e k}{(\lam{(x,
+            e')}{(x, e + e')}) \apr (\ap{k}{e})})}, \\
+                               &\onto{\eta}{(\lam{x}{\ap{\eta}{(x, 0)}})}}
+  \end{align*}
+\end{frame}
 
 
-\section{Adding new effects --- expressives}
 
+\begin{frame}{Summary}
+  \begin{itemize}
+  \item DRT hides a programming language inside
+    \pause
+  \item we can characterize it in a concise signature
+    \pause
+  \item we can instantiate that to get continuation-based dynamic logic
+    \pause
+  \item we can also instantiate it in a calculus with effects and handlers
+  \end{itemize}
+\end{frame}
 
 \end{document}
