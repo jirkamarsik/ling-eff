@@ -1,0 +1,1104 @@
+\chapter{Continuations}
+\label{chap:continuations}
+
+We will try to show the connection between the operational semantics of
+operators for delimited control and the reduction semantics of our
+calculus. The nature of control operators is that their evaluation depends
+on their context. In order for a language with such control operators to be
+deterministic, it must have a fixed evaluation order. So in order to set up
+the stage for our study of delimited control, we will start by simulating
+the call-by-value $\lambda$-calculus in $\banana{\lambda}$.
+
+%% \begin{figure}
+%%   \includegraphics[width=\textwidth]{diagrams/continuations.pdf}
+%%   \caption{\label{fig:cont-diagram} The different calculi we will study in
+%%     this section and their relationships.}
+%% \end{figure}
+
+\section{Introducing Call-by-Value}
+
+First, we introduce some key notions of call-by-value and ordered
+evaluation in the call-by-value $\lambda$-calculus.
+
+We will single out some of the terms in $\lambda_v$ and call them values.
+
+\begin{definition}
+  The following grammar defines the \demph{terms} of $\lambda_v$
+  (metavariables $M$ and $N$) and the \demph{values} (metavariable $V$).
+
+\begin{align*}
+  V ::= &\ \lam{x}{M} \\
+   | \, &\ x \\
+  M, N ::= &\ V \\
+   | \, &\ (\ap{M}{N})
+\end{align*}
+\end{definition}
+
+The idea behind this distinction is that values ($V$) are terms that have
+already been reduced/evaluated. This distinction will become useful in
+definining the following notion:
+
+\begin{definition}
+  We define an \demph{evaluation context} $C$ as a structure formed by the
+  following grammar:
+
+\begin{align*}
+  C ::= &\ [] \\
+  | \, &\ (\ap{C}{M}) \\
+  | \, &\ (\ap{V}{C})
+\end{align*}
+
+  We write $C[M]$ to designate the term that you obtain by replacing the
+  $[]$ in $C$ with $M$.
+\end{definition}
+
+We now have all the pieces in play to be able to define the semantics of
+$\lambda_v$.
+
+\begin{definition}
+  A term $M$ \demph{reduces to} a term $N$ in one step, written as $M \to
+  N$, when the pair $M \to N$ matches this pattern:
+
+$$
+C[\ap{(\lam{x}{M})}{V}] \to_\beta C[\subst{M}{x}{V}]
+$$
+\end{definition}
+
+Here we see that we only substitute \emph{values} for the variables in a
+$\lambda$-abstraction. Also note that we can only perform reductions inside
+an evaluation context. Given our definition of $C$, this enforces a
+left-to-right evaluation order and also prohibits evaluation under a
+$\lambda$-abstraction.
+
+
+\section{Simulating Call-by-Value}
+\label{ssec:simulating-cbv}
+
+We first present the translation from $\lambda_v$ to $\banana{\lambda}$ and
+then we elaborate on it.
+
+\begin{definition}
+  Let $M$ be a term of $\lambda_v$. We define its \demph{interpretation} in
+  $\banana{\lambda}$, written as $\sem{M}$:
+
+\begin{align*}
+  \sem{x} &= \ap{\eta}{x} \\
+  \sem{\lam{x}{M}} &= \ap{\eta}{(\lam{x}{\sem{M}})} \\
+  \sem{\ap{M}{N}} &= \sem{M} \hsbind (\lam{m}{\sem{N} \hsbind (\lam{n}{\ap{m}{n}})})
+\end{align*}
+\end{definition}
+
+An expression of $\lambda_v$ is modelled in $\banana{\lambda}$ as a
+computation. The values form a special case since they are all interpreted
+as pure computations, terms of the form $(\ap{\eta}{M})$ for some $M$. In
+interpreting an application $(\ap{M}{N})$, we first evaluate $M$ and then
+$N$, reflecting the behavior we have defined for $\lambda_v$ above.
+
+Before we show that this translation is indeed a faithful one, we will
+discuss the types of the interpretations to get a better understanding of
+the structures involved.
+
+$\lambda_v$ can be typed with the type system of the simply-typed
+$\lambda$-calculus. A well-typed $\lambda_v$ term will then yield a
+well-typed $\banana{\lambda}$ term since our translation satisifies the
+following property. 
+
+\begin{property}
+  Let $M$ be $\lambda_v$ term, $\alpha$ a simple type, $\Gamma$ a
+  simply-typed environment and $E$ an effect signature. Then the following
+  implication holds.
+
+$$
+\Gamma \vdash M : \alpha
+\quad \Rightarrow \quad
+\sem{\Gamma} \vdash \sem{M} : \FF_E(\sem{\alpha})
+$$
+\end{property}
+
+\begin{proof}
+  By structural induction on the structure of $M$. The definitions of
+  $\sem{.}$ for simple types and simply-typed environments is given just
+  below.
+\end{proof}
+
+\begin{definition}
+We define the \demph{interpretation of types and environments} using the
+following formulas. $\nu$ stands for an atomic type and $\emptyset$ for the
+empty environment.
+
+\begin{align*}
+  \sem{\alpha \to \beta} &= \sem{\alpha} \to \FF_E(\sem{\beta}) \\
+  \sem{\nu} &= \nu \\
+  \sem{\Gamma, x: \alpha} &= \sem{\Gamma}, x: \sem{\alpha} \\
+  \sem{\emptyset} &= \emptyset
+\end{align*}
+\end{definition}
+
+We see that we model $\lambda_v$ expressions of type $\alpha$ using
+computations that yield values of type $\sem{\alpha}$. $\sem{.}$ translates
+the function type so that it takes values but produces computations (since
+the body of a $\lambda$-abstraction can in general be any expression and
+the denotation of an expression is a computation).
+
+To show that our translation simulates the behavior of $\lambda_v$, we will
+prove that any reduction chain $M \tto N$ in $\lambda_v$ gives rise to a
+reduction chain $\sem{M} \tto \sem{N}$ in $\banana{\lambda}$. We start by
+proving $\sem{\ap{(\lam{x}{M})}{V}} \tto \sem{\subst{M}{x}{V}}$.
+
+\begin{property}
+  $\sem{\ap{(\lam{x}{M})}{V}} \tto \sem{\subst{M}{x}{V}}$
+\end{property}
+
+\begin{proof}
+
+\begin{align}
+  \sem{\ap{(\lam{x}{M})}{V}}
+&= \sem{\lam{x}{M}} \hsbind (\lam{m}{\sem{V} \hsbind (\lam{n}{\ap{m}{n}})}) \\
+&= (\ap{\eta}{(\lam{x}{\sem{M}})}) \hsbind (\lam{m}{(\ap{\eta}{v}) \hsbind (\lam{n}{\ap{m}{n}})}) \\
+&\to_{\eta.\hsbind,\beta} (\ap{\eta}{v}) \hsbind (\lam{n}{\ap{(\lam{x}{\sem{M}})}{n}}) \\
+&\to_{\eta.\hsbind,\beta} \ap{(\lam{x}{\sem{M}})}{v} \\
+&\to_{\beta} \subst{\sem{M}}{x}{v} \\
+&= \sem{\subst{M}{x}{V}}
+\end{align}
+\setcounter{equation}{0}
+
+where $\sem{V} = \ap{\eta}{v}$. We first expand the definition of $\sem{.}$
+for the application, the abstraction and the argument value (we note that
+$\sem{V}$ is always equal to $\ap{\eta}{v}$ for some $v$). Since we have
+two occurrences of a pure computation being piped into a bind
+($(\ap{\eta}{x}) \hsbind k$), we can simplify using $\eta.\hsbind$ and
+$\beta$. On line 5, we finally get to the point where we perform the
+$\banana{\lambda}$ $\beta$-reduction that actually corresponds to the
+$\lambda_v$ $\beta$-reduction that we are modelling.
+
+Finally, on line 6, we push the substitution under the $\sem{.}$
+operator. This is valid, since any free $x$ in $\sem{M}$ must have
+originated as a translation of a free $x$ in $M$. In the first expression,
+such an $x$ would get interpreted as $\ap{\eta}{x}$ and then $x$ would get
+replaced with $v$ to get $\ap{\eta}{v}$. In the second expression, the $x$
+would first get replaced by $V$ and then $V$ would be interpreted as
+$\ap{\eta}{v}$. In both cases, we get the same result.
+
+\end{proof}
+
+We have proven that our simulation preserves the reduction
+$\ap{(\lam{x}{M})}{V} \to \subst{M}{x}{V}$. However, it might seem that our
+work is not over since this is just a special case of the rule in
+$\lambda_v$, which licenses the reduction $C[\ap{(\lam{x}{M})}{V}] \to
+C[\subst{M}{x}{V}]$. Nevertheless, our calculus is pure and lets us perform
+reductions in any syntactic context (see the notion of syntactic closure
+from~\ref{sec:reductions}). This means that whenever we have $\sem{M} \to
+\sem{N}$, we also always have $\sem{C}[\sem{M}] \to
+\sem{C}[\sem{N}]$\footnote{We have not defined the $\sem{.}$ interpretation
+  operator for contexts. Contexts are simply terms with a $[]$ inside so we
+  just extend the $\sem{.}$ for terms with the clause $\sem{[]} = []$.},
+which is the same as $\sem{C[M]} \to \sem{C[N]}$.
+
+\begin{corollary}
+  Let $M$ and $N$ be terms of $\lambda_v$ such that $M \tto N$. Then we
+  have that $\sem{M} \tto \sem{N}$ in $\banana{\lambda}$.
+\end{corollary}
+
+We have shown that our translations \emph{preserves} reduction chains. Can
+we get anything stronger?
+
+The inverse is not true in this case. Consider the example of $M =
+\lam{x}{(\ap{(\lam{y}{y})}{x})}$ and $N = \lam{x}{x}$. If we take $\sem{M}$
+and perform some reductions, we arrive at
+$\ap{\eta}{(\lam{x}{\ap{\eta}{x}})}$. However, this is equal to $\sem{N}$
+and so we have $\sem{M} \tto \sem{N}$. This is the case even though $M$
+does not reduce to $N$ in $\lambda_v$ ($\lambda_v$ does not allow
+reductions inside a $\lambda$-abstraction, even if they are benign). Our
+interpretation will end up licencing an equality between $M$ and $N$ even
+though the language we were modelling ($\lambda_v$) does not equate them
+(in a way, this interpretation is complete but not sound). While this makes
+the interpretation less appealing, we still elaborate it because it is
+instructive in showing the similarity between delimited control and effect
+handlers.
+
+To conclude this section, we have defined a translation from $\lambda_v$
+to $\banana{\lambda}$ and proven that it preserves types and
+reductions. This means that we have a way of simulating simply-typed
+$\lambda_v$ in our typed $\banana{\lambda}$ and a way of simulating untyped
+$\lambda_v$ in an untyped version of $\banana{\lambda}$.
+
+\section{Introducing Control Operators}
+
+Now that we have introduced how a $\lambda$-calculus with a notion of
+evaluation order is to be interpreted in $\banana{\lambda}$, we are ready
+to introduce control operators. Our claim is that effects and handlers are
+very close to delimited continuations. The pair of operators that resembles
+the behavior of handlers the most are the operators $\shifto$ and
+$\reseto$.
+
+\begin{definition}
+  We define the \demph{terms} ($M$, $N$) and values $V$ of
+  $\lambda_\shifto$ using the following grammar:
+
+\begin{align*}
+  V ::= &\ \lam{x}{M} \\
+   | \, &\ x \\
+  M, N ::= &\ V \\
+   | \, &\ (\ap{M}{N}) \\
+   | \, &\ (\ap{\shifto}{M}) \\
+   | \, &\ (\ap{\reseto}{M})
+\end{align*}
+\end{definition}
+
+The terms of this new calculus, $\lambda_{\shifto}$, are just the terms of
+$\lambda_v$ extended with the operators $\shifto$ and $\reseto$. Before we
+give the reduction rules, we will also have to refine our notion of an
+evaluation context.
+
+\begin{definition}
+  We define \demph{evaluation contexts} ($C$) and \demph{evaluation frames}
+  ($F$) the following way:
+\begin{align*}
+  C ::= &\ [] \\
+   | \, &\ (\ap{C}{M}) \\
+   | \, &\ (\ap{V}{C}) \\
+   | \, &\ (\ap{\shifto}{C}) \\
+   | \, &\ (\ap{\reseto}{C}) \\
+  F ::= &\ [] \\
+   | \, &\ (\ap{F}{M}) \\
+   | \, &\ (\ap{V}{F}) \\
+   | \, &\ (\ap{\shifto}{F})
+\end{align*}
+\end{definition}
+
+For evaluation contexts ($C$), we add rules saying that when evaluating
+applications of either $\shifto$ or $\reseto$, we can evaluate their
+arguments. We also introduce a notion of an evaluation frame
+($F$). Similarly to how values are a subset of terms, evaluation frames are
+a subset of evaluation contexts. A frame is a context which does not embed
+$[]$ inside a $\reseto$.
+
+\begin{definition}
+  A term $M$ \demph{reduces to} a term $N$ in $\lambda_\shifto$ in one step
+  whenever $M$ and $N$ match one of the patterns below:
+
+\vspace{4mm}
+\begin{tabular}{>{$}r<{$} >{$}c<{$} >{$}l<{$}}
+  C[\ap{(\lam{x}{M})}{V}] & \to_\beta & C[\subst{M}{x}{V}] \\
+  C[\ap{\reseto}{V}] & \to_{\reseto} & C[V] \\
+  C[\ap{\reseto}{(F[\ap{\shifto}{V}])}] & \to_{\shifto} & C[\ap{V}{(\lam{x}{\ap{\reseto}{(F[x])}})}]
+\end{tabular}
+\vspace{4mm}
+\end{definition}
+
+We keep the reduction rule $\beta$ and we add two new rules for $\reseto$
+and $\shifto$. The rule for $\reseto$ makes $\reseto$ look redundant but
+its importance shows up in the rule for $\shifto$. In the $\shifto$ rule,
+we have an application of $\shifto$ buried inside the context
+$C[\ap{\reseto}{F}]$. This kind of context corresponds to a context which
+embeds $[]$ inside at least one $\reseto$. The $F$ then corresponds to the
+frame which separates the $\shifto$ from the nearest enclosing
+$\reseto$. The only role of $\reseto$ is thus to serve as a kind of marker
+to delimit the context/continuation $F$ of $\shifto$. The argument to
+$\shifto$ then receives this continuation $F$, composed with $\reseto$, as
+its argument\footnote{You may already start to see similarities with the
+  $\banana{\op{op}}$ rule of $\banana{\lambda}$ and why we chose $\shifto$
+  and $\reseto$ in particular.}.
+
+\section{Simulating $\shifto$ and $\reseto$}
+
+To simulate $\lambda_{\shifto}$ in $\banana{\lambda}$, all we have to do is
+extend the simulation of $\lambda_v$ with interpretations of the two new
+syntactic forms.
+
+\begin{definition}
+  Let $M$ be a term of $\lambda_\shifto$. We define its
+  \demph{interpretation} $\sem{M}$ as an extension of the interpretation
+  defined for $\lambda_v$ with the following clauses:
+
+\begin{align*}
+  \sem{\ap{\shifto}{M}} &= \sem{M} \hsbind (\lam{m}{\ap{\op{shift0}!}{m}}) \\
+  \sem{\ap{\reseto}{M}} &= \ap{\resetobanana}{\sem{M}}
+\end{align*}
+\end{definition}
+
+The above translation also gives us a general template for simulating
+effectful calculi in $\banana{\lambda}$. Amongst the impure operators of a
+calculus, we identify those that manipulate a context (raising an
+exception, modifying a variable, reading a dynamically bound value,
+accessing the continuation\ldots) and those that establish a context
+(exception handlers, transactions, binders for dynamic variables,
+continuation delimiters such as $\texttt{prompt}$ or
+$\texttt{reset}$\ldots). Operators that manipulate the context are
+translated into operations in $\banana{\lambda}$,
+i.e.\ $\sem{\ap{\texttt{op}}{M}} = \sem{M} \hsbind
+(\lam{m}{\ap{\op{op}!}{m}})$. Operators that establish a context are
+translated into handlers, i.e.\ $\sem{\ap{\texttt{op}}{M}} =
+\ap{\banana{\ldots}}{\sem{M}}$.
+
+To show that this simulation is faithful, we will prove that $M \to N$ in
+$\lambda_{\shifto}$ implies $\sem{M} \ttoffrom \sem{N}$ in
+$\banana{\lambda}$. $\sem{M} \ttoffrom \sem{N}$ says that we can go from
+$\sem{M}$ to $\sem{N}$ through a series of reductions and
+expansions\footnote{We will need the expansions when ``unevaluating'' some
+  of the monadic binds that have been introduced by our translations.}. In
+this case, our simulation property will prove that equivalence given by the
+calculus' equational theory is preserved\footnote{Such a one-sided property
+  is also satisfied by trivial interpretations so the property itself does
+  not do the interpretation justice. In other words, this interpretation is
+  complete but not sound (consider already the $\lambda_v$ example towards
+  the end of \ref{ssec:simulating-cbv}). \TODO{Is there some better
+    characterization of this kind of simulation? Check out Plotkin's
+    seminal paper on Call-by-value, call-by-name and the
+    lambda-calculus.}}, i.e.\ $M = N$ in $\lambda_\shifto$ implies $\sem{M}
+= \sem{N}$ in $\banana{\lambda}$ (where $X = Y$ is to be read as $X
+\ttoffrom Y$).
+
+\begin{property}
+  Let $M$ and $N$ be terms of $\lambda_\shifto$. If $M \to N$, then $M
+  \ttoffrom N$.
+\end{property}
+
+\begin{proof}
+We have three reduction rules to tackle: $\to_\beta$, $\to_\reseto$ and
+$\to_\shifto$. We have proven the case of $\to_\beta$
+in~\ref{ssec:simulating-cbv} and that proof still holds in this extended
+interpretation. We also reuse our observation
+from~\ref{ssec:simulating-cbv} that in order to prove $\sem{C[M]} \tto
+\sem{C[N]}$, it is enough to prove $\sem{M} \tto \sem{N}$. The case of
+$\to_\reseto$ is a simple one so we will deal with that first:
+
+\begin{align}
+  \sem{\ap{\reseto}{V}}
+  &= \ap{\resetobanana}{\sem{V}} \\
+  &= \ap{\resetobanana}{(\ap{\eta}{v})} \\
+  &\to_{\banana{\eta}} \ap{\eta}{v} \\
+  &= \sem{V}
+\end{align}
+\setcounter{equation}{0}
+
+where $\sem{V} = \ap{\eta}{v}$. As we have said
+in~\ref{ssec:operations-and-handlers}, an (open) handler without an
+explicit clause for $\eta$ is presumed to handle $\eta$ with $\eta$. In
+this case, the $\lambda_\shifto$ reduction ends up corresponding to exactly
+one $\banana{\eta}$ reduction in $\banana{\lambda}$.
+
+Now, let's deal with the last reduction rule, $\to_\shifto$.
+
+\begin{align}
+  \sem{\ap{\reseto}{(F[\ap{\shifto}{V}])}}
+  &= \ap{\resetobanana}{\sem{F[\ap{\shifto}{V}]}} \\
+  &\ttoffrom \ap{\resetobanana}{(\app{\op{shift0}}{v}{(\lam{x}{\sem{F[x]}})})} \\
+  &\to_{\banana{\op{op}}} \app{(\lam{c k}{\ap{c}{k}})}{v}{(\lam{x}{\ap{\resetobanana}{\sem{F[x]}}})} \\
+  &\to_{\beta,\beta} \ap{v}{(\lam{x}{\ap{\resetobanana}{\sem{F[x]}}})} \\
+  &= \ap{v}{(\lam{x}{\sem{\ap{\reseto}{(F[x])}}})} \\
+  &\from_{\beta,\eta.\hsbind} (\ap{\eta}{(\lam{x}{\sem{\ap{\reseto}{(F[x])}}})}) \hsbind (\lam{n}{\ap{v}{n}}) \\
+  &= \sem{\lam{x}{\ap{\reseto}{(F[x])}}} \hsbind (\lam{n}{\ap{v}{n}}) \\
+  &\from_{\beta,\eta.\hsbind} (\ap{\eta}{v}) \hsbind (\lam{m}{\sem{\lam{x}{\ap{\reseto}{(F[x])}}} \hsbind (\lam{n}{\ap{m}{n}})}) \\
+  &= \sem{V} \hsbind (\lam{m}{\sem{\lam{x}{\ap{\reseto}{(F[x])}}} \hsbind (\lam{n}{\ap{m}{n}})}) \\
+  &= \sem{\ap{V}{(\lam{x}{\ap{\reseto}{(F[x])}})}}
+\end{align}
+\setcounter{equation}{0}
+
+where $\sem{V} = \ap{\eta}{v}$. Lines 2 and 3 are the crucial lines. On
+line 2, we use the upcoming Lemma~\ref{lem:contexts-continuations} that
+will show that through a series of reductions and expansions, we can go
+from $\sem{F[\ap{\shifto}{V}]}$ to
+$(\app{\op{shift0}}{v}{(\lam{x}{\sem{F[x]}})})$ where $\sem{V} =
+\ap{\eta}{v}$. Since we have moved $\op{shift0}$ to the head of the
+handler's argument, we can apply the $\banana{\op{op}}$ rule on line
+3. Since the handler clause is basically the identity function, it
+disappears on line 4 after two $\beta$-reductions.
+
+From then on, we perform a series of expansions while trying to push the
+interpretation operator $\sem{.}$ outwards from just $F[x]$ to the entire
+expression. The expansions used above are a reversal of a common idiom we
+have used before. We used to go from $(\ap{\eta}{M}) \hsbind (\lam{m}{N})$
+to $\subst{N}{m}{M}$ using $\eta.\hsbind$ and then a
+$\beta$-reduction. Here, we go the other way from $\subst{N}{m}{M}$ to
+$(\ap{\eta}{M}) \hsbind (\lam{m}{N})$ using a $\beta$-expansion and the
+derived expansion $\eta.\hsbind$ (lines 6 and 8).
+\end{proof}
+
+\begin{corollary}
+  \label{coro:simul-sem}
+  Let $M$ and $N$ be terms of $\lambda_\shifto$. If $M \ttoffrom N$ in
+  $\lambda_\shifto$, then $\sem{M} \ttoffrom \sem{N}$ in
+  $\banana{\lambda}$.
+\end{corollary}
+
+
+\subsection*{Contexts $=$ Continuations: Proving the Lemma}
+
+All that is left to show is a proof of the lemma we mentioned above.
+
+\begin{lemma}
+\label{lem:contexts-continuations}
+$$
+\sem{F[\ap{\shifto}{V}]} \ttoffrom (\app{\op{shift0}}{v}{(\lam{x}{\sem{F[x]}})})
+$$
+
+where $\sem{V} = \ap{\eta}{v}$. 
+\end{lemma}
+
+This lemma not only allows us to prove the simulation property that is the
+focus of this section, but it also gives us more insight into
+$\banana{\lambda}$. If we read it from right to left and slightly
+generalizing, it tells us how to think of terms of the form
+$(\app{\op{op}}{x}{k})$. They represent computations where the next point
+of evaluation is a contextually dependent operation $\op{op}$. $x$ is the
+operation's argument and $k$ captures the context in which $\op{op}$ is
+being used inside the computation.
+
+\begin{proof}
+Our proof will proceed by induction on the structure of $F$. We will start
+with the base case, $F = []$.
+
+\begin{align}
+  \sem{F[\ap{\shifto}{V}]}
+  &= \sem{\ap{\shifto}{V}} \\
+  &= \sem{V} \hsbind (\lam{m}{\ap{\op{shift0}!}{m}}) \\
+  &\to_{\eta.\hsbind,\beta} \ap{\op{shift0}!}{v} \\
+  &= \ap{(\lam{x}{\app{\op{shift0}}{x}{\eta}})}{v} \\
+  &\to_\beta \app{\op{shift0}}{v}{\eta} \\
+  &\from_{\eta.\to} \app{\op{shift0}}{v}{(\lam{x}{\ap{\eta}{x}})} \\
+  &= \app{\op{shift0}}{v}{(\lam{x}{\sem{x}})} \\
+  &= \app{\op{shift0}}{v}{(\lam{x}{\sem{F[x]}})} \\
+\end{align}
+\setcounter{equation}{0}
+
+The individual steps are pretty self-explanatory. The steps that might be
+unfamiliar occur on lines 4 and 6. On line 4, we expand the definition of
+the exclamation mark defined in~\ref{ssec:operations-and-handlers} and on
+line 6, we perform an $\eta$-expansion.
+
+Next case, $F = (\ap{F'}{M})$:
+
+\begin{align}
+  \sem{F[\ap{\shifto}{V}]}
+  &= \sem{\ap{(F'[\ap{\shifto}{V}])}{M}} \\
+  &= \sem{F'[\ap{\shifto}{V}]} \hsbind (\lam{m}{\sem{M} \hsbind (\lam{n}{\ap{m}{n}})}) \\
+  &\ttoffrom (\app{\op{shift0}}{v}{(\lam{x}{\sem{F'[x]}})}) \hsbind (\lam{m}{\sem{M} \hsbind (\lam{n}{\ap{m}{n}})}) \\
+  &\to_{\op{op}.\hsbind} \app{\op{shift0}}{v}{(\lam{x}{\sem{F'[x]} \hsbind (\lam{m}{\sem{M} \hsbind (\lam{n}{\ap{m}{n}})})})} \\
+  &= \app{\op{shift0}}{v}{(\lam{x}{\sem{\ap{(F'[x])}{M}}})} \\
+  &= \app{\op{shift0}}{v}{(\lam{x}{\sem{F[x]}})} \\
+\end{align}
+\setcounter{equation}{0}
+
+Again, the steps are quite mechanical. Line 3 uses the induction hypothesis
+and on line 4, we see the derived $\op{op}.\hsbind$ rule introduced in
+Chapter~\ref{chap:properties}\footnote{\TODO{Make this reference more
+    precise once the Properties chapter has been written.}} pushing the
+$\hsbind$ inside the continuation.
+
+Case $F = (\ap{V'}{F'})$:
+
+\begin{align}
+  \sem{F[\ap{\shifto}{V}]}
+  &= \sem{\ap{V'}{(F'[\ap{\shifto}{V}])}} \\
+  &= \sem{V'} \hsbind (\lam{m}{\sem{F'[\ap{\shifto}{V}]} \hsbind (\lam{n}{\ap{m}{n}})}) \\
+  &\to_{\eta.\hsbind,\beta} \sem{F'[\ap{\shifto}{V}]} \hsbind (\lam{n}{\ap{v'}{n}}) \\
+  &\ttoffrom (\app{\op{shift0}}{v}{(\lam{x}{\sem{F'[x]}})}) \hsbind (\lam{n}{\ap{v'}{n}}) \\
+  &\to_{\op{op}.\hsbind} \app{\op{shift0}}{v}{(\lam{x}{\sem{F'[x]} \hsbind (\lam{n}{\ap{v'}{n}})})}\\
+  &\from_{\beta,\eta.\hsbind} \app{\op{shift0}}{v}{(\lam{x}{\sem{V'} \hsbind (\lam{m}{\sem{F'[x]} \hsbind (\lam{n}{\ap{m}{n}})})})}\\
+  &= \app{\op{shift0}}{v}{(\lam{x}{\sem{\ap{V'}{(F'[x])}}})} \\
+  &= \app{\op{shift0}}{v}{(\lam{x}{\sem{F[x]}})}
+\end{align}
+\setcounter{equation}{0}
+
+where $\sem{V'} = \ap{\eta}{v'}$. This proof is very similar to the one for
+the case before. We have just two extra steps, on lines 3 and 6, where we
+first push the $\sem{V'}$ ($= \ap{\eta}{v'}$) in through the $\hsbind$
+using $\eta.\hsbind$ and $\beta$ and then we pull it out in a different
+context by reversing the process.
+
+Finally, the last case, where $F = (\ap{\shifto}{F'})$:
+
+\begin{align}
+  \sem{F[\ap{\shifto}{V}]}
+  &= \sem{\ap{\shifto}{(F'[\ap{\shifto}{V}])}} \\
+  &= \sem{F'[\ap{\shifto}{V}]} \hsbind (\lam{m}{\ap{\op{shift0}!}{m}}) \\
+  &\ttoffrom (\app{\op{shift0}}{v}{(\lam{x}{\sem{F'[x]}})}) \hsbind (\lam{m}{\ap{\op{shift0}!}{m}}) \\
+  &\to_{\op{op}.\hsbind} \app{\op{shift0}}{v}{(\lam{x}{\sem{F'[x]} \hsbind (\lam{m}{\ap{\op{shift0}!}{m}})})} \\
+  &= \app{\op{shift0}}{v}{(\lam{x}{\sem{\ap{\shifto}{(F'[x])}}})} \\
+  &= \app{\op{shift0}}{v}{(\lam{x}{\sem{F[x]}})}
+\end{align}
+\setcounter{equation}{0}
+
+And this case is just as simple as the $F = (\ap{F'}{M})$ one. This
+concludes our proof of this lemma. Note that we did not include a case for
+$F = (\ap{\reseto}{F'})$. Such a context is not a frame, since it embeds
+$[]$ inside a $\reseto$. We can also check that our property would no
+longer hold in this case, since the $\shifto$ coming from $F'$ would get
+handled by the $\reseto$.
+\end{proof}
+
+By proving this lemma, we have also finished our proof of the fact that
+whenever we have $M \ttoffrom N$ in $\lambda_\shifto$, we also have
+$\sem{M} \ttoffrom \sem{N}$ in $\banana{\lambda}$.
+
+
+\section{Turning to $\shift$ and $\reset$}
+
+There are other control operators, similar to $\shifto$ and $\reseto$. One
+example would be the more common $\shift$ and $\reset$. The difference
+between these two pairs can be appreciated by comparing the reduction rules
+for $\shifto$ and $\shift$.
+
+\vspace{4mm}
+\begin{tabular}{>{$}r<{$} >{$}c<{$} >{$}l<{$}}
+  C[\ap{\reseto}{(F[\ap{\shifto}{V}])}] & \to_{\shifto} & C[\ap{V}{(\lam{x}{\ap{\reseto}{(F[x])}})}] \\
+  C[\ap{\reset}{(F[\ap{\shift}{V}])}] & \to_{\shift} & C[\ap{\reset}{(\ap{V}{(\lam{x}{\ap{\reset}{(F[x])}})})}]
+\end{tabular}
+\vspace{4mm}
+
+$\shift$ preserves the delimiting $\reset$ and installs a new one into the
+continuation. $\shifto$ is different in that it removes the delimiting
+$\reseto$. In all other ways, the definition of $\lambda_\shift$ (the
+call-by-value $\lambda$-calculus equipped with $\shift$ and $\reset$) is
+identical to the one of $\lambda_\shifto$.
+
+We have seen that the semantics of $\shifto$ and $\reseto$ aligns closely
+with the behavior of operations and handlers in
+$\banana{\lambda}$. However, we can translate $\shift$ and $\reset$ to
+$\banana{\lambda}$ too.
+
+We will do so by first translating $\lambda_\shift$ to $\lambda_\shifto$.
+
+\begin{definition}
+  The \demph{interpretation} $\semo{M}$ of a $\lambda_\shift$ term $M$ into
+  $\lambda_\shifto$ is defined as follows:
+
+  \begin{align*}
+    \semo{\ap{\reset}{M}} &= \ap{\reseto}{\semo{M}} \\
+    \semo{\ap{\shift}{M}} &= \ap{\shifto}{(\ap{(\lam{m}{\lam{x}{\ap{\reseto}{(\ap{m}{x})}}})}{\semo{M}})} \\
+    \semo{\ap{M}{N}} &= \ap{\semo{M}}{\semo{N}} \\
+    \semo{\lam{x}{M}} &= \lam{x}{\semo{M}} \\
+    \semo{x} &= x
+  \end{align*}
+
+\end{definition}
+
+NB: We cannot use
+$(\ap{\shifto}{(\lam{x}{\ap{\reseto}{(\ap{\semo{M}}{x})}})})$ for the
+interpretation of $(\ap{\shift}{M})$. That would result in
+$\semo{(\ap{\shift}{[]})}$ being equal to
+$(\ap{\shifto}{(\lam{x}{\ap{\reseto}{(\ap{[]}{x})}})})$. The problem here
+is that $(\ap{\shift}{[]})$ is an evaluation frame in $\lambda_\shift$, but
+its interpretation is not even an evaluation context in $\lambda_\shifto$
+since the $[]$ is buried under a $\lambda$-abstraction.
+
+To see that this kind of interpretation preserves the same kind of property
+we have been demonstrating in the rest of this section, we prove the
+following.
+
+\begin{property}
+  \label{prop:simul-semo}
+  For any $\lambda_\shift$ terms $M$ and $N$, $M \to N$ implies $\semo{M}
+  \tto \semo{N}$.
+\end{property}
+
+\begin{proof}
+  We first note that if $C$ is an evaluation context in $\lambda_\shift$,
+  $\semo{C}$ (where $\semo{.}$ has been extended to contexts with
+  $\semo{[]} = []$) is an evaluation context in $\lambda_\shifto$. The same
+  also holds for evaluation frames and values. With these observations in
+  our hand, we can proceed onto the proof.
+
+  We consider the three possible cases of $M \to N$ that correspond to the
+  three reduction rules in $\lambda_\shift$. Since the rules $\to_\beta$
+  and $\to_\reset$/$\to_\reseto$ are identical in both calculi and since
+  $\semo{.}$ preserves evaluation contexts and values, these cases fall out
+  immediately.
+
+  We only have to handle the interesting case of $M \to_\shift N$. In that
+  case, $M = C[\ap{\reset}{(F[\ap{\shift}{V}])}]$ and $N =
+  C[\ap{\reset}{(\ap{V}{(\lam{x}{\ap{\reset}{(F[x])}})})}]$ for some
+  context $C$, frame $F$ and value $V$.
+
+  \begin{align}
+    \semo{M} &= \semo{C[\ap{\reset}{(F[\ap{\shift}{V}])}]} \\
+             &= C'[\ap{\reseto}{(F'[\ap{\shifto}(\ap{(\lam{m}{\lam{x}{\ap{\reseto}{(\ap{m}{x})}}})}{V'})])}] \\
+             &\to_\beta C'[\ap{\reseto}{(F'[\ap{\shifto}(\lam{x}{\ap{\reseto}{(\ap{V'}{x})}})])}] \\
+             &\to_\shifto C'[\ap{(\lam{x}{\ap{\reseto}{(\ap{V'}{x})}})}{(\lam{y}{\ap{\reseto}{(F'[y])}})}] \\
+             &\to_\beta C'[\ap{\reseto}{(\ap{V'}{(\lam{y}{\ap{\reseto}{(F'[y])}})})}] \\
+             &= \semo{C[\ap{\reset}{(\ap{V}{(\lam{x}{\ap{\reset}{(F[x])}})})}]} \\
+             &= \semo{N}
+  \end{align}
+  \setcounter{equation}{0}
+
+  where $C' = \semo{C}$, $F' = \semo{F}$ and $V' = \semo{V}$.
+\end{proof}
+
+\begin{corollary}
+  \label{coro:simul-semo}
+  For any $\lambda_\shift$ terms $M$ and $N$, $M \tto N$ implies $\semo{M}
+  \tto \semo{N}$ and $M \ttoffrom N$ implies $\semo{M} \ttoffrom \semo{N}$.
+\end{corollary}
+
+\begin{corollary}
+  For any $\lambda_\shift$ terms $M$ and $N$, $M \ttoffrom N$ implies
+  $\sem{\semo{M}} \ttoffrom \sem{\semo{N}}$ in $\banana{\lambda}$.
+\end{corollary}
+
+For the latter corollary, we just compose the translations from
+$\lambda_\shift$ to $\lambda_\shifto$ and from $\lambda_\shifto$ to
+$\banana{\lambda}$ and transitively apply their simulation properties
+(Corollaries~\ref{coro:simul-sem} and~\ref{coro:simul-semo}).
+
+This lets us extend our interpretation $\sem{.}$ to $\lambda_\shift$.
+
+\begin{align*}
+  \sem{\ap{\shift}{M}} &= \sem{M} \hsbind (\lam{m}{\ap{\op{shift0}!}{(\lam{x}{\ap{\resetobanana}{(\ap{m}{x})}})}}) \\
+  \sem{\ap{\reset}{M}} &= \sem{\ap{\reseto}{M}} \\
+                       &= \ap{\resetobanana}{\sem{M}}
+\end{align*}
+
+We can prove that this interpretation is coherent with the existing
+interpretations.
+
+\begin{property}
+  For any $\lambda_\shift$ term $M$, $\sem{\semo{M}} \ttoffrom \sem{M}$ in
+  $\banana{\lambda}$.
+\end{property}
+
+\begin{proof}
+  We proceed by induction. The only cases of $M$ when $\semo{M}$ changes
+  anything are the cases of $M = (\ap{\shift}{M'})$ and $M =
+  (\ap{\reset}{M'})$.
+
+\begin{align}
+\sem{\semo{M}}
+&= \sem{\semo{\ap{\shift}{M'}}} \\
+&= \sem{\ap{\shifto}{(\ap{(\lam{m}{\lam{x}{\ap{\reseto}{(\ap{m}{x})}}})}{\semo{M'}})}} \\
+&= \sem{\ap{(\lam{m}{\lam{x}{\ap{\reseto}{(\ap{m}{x})}}})}{\semo{M'}}} \hsbind (\lam{n}{\ap{\op{shift0}!}{n}}) \\
+&= ((\ap{\eta}{(\lam{m}{\sem{\lam{x}{\ap{\reseto}{(\ap{m}{x})}}}})}) \hsbind (\lam{f}{\sem{\semo{M'}} \hsbind (\lam{a}{\ap{f}{a}})})) \hsbind (\lam{n}{\ap{\op{shift0}!}{n}}) \\
+&\to_{\eta.\hsbind,\beta,\beta} (\sem{\semo{M'}} \hsbind (\lam{a}{\sem{\lam{x}{\ap{\reseto}{(\ap{a}{x})}}}})) \hsbind (\lam{n}{\ap{\op{shift0}!}{n}}) \\
+&\to_{\hsbind.\hsbind} \sem{\semo{M'}} \hsbind (\lam{a}{\sem{\lam{x}{\ap{\reseto}{(\ap{a}{x})}}} \hsbind (\lam{n}{\ap{\op{shift0}!}{n}})}) \\
+&= \sem{\semo{M'}} \hsbind (\lam{a}{(\ap{\eta}{(\lam{x}{\sem{\ap{\reseto}{(\ap{a}{x})}}})}) \hsbind (\lam{n}{\ap{\op{shift0}!}{n}})}) \\
+&\to_{\eta.\hsbind,\beta} \sem{\semo{M'}} \hsbind (\lam{a}{\ap{\op{shift0}!}{(\lam{x}{\sem{\ap{\reseto}{(\ap{a}{x})}}})}}) \\
+&= \sem{\semo{M'}} \hsbind (\lam{a}{\ap{\op{shift0}!}{(\lam{x}{\ap{\resetobanana}{\sem{\ap{a}{x}}}})}}) \\
+&\tto \sem{\semo{M'}} \hsbind (\lam{a}{\ap{\op{shift0}!}{(\lam{x}{\ap{\resetobanana}{(\ap{a}{x})}})}}) \\
+&= \sem{\semo{M'}} \hsbind (\lam{m}{\ap{\op{shift0}!}{(\lam{x}{\ap{\resetobanana}{(\ap{m}{x})}})}}) \\
+&= \sem{M'} \hsbind (\lam{m}{\ap{\op{shift0}!}{(\lam{x}{\ap{\resetobanana}{(\ap{m}{x})}})}}) \\
+&= \sem{\ap{\shift}{M'}} \\
+&= \sem{M} \\ \\
+\setcounter{equation}{0}
+\end{align}
+
+\begin{align}
+\sem{\semo{M}}
+&= \sem{\semo{\ap{\reset}{M'}}} \\
+&= \sem{\ap{\reseto}{\semo{M'}}} \\
+&= \ap{\resetobanana}{\sem{\semo{M'}}} \\
+&= \ap{\resetobanana}{\sem{M'}} \\
+&= \sem{\ap{\reset}{M'}} \\
+&= \sem{M}
+\end{align}
+\setcounter{equation}{0}
+\end{proof}
+The translation of $\reset$ is the same as the one for $\reseto$ (we keep
+$\op{shift0}$ as the name of the operation). 
+
+
+\section{Considering Types}
+
+We have shown embeddings of $\lambda_\shifto$ and $\lambda_\shift$ into
+$\banana{\lambda}$. In both of these embeddings, we have seen that the
+reduction rules in $\banana{\lambda}$ can emulate those of $\lambda_\shift$
+and $\lambda_\shifto$. However, we have not defined $\banana{\lambda}$ only
+via terms and their reductions, we have also specified a type system. Can
+we somehow guarantee that the results of interpreting $\lambda_\shift$ into
+$\banana{\lambda}$ are well-typed?
+
+Clearly not without having some kind of type system for
+$\lambda_\shift$. Without a type system, we can write a term like
+$\lam{x}{\ap{x}{x}}$ whose translation to $\banana{\lambda}$ is impossible
+to type. Danvy and Filinski~\cite{danvy1989functional} give a type system
+for a calculus with $\shift$ and $\reset$. In their system, typing
+judgments have the following form:
+
+$$
+\rho, \alpha \vdash E : \tau, \beta
+$$
+
+In this schema, $\rho$ stands for a type environment (context $\Gamma$ in
+our notation), $E$ is an expression (a term) and $\tau$ is the type of
+$E$. The types $\alpha$ and $\beta$ describe the context in which the
+expression can occur. If we rewrote $E$ in continuation-passing style, we
+would get a term of type $(\tau \to \alpha) \to \beta$. The expression $E$
+can access a context whose answer type is $\alpha$ and supplant it by an
+answer of type $\beta$.
+
+This kind of type system allows us to write a computation that performs a
+series of $\shift$s, each one changing the answer type for the next. If we
+wanted to guarantee type safety while allowing this amount of flexibility,
+we would need to use indexed effects \cite{andjelkovic2014towards} to track
+the answer type as it changes from $\op{shift0}$ to $\op{shift0}$. We will
+therefore modify Danvy and Filinski's type system to prohibit continuations
+from changing the answer type to fit into the capabilities of our type
+system.
+
+Our modified type system will have judgments that follow this schema:
+
+$$
+\Gamma \pipe \gamma \vdash M : \tau
+$$
+
+We switch to our style of notation, $\Gamma$ for a type context and $M$ for
+a term. We give only a single answer type, $\gamma$, written to the left of
+the turnstile. We also separate it from the type context with a vertical
+bar instead of a comma so as not to be confusing with the notation for
+context extension ($\Gamma, x : \alpha$). In continuation-passing style,
+the type of the above term $M$ would correspond to $(\tau \to \gamma) \to
+\gamma$.
+
+There is one more subtlety to cover before we look at the typing rules
+themselves: what are the types?
+
+\begin{definition}
+  A \demph{$\lambda_\shift$ type} is either:
+  \begin{itemize}
+  \item an atomic type $\nu$
+  \item a function type $\alpha \xto{\gamma} \beta$ where $\alpha$, $\beta$
+    and $\gamma$ are other $\lambda_\shift$ types
+  \end{itemize}
+\end{definition}
+
+Since the well-typedness of an expression depends on the context in which
+it is being evaluated, the function type becomes a bit more complicated. By
+embedding an expression inside a $\lambda$-abstraction, we delay its
+evaluation. In function application, the context of the application becomes
+the context the function body. In other words, if when type checking the
+body of a function we assume that the current answer type is $\gamma$, then
+when we apply this function to an argument, we should better do so in a
+context in which the answer type actually is $\gamma$. This means we have
+to discriminate between functions w.r.t.\ the context (i.e.\ answer type) in
+which they can be applied.
+
+\begin{definition}
+  We define the \demph{typing relation for $\lambda_\shift$} as the
+  transitive closure of the inference rules given in
+  Figure~\ref{fig:typing-rules-shift}.
+\end{definition}
+
+\begin{figure}
+  \begin{prooftree}
+    \AxiomC{$x : \alpha \in \Gamma$}
+    \RightLabel{[var]}
+    \UnaryInfC{$\Gamma \pipe \gamma \vdash x : \alpha$}
+  \end{prooftree}
+  
+  \begin{subfigure}{.5\textwidth}
+    \begin{prooftree}
+      \AxiomC{$\Gamma, x : \alpha \pipe \gamma \vdash M : \beta$}
+      \RightLabel{[abs]}
+      \UnaryInfC{$\Gamma \pipe \delta \vdash \lam{x}{M} : \alpha \xto{\gamma} \beta$}
+    \end{prooftree}
+  \end{subfigure}
+  \begin{subfigure}{.5\textwidth}
+    \begin{prooftree}
+      \AxiomC{$\Gamma \pipe \gamma \vdash M : \alpha \xto{\gamma} \beta$}
+      \AxiomC{$\Gamma \pipe \gamma \vdash N : \alpha$}
+      \RightLabel{[app]}
+      \BinaryInfC{$\Gamma \pipe \gamma \vdash \ap{M}{N} : \beta$}
+    \end{prooftree}
+  \end{subfigure}
+
+  \begin{subfigure}{.5\textwidth}
+    \begin{prooftree}
+      \AxiomC{$\Gamma \pipe \gamma \vdash M : \gamma$}
+      \RightLabel{[$\reset$]}
+      \UnaryInfC{$\Gamma \pipe \delta \vdash \ap{\reset}{M} : \gamma$}
+    \end{prooftree}
+  \end{subfigure}
+  \begin{subfigure}{.5\textwidth}
+    \begin{prooftree}
+      \AxiomC{$\Gamma \pipe \gamma \vdash M : (\alpha \xto{\delta} \gamma)
+        \xto{\gamma} \gamma$}
+      \RightLabel{[$\shift$]}
+      \UnaryInfC{$\Gamma \pipe \gamma \vdash \ap{\shift}{M} : \alpha$}
+    \end{prooftree}
+  \end{subfigure}
+
+  \caption{\label{fig:typing-rules-shift} Typing rules for
+    $\lambda_\shift$.}
+\end{figure}
+
+To convince ourselves that this type system works, we will need to prove
+some properties about it, notably progress and preservation.
+
+\begin{lemma}
+  \label{lem:subst-shift}
+  \demph{Substitution and types}
+
+  Whenever we have $\Gamma, x : \alpha \pipe \gamma \vdash M : \tau$ and
+  $\Gamma \pipe \gamma \vdash V : \alpha$, we also get $\Gamma \pipe \gamma
+  \vdash \subst{M}{x}{V} : \tau$ (i.e.\ we can substitute in $M$ while
+  preserving the type).
+\end{lemma}
+\begin{proof}
+  This technical lemma, common to most $\lambda$-calculus variations, is
+  proven by induction on the proof of $\Gamma, x : \alpha \pipe \gamma
+  \vdash M : \tau$ (which is the same as induction on the syntactic
+  structure of $M$). The only catch here is that when we descend into $M$
+  through $\lambda$-abstractions and $\reset$s, we might be forced to
+  change the answer type from $\gamma$ to some $\delta$. Now, in order for
+  the induction to work, we will need to change the answer type in $\Gamma
+  \pipe \gamma \vdash V : \alpha$ from $\gamma$ to $\delta$ as well. In
+  other words, we need to coerce $\Gamma \pipe \gamma \vdash V : \alpha$ to
+  $\Gamma \pipe \delta \vdash V : \alpha$.
+
+  This is exactly where the condition that the term $V$ that we are
+  substituting must be a value comes into play. If we look at the typing
+  rules for values (variables and $\lambda$-abstractions), we see that the
+  answer type is completely free and therefore if we can prove
+  well-typedness w.r.t.\ one answer type, we also get it for all answer
+  types.
+\end{proof}
+
+\begin{property}
+  \demph{Preservation for $\lambda_\shift$}
+
+  Let us have $\Gamma \pipe \gamma \vdash M : \tau$ and $M \to N$. Then
+  also $\Gamma \pipe \gamma \vdash N : \tau$.
+\end{property}
+\begin{proof}
+  We will prove this property case by case for each reduction rule of
+  $\lambda_\shift$. In the proof, we assume that the context $C$ wrapping
+  the redex and the contractum is just the empty context $[]$. It follows
+  directly that if $M \to N$ preserves types, then so does $C[M] \to C[N]$.
+
+  \begin{enumerate}
+  \item $M \to_\beta N$
+
+    We know that $M = \ap{(\lam{x}{M'})}{V}$, that $N = \subst{M'}{x}{V}$
+    and that the derivation of the type of $M$ looks like the following:
+
+    \begin{prooftree}
+      \AxiomC{$\Gamma, x : \alpha \pipe \gamma \vdash M' : \tau$}
+      \RightLabel{[abs]}
+      \UnaryInfC{$\Gamma \pipe \gamma \vdash \lam{x}{M'} : \alpha \xto{\gamma} \tau$}
+      \AxiomC{$\Gamma \pipe \gamma \vdash V : \alpha$}
+      \RightLabel{[app]}
+      \BinaryInfC{$\Gamma \pipe \gamma \vdash \ap{(\lam{x}{M'})}{V} : \tau$}
+    \end{prooftree}
+
+    By applying Lemma~\ref{lem:subst-shift} to the well-typedness proofs of
+    $M'$ and $V$, we directly get the typing judgment we need.
+
+  \item $M \to_\reset N$
+
+    We have $M = \ap{\reset}{V}$, $N = V$ and the following derivation:
+
+    \begin{prooftree}
+      \AxiomC{$\Gamma \pipe \tau \vdash V : \tau$}
+      \RightLabel{[$\reset$]}
+      \UnaryInfC{$\Gamma \pipe \gamma \vdash \ap{\reset}{V} : \tau$}
+    \end{prooftree}
+
+    If we recover the typing derivation for $V$, we run into the same issue
+    as before. The context has changed from answer type $\gamma$ to answer
+    type $\tau$. Again, we rely on the fact that the argument to $\reset$
+    must have been a value in order to be able to take the proof $\Gamma
+    \pipe \tau \vdash M : \tau$ and coerce it to a proof $\Gamma \pipe
+    \gamma \vdash M : \tau$.
+
+  \item $M \to_\shift N$
+
+    We have $M = \ap{\reset}{(F[\ap{\shift}{V}])}$, $N =
+    \ap{\reset}{(\ap{V}{(\lam{x}{\ap{\reset}{(F[x])}})})}$.
+
+    \begin{prooftree}
+      \AxiomC{$\Gamma \pipe \tau \vdash V : (\alpha \xto{\delta} \tau) \xto{\tau} \tau$}
+      \RightLabel{[$\shift$]}
+      \UnaryInfC{$\Gamma \pipe \tau \vdash \ap{\shift}{V} : \alpha$}
+      \UnaryInfC{$\vdots$ $F[]$ $\vdots$}
+      \UnaryInfC{$\Gamma \pipe \tau \vdash F[\ap{\shift}{V}] : \tau$}
+      \RightLabel{[$\reset$]}
+      \UnaryInfC{$\Gamma \pipe \gamma \vdash \ap{\reset}{(F[\ap{\shift}{V}])} : \tau$}
+    \end{prooftree}
+
+    The validity of the above analysis hinges on the fact that the context
+    separating the $\reset$ and the $\shift$ is an evaluation frame. If we
+    look at the typing rules [app] and [$\shift$], we see that the answer
+    types of the subterms are always the same as the answer type of the
+    compound term. This is what lets us assume that the answer type of both
+    $F[\ap{\shift}{V}]$ and $\ap{\shift}{V}$ is $\tau$.
+
+    We can take the typing judgment of $V$ and the fact that $F$ is a
+    context that can take a term $M'$ such that $\Gamma \pipe \tau \vdash
+    M' : \alpha$ and yield a term $F[M']$ such that $\Gamma \pipe \tau
+    \vdash F[M'] : \tau$.
+
+    \begin{prooftree}
+      \AxiomC{$\Gamma \pipe \tau \vdash V : (\alpha \xto{\delta} \tau) \xto{\tau} \tau$}
+      \AxiomC{$\Gamma, x : \alpha \pipe \tau \vdash x : \alpha$}
+      \UnaryInfC{$\vdots$ $F[]$ $\vdots$}
+      \UnaryInfC{$\Gamma, x : \alpha \pipe \tau \vdash F[x] : \tau$}
+      \RightLabel{[$\reset$]}
+      \UnaryInfC{$\Gamma, x : \alpha \pipe \delta \vdash \ap{\reset}{(F[x])} : \tau$}
+      \RightLabel{[abs]}
+      \UnaryInfC{$\Gamma \pipe \tau \vdash \lam{x}{\ap{\reset}{(F[x])}} : \alpha \xto{\delta} \tau$}
+      \RightLabel{[app]}
+      \BinaryInfC{$\Gamma \pipe \tau \vdash \ap{V}{(\lam{x}{\ap{\reset}{(F[x])}})} : \tau$}
+      \RightLabel{[$\reset$]}
+      \UnaryInfC{$\Gamma \pipe \gamma \vdash \ap{\reset}{(\ap{V}{(\lam{x}{\ap{\reset}{(F[x])}})})} : \tau$}
+    \end{prooftree}
+
+    The proof tree construction is straightforward, plugging in the two
+    parts, $V$ and $F[]$, we got from the typing of $M$. The only peculiar
+    point is our use of $F[]$ in the environment $\Gamma, x : \alpha$,
+    which presupposes that $x$ is fresh for $F[]$\footnote{That is a
+      condition of the $\to_\shift$ reduction rule that we never made
+      explicit.}.
+  \end{enumerate}
+\end{proof}
+
+
+\begin{property}
+  \demph{Progress for $\lambda_\shift$}
+
+  Whenever we have a closed well-typed term $M$, i.e.\ one such that
+  $\emptyset \pipe \gamma \vdash M : \tau$, then one of the following must
+  hold:
+  \begin{itemize}
+  \item $M = V$ for some value $V$
+  \item $M = F[\ap{\shift}{V}]$ for some frame $F$ and value $V$
+  \item there exists an $N$ such that $M \to N$
+  \end{itemize}
+\end{property}
+\begin{proof}
+  We will prove this property by showing that if $M$ is not a value, then
+  it must either contain a redex inside an evaluation context (and
+  therefore be reducible) or be of the form $F[\ap{\shift}{V}]$. We will
+  proceed by structural induction and case analysis on the well-typed form
+  of $M$. We will not consider the case of $M$ being a variable or a
+  $\lambda$-abstraction since they are both values (on top of that, a
+  variable is an open term and therefore not typable in the empty
+  environment $\emptyset$).
+
+  \begin{enumerate}
+  \item $M = \ap{M_1}{M_2}$
+
+    The typing derivation for $M$ must looks like this:
+
+    \begin{prooftree}
+      \AxiomC{$\emptyset \pipe \gamma \vdash M_1 : \alpha \xto{\gamma} \tau$}
+      \AxiomC{$\emptyset \pipe \gamma \vdash M_2 : \alpha$}
+      \RightLabel{[app]}
+      \BinaryInfC{$\emptyset \pipe \gamma \vdash \ap{M_1}{M_2} : \tau$}
+    \end{prooftree}
+
+    We first call upon the induction hypothesis for $M_1$ and consider all
+    three possible outcomes:
+    \begin{itemize}
+    \item $M_1 = F_1[\ap{\shift}{V}]$ --- then we have $M =
+      (\ap{F_1[\ap{\shift}{V}]}{M_2}) = F[\ap{\shift}{V}]$ where $F =
+      (\ap{F_1}{M_2})$
+    \item $M_1 \to N_1$ --- then we have $\ap{M_1}{M_2} \to \ap{N_1}{M_2}$
+      since $(\ap{[]}{M_2})$ is a valid evaluation context
+    \item $M_1 = V_1$ --- then we call upon the induction hypothesis for
+      $M_2$
+      \begin{itemize}
+      \item $M_2 = F_2[\ap{\shift}{V}]$ --- then we have $M =
+        (\ap{V_1}{(F_2[\ap{\shift}{V}])}) = F[\ap{\shift}{V}]$ where $F =
+        (\ap{V_1}{F_2})$
+      \item $M_2 \to N_2$ --- then we have $\ap{V_1}{M_2} \to
+        \ap{V_1}{N_2}$ since $(\ap{V_1}{[]})$ is a valid evaluation context
+      \item $M_2 = V_2$ --- Since $\emptyset \pipe \gamma \vdash M_1 :
+        \alpha \xto{\gamma} \gamma$ and $M_1$ is a value, then $M_1 =
+        \lam{x}{M_{11}}$ ($M_1$ cannot be a variable because it must be a
+        closed term). We therefore have $M = \ap{(\lam{x}{M_{11}})}{V_2}$
+        which we can reduce to $N = \subst{M_{11}}{x}{V_2}$ using $\to_\beta$.
+      \end{itemize}
+    \end{itemize}
+
+  \item $M = \ap{\reset}{M'}$
+
+    From the type of $M$, we can get a type for $M'$:
+
+    \begin{prooftree}
+      \AxiomC{$\emptyset \pipe \tau \vdash M' : \tau$}
+      \RightLabel{[$\reset$]}
+      \UnaryInfC{$\emptyset \pipe \gamma \vdash \ap{\reset}{M'} : \tau$}
+    \end{prooftree}
+
+    $M'$ is another closed well-typed term and so we apply the induction
+    hypothesis to $M'$ and deal with the possible results:
+    \begin{itemize}
+    \item $M' = V$ --- we reduce $M = \ap{\reset}{V}$ to $N = V$ using
+      $\to_\reset$
+    \item $M' = F[\ap{\shift}{V}]$ --- we reduce $M =
+      \ap{\reset}{(F[\ap{\shift}{V}])}$ to $N =
+      \ap{\reset}{(\ap{V}{(\lam{x}{\ap{\reset}{(F[x])}})})}$ using
+      $\to_\shift$
+    \item $M' \to N'$ --- then we also have $\ap{\reset}{M'} \to
+      \ap{\reset}{N'}$ since $(\ap{\reset}{[]})$ is a valid evaluation
+      context
+    \end{itemize}
+
+  \item $M = \ap{\shift}{M'}$
+
+    We follow the same process. Analyze the type of $M$\ldots
+
+    \begin{prooftree}
+      \AxiomC{$\emptyset \pipe \gamma \vdash M' : (\tau \xto{\delta} \gamma) \xto{\gamma} \gamma$}
+      \RightLabel{[$\shift$]}
+      \UnaryInfC{$\emptyset \pipe \gamma \vdash \ap{\shift}{M'} : \tau$}
+    \end{prooftree}
+
+    \ldots apply the induction hypothesis and treat all cases.
+    \begin{itemize}
+    \item $M' = V$ --- then we have $M = F[\ap{\shift}{V}]$ where $F = []$
+    \item $M' = F'[\ap{\shift}{V}]$ --- we have $M =
+      \ap{\shift}{(F'[\ap{\shift}{V}])} = F[\ap{\shift}{V}]$ where $F =
+      (\ap{\shift}{F'})$
+    \item $M' \to N'$ --- we have $\ap{\shift}{M'} \to \ap{\shift}{N'}$
+      since $(\ap{\shift}{[]})$ is a valid evaluation context
+    \end{itemize}
+  \end{enumerate}
+\end{proof}
+
+\begin{definition}
+  A $\lambda_\shift$ term is \demph{stuck} when it is not a value and it
+  cannot reduce to any other $\lambda_\shift$ term.
+\end{definition}
+
+\begin{property}
+  \demph{Type soundness for $\lambda_\shift$}
+
+  Let $M$ be a closed well-typed $\lambda_\shift$ term whose expression
+  type and answer type agree, i.e.\ we have $\emptyset \pipe \tau \vdash M
+  : \tau$. Then the term $\ap{\reset}{M}$, which is also well-typed, can
+  never reduce to a stuck term.
+\end{property}
+\begin{proof}
+  Thanks to type preservation, we know that all the terms $N$ that we can
+  ever reduce $\ap{\reset}{M}$ to are all well-typed (and closed). Thanks
+  to the progress property, we also know that any such $N$ must satisfy one
+  of the following properties:
+  \begin{itemize}
+  \item $N$ is a value --- therefore, $N$ is not stuck
+  \item $N = F[\ap{\shift}{V}]$ --- This case is impossible. We know that
+    $N$ is not of the shape $\ap{\reset}{N'}$. Somewhere in the reduction
+    chain from $\ap{\reset}{M}$ to $N$, the $\reset$ was removed. The only
+    reduction rule that can do that is $\to_\reset$, repeated here:
+
+    $$
+    C[\ap{\reset}{V}] \to_\reset C[V]
+    $$
+
+    It only applies when the argument of $\reset$ is a value. Furthermore,
+    when applied in the empty context $[]$, its result is also a
+    value. Note that values cannot contain a redex (they are either simple
+    variables or $\lambda$-abstractions, which are not valid evaluation
+    contexts). This means that $N$ must be a value but this is in
+    contradiction with $N = F[\ap{\shift}{V}]$.
+  \item $N \to N'$ --- $N$ is not stuck because we can reduce to $N'$.
+  \end{itemize}
+\end{proof}
+
+\section{Other Control Operators}
+
+
+\TODO{
+  \begin{itemize}
+  \item Diagram
+  \end{itemize}
+}

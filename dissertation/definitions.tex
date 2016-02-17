@@ -54,6 +54,9 @@
 
 \newtheorem*{definition}{Definition}
 \newtheorem*{observation}{Observation}
+\newtheorem{property}{Property}
+\newtheorem{corollary}[property]{Corollary}
+\newtheorem{lemma}[property]{Lemma}
 
 \newcommand{\cibanana}{\banana{(\onto{\op{op}_i} M_i)_{i \in I},\ \onto{\eta} M_\eta}}
 \newcommand{\cdbanana}{\banana{\onto{\op{op}_1} M_1,\ \dots,\ \onto{\op{op}_n} M_n,\ \onto{\eta} M_\eta}}
@@ -127,3 +130,17 @@
 
 \newcommand{\ffrom}{\twoheadleftarrow}
 \newcommand{\ttoffrom}{\twoheadleftrightarrow}
+
+
+\newcommand{\reset}{\mathtt{reset}}
+\newcommand{\shift}{\mathtt{shift}}
+
+\newcommand{\semo}[1]{\sem{#1}_0}
+
+
+\newcommand{\demph}[1]{\textbf{#1}}
+
+\newcommand{\pipe}{\mathbin{|}}
+\newcommand{\xto}[1]{\xrightarrow{#1}}
+
+\renewcommand\theequation{\arabic{equation}}

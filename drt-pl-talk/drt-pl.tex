@@ -383,8 +383,8 @@ get (fun f x -> f x) (fun f x -> x)
   C\left[\ \drs{$x_1$, \ldots, $x_n$}
         {$\gamma_1$ \\
          \ldots \\
-         $\left( \leaf{$\alpha$} \branch{1}{PRO} \branch{1}{NP$_{Gen=\beta}$}
-         \leaf{VP$'$} \branch{2}{S} \tree \right)$ \\
+         $C_\gamma \left[ \leaf{$\alpha$} \branch{1}{PRO} \branch{1}{NP$_{Gen=\beta}$}
+         \leaf{VP$'$} \branch{2}{S} \tree \right]$ \\
          \ldots \\
          $\gamma_m$}\ \right]
   \to_{\texttt{CR.PRO}}
@@ -393,7 +393,7 @@ get (fun f x -> f x) (fun f x -> x)
          \ldots \\
          $u = v$ \\
          $Gen(u) = \beta$ \\
-         $\left( \leaf{$u$} \leaf{VP$'$} \branch{2}{S} \tree \right)$ \\
+         $C_\gamma \left[ \leaf{$u$} \leaf{VP$'$} \branch{2}{S} \tree \right]$ \\
          \ldots \\
          $\gamma_m$}\ \right]
   $$
@@ -521,7 +521,7 @@ cr_pro (S (NP beta (PRO alpha)) vp) =
   \boxop &: \FF(1) \to \gamma \to o \\
   \boxop &= \lam{A e}{\app{A}{e}{(\lam{e'}{\top})}} \\
   \op{get} &: (\gamma \to \FF(\alpha)) \to \FF(\alpha) \\
-  \op{get} &= \lam{k e \phi}{\app{k}{e}{\phi}}
+  \op{get} &= \lam{k e \phi}{\appp{k}{e}{e}{\phi}}
   \end{align*}
 \end{frame}
 
@@ -697,7 +697,7 @@ $$
 \vfill Handlers interpret \demph{some} operations
 \pause
 $$
-\oboxop : \FF_{E_d \uplus E_f}(1) \to \gamma \to \FF_{E_f}(1)
+\oboxop : \FF_{E_d \uplus E_f}(1) \to \gamma \to \FF_{E_f}(o)
 $$
 \begin{align*}
   \oboxop = \lam{A e}{(\ap{\banana{
@@ -706,7 +706,7 @@ $$
     & \onto{\op{assert}}{(\lam{p k}{\ap{\eta}{(\lam{e}{(\lam{q}{p \land q}) \apr
                   ((\ap{k}{x}) \apl (p \cons e))})}})}, \\
     & \onto{\op{get}}{(\lam{\_ k}{\ap{\eta}{(\lam{e}{(\ap{k}{e}) \apl e})}})}, \\
-    & \onto{\eta}{(\lam{x}{\ap{\eta}{(\lam{e}{\ap{\eta}{x}})}})}
+    & \onto{\eta}{(\lam{\_}{\ap{\eta}{(\lam{e}{\ap{\eta}{\top}})}})}
   }}{A}) \apl e}
 \end{align*}
 \end{frame}
