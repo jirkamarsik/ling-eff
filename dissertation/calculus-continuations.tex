@@ -534,6 +534,7 @@ $\sem{M} \ttoffrom \sem{N}$ in $\banana{\lambda}$.
 
 
 \section{Turning to $\shift$ and $\reset$}
+\label{sec:shift}
 
 There are other control operators, similar to $\shifto$ and $\reseto$. One
 example would be the more common $\shift$ and $\reset$. The difference
@@ -1093,6 +1094,182 @@ its soundess by way of demonstrating type preservation and progress.
   \item $N \to N'$ --- $N$ is not stuck because we can reduce to $N'$.
   \end{itemize}
 \end{proof}
+
+Having proven the type soundness of the above type system for
+$\lambda_\shift$, we now show that typed $\lambda_\shift$ translates to
+typed $\banana{\lambda}$. We already defined a translation from
+$\lambda_\shift$ terms to $\banana{\lambda}$ in~\ref{sec:shift}, now we
+have to define a translation of the types.
+
+\begin{definition}
+  We define the \demph{interpretation $\sem{\tau}$ of a $\lambda_\shift$
+    type $\tau$} by establishing that:
+
+  \begin{itemize}
+  \item $\sem{\nu} = \nu$ where $\nu$ is an atomic type
+  \item $\sem{\alpha \xto{\gamma} \beta} = \sem{\alpha} \to
+    \FF_{E_{\sem{\gamma}}}(\sem{\beta})$ where $E_\omega = \{
+    \typedop{shift0}{((\delta \to \omega) \to \omega)}{\delta}
+    \}_\delta$\footnote{The idea behind $E_\omega$ is that $\shift0$ should
+      be polymorphic in $\delta$. However, we do not have polymorphism in
+      $\banana{\lambda}$, so in this particular case, we will assume we
+      have sufficiently many distinct instances of $\shift0$ covering the
+      different types at which we want to $\shift$.}
+  \end{itemize}
+\end{definition}
+
+\newcommand{\cstype}{\FF_{E_{\sem{\gamma}}}}
+\begin{property}
+  \demph{Simulating $\lambda_\shift$ types in $\banana{\lambda}$}
+
+  $$
+  \Gamma \pipe \gamma \vdash M : \tau
+  \quad \Rightarrow \quad
+  \sem{\Gamma} \vdash \sem{M} : \cstype(\sem{\tau})
+  $$
+
+  where $\sem{\Gamma}$ is defined by interpreting all of the pairs $x : \tau$
+  as $x : \sem{\tau}$.
+\end{property}
+\begin{proof}
+  We will proceed by induction on the proof of the judgment $\Gamma \pipe
+  \gamma \vdash M : \tau$, covering the 5 cases corresponding to the 5
+  different inference rules in the $\lambda_\shift$ type system.
+
+  \begin{enumerate}
+  \item $M = x$
+
+    \begin{prooftree}
+      \AxiomC{$x : \tau \in \Gamma$}
+      \RightLabel{[var]}
+      \UnaryInfC{$\Gamma \pipe \gamma \vdash x : \tau$}
+    \end{prooftree}
+
+    We have $x : \tau \in \Gamma$, which means that in $\sem{\Gamma}$, we
+    have $x : \sem{\tau}$. The interpretation of $M$, $\sem{M}$, is
+    $\ap{\eta}{x}$ and we can build a proof of the type judgment like this:
+
+    \begin{prooftree}
+      \AxiomC{}
+      \RightLabel{[$\eta$]}
+      \UnaryInfC{$\sem{\Gamma} \vdash \eta : \sem{\tau} \to \cstype(\sem{\tau})$}
+      \AxiomC{$x : \sem{\tau} \in \sem{\Gamma}$}
+      \RightLabel{[var]}
+      \UnaryInfC{$\sem{\Gamma} \vdash x : \sem{\tau}$}
+      \RightLabel{[app]}
+      \BinaryInfC{$\sem{\Gamma} \vdash \ap{\eta}{x} : \cstype(\sem{\tau})$}
+    \end{prooftree}
+
+
+  \item $M = \lam{x}{M'}$ and $\tau = \tau_1 \xto{\delta} \tau_2$
+
+    \begin{prooftree}
+      \AxiomC{$\Gamma, x : \tau_1 \pipe \delta \vdash M' : \tau_2$}
+      \RightLabel{[abs]}
+      \UnaryInfC{$\Gamma \pipe \gamma \vdash \lam{x}{M'} : \tau_1 \xto{\delta} \tau_2$}
+    \end{prooftree}
+
+    By induction hypothesis, we get that $\sem{\Gamma}, x : \sem{\tau_1}
+    \vdash \sem{M'} : \FF_{E_{\sem{\delta}}}{\sem{\tau_2}}$ and by definition, we
+    have $\sem{\lam{x}{M'}} = \ap{\eta}{(\lam{x}{\sem{M'}})}$ and
+    $\sem{\tau_1 \xto{\delta} \tau_2} = \sem{\tau_1} \to
+    \FF_{E_{\sem{\delta}}}(\sem{\tau_2})$. Let us prove its type.
+
+    \vspace{2mm}
+    \makebox[\textwidth][c]{
+      \AxiomC{}
+      \RightLabel{$\eta$}
+      \UnaryInfC{$\sem{\Gamma} \vdash \eta : (\sem{\tau_1} \to \FF_{E_{\sem{\delta}}}(\sem{\tau_2})) \to \cstype(\sem{\tau_1} \to \FF_{E_{\sem{\delta}}}(\sem{\tau_2}))$}
+      \AxiomC{$\sem{\Gamma}, x : \sem{\tau_1} \vdash \sem{M'} : \FF_{E_{\sem{\delta}}}(\sem{\tau_2})$}
+      \RightLabel{[abs]}
+      \UnaryInfC{$\sem{\Gamma} \vdash \lam{x}{\sem{M'}} : \sem{\tau_1} \to \FF_{E_{\sem{\delta}}}(\sem{\tau_2})$}
+      \RightLabel{[app]}
+      \BinaryInfC{$\sem{\Gamma} \vdash \ap{\eta}{(\lam{x}{\sem{M'}})} : \cstype(\sem{\tau_1} \to \FF_{E_{\sem{\delta}}}(\sem{\tau_2}))$}
+      \DisplayProof
+    }
+    \vspace{2mm}
+
+
+  \item $M = \ap{M_1}{M_2}$
+
+    \begin{prooftree}
+      \AxiomC{$\Gamma \pipe \gamma \vdash M_1 : \tau' \xto{\gamma} \tau$}
+      \AxiomC{$\Gamma \pipe \gamma \vdash M_2 : \tau'$}
+      \RightLabel{[app]}
+      \BinaryInfC{$\Gamma \pipe \gamma \vdash \ap{M_1}{M_2} : \tau$}
+    \end{prooftree}
+
+    By induction hypothesis, we get $\sem{\Gamma} \vdash \sem{M_1} :
+    \cstype(\sem{\tau'} \to \cstype(\sem{\tau}))$ and $\sem{\Gamma} \vdash
+    \sem{M_2} : \cstype(\sem{\tau'})$. By definition, we also have
+    $\sem{\ap{M_1}{M_2}} = \sem{M_1} \hsbind (\lam{m}{\sem{M_2} \hsbind
+      (\lam{n}{\ap{m}{n}})})$.
+
+    \vspace{2mm}
+    \makebox[\textwidth][c]{
+    \resizebox{1.75\linewidth}{!}{
+        \AxiomC{$\sem{\Gamma} \vdash \sem{M_1} : \cstype(\sem{\tau'} \to \cstype(\sem{\tau}))$}
+        \AxiomC{$\sem{\Gamma}, m : \sem{\tau'} \to \cstype(\sem{\tau}) \vdash \sem{M_2} : \cstype(\sem{\tau'})$}
+        \AxiomC{$\sem{\Gamma}, m : \sem{\tau'} \to \cstype(\sem{\tau}), n : \sem{\tau'} \vdash m : \sem{\tau'} \to \cstype(\sem{\tau})$}
+        \AxiomC{$\sem{\Gamma}, m : \sem{\tau'} \to \cstype(\sem{\tau}), n : \sem{\tau'} \vdash n : \sem{\tau'}$}
+        \RightLabel{[app]}
+        \BinaryInfC{$\sem{\Gamma}, m : \sem{\tau'} \to \cstype(\sem{\tau}), n : \sem{\tau'} \vdash \ap{m}{n} : \cstype(\sem{\tau})$}
+        \RightLabel{[abs]}
+        \UnaryInfC{$\sem{\Gamma}, m : \sem{\tau'} \to \cstype(\sem{\tau}) \vdash \lam{n}{\ap{m}{n}} : \sem{\tau'} \to \cstype(\sem{\tau})$}
+        \RightLabel{[$\hsbind$]}
+        \BinaryInfC{$\sem{\Gamma}, m : \sem{\tau'} \to \cstype(\sem{\tau}) \vdash \sem{M_2} \hsbind (\lam{n}{\ap{m}{n}}) : \cstype(\sem{\tau})$}
+        \RightLabel{[abs]}
+        \UnaryInfC{$\sem{\Gamma} \vdash \lam{m}{\sem{M_2} \hsbind (\lam{n}{\ap{m}{n}})} : (\sem{\tau'} \to \cstype(\sem{\tau})) \to \cstype(\sem{\tau})$}
+        \RightLabel{[$\hsbind$]}
+        \BinaryInfC{$\sem{\Gamma} \vdash \sem{M_1} \hsbind (\lam{m}{\sem{M_2} \hsbind (\lam{n}{\ap{m}{n}})}) : \cstype(\sem{\tau})$}
+        \DisplayProof
+    }}
+    \vspace{2mm}
+
+    NB: $m$ is assumed to be fresh in $M_2$ (and therefore $\sem{M_2}$),
+    allowing us to get $\sem{\Gamma}, m : \sem{\tau'} \to
+    \cstype(\sem{\tau}) \vdash \sem{M_2} : \cstype(\sem{\tau'})$ from
+    $\sem{\Gamma} \vdash \sem{M_2} : \cstype(\sem{\tau'})$.
+
+
+  \item $M = \ap{\reset}{M'}$
+
+    \begin{prooftree}
+      \AxiomC{$\Gamma \pipe \tau \vdash M' : \tau$}
+      \RightLabel{[$\reset$]}
+      \UnaryInfC{$\Gamma \pipe \gamma \vdash \ap{\reset}{M'} : \tau$}
+    \end{prooftree}
+
+    By induction hypothesis, we get $\sem{\Gamma} \vdash \sem{M'} :
+    \FF_{E_{\sem{\tau}}}(\sem{\tau})$, and by definition we have
+    $\sem{\ap{\reset}{M'}} = \ap{\eta}{(\ap{\resetbanana}{\sem{M'}})}$
+    (\TODO{Actually change the definition of $\sem{\ap{\reset}{M'}}$ to be
+      like this!}).
+
+    \vspace{2mm}
+    \makebox[\textwidth][c]{
+      \AxiomC{$\sem{\Gamma} \vdash \eta : \sem{\tau} \to \cstype(\sem{\tau})$}
+      \AxiomC{$\sem{\Gamma} \vdash \lam{c k}{\ap{c}{k}} : ((\delta \to \sem{\tau}) \to \sem{\tau}) \to (\delta \to \sem{\tau}) \to \sem{\tau}$}
+      \noLine
+      \def\extraVskip{0pt}
+      \UnaryInfC{$\sem{\Gamma} \vdash \lam{x}{x} : \sem{\tau} \to \sem{\tau}$}
+      \def\extraVskip{2pt}
+      \RightLabel{[$\banana{}$]}
+      \UnaryInfC{$\sem{\Gamma} \vdash \resetbanana : \FF_{E_{\sem{\tau}}}(\sem{\tau}) \to \sem{\tau}$}
+      \AxiomC{$\sem{\Gamma} \vdash \sem{M'} : \FF_{E_{\sem{\tau}}}(\sem{\tau})$}
+      \RightLabel{[app]}
+      \BinaryInfC{$\sem{\Gamma} \vdash \ap{\resetbanana}{\sem{M'}} : \sem{\tau}$}
+      \RightLabel{[app]}
+      \BinaryInfC{$\sem{\Gamma} \vdash \ap{\eta}{(\ap{\resetbanana}{\sem{M'}})} : \cstype(\sem{\tau})$}
+      \DisplayProof
+    }
+    \vspace{2mm}
+
+   
+  \end{enumerate}
+
+\end{proof}
+
 
 \section{Other Control Operators}
 
