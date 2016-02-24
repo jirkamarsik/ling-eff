@@ -1248,7 +1248,9 @@ have to define a translation of the types.
 
     \vspace{2mm}
     \makebox[\textwidth][c]{
-      \AxiomC{$\sem{\Gamma} \vdash \eta : \sem{\tau} \to \cstype(\sem{\tau})$}
+      \AxiomC{}
+      \RightLabel{[$\eta$]}
+      \UnaryInfC{$\sem{\Gamma} \vdash \eta : \sem{\tau} \to \cstype(\sem{\tau})$}
       \AxiomC{$\sem{\Gamma} \vdash \lam{c k}{\ap{c}{k}} : ((\delta \to \sem{\tau}) \to \sem{\tau}) \to (\delta \to \sem{\tau}) \to \sem{\tau}$}
       \noLine
       \def\extraVskip{0pt}
@@ -1266,8 +1268,41 @@ have to define a translation of the types.
     \vspace{2mm}
 
    
+  \item $M = \ap{\shift}{M'}$
+
+    \begin{prooftree}
+      \AxiomC{$\Gamma \pipe \gamma \vdash M' : (\tau \xto{\delta} \gamma) \xto{\gamma} \gamma$}
+      \RightLabel{[$\shift$]}
+      \UnaryInfC{$\Gamma \pipe \gamma \vdash \ap{\shift}{M'} : \tau$}
+    \end{prooftree}
   \end{enumerate}
 
+  The induction hypothesis gives us $\sem{\Gamma} \vdash \sem{M'} :
+  \cstype((\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to
+  \cstype(\sem{\gamma}))$. We also have $\sem{\ap{\shift}{M'}} = \sem{M'}
+  \hsbind
+  (\lam{m}{\ap{\op{\shift}!}{(\lam{x}{\ap{\resetbanana}{(\ap{m}{(\eta \circ
+            x)})}})}})$.
+
+  \vspace{2mm}
+  \makebox[\textwidth][c]{
+  \resizebox{1.7\linewidth}{!}{
+    \AxiomC{$\sem{\Gamma} \vdash \sem{M'} : \cstype((\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}))$}
+    \AxiomC{$\sem{\Gamma} \vdash \resetbanana : \cstype(\sem{\gamma}) \to \sem{\gamma}$}
+    \AxiomC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}), x : \sem{\tau} \to \sem{\gamma} \vdash \ap{m}{(\eta \circ x)} : \cstype(\sem{\gamma})$}
+    \RightLabel{[app]}
+    \BinaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}), x : \sem{\tau} \to \sem{\gamma} \vdash \ap{\resetbanana}{(\ap{m}{(\eta \circ x)})} : \sem{\gamma}$}
+    \RightLabel{[abs]}
+    \UnaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}) \vdash \lam{x}{\ap{\resetbanana}{(\ap{m}{(\eta \circ x)})}} : (\sem{\tau} \to \sem{\gamma}) \to \sem{\gamma}$}
+    \RightLabel{[$\op{op}!$]}
+    \UnaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}) \vdash \ap{\op{\shift}!}{(\lam{x}{\ap{\resetbanana}{(\ap{m}{(\eta \circ x)})}})} : \cstype(\sem{\tau})$}
+    \RightLabel{[abs]}
+    \UnaryInfC{$\sem{\Gamma} \vdash \lam{m}{\ap{\op{\shift}!}{(\lam{x}{\ap{\resetbanana}{(\ap{m}{(\eta \circ x)})}})}} : ((\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma})) \to \cstype(\sem{\tau})$}
+    \RightLabel{[$\hsbind$]}
+    \BinaryInfC{$\sem{\Gamma} \vdash \sem{M'} \hsbind (\lam{m}{\ap{\op{\shift}!}{(\lam{x}{\ap{\resetbanana}{(\ap{m}{(\eta \circ x)})}})}}) : \cstype(\sem{\tau})$}
+    \DisplayProof
+  }}
+  \vspace{2mm}
 \end{proof}
 
 
