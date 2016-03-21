@@ -458,7 +458,7 @@ with the base case, $F = []$.
   &\to_\beta \app{\op{shift0}}{v}{\eta} \\
   &\from_{\eta.\to} \app{\op{shift0}}{v}{(\lam{x}{\ap{\eta}{x}})} \\
   &= \app{\op{shift0}}{v}{(\lam{x}{\sem{x}})} \\
-  &= \app{\op{shift0}}{v}{(\lam{x}{\sem{F[x]}})} \\
+  &= \app{\op{shift0}}{v}{(\lam{x}{\sem{F[x]}})}
 \end{align}
 \setcounter{equation}{0}
 
@@ -678,9 +678,9 @@ interpretations.
 &= \sem{\semo{M'}} \hsbind (\lam{m}{\ap{\op{shift0}!}{(\lam{x}{\ap{\resetobanana}{(\ap{m}{x})}})}}) \\
 &= \sem{M'} \hsbind (\lam{m}{\ap{\op{shift0}!}{(\lam{x}{\ap{\resetobanana}{(\ap{m}{x})}})}}) \\
 &= \sem{\ap{\shift}{M'}} \\
-&= \sem{M} \\ \\
-\setcounter{equation}{0}
+&= \sem{M}
 \end{align}
+\setcounter{equation}{0}
 
 \begin{align}
 \sem{\semo{M}}
@@ -1289,7 +1289,13 @@ have to define a translation of the types.
   \resizebox{1.7\linewidth}{!}{
     \AxiomC{$\sem{\Gamma} \vdash \sem{M'} : \cstype((\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}))$}
     \AxiomC{$\sem{\Gamma} \vdash \resetbanana : \cstype(\sem{\gamma}) \to \sem{\gamma}$}
-    \AxiomC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}), x : \sem{\tau} \to \sem{\gamma} \vdash \ap{m}{(\eta \circ x)} : \cstype(\sem{\gamma})$}
+    \AxiomC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}) \vdash m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma})$}
+    \AxiomC{$\sem{\Gamma} \vdash \eta : \sem{\gamma} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})$}
+    \AxiomC{$\sem{\Gamma}, x : \sem{\tau} \to \sem{\gamma} \vdash x : \sem{\tau} \to \sem{\gamma}$}
+    \RightLabel{[$\circ$]}
+    \BinaryInfC{$\sem{\Gamma}, x : \sem{\tau} \to \sem{\gamma} \vdash \eta \circ x : \sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})$}
+    \RightLabel{[app]}
+    \BinaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}), x : \sem{\tau} \to \sem{\gamma} \vdash \ap{m}{(\eta \circ x)} : \cstype(\sem{\gamma})$}
     \RightLabel{[app]}
     \BinaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}), x : \sem{\tau} \to \sem{\gamma} \vdash \ap{\resetbanana}{(\ap{m}{(\eta \circ x)})} : \sem{\gamma}$}
     \RightLabel{[abs]}

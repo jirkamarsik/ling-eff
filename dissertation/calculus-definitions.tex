@@ -197,8 +197,13 @@ The expressions of our language are comprised of the following:
   \item[application] $\ap{M}{N}$, where $M$ and $N$ are expressions
   \item[variable] $x$, where $x$ is a variable from $\XX$
   \item[constant] $c$, where $c$ is a constant from $\Sigma$
-  \item[operation] $\op{op}$, where $\op{op}$ is an operator from $\EE$
-  \item[injection] $\eta$
+  \item[operation] $\app{\op{op}}{M_p}{(\lam{x}{M_c})}$, where $\op{op}$ is
+    an operator from $\EE$, $x$ is a variable from $\XX$ and $M_p$ and
+    $M_c$ are expressions
+  \item[injection] $\ap{\eta}{M}$, where $M$ is an expression
+    \\ \TODO{Propagate the changes (mandatory $\lambda$ in the second
+      argument of $\op{op}$, $\eta$ and $\op{op}$ no longer being
+      functions) to the surrounding text.}
   \item[handler] $\cdbanana$
     where $\op{op}_i$ are operators from $\EE$ and $M_i$ and $M_\eta$ are
     expressions
@@ -407,14 +412,21 @@ higher-order signature giving types to constants.
 
   \begin{subfigure}{.5\textwidth}
    \begin{prooftree}
-    \AxiomC{$\Gamma \vdash \eta : \alpha \to \FF_E(\alpha)$
-    \hskip 4pt [$\eta$]}
+    \AxiomC{$\Gamma \vdash M : \alpha$}
+    \RightLabel{[$\eta$]}
+    \UnaryInfC{$\Gamma \vdash \ap{\eta}{M} : \FF_E(\alpha)$}
    \end{prooftree}
   \end{subfigure}
   \begin{subfigure}{.5\textwidth}
    \begin{prooftree}
-    \AxiomC{$\Gamma \vdash \cherry : \FF_\emptyset(\alpha) \to \alpha$
-    \hskip 4pt [$\cherry$]}
+    \AxiomC{$\Gamma \vdash M_p : \alpha$}
+    \AxiomC{$\Gamma, x : \beta \vdash M_c : \FF_E(\gamma)$}
+    \def\extraVskip{0pt}
+    \noLine
+    \BinaryInfC{$\typedop{op}{\alpha}{\beta} \in E$}
+    \def\extraVskip{2pt}
+    \RightLabel{[op]}
+    \UnaryInfC{$\Gamma \vdash \app{\op{op}}{M_p}{(\lam{x}{M_c})} : \FF_E(\gamma)$}
    \end{prooftree}
   \end{subfigure}
 
@@ -423,9 +435,8 @@ higher-order signature giving types to constants.
   \hspace{-1.5cm}
   \begin{subfigure}{.5\textwidth}
    \begin{prooftree}
-    \AxiomC{$\typedop{op}{\alpha}{\beta} \in E$}
-    \RightLabel{[op]}
-    \UnaryInfC{$\Gamma \vdash \op{op} : \alpha \to (\beta \to \FF_E(\gamma)) \to \FF_E(\gamma)$}
+    \AxiomC{$\Gamma \vdash \cherry : \FF_\emptyset(\alpha) \to \alpha$
+    \hskip 4pt [$\cherry$]}
    \end{prooftree}
   \end{subfigure}
   \hspace{1cm}
@@ -443,7 +454,9 @@ higher-order signature giving types to constants.
    \end{prooftree}
   \end{subfigure}
 
-  \caption{\label{fig:types}Typing rules for our calculus.}
+  \caption{\label{fig:types}Typing rules for our calculus. \TODO{Propagate
+      the changes (mandatory $\lambda$ in the second argument of $\op{op}$,
+      $\eta$ and $\op{op}$ no longer functions) to the surrounding text.}}
 \end{figure}
 
 
@@ -984,12 +997,12 @@ Figure~\ref{fig:reductions}, one by one.
   $\ap{\cibanana}{(\ap{\eta}{N})} \to$ & rule $\banana{\eta}$ \\
   $\ap{M_\eta}{N}$ & \\
   \\
-  $\ap{\cibanana}{(\ap{\ap{\op{op}_i}{N_p}}{N_c})} \to$ & rule $\banana{\op{op}}$ \\
-  $\ap{M_i}{\ap{N_p}{(\lam{x}{\ap{\cibanana}{(\ap{N_c}{x})}})}}$
+  $\ap{\cibanana}{(\ap{\ap{\op{op}_i}{N_p}}{(\lam{x}{N_c})})} \to$ & rule $\banana{\op{op}}$ \\
+  $\ap{M_i}{\ap{N_p}{(\lam{x}{\ap{\cibanana}{N_c}})}}$
   & where $x$ is fresh for $M_\eta$ \\ & and $M_i$ for all $i \in I$ \\
   \\
-  $\ap{\cibanana}{(\ap{\ap{\op{op}'}{N_p}}{N_c})} \to$ & rule $\banana{\op{op}'}$ \\
-  $\ap{\op{op}'}{\ap{N_p}{(\lam{x}{\ap{\cibanana}{(\ap{N_c}{x})}})}}$
+  $\ap{\cibanana}{(\ap{\ap{\op{op}'}{N_p}}{(\lam{x}{N_c})})} \to$ & rule $\banana{\op{op}'}$ \\
+  $\ap{\op{op}'}{\ap{N_p}{(\lam{x}{\ap{\cibanana}{N_c}})}}$
   & where $\op{op}' \notin \{\op{op}_i\}_{i \in I}$ \\
   & and $x$ is fresh for $M_\eta$ \\ & and $M_i$ for all $i \in I$ \\
   \\
@@ -999,12 +1012,14 @@ Figure~\ref{fig:reductions}, one by one.
   $\ap{\CC}{(\lam{x}{\ap{\eta}{M}})} \to$ & rule $\CC_\eta$ \\
   $\ap{\eta}{(\lam{x}{M})}$ & \\
   \\
-  $\ap{\CC}{(\lam{x}{\ap{\ap{\op{op}}{M_p}}{M_c}})} \to$ & rule $\CC_\op{op}$ \\
-  $\ap{\ap{\op{op}}{M_p}}{(\lam{y}{\ap{\CC}{(\lam{x}{\ap{M_c}{y}})}})}$
-  & where $x$ is fresh for $M_p$ \\ & and $y$ is fresh for $M_c$
+  $\ap{\CC}{(\lam{x}{\ap{\ap{\op{op}}{M_p}}{(\lam{y}{M_c})}})} \to$ & rule $\CC_\op{op}$ \\
+  $\ap{\ap{\op{op}}{M_p}}{(\lam{y}{\ap{\CC}{(\lam{x}{M_c})}})}$
+  & where $x$ is fresh for $M_p$
   \end{tabular}
   
-  \caption{\label{fig:reductions} The reduction rules of our calculus.}
+  \caption{\label{fig:reductions} The reduction rules of our
+    calculus. \TODO{Propagate the changes (mandatory $\lambda$ in the
+      second argument of $\op{op}$) to the surrounding text.}}
 \end{figure}
 
 
