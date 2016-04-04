@@ -1,4 +1,10 @@
 \documentclass{llncs}
+
+\usepackage{url}
+
+\include{definitions}
+
+
 %
 \begin{document}
 %
@@ -16,11 +22,137 @@
 \end{abstract}
 %
 
+\section{Introduction}
+\label{sec:introduction}
 
+The prevailing methodology of formal semantics is compositionality in the
+sense of Frege: denotations of complex phrases are functions of the
+denotations of their immediate constituents. However, several phenomena
+have been identified that challenge this notion of
+compositionality. Examples include anaphora, presupposition,
+quantification, deixis and conventional implicature. In all of these
+examples, simple models of denotation (i.e.\ noun phrases are individuals,
+sentences are truth-values) run into complications as the denotations can
+depend on external values (anaphora, deixis) or on something which is not
+an immediate constituent (presupposition, quantification, conventional
+implicature).
 
+Among the solutions to these challenges, we find (at least) two types of
+solutions. First, we have those that relax the condition of
+compositionality. Notably, the denotation of a complex phrase is no longer
+a \emph{function} per se of the denotations of its immediate
+subconstituents. Rather, it is some other formally defined
+process\footnote{This kind of distinction is the same distinction between a
+  mathematical function and a function in a programming language, which
+  might have all kinds of side effects and therefore not be an actual
+  function.}. Examples of this approach include:
 
+\begin{itemize}
+\item the incremental algorithm used to build discourse representation
+  structures in DRT, as presented in~\cite{kamp1993discourse}
+\item the $\lambda\mu$ calculus used in~\cite{de2001type} to analyse
+  quantification since, due to the lack of confluence, function terms no
+  longer denote functions over simple denotations
+\item the use of exceptions and exception handlers
+  in~\cite{lebedeva2012expression} to model presuppositions in an otherwise
+  compositional framework
+\item the parsetree interpretation step in the logic of conventional
+  implicatures of~\cite{potts2005logic} that builds the denotation of a
+  sentence by extracting implicatures from the denotations of all of its
+  subparts (including the non-immediate ones)
+\end{itemize}
 
-\cite{de2001towards}
+The other approach is to enrich the denotations so that they are
+parameterized by the external information they need to obtain and contain
+whatever internal information they need to provide to their
+superconstituents. Here are some examples of this style:
+
+\begin{itemize}
+\item any kind of semantic indices (e.g.\ the speaker and addressee for
+  deixis, the current world for modality), since they amount to saying that
+  a phrase denotes an indexed set of simpler meanings
+\item the continuized semantics of~\cite{barker2002continuations} for
+  quantification in which denotations are functions of their own
+  continuations
+  \begin{itemize}
+  \item and more generally, any semantics using type raising or generalized
+    quantifiers for noun phrase denotations
+  \end{itemize}
+\item the dynamic denotations of~\cite{de2006towards} that are functions of
+  the common ground and their continuation
+\item compositional event semantics, such as the one
+  in~\cite{qian2011event}, that shift the denotations of sentences from
+  truth-values to predicates on events
+\end{itemize}
+
+We want to find a common language in which we could express the above
+techniques. Our inspiration comes from computer science. There, a concept
+known as \emph{monad} has been used:
+\begin{itemize}
+\item in denotational semantics to give the domain of interpretation for
+  programming languages that involve side effects. \cite{moggi1991notions}
+\item in functional programming to emulate programming with side effects
+  via term-level encodings of effectful programs. \cite{wadler1992essence}
+\end{itemize}
+
+Monad is a term from category-theory. Its meaning is relative to some
+category. For us, this will always be the category whose objects are types
+and whose arrows are functions between different types. A monad is formed
+by a functor and a pair of natural transformations that satisfy certain
+laws. In our case, this means that a monad is some type wrapper (the
+functor part) and some combinators (the natural transformations) that
+follow some basic laws. To give an example of this, we can think of the
+functor $T(\alpha) = (\alpha \to o) \to o$ together with combinators such
+as the type raising $\eta(x) = \lam{P}{\ap{P}{x}}$ as a monad of
+quantification.
+
+The usefulness of monads in natural language semantics has been discovered
+by Shan in 2002~\cite{shan2002monads}. Since then, the problem that
+remained was how to compose several different monads in a single
+solution. Marlow used the popular method of monad morphisms\footnote{Also
+  known as monad transformers in functional programming.} to combine
+several monads in his dissertation~\cite{charlow2014semantics}. Giorgolo
+and Asudeh have used distributive laws between monads to combine
+monads~\cite{giorgolo2015natural}, while Kiselyov has eschewed monads
+altogether in favor of applicative functors which enjoy easy composability
+\cite{kiselyov2015applicative}.
+
+Our approach follows the recent trend in adopting effects and handlers to
+combine side effects~\cite{bauer2012programming,kammar2013handlers} and to
+encode effectful programs in pure functional programming
+languages~\cite{kiselyov2013extensible,brady2013programming}.
+
+The idea is that we can represent each of the relevant monads using an
+algebra. We can then combine the algebras by summing up their
+signatures. The resulting algebra will serve as a universal representation
+format for terms built from any of the source algebras and closed on
+substitution. Then, we will build modular interpreters that will give
+meanings to the operators of the algebras in terms of individuals,
+truth-values and functions.
+
+In Sect.~\ref{sec:definition}, we will introduce a formal calculus for
+working with the algebraic terms that will use in our linguistic
+denotations. In Sect.~\ref{sec:phenomena} and~\ref{sec:combination}, we
+will see some simple uses of the calculus on the phenomena outlied in this
+introduction and then we will explore what it would take to have them
+coexist in the same fragment. Before we conclude in
+Sect.~\ref{sec:conclusion}, we will also discuss some of the formal
+properties of the calculus in Sect.~\ref{sec:properties}.
+
+\section{Definition of the Calculus}
+\label{sec:definition}
+
+\section{Linguistic Phenomena as Effects}
+\label{sec:phenomena}
+
+\section{Effects in Combination}
+\label{sec:combination}
+
+\section{Properties of the Calculus}
+\label{sec:properties}
+
+\section{Conclusion}
+\label{sec:conclusion}
 
 %
 % ---- Bibliography ----

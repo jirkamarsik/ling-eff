@@ -1,4 +1,4 @@
-fg2016.pdf: fg2016.tex references.bib
+fg2016.pdf: fg2016.tex definitions.tex references.bib
 	pdflatex fg2016
 	bibtex fg2016
 	pdflatex fg2016

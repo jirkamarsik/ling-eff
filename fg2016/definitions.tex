@@ -1,0 +1,139 @@
+\newcommand{\hsbind}{\mathbin{\gg\!=}}
+\newcommand{\apl}{\mathbin{\ll\!\!\cdot}}
+\newcommand{\apr}{\mathbin{\cdot\!\!\gg}}
+\newcommand{\aplr}{\mathbin{\ll\!\!\cdot\!\!\gg}}
+\newcommand{\cons}{\mathbin{::}}
+\newcommand{\cat}{\mathbin{+\mkern-10mu+}}
+
+\newcommand{\abs}[1]{\textsc{#1}}
+\newcommand{\obj}[1]{\textbf{#1}}
+\newcommand{\sem}[1]{\llbracket #1 \rrbracket}
+\newcommand{\lex}[2]{\sem{\abs{#1}} &:= #2}
+
+\newcommand{\dand}{\mathbin{\overline{\land}}}
+\newcommand{\dnot}{\mathop{\overline{\lnot}}}
+\newcommand{\dor}{\mathop{\overline{\lor}}}
+\newcommand{\dimpl}{\mathbin{\overline{\to}}}
+\newcommand{\dexists}{\mathop{\overline{\exists}}}
+\newcommand{\dforall}{\mathop{\overline{\forall}}}
+
+\newcommand{\limp}{\mathbin{{-}\mkern-3.5mu{\circ}}}
+
+\newcommand{\llbparenthesis}{\vcenter{\hbox{\includegraphics{symbols/llbparenthesis.png}}}}
+\newcommand{\rrbparenthesis}{\vcenter{\hbox{\includegraphics{symbols/rrbparenthesis.png}}}}
+\newcommand{\lban}{\llparenthesis \,}
+\newcommand{\rban}{\, \rrparenthesis}
+\newcommand{\lbban}{\llbparenthesis \,}
+\newcommand{\rbban}{\, \rrbparenthesis}
+\newcommand{\banana}[1]{\lban #1 \rban}
+\newcommand{\bbanana}[1]{\lbban #1 \rbban}
+\newcommand{\cherry}{\rotatebox[origin=c]{270}{$\limp$}}
+
+\newcommand{\lam}[2]{\lambda #1.\, #2}
+\newcommand{\ap}[2]{#1\,#2}
+\newcommand{\app}[3]{\ap{\ap{#1}{#2}}{#3}}
+\newcommand{\appp}[4]{\ap{\ap{\ap{#1}{#2}}{#3}}{#4}}
+\newcommand{\op}[1]{\mathtt{#1}}
+\newcommand{\onto}[1]{#1 \mathalpha{:\,}}
+\newcommand{\typedop}[3]{\op{#1} : #2 \rightarrowtail #3}
+\newcommand{\typedopg}[3]{#1 : #2 \rightarrowtail #3}
+\newcommand{\row}[2]{\{ #1 \mathrel{|} #2 \}}
+
+\newcommand{\CC}{\mathcal{C}}
+\newcommand{\FF}{\mathcal{F}}
+\newcommand{\XX}{\mathcal{X}}
+\newcommand{\EE}{\mathcal{E}}
+\newcommand{\TT}{\mathcal{T}}
+\newcommand{\PP}{\mathcal{P}}
+
+\newcommand{\FV}{\operatorname{FV}}
+
+\newcommand{\subst}[3]{#1[#2 \coloneqq #3]}
+
+\newcommand{\syntclos}[1]{\mathbin{[#1]}}
+
+\newcommand{\cibanana}{\banana{(\onto{\op{op}_i} M_i)_{i \in I},\ \onto{\eta} M_\eta}}
+\newcommand{\cdbanana}{\banana{\onto{\op{op}_1} M_1,\ \dots,\ \onto{\op{op}_n} M_n,\ \onto{\eta} M_\eta}}
+
+\newcommand{\cibbanana}{\bbanana{(\onto{\op{op}_i} M_i)_{i \in I},\ \onto{\eta} M_\eta}}
+
+\newcommand{\TODO}[1]{\textcolor{red}{\textbf{TODO}: #1}}
+
+\newcommand{\relR}{\mathbin{R}}
+
+\newcommand{\swap}{\mathbin{\textbf{swap}}}
+
+\newcommand{\tto}{\twoheadrightarrow}
+
+\mathchardef\mhyphen="2D
+
+\newcommand{\pair}[2]{\left<#1, #2\right>}
+\newcommand{\inl}{\operatorname{inl}}
+\newcommand{\inr}{\operatorname{inr}}
+
+\newcommand{\true}{\textbf{T}}
+\newcommand{\false}{\textbf{F}}
+\newcommand{\ifte}[3]{\text{\textbf{if} $#1$ \textbf{then} $#2$ \textbf{else} $#3$}}
+
+
+% Examples
+\newcommand{\expr}[1]{\textsc{#1}}
+\newcommand{\sume}{\expr{sum}}
+\newcommand{\prode}{\expr{prod}}
+\newcommand{\lite}{\expr{lit}}
+\newcommand{\dive}{\expr{div}}
+\newcommand{\trye}{\expr{try}}
+\newcommand{\lete}{\expr{let}}
+\newcommand{\vare}{\expr{var}}
+\newcommand{\sumecn}[2]{\app{\sume}{#1}{#2}}
+\newcommand{\prodecn}[2]{\app{\prode}{#1}{#2}}
+\newcommand{\litecn}[1]{\ap{\lite}{#1}}
+\newcommand{\divecn}[2]{\app{\dive}{#1}{#2}}
+\newcommand{\tryecn}[2]{\app{\trye}{#1}{#2}}
+\newcommand{\letecn}[3]{\appp{\lete}{\bar{#1}}{#2}{#3}}
+\newcommand{\varecn}[1]{\ap{\vare}{#1}}
+
+\newcommand{\paren}[1]{(#1)}
+
+\newcommand{\sumec}[2]{\paren{\sumecn{#1}{#2}}}
+\newcommand{\prodec}[2]{\paren{\prodecn{#1}{#2}}}
+\newcommand{\litec}[1]{\paren{\litecn{#1}}}
+\newcommand{\divec}[2]{\paren{\divecn{#1}{#2}}}
+\newcommand{\tryec}[2]{\paren{\tryecn{#1}{#2}}}
+\newcommand{\letec}[3]{\paren{\letecn{#1}{#2}{#3}}}
+\newcommand{\varec}[1]{\paren{\varecn{\bar{#1}}}}
+
+
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\dbze}{\frac{\cdot}{0}}
+\newcommand{\dbzelong}{\operatorname{DivisionByZero}}
+
+
+\newcommand{\reseto}{\mathtt{reset0}}
+\newcommand{\shifto}{\mathtt{shift0}}
+\newcommand{\resetobanana}{\banana{\onto{\op{shift0}}{(\lam{c k}{\ap{c}{k}})}}}
+\newcommand{\resetbanana}{\bbanana{\onto{\op{shift0}}{(\lam{c k}{\ap{c}{k}})}}}
+\newcommand{\from}{\leftarrow}
+
+\newcommand*{\twoheadleftrightarrow}{%
+  \twoheadleftarrow
+  \mathrel{\mkern-15mu}%
+  \twoheadrightarrow
+}
+
+\newcommand{\ffrom}{\twoheadleftarrow}
+\newcommand{\ttoffrom}{\twoheadleftrightarrow}
+
+
+\newcommand{\reset}{\mathtt{reset}}
+\newcommand{\shift}{\mathtt{shift}}
+
+\newcommand{\semo}[1]{\sem{#1}_0}
+
+
+\newcommand{\demph}[1]{\textbf{#1}}
+
+\newcommand{\pipe}{\mathbin{|}}
+\newcommand{\xto}[1]{\xrightarrow{#1}}
+
+\renewcommand\theequation{\arabic{equation}}
