@@ -391,8 +391,9 @@ each operation symbol to a pair of types $\alpha \rightarrowtail \beta$.
   the type of that parameter.
 \item The type $\beta$ expresses the arity of the operator. When we say
   that an operator has arity $\beta$, where $\beta$ is a type, we mean that
-  it takes one operand for every value of $\beta$. We can also think of the
-  operator as taking one operand with $x : \beta$ as a free variable.
+  it takes one operand for every value of $\beta$
+  \cite{pretnar2010logic}. We can also think of the operator as taking one
+  operand with $x : \beta$ as a free variable.
 \end{itemize}
 
 We can look at the algebraic expression
@@ -427,7 +428,70 @@ We said before that the $\CC$ function will let us commute $\lambda$ and
 operations. Here, we see that on the type level, this corresponds to
 commuting the $\FF_E(\_)$ and the $\alpha \to \_$ type constructors.
 
+\subsection{Reduction Rules}
+\label{ssec:reductions}
 
+We will now finally give a semantics to our calculus. The semantics will be
+given in the form of a reduction relation on terms. Even though the point
+of the calculus is to talk about effects, the reduction semantics will not
+be based on any fixed evaluation order; any subterm that is a redex can be
+reduced in any context. The reduction rules are given in
+Fig.~\ref{fig:reductions}.
+
+\begin{figure}
+  \centering
+  \begin{tabular}{lr}
+  $\ap{(\lam{x}{M})}{N} \to$ & rule $\beta$ \\
+  $\subst{M}{x}{N}$ & \\
+  \\
+  $\lam{x}{\ap{M}{x}} \to$ & rule $\eta$ \\
+  $M$ & where $x \notin \FV(M)$ \\
+  \\
+  $\ap{\cibanana}{(\ap{\eta}{N})} \to$ & rule $\banana{\eta}$ \\
+  $\ap{M_\eta}{N}$ & \\
+  \\
+  $\ap{\cibanana}{(\ap{\ap{\op{op}_j}{N_{\mathrm{p}}}}{(\lam{x}{N_{\mathrm{c}}})})} \to$ & rule $\banana{\op{op}}$ \\
+  $\ap{M_j}{\ap{N_{\mathrm{p}}}{(\lam{x}{\ap{\cibanana}{N_{\mathrm{c}}}})}}$
+  & where $j \in I$ \\
+  & and $x \notin \FV((M_i)_{i \in I}, M_\eta)$ \\
+  \\
+  $\ap{\cibanana}{(\ap{\ap{\op{op}_j}{N_{\mathrm{p}}}}{(\lam{x}{N_{\mathrm{c}}})})} \to$ & rule $\banana{\op{op}'}$ \\
+  $\ap{\op{op}_j}{\ap{N_{\mathrm{p}}}{(\lam{x}{\ap{\cibanana}{N_{\mathrm{c}}}})}}$
+  & where $j \notin I$ \\
+  & and $x \notin \FV((M_i)_{i \in I}, M_\eta)$ \\
+  \\
+  $\ap{\cherry}{(\ap{\eta}{M})} \to$ & rule $\cherry$ \\
+  $M$ & \\
+  \\
+  $\ap{\CC}{(\lam{x}{\ap{\eta}{M}})} \to$ & rule $\CC_\eta$ \\
+  $\ap{\eta}{(\lam{x}{M})}$ & \\
+  \\
+  $\ap{\CC}{(\lam{x}{\ap{\ap{\op{op}}{M_{\mathrm{p}}}}{(\lam{y}{M_{\mathrm{c}}})}})} \to$ & rule $\CC_\op{op}$ \\
+  $\ap{\ap{\op{op}}{M_{\mathrm{p}}}}{(\lam{y}{\ap{\CC}{(\lam{x}{M_{\mathrm{c}}})}})}$
+  & where $x \notin \FV(M_{\mathrm{p}})$
+  \end{tabular}
+  
+  \caption{\label{fig:reductions} The reduction rules of our calculus.}
+\end{figure}
+
+We have the $\beta$ and $\eta$ rules. By no coincidence, they are the same
+rules as the ones found in STLC.\@ The rest are function definitions for
+$\banana{}$, $\cherry$ and $\CC$.
+
+By looking at the definition of $\banana{}$, we see that it as a standard
+iterator. It recursively replaces every occurrence of the constructors
+$\op{op}_j$ and $\eta$ with $M_j$ and $M_\eta$, respectively.
+
+The $\CC$ function recursively swaps [$\ap{\CC}{(\lam{x}{}}$] with
+[$\app{\op{op}}{M_{\mathrm{p}}}{(\lam{y}{}}$] using the $\CC_{\op{op}}$
+rule. When it finally hits the $\eta$ constructor, it swaps [$(\lam{x}$]
+with [$\eta$] and terminates. Note that the constraint that $x \notin
+\FV(M_{\mathrm{p}})$ cannot be dismissed by renaming of bound variables. If
+the parameter to $M_{\mathrm{p}}$ contains a free occurrence of $x$ that
+cannot be reduced away, the evaluation of $\CC$ will get stuck. $\CC$ is
+thus a partial function: it is only applicable when none of the operations
+being commuted with the $\lambda$-binder actually depend on the bound
+variable.
 
 
 \section{Linguistic Phenomena as Effects}
