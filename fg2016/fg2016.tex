@@ -90,10 +90,16 @@ techniques. Our inspiration comes from computer science. There, a concept
 known as \emph{monad} has been used:
 \begin{itemize}
 \item in denotational semantics to give the domain of interpretation for
-  programming languages that involve side effects. \cite{moggi1991notions}
+  programming languages that involve side effects~\cite{moggi1991notions}.
 \item in functional programming to emulate programming with side effects
-  via term-level encodings of effectful programs. \cite{wadler1992essence}
+  via term-level encodings of effectful programs~\cite{wadler1992essence}.
 \end{itemize}
+These two principal applications of monads align with the two approaches we
+have seen above. One where we change our calculus so it no longer defines
+pure functions (e.g.\ is non-deterministic, stateful or throws exceptions)
+and the one where we use use a pure calculus to manipulate terms
+(denotations) that encode some interaction (e.g.\ dynamicity, continuations
+or event predication).
 
 Monad is a term from category-theory. Its meaning is relative to some
 category. For us, this will always be the category whose objects are types
@@ -107,12 +113,17 @@ as the type raising $\eta(x) = \lam{P}{\ap{P}{x}}$ as a monad of
 quantification.
 
 The usefulness of monads in natural language semantics has been discovered
-by Shan in 2002~\cite{shan2002monads}. Since then, the problem that
-remained was how to compose several different monads in a single
-solution. Marlow used the popular method of monad morphisms\footnote{Also
-  known as monad transformers in functional programming.} to combine
-several monads in his dissertation~\cite{charlow2014semantics}. Giorgolo
-and Asudeh have used distributive laws between monads to combine
+by Shan in 2002~\cite{shan2002monads}\footnote{Side effects are to
+  programming languages what pragmatics are to natural languages: they both
+  study how expressions interact with the worlds of their users. It might
+  then come as no surprise that phenomena such as anaphora, presupposition,
+  deixis and conventional implicature yield a monadic description.}. Since
+then, the problem that remained was how to compose several different monads
+in a single solution. Marlow used the popular method of monad
+morphisms\footnote{Also known as monad transformers in functional
+  programming.} to combine several monads in his
+dissertation~\cite{charlow2014semantics}. Giorgolo and Asudeh have used
+distributive laws between monads to combine
 monads~\cite{giorgolo2015natural}, while Kiselyov has eschewed monads
 altogether in favor of applicative functors which enjoy easy composability
 \cite{kiselyov2015applicative}.
@@ -139,17 +150,22 @@ coexist in the same fragment. Before we conclude in
 Sect.~\ref{sec:conclusion}, we will also discuss some of the formal
 properties of the calculus in Sect.~\ref{sec:properties}.
 
+
 \section{Definition of the Calculus}
 \label{sec:definition}
+
 
 \section{Linguistic Phenomena as Effects}
 \label{sec:phenomena}
 
+
 \section{Effects in Combination}
 \label{sec:combination}
 
+
 \section{Properties of the Calculus}
 \label{sec:properties}
+
 
 \section{Conclusion}
 \label{sec:conclusion}
