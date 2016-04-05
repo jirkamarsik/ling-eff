@@ -1,6 +1,9 @@
 \documentclass{llncs}
 
 \usepackage{url}
+\usepackage{hyperref}
+\usepackage{stmaryrd}
+\usepackage{mathtools}
 
 \include{definitions}
 
@@ -154,6 +157,69 @@ properties of the calculus in Sect.~\ref{sec:properties}.
 \section{Definition of the Calculus}
 \label{sec:definition}
 
+Having sketched the general idea behind our calculus in the introduction,
+we will now turn our attention to the specifics. We start by defining the
+syntactic constructions used to build the terms of our language.
+
+\subsection{Terms}
+\label{ssec:terms}
+
+First off, let $\XX$ be a set of variables, $\Sigma$ a typed signature and
+$\EE$ a set of operation symbols. In the definition below, we will let $M$,
+$N$\ldots range over terms, $x$, $y$, $z$\ldots range over variables from
+$\XX$, $c$, $d$\ldots range over the names constants from $\Sigma$ and
+$\op{op}$, $\op{op}_i$\ldots range over the operation symbols in $\EE$.
+
+The terms of our language are comprised of the following:
+
+\begin{align*}
+  M, N ::= &\ \lam{x}{M} & \mbox{[abstraction]} \\
+   | \, &\ \ap{M}{N}  & \mbox{[application]} \\
+   | \, &\ x  & \mbox{[variable]} \\
+   | \, &\ c  & \mbox{[constant]} \\
+   | \, &\ \app{\op{op}}{M_{\mathrm{p}}}{(\lam{x}{M_{\mathrm{c}}})}  & \mbox{[operation]} \\
+   | \, &\ \ap{\eta}{M}  & \mbox{[injection]} \\
+   | \, &\ \ap{\cdbanana}{N}  & \mbox{[handler]} \\
+   | \, &\ \ap{\cherry}{M}  & \mbox{[extraction]} \\
+   | \, &\ \ap{\CC}{M} & \mbox{[exchange]} 
+\end{align*}
+
+The first four constructions --- abstraction, application, variables and
+constants --- come directly from the simply-typed lambda calculus (STLC)
+with constants.
+
+The next four deal with the algebraic expressions used to encode
+computations. Let us sketch the behaviors of these four kinds of
+expressions.
+
+The operation $\op{op}$ and injection $\eta$ expressions will serve as the
+constructors for our algebraic expressions. Algebraic expressions are
+usually formed by operation symbols and then variables at the
+leaves. Instead of variables, our algebraic expressions use terms from our
+calculus for ther leaves. The $\eta$ constructor can thus take an ordinary
+term from our calculus and make it a leaf node in an algebraic
+expression. The operation symbols $\op{op}$ are then the operations of the
+algebra.
+
+The other three expression types correspond to functions over algebraic
+expressions.
+\begin{itemize}
+\item The most useful is the handler $\banana{}$\footnote{Pronounced
+  ``banana''. See~\cite{meijer1991functional} for the introduction of
+  banana brackets.}. It acts as a recursor for the type of algebraic
+  expressions. The terms $M_1$,\ldots,$M_n$ and $M_\eta$ in $\cdbanana$ are
+  the clauses for the constructors $\op{op}_1$,\ldots,$\op{op}_n$ and
+  $\eta$, respectively. We will use handlers to define interpretations of
+  operation symbols in algebraic expressions.
+\item The cherry $\cherry$ operator allows us to extract terms out of
+  algebraic expressions. If an algebraic expression is of the form
+  $\ap{\eta}{M}$, applying $\cherry$ to it will yield $M$.
+\item The exchange operator $\CC$ permits a kind of commutation between the
+  $\lambda$ binder and the operation symbols. We will see its use later.
+\end{itemize}
+
+\subsection{Types}
+\label{ssec:types}
 
 \section{Linguistic Phenomena as Effects}
 \label{sec:phenomena}
