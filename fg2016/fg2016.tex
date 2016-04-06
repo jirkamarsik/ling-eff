@@ -1,12 +1,14 @@
 \documentclass{llncs}
 
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{bussproofs}
+\usepackage{stmaryrd}
+\usepackage{gb4e}
+\noautomath
 \usepackage{url}
 \usepackage{hyperref}
-\usepackage{stmaryrd}
-\usepackage{mathtools}
-\usepackage{amssymb}
 \usepackage{subcaption}
-\usepackage{bussproofs}
 
 \include{definitions}
 
@@ -493,10 +495,147 @@ thus a partial function: it is only applicable when none of the operations
 being commuted with the $\lambda$-binder actually depend on the bound
 variable.
 
+\subsection{Common Combinators}
+\label{ssec:common-combinators}
+
+When showing off the calculus in the next Section, the following
+combinators will be helpful. First, we define a sequencing operator. The
+operator $\hsbind$, called bind\footnote{This is the same bind as the one
+  used to define monads in functional programming languages.}, replaces all
+the $\alpha$-typed leaves of a $\FF_E(\alpha)$-typed expression with
+$\FF_E(\beta)$-typed expressions. More intuitively, $M \hsbind N$ is the
+program that first runs $M$ to get its result $x$ and then continues as the
+program $\ap{N}{x}$.
+
+\begin{align*}
+  \_ \hsbind \_ &: \FF_E(\alpha) \to (\alpha \to \FF_E(\beta)) \to \FF_E(\beta) \\
+  M \hsbind N &= \ap{\banana{\onto{\eta}{N}}}{M}
+\end{align*}
+
+Using $\hsbind$, we can define the following variations on the application
+operator.
+
+\begin{align*}
+  \_ \apl \_ &: \FF_E(\alpha \to \beta) \to \alpha \to \FF_E(\beta) \\
+  F \apl x &= F \hsbind (\lam{f}{\ap{\eta}{(\ap{f}{x})}}) \\
+  \_ \apr \_ &: (\alpha \to \beta) \to \FF_E(\alpha) \to \FF_E(\beta) \\
+  f \apr X &= X \hsbind (\lam{x}{\ap{\eta}{(\ap{f}{x})}}) \\
+  \_ \aplr \_ &: \FF_E(\alpha \to \beta) \to \FF_E(\alpha) \to \FF_E(\beta) \\
+  F \aplr X &= F \hsbind (\lam{f}{X \hsbind (\lam{x}{\ap{\eta}{(\ap{f}{x})}})})
+\end{align*}
+
 
 \section{Linguistic Phenomena as Effects}
 \label{sec:phenomena}
 
+We will now try to use this calculus to do some semantics. Here is the
+tectogrammar of our syntax in an abstract categorial grammar
+presentation~\cite{de2001towards}.
+
+\begin{align*}
+  \abs{John}, \abs{Mary}, \abs{me} &: NP \\
+  \abs{loves} &: NP \limp NP \limp S
+\end{align*}
+
+And here is our semantics.
+
+\begin{align*}
+  \lex{John}{\etaE{\obj{j}}} \\
+  \lex{Mary}{\etaE{\obj{m}}} \\
+  \lex{me}{\app{\op{speaker}}{\star}{(\lam{x}{\etaE{x}})}} \\
+  \lex{loves}{\lam{O S}{{\obj{love}} \apr S \aplr O}}
+\end{align*}
+
+This, and all the semantics we will see in this paper, satisfies a
+homomorphism condition that whenever $M : \tau$ then $\sem{M} :
+\sem{\tau}$. In our case, $\sem{NP} = \FF_E(\iota)$ and $\sem{S} =
+\FF_E(o)$, where $\iota$ and $o$ are the types of individuals and
+propositions, respectively. Of $E$, we assume that
+$\typedop{speaker}{1}{\iota} \in E$, since that is the type of
+$\op{speaker}$ used in our semantics\footnote{$1$ is the unit type whose
+  only element is written as $\star$.}.
+
+With this fragment, we can give meanings to trivial sentences like:
+
+\begin{exe}
+  \ex John loves Mary. \label{ex:trivial}
+  \ex Mary loves me. \label{ex:deixis}
+\end{exe}
+
+whose meanings we can calculate as:
+
+\begin{align}
+  \sem{\app{\abs{loves}}{\abs{Mary}}{\abs{John}}} & \tto 
+  \etaE{(\app{\obj{love}}{\obj{j}}{\obj{m}})} \\
+  \sem{\app{\abs{loves}}{\abs{me}}{\abs{Mary}}} & \tto
+  \app{\op{speaker}}{\star}{(\lam{x}{\app{\obj{love}}{\obj{m}}{x}})}
+\end{align}
+
+The meaning of~\eqref{ex:trivial} is a proposition of type $o$ wrapped in
+$\eta$, i.e.\ something that we can interpret in a model. As for the
+meaning of~\eqref{ex:deixis}, we have an algebraic expression having as
+operands the propositions $\app{\obj{love}}{\obj{m}}{x}$ for all possible
+$x : \iota$. In order to get a single proposition which is to be seen as
+the truth-conditional meaning of the sentence and which can be evaluated in
+a model, we will need to fix the speaker. We will do so by defining an
+interpreting handler.
+
+\begin{align*}
+  \withSpeaker &: \iota \to \FF_{\{\typedop{speaker}{1}{\iota}\} \uplus
+    E}(\alpha) \to \FF_E(\alpha) \\
+  \withSpeaker &= \lam{s M}{\ap{\banana{\onto{\op{speaker}}{(\lam{x k}{\ap{k}{s}})}}}{M}}
+\end{align*}
+
+NB: We omitted the $\eta$ clause in the banana brackets above. In such
+cases, we say there is a default clause $\onto{\eta}{(\lam{x}{\etaE{x}})}$.
+
+$$
+  \app{\withSpeaker}{s}{\sem{\app{\abs{loves}}{\abs{me}}{\abs{Mary}}}} \tto
+  \etaE{(\app{\obj{love}}{\obj{m}}{s})}
+$$
+
+So far, we could have done the same by introducing a constant named
+$\obj{me}$ to stand in for the speaker. However, since handlers are part of
+our object language, we can include them in lexical entries. With this, we
+can handle phenomena such as direct (quoted) speech, that rebinds the
+current speaker in a certain scope.
+
+\begin{align*}
+  \abs{said}_{\abs{is}} &: S \limp NP \limp S \\
+  \abs{said}_{\abs{ds}} &: S \limp NP \limp S
+\end{align*}
+
+Those are our new syntactic constructors: one for the indirect speech use
+of \emph{said} and the other for the direct speech use (their surface
+realizations would differ typographically or phonologically). Let us give
+them some semantics.
+
+\begin{align*}
+  \sem{\abs{said}_{\abs{is}}} &= \lam{C S}{\obj{say} \apr S \aplr C} \\
+                             &= \lam{C S}{S \hsbind (\lam{s}{\ap{\obj{say}}{s} \apr C})} \\
+  \sem{\abs{said}_{\abs{ds}}} &= \lam{C S}{S \hsbind (\lam{s}{\ap{\obj{say}}{s} \apr (\app{\withSpeaker}{s}{C})})}
+\end{align*}
+
+Here we elaborated the entry for indirect speech so it is easier to compare
+with the one for direct speech, which just adds a use of the $\withSpeaker$
+operator.
+
+\begin{exe}
+  \ex John said Mary loves me. \label{ex:indirect-speech}
+  \ex John said, ``Mary loves me''. \label{ex:direct-speech}
+\end{exe}
+
+\begin{align}
+  \sem{\app{\abs{said}_{\abs{is}}}{(\app{\abs{loves}}{\abs{me}}{\abs{Mary}})}{\abs{John}}}
+  & \tto \app{\op{speaker}}{\star}{(\lam{x}{\etaE{(\app{\obj{say}}{\obj{j}}{(\app{\obj{love}}{\obj{m}}{x})})}})} \\
+  \sem{\app{\abs{said}_{\abs{ds}}}{(\app{\abs{loves}}{\abs{me}}{\abs{Mary}})}{\abs{John}}}
+  & \tto \etaE{(\app{\obj{say}}{\obj{j}}{(\app{\obj{love}}{\obj{m}}{\obj{j}})})}
+\end{align}
+
+The meaning of sentence~\eqref{ex:indirect-speech} depends on the speaker
+(as testified by the use of the $\op{speaker}$ operator) whereas
+in~\eqref{ex:direct-speech}, this dependence has been eliminated due to the
+use of direct speech.
 
 \section{Effects in Combination}
 \label{sec:combination}
