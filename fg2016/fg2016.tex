@@ -16,7 +16,7 @@
 %
 \begin{document}
 %
-\title{TBD}
+\title{Calculus of Effects and Handlers \\ for Natural Language Semantics}
 %
 \author{Anonymous Copy}
 %
@@ -151,12 +151,11 @@ truth-values and functions.
 
 In Sect.~\ref{sec:definition}, we will introduce a formal calculus for
 working with the algebraic terms that will use in our linguistic
-denotations. In Sect.~\ref{sec:phenomena} and~\ref{sec:combination}, we
-will see some simple uses of the calculus on the phenomena outlied in this
-introduction and then we will explore what it would take to have them
-coexist in the same fragment. Before we conclude in
-Sect.~\ref{sec:conclusion}, we will also discuss some of the formal
-properties of the calculus in Sect.~\ref{sec:properties}.
+denotations. In Sect.~\ref{sec:phenomena}, we will incrementally build up a
+fragment involving several of the linguistic phenomena and see the calculus
+in action. Before we conclude in Sect.~\ref{sec:conclusion}, we will also
+discuss some of the formal properties of the calculus in
+Sect.~\ref{sec:properties}.
 
 
 \section{Definition of the Calculus}
@@ -524,12 +523,18 @@ operator.
   F \aplr X &= F \hsbind (\lam{f}{X \hsbind (\lam{x}{\ap{\eta}{(\ap{f}{x})}})})
 \end{align*}
 
+All of these operators associate to the left, so $f \apr X \aplr Y$ should
+be read as $(f \apr X) \aplr Y$.
+
 
 \section{Linguistic Phenomena as Effects}
 \label{sec:phenomena}
 
-We will now try to use this calculus to do some semantics. Here is the
-tectogrammar of our syntax in an abstract categorial grammar
+\subsection{Deixis}
+\label{ssec:deixis}
+
+We will now try to use this calculus to do some semantics. Here is our
+tectogrammar in an abstract categorial grammar
 presentation~\cite{de2001towards}.
 
 \begin{align*}
@@ -573,11 +578,13 @@ whose meanings we can calculate as:
 
 The meaning of~\eqref{ex:trivial} is a proposition of type $o$ wrapped in
 $\eta$, i.e.\ something that we can interpret in a model. As for the
-meaning of~\eqref{ex:deixis}, we have an algebraic expression having as
-operands the propositions $\app{\obj{love}}{\obj{m}}{x}$ for all possible
-$x : \iota$. In order to get a single proposition which is to be seen as
-the truth-conditional meaning of the sentence and which can be evaluated in
-a model, we will need to fix the speaker. We will do so by defining an
+meaning of~\eqref{ex:deixis}, the $\op{speaker}$ operator has propagated
+from the $\abs{me}$ lexical entry up to the meaning of the wholse
+setence. We now have an algebraic expression having as operands the
+propositions $\app{\obj{love}}{\obj{m}}{x}$ for all possible $x :
+\iota$. In order to get a single proposition which is to be seen as the
+truth-conditional meaning of the sentence and which can be evaluated in a
+model, we will need to fix the speaker. We will do so by defining an
 interpreting handler.
 
 \begin{align*}
@@ -637,8 +644,159 @@ The meaning of sentence~\eqref{ex:indirect-speech} depends on the speaker
 in~\eqref{ex:direct-speech}, this dependence has been eliminated due to the
 use of direct speech.
 
-\section{Effects in Combination}
-\label{sec:combination}
+\subsection{Quantification}
+\label{ssec:quantification}
+
+Now we turn our attetion to quantificational noun phrases.
+
+\begin{align*}
+  \abs{every}, \abs{a} &: N \limp NP \\
+  \abs{man}, \abs{woman} &: N
+\end{align*}
+
+Let $\circ : o \to o \to o$ be a binary operator on propositions. We define
+the following syntax for the same operator lifted to computations of propositions.
+
+\begin{align*}
+  \_ \mathop{\overline{\circ}} \_ &: \FF_E(o) \to \FF_E(o) \to \FF_E(o) \\
+  M \mathop{\overline{\circ}} N &= (\lam{m n}{m \circ n}) \apr M \aplr N
+\end{align*}
+
+\begin{align*}
+  \lex{every}{\lam{N}{\app{\op{scope}}{(\lam{c}{\forall \apr
+          (\ap{\CC}{(\lam{x}{(N \apl x) \dimpl (\ap{c}{x})})})})}{(\lam{x}{\etaE{x}})}}} \\
+  \lex{a}{\lam{N}{\app{\op{scope}}{(\lam{c}{\exists \apr
+          (\ap{\CC}{(\lam{x}{(N \apl x) \dand (\ap{c}{x})})})})}{(\lam{x}{\etaE{x}})}}} \\
+  \lex{man}{\etaE{\obj{man}}} \\
+  \lex{woman}{\etaE{\obj{woman}}}
+\end{align*}
+
+The entries for $\abs{every}$ and $\abs{a}$ might seem
+intimidating. However, if we ignore the $\apr$, the $\CC$, the $\apl$ and
+the overline on the logical operator, we get the familiar generalized
+quantifiers. These decorations are the plumbing that takes care of the
+order of evaluation.
+
+While the terms that use the $\op{scope}$ operator, the handler that
+interprets is as simple as can be.
+
+\begin{align*}
+  \SI &= \lam{M}{\ap{\banana{\onto{\op{scope}}{(\lam{c k}{\ap{c}{k}})}}}{M}}
+\end{align*}
+
+Same as with $\withSpeaker$, $\SI$ will also be used in lexical items. By
+interpreting the $\op{scope}$ operation in a particular place, we
+effectively determine the scope of the quantifier. Hence the name of $\SI$,
+short for Scope Island. If we want to model clause boundaries as scope
+islands, we can do so by inserting $\SI$ in the lexical entries of clause
+constructors (in our case, the verbs).
+
+\begin{align*}
+  \sem{\abs{loves}} &:= \lam{O S}{\ap{\SI}{(\app{\sem{\abs{loves}}}{O}{S})}} \\
+  \sem{\abs{said}_{\abs{is}}} &:= \lam{C S}{\ap{\SI}{(\app{\sem{\abs{said}_{\abs{is}}}}{C}{S})}} \\
+  \sem{\abs{said}_{\abs{ds}}} &:= \lam{C S}{\ap{\SI}{(\app{\sem{\abs{said}_{\abs{ds}}}}{C}{S})}}
+\end{align*}
+
+The denotations used on the right-hand side of these revised definitions
+stand for the denotations given to them previously.
+
+\begin{exe}
+  \ex Every man loves a woman.
+  \ex John said every woman loves me.
+  \ex John said, ``Every woman loves me''.
+\end{exe}
+
+For the sentences above, we derive:
+
+\begin{align}
+  & \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{woman}})}{(\ap{\abs{every}}{\abs{man}})}} \nonumber \\
+  & \tto \etaE{(\forall x.\ \ap{\obj{man}}{x} \to (\exists y.\ \ap{\obj{woman}}{y} \land \app{\obj{love}}{x}{y}))} \\
+  & \app{\withSpeaker}{s}{\sem{\app{\abs{said}_{\abs{is}}}{(\app{\abs{loves}}{\abs{me}}{(\ap{\abs{every}}{\abs{woman}})})}{\abs{John}}}} \nonumber \\
+  & \tto \etaE{(\app{\obj{say}}{\obj{j}}{(\forall x.\ \ap{\obj{woman}}{x} \to \app{\obj{love}}{x}{s})})} \\
+  & \sem{\app{\abs{said}_{\abs{ds}}}{(\app{\abs{loves}}{\abs{me}}{(\ap{\abs{every}}{\abs{woman}})})}{\abs{John}}} \nonumber \\
+  & \tto \etaE{(\app{\obj{say}}{\obj{j}}{(\forall x.\ \ap{\obj{woman}}{x} \to \app{\obj{love}}{x}{\obj{j}})})}
+\end{align}
+
+The calculus offers us enough flexibility to model the semantics. We might
+choose to relax the constraint that clauses are scope islands by keeping
+the old entries for verbs that do not use the $\SI$ handler. We might then
+want to add the $\SI$ handler to the lexical entry of
+$\abs{said}_{\abs{ds}}$ next to the $\withSpeaker$ handler so that
+quantifiers cannot escape quoted expressions. We might also allow for
+inverse scope readings by, e.g., providing entries for transitive verbs
+that evaluate their arguments right-to-left (though then we would have to
+watch out for crossover effects if we were to add dynamicity).
+
+\subsection{Conventional Implicatures}
+\label{ssec:ci}
+
+We will add one last phenomenon to our growing fragment and those will be
+conventional implicatures, as analyzed by
+Potts~\cite{potts2005logic}. Specifically, we will focus on nominal
+appositives.
+
+\begin{align*}
+  \abs{appos} &: NP \limp NP \limp NP \\
+  \abs{best-friend} &: NP \limp NP
+\end{align*}
+
+\begin{align*}
+  \lex{appos}{\lam{X Y}{X \hsbind (\lam{x}{\ap{\SI}{(\etaE{x}
+          \mathbin{\overline{=}} Y)} \hsbind
+        (\lam{i}{\app{\op{implicate}}{i}{(\lam{z}{\etaE{x}})}})})}} \\
+  \lex{best-friend}{\lam{X}{\obj{best-friend} \apr X}}
+\end{align*}
+
+In the denotation of the nominal appositive construction, $\abs{appos}$, we
+first evaluate the head noun phrase $X : \sem{NP}$ to find its referent $x
+: \iota$. We then want to implicate that $x$ is equal to the referent of
+$Y$, the term $\etaE{x} \mathbin{\overline{=}} Y$ (note the line over $=$)
+is the term that computes that referent and gives us the proposition we
+want. We also want to state that no quantifier from within the appositive
+$Y$ should escape into the matrix clause and so we wrap this computation in
+the $\SI$ handler to establish a scope island. Finally, we pass this
+proposition as an argument to $\op{implicate}$ and we return $x$ as the
+referent of the entire noun phrase.
+
+The point of the $\op{implicate}$ is to smuggle out non-at-issue content
+outside the scope of any logical operators. The contribution of an
+appositive should survive, e.g., logical negation\footnote{In our limited
+  fragment, we will only see it crawl out of a quantifier.}. The place
+where we will accomodate the implicated truth-conditions will be determined
+by the use of the following handler:
+
+\begin{align*}
+  \accomodate &: \FF_{\{\typedop{implicate}{o}{1}\} \uplus E}(o) \to \FF_E(o) \\
+  \accomodate &= \lam{M}{\ap{\banana{\onto{\op{implicate}}{(\lam{i
+            k}{\etaE{i} \dand \ap{k}{\star}})}}}{M}}
+\end{align*}
+
+\begin{exe}
+  \ex John, my best friend, loves every woman.
+  \ex Mary, everyone's best friend, loves John.
+\end{exe}
+
+\begin{align}
+  & \app{\withSpeaker}{s}{(\ap{\accomodate}{\sem{\app{\abs{loves}}{(\ap{\abs{every}}{\abs{woman}})}{(\app{\abs{appos}}{\abs{John}}{(\ap{\abs{best-friend}}{\abs{me}})})}}})} \nonumber \\
+  & \tto \etaE{((\obj{j} = \ap{\obj{best-friend}}{s}) \land (\forall x.\ \ap{\obj{woman}}{x} \to \app{\obj{love}}{\obj{j}}{x}))} \\
+  & \app{\withSpeaker}{s}{(\ap{\accomodate}{\sem{\app{\abs{loves}}{\abs{John}}{(\app{\abs{appos}}{\abs{Mary}}{(\ap{\abs{best-friend}}{\abs{everyone}})})}}})} \nonumber \\
+  & \tto \etaE{((\forall x.\ \obj{m} = \ap{\obj{best-friend}}{x}) \land (\app{\obj{love}}{\obj{m}}{\obj{j}}))}
+\end{align}
+
+Note that when adding appositives and their conventional implicatures, we
+did not have to modify any of the existing denotations in our fragment. In
+the new denotations, the only old effect that we mention is the
+$\op{scope}$ effect that we handle with $\SI$ to make a claim that
+appositives form scope islands.
+
+Furthermore, adding quantification did not change the denotation of
+existing noun phrases. We did not have to type raise $\sem{\abs{John}}$ and
+$\sem{\abs{me}}$. We only added $\SI$ to existing places in the grammar
+which we wanted to act as scope islands.
+
+The goal of our calculus is to enable the creation of semantic lexicons
+with a high degree of separation of concerns. In this section, we have seen
+how it can be done for one particular fragment.
 
 
 \section{Properties of the Calculus}
