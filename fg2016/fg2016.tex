@@ -869,6 +869,92 @@ how it can be done for one particular fragment.
 \section{Properties of the Calculus}
 \label{sec:properties}
 
+The calculus defined in Sect.~\ref{sec:definition} and to which we will
+refer as $\banana{\lambda}$, has some satisfying properties.
+
+First of all, the reduction rules preserve types of terms (subject
+reduction). The reduction relation itself is confluent and, for well-typed
+terms, it is also terminating. This means that typed $\banana{\lambda}$ is
+strongly normalizing.
+
+The proof of subject reduction is a mechanical proof by induction for each
+of the reduction rules. For confluence and termination, we employ very
+similar strategies: we make use of general results and show how they apply
+to our calculus. Due to reasons of space, we will pursue in detail only the
+proof of confluence.
+
+Our reduction relation is given as a set of rules which map redexes
+matching some pattern into contracta built up out of the redexes' free
+variables. However, our language also features binding and so some of the
+rules are conditioned on whether or not certain variables occur freely in
+parts of the redex. Fortunately, such rewriting systems have been
+thoroughly studied. Klop's Combinatory Reduction Systems
+(CRSs)~\cite{klop1993combinatory} is one class of such rewriting systems.
+
+We will make use of the result that orthogonal CRSs are confluent. A CRS is
+\emph{orthogonal} if it is left-linear and non-ambiguous. We will need to
+adapt our formulation of the reduction rules so that they form a CRS and we
+need to see whether we satisfy left-linearity and non-ambiguity (we will
+see what these two mean when we get to them).
+
+We refer the reader to~\cite{klop1993combinatory} for the definition of
+CRSs. The key point is that in a CRS, the free variables which appear in
+the left-hand side of a rewrite rule, called metavariables, are explicitly
+annotated with the set of all free variables that are allowed to occur
+within a term which would instantiate said rewrite rule. This allows us to
+encode all of our $x \notin FV(M)$ constraints.
+
+One detail which must be taken care of is the set notation
+$(\onto{\op{op}_i}{M_i})_{i \in I}$ and the indices $I$ used in the
+$\banana{}$ rules. We do away with this notation by adding a separate rule
+for every possible instantiation of the schema. This means that for each
+sequence of distinct operation symbols $\op{op}_1$,\ldots,$\op{op}_n$, we
+end up with:
+\begin{itemize}
+\item a special rewriting rule
+  $\ap{\banana{\onto{\op{op}_1}{M_1},\ldots,\onto{\op{op}_n}{M_n},\ 
+    \onto{\eta}{M_\eta}}}{(\etaE{N})}
+  \to \ap{M_\eta}{N}$
+\item for every $1 \le i \le n$, a special rewriting rule \\
+  $\ap{\banana{\onto{\op{op}_1}{M_1},\ldots,\onto{\op{op}_n}{M_n},\ 
+    \onto{\eta}{M_\eta}}}{(\app{\op{op}_i}{N_{\mathrm{p}}}{(\lam{x}{N_{\mathrm{c}}(x)})})}
+  \\ \to
+  \app{M_i}{N_{\mathrm{p}}}{(\lam{x}{\ap{\banana{\onto{\op{op}_1}{M_1},\ldots,\onto{\op{op}_n}{M_n},\ \onto{\eta}{M_\eta}}}{N_{\mathrm{c}}(x)}})}$
+\item for every $\op{op}' \in \EE \setminus \{\op{op}_i \| 1 \le i \le n\}$, a special
+  rewriting rule \\
+  $\ap{\banana{\onto{\op{op}_1}{M_1},\ldots,\onto{\op{op}_n}{M_n},\ 
+    \onto{\eta}{M_\eta}}}{(\app{\op{op}'}{N_{\mathrm{p}}}{(\lam{x}{N_{\mathrm{c}}(x)})})}
+  \\ \to
+  \app{\op{op}'}{N_{\mathrm{p}}}{(\lam{x}{\ap{\banana{\onto{\op{op}_1}{M_1},\ldots,\onto{\op{op}_n}{M_n},\ \onto{\eta}{M_\eta}}}{N_{\mathrm{c}}(x)}})}$
+\end{itemize}
+
+So now we have a CRS which defines the same reduction relation as the rules
+we have shown in~\ref{ssec:reductions}. Next, we verify the two
+conditions. Left-linearity states that no left-hand side of any rule can
+contain multiple occurrences of the same metavariable. By examining our
+rules, we find that this is indeed the case\footnote{Multiple occurrences
+  of the same $\op{op}_i$ are alright, since those are not
+  metavariables.}.
+
+Non-ambiguity demands that there is no non-trivial overlap between any of
+the left-hand sides\footnote{Same definition as used in when defining the
+  notion of a critical pair. See~\cite{klop1993combinatory} for precise
+  definition.}. In our CRS, we have overlaps between the $\beta$ and the
+$\eta$ rules. We split our CRS into one with just the $\eta$ rule
+($\to_\eta$) and the one with all the other rules
+($\to_{\banana{\lambda}}$). Now, there is no overlap in either of these
+CRSs, so they are both orthogonal and therefore confluent.
+
+We then use the Lemma of Hindley-Rosen~\cite{klop1992term} to show that the
+union of $\to_{\banana{\lambda}}$ and $\to_\eta$ is confluent when both
+$\to_{\banana{\lambda}}$ and $\to_\eta$ are confluent and commute
+together. For that, all that is left to prove is that
+$\to_{\banana{\lambda}}$ and $\to_\eta$ commute. Thanks to another result
+due to Hindley~\cite{klop1992term}, it is enough to prove that for all $a$,
+$b$ and $c$ such that $a \to_{\banana{\lambda}} b$ and $a \to_\eta c$, we
+have a $d$ such that $b \tto_\eta d$ and $c \to^=_{\banana{\lambda}}
+d$. The proof of this is a straightforward induction on the structure of
+$a$.
 
 \section{Conclusion}
 \label{sec:conclusion}
