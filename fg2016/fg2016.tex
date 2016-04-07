@@ -19,7 +19,7 @@
 %
 \begin{document}
 %
-\title{Calculus of Effects and Handlers \\ for Natural Language Semantics}
+\title{Introducing a Calculus of Effects and Handlers \\ for Natural Language Semantics}
 %
 \author{Anonymous Copy}
 %
@@ -72,7 +72,7 @@ process\footnote{This kind of distinction is the same distinction between a
 \begin{itemize}
 \item the incremental algorithm used to build discourse representation
   structures in DRT, as presented in~\cite{kamp1993discourse}
-\item the $\lambda\mu$ calculus, used in~\cite{de2001type} to analyse
+\item the $\lambda\mu$ calculus, used in~\cite{de2001type} to analyze
   quantification, since, due to the lack of confluence, function terms no
   longer denote functions over simple denotations
 \item the use of exceptions and exception handlers
@@ -117,11 +117,11 @@ known as \emph{monad} has been used:
   via term-level encodings of effectful programs~\cite{wadler1992essence}.
 \end{itemize}
 These two principal applications of monads align with the two approaches we
-have seen above. One where we change our calculus so it no longer defines
-pure functions (e.g.\ is non-deterministic, stateful or throws exceptions)
-and the one where we use use a pure calculus to manipulate terms
-(denotations) that encode some interaction (e.g.\ dynamicity, continuations
-or event predication).
+have seen above. The one where we change our calculus so it no longer
+defines pure functions (e.g.\ is non-deterministic, stateful or throws
+exceptions) and the one where we use use a pure calculus to manipulate
+terms (denotations) that encode some interaction (e.g.\ dynamicity,
+continuations or event predication).
 
 Monad is a term from category-theory. Its meaning is relative to some
 category. For us, this will always be the category whose objects are types
@@ -147,7 +147,7 @@ morphisms\footnote{Also known as monad transformers in functional
 dissertation~\cite{charlow2014semantics}. Giorgolo and Asudeh have used
 distributive laws to combine monads~\cite{giorgolo2015natural}, while
 Kiselyov has eschewed monads altogether in favor of applicative functors
-which enjoy easy composability \cite{kiselyov2015applicative}.
+which enjoy easy composability~\cite{kiselyov2015applicative}.
 
 Our approach follows the recent trend in adopting effects and handlers to
 combine side effects~\cite{bauer2012programming,kammar2013handlers} and to
@@ -209,11 +209,11 @@ The next four deal with the algebraic expressions used to encode
 computations. Let us sketch the behaviors of these four kinds of
 expressions.
 
-The operation $\op{op}$ and injection $\eta$ expressions will serve as the
-constructors for our algebraic expressions. Algebraic expressions are
+The operation ($\op{op}$) and injection ($\eta$) expressions will serve as
+the constructors for our algebraic expressions. Algebraic expressions are
 usually formed by operation symbols and then variables at the
 leaves. Instead of variables, our algebraic expressions use terms from our
-calculus for ther leaves. The $\eta$ constructor can thus take an ordinary
+calculus for their leaves. The $\eta$ constructor can thus take an ordinary
 term from our calculus and make it a leaf node in an algebraic
 expression. The operation symbols $\op{op}$ are then the operations of the
 algebra.
@@ -376,7 +376,7 @@ The typing rules are presented in Figure~\ref{fig:types}.
    \end{prooftree}
   \end{subfigure}
 
-  \caption{\label{fig:types}Typing rules for our calculus.}
+  \caption{\label{fig:types}The typing rules for our calculus.}
 \end{figure}
 
 The typing rules mirror the syntax of terms. Again, the first four rules
@@ -441,7 +441,7 @@ $E''$ that our interpretation might introduce.
 \subsubsection*{[$\CC$]}
 
 We said before that the $\CC$ function will let us commute $\lambda$ and
-operations. Here, we see that on the type level, this corresponds to
+operations. Here we see that, on the type level, this corresponds to
 commuting the $\FF_E(\_)$ and the $\alpha \to \_$ type constructors.
 
 \subsection{Reduction Rules}
@@ -586,7 +586,7 @@ And here is our semantics.
 \end{align*}
 
 This, and all the semantics we will see in this paper, satisfies a
-homomorphism condition that whenever $M : \tau$ then $\sem{M} :
+homomorphism condition that whenever $M : \tau$, then $\sem{M} :
 \sem{\tau}$. In our case, $\sem{NP} = \FF_E(\iota)$ and $\sem{S} =
 \FF_E(o)$, where $\iota$ and $o$ are the types of individuals and
 propositions, respectively. Of $E$, we assume that
@@ -616,7 +616,7 @@ The meaning of~\eqref{ex:trivial} is a proposition of type $o$ wrapped in
 $\eta$, i.e.\ something that we can interpret in a model. As for the
 meaning of~\eqref{ex:deixis}, the $\op{speaker}$ operator has propagated
 from the $\abs{me}$ lexical entry up to the meaning of the whole
-setence. We now have an algebraic expression having as operands the
+sentence. We now have an algebraic expression having as operands the
 propositions $\app{\obj{love}}{\obj{m}}{x}$ for all possible $x :
 \iota$. In order to get a single proposition which is to be seen as the
 truth-conditional meaning of the sentence and which can be evaluated in a
@@ -691,7 +691,7 @@ use of direct speech.
 \subsection{Quantification}
 \label{ssec:quantification}
 
-Now we turn our attetion to quantificational noun phrases.
+Now we turn our attention to quantificational noun phrases.
 
 \negSpaceBeforeAlign
 
@@ -718,7 +718,7 @@ quantifiers. These decorations are the plumbing that takes care of the
 proper sequencing of effects.
 
 Note that we make use of the $\CC$ operator here. In the denotation of
-$\sem{\abs{every}}$, the term $(\lam{x}{(N \apl x) \dand (\ap{c}{x})})$
+$\sem{\abs{a}}$, the term $(\lam{x}{(N \apl x) \dand (\ap{c}{x})})$
 describes the property to which we want to apply the quantifier
 $\exists$. However, this term is of type $\iota \to \FF_E(o)$. In order to
 apply $\exists$, we need something of type $\iota \to o$. Intuitively, the
@@ -727,13 +727,13 @@ arriving at some logical form of the sentence. They should thus be
 independent of the particular individual that we use as a witness for $x$
 when we try to model-check the resulting logical form. This independence
 lets us use the $\CC$ operator without fear of getting stuck. Once we
-arrive at the type $\FF_E(\iota \to o)$, it is a simple case of applying
+arrive at the type $\FF_E(\iota \to o)$, it is a simple case of using
 $\exists \apr \_$ to apply the quantifier within the computation
 type\footnote{Other solutions to this problem include separating the
   language of logical forms and the metalanguage used in the semantic
   lexical entries to manipulate logical forms as
-  objects~[Anon]\cite{kiselyov2015applicative}.}\footnote{Our
-  $\CC$ has been inspired by an operator of the same name proposed
+  objects~[Anon]\cite{kiselyov2015applicative}.}\footnote{Our $\CC$ has
+  been inspired by an operator of the same name proposed
   in~\cite{de2015conservativity}: de Groote introduces a structure that
   specializes applicative functors in a similar direction as monads by
   introducing the $\CC$ operator and equipping it with certain laws; our
@@ -792,16 +792,15 @@ $\abs{said}_{\abs{ds}}$, next to the $\withSpeaker$ handler, so that
 quantifiers cannot escape quoted expressions. We might also allow for
 inverse scope readings by, e.g., providing entries for transitive verbs
 that evaluate their arguments right-to-left (though then we would have to
-watch out for crossover effects if we were to add anaphoric effects).
+watch out for crossover effects if we were to add anaphora).
 
 \subsection{Conventional Implicature}
 \label{ssec:ci}
 
-Our goal here is to show the modularity of this approach and so we will
-continue and plug in one more phenomenon into our growing fragment:
-conventional implicatures, as analyzed by
-Potts~\cite{potts2005logic}. Specifically, we will focus on nominal
-appositives.
+Our goal is to show the modularity of this approach and so we will continue
+and plug in one more phenomenon into our growing fragment: conventional
+implicatures, as analyzed by Potts~\cite{potts2005logic}. Specifically, we
+will focus on nominal appositives.
 
 \negSpaceBeforeAlign
 
@@ -830,31 +829,31 @@ the $\SI$ handler to establish a scope island. Finally, we pass this
 proposition as an argument to $\op{implicate}$ and we return $x$ as the
 referent of the entire noun phrase.
 
-The point of the $\op{implicate}$ operation is to smuggle out non-at-issue
+The point of the $\op{implicate}$ operation is to smuggle non-at-issue
 content outside the scope of any logical operators. The contribution of an
 appositive should survive, e.g., logical negation\footnote{In our limited
   fragment, we will only see it sneak out of a quantifier.}. The place
-where we will accomodate the implicated truth-conditions will be determined
-by the use of the following handler:
+where we will accommodate the implicated truth-conditions will be
+determined by the use of the following handler:
 
 \negSpaceBeforeAlign
 
 \begin{align*}
-  \accomodate &: \FF_{\{\typedop{implicate}{o}{1}\} \uplus E}(o) \to \FF_E(o) \\
-  \accomodate &= \lam{M}{\ap{\banana{\onto{\op{implicate}}{(\lam{i
+  \accommodate &: \FF_{\{\typedop{implicate}{o}{1}\} \uplus E}(o) \to \FF_E(o) \\
+  \accommodate &= \lam{M}{\ap{\banana{\onto{\op{implicate}}{(\lam{i
             k}{\etaE{i} \dand \ap{k}{\star}})}}}{M}}
 \end{align*}
 
 We want conventional implicatures to project out of the common logical
 operators. However, when we consider direct quotes, we would not like to
 attribute the implicature made by the quotee to the quoter. We can
-implement this desideratum by inserting the $\accomodate$ handler into the
+implement this desideratum by inserting the $\accommodate$ handler into the
 lexical entry for direct speech.
 
 \negSpaceBeforeAlign
 
 $$
-  \sem{\abs{said}_{\abs{ds}}} := \lam{C S}{\ap{\SI}{(S \hsbind (\lam{s}{\ap{\obj{say}}{s} \apr (\app{\withSpeaker}{s}{(\ap{\accomodate}{C})})}))}}
+  \sem{\abs{said}_{\abs{ds}}} := \lam{C S}{\ap{\SI}{(S \hsbind (\lam{s}{\ap{\obj{say}}{s} \apr (\app{\withSpeaker}{s}{(\ap{\accommodate}{C})})}))}}
 $$
 
 Consider the following three examples.
@@ -874,9 +873,9 @@ quoted clause and so it is not misattributed.
 \negSpaceBeforeAlign
 
 \begin{align}
-  & \app{\withSpeaker}{s}{(\ap{\accomodate}{\sem{\app{\abs{loves}}{(\ap{\abs{every}}{\abs{woman}})}{(\app{\abs{appos}}{\abs{John}}{(\ap{\abs{best-friend}}{\abs{me}})})}}})} \nonumber \\
+  & \app{\withSpeaker}{s}{(\ap{\accommodate}{\sem{\app{\abs{loves}}{(\ap{\abs{every}}{\abs{woman}})}{(\app{\abs{appos}}{\abs{John}}{(\ap{\abs{best-friend}}{\abs{me}})})}}})} \nonumber \\
   & \tto \etaE{((\obj{j} = \ap{\obj{best-friend}}{s}) \land (\forall x. \ap{\obj{woman}}{x} \to \app{\obj{love}}{\obj{j}}{x}))} \\
-  & \app{\withSpeaker}{s}{(\ap{\accomodate}{\sem{\app{\abs{loves}}{\abs{John}}{(\app{\abs{appos}}{\abs{Mary}}{(\ap{\abs{best-friend}}{\abs{everyone}})})}}})} \nonumber \\
+  & \ap{\accommodate}{\sem{\app{\abs{loves}}{\abs{John}}{(\app{\abs{appos}}{\abs{Mary}}{(\ap{\abs{best-friend}}{\abs{everyone}})})}}} \nonumber \\
   & \tto \etaE{((\forall x. \obj{m} = \ap{\obj{best-friend}}{x}) \land (\app{\obj{love}}{\obj{m}}{\obj{j}}))} \\
   & \sem{\app{\abs{said}_{\abs{ds}}}{(\app{\abs{loves}}{\abs{me}}{(\app{\abs{appos}}{(\ap{\abs{best-friend}}{\abs{me}})}{\abs{Mary}})})}{(\ap{\abs{a}}{\abs{man}})}} \nonumber \\
   & \tto \etaE{(\exists x. \ap{\obj{man}}{x} \land \app{\obj{say}}{x}{((\ap{\obj{best-friend}}{x} = \obj{m}) \land (\app{\obj{love}}{(\ap{\obj{best-friend}}{x})}{x}))})}
@@ -898,7 +897,7 @@ When adding quantification:
 When adding appositives and their conventional implicatures:
 \begin{itemize}
 \item in the old denotations $\sem{\abs{said}_{\abs{ds}}}$, we added the new
-  $\accomodate$ handler to state that conventional implicatures should not
+  $\accommodate$ handler to state that conventional implicatures should not
   project out of quoted speech
 \item in the new denotation $\sem{\abs{appos}}$, we used the old $\SI$
   handler to state that appositives should form scope islands
@@ -936,22 +935,23 @@ strongly normalizing.
 The proof of subject reduction is a mechanical proof by induction for each
 of the reduction rules. For confluence and termination, we employ very
 similar strategies: we make use of general results and show how they apply
-to our calculus. Due to reasons of space, we will pursue in detail only the
-proof of confluence.
+to our calculus. Due to space limitations, we will pursue in detail only
+the proof of confluence.
 
 Our reduction relation is given as a set of rules which map redexes
 matching some pattern into contracta built up out of the redexes' free
-variables. However, our language also features binding and so some of the
+variables. However, our language also features binding, and so some of the
 rules are conditioned on whether or not certain variables occur freely in
 parts of the redex. Fortunately, such rewriting systems have been
 thoroughly studied. Klop's Combinatory Reduction Systems
 (CRSs)~\cite{klop1993combinatory} is one class of such rewriting systems.
 
-We will make use of the result that orthogonal CRSs are confluent. A CRS is
-\emph{orthogonal} if it is left-linear and non-ambiguous. We will need to
-adapt our formulation of the reduction rules so that they form a CRS and we
-need to see whether we satisfy left-linearity and non-ambiguity (we will
-see what these two mean when we get to them).
+We will make use of the result that orthogonal CRSs are
+confluent~\cite{klop1993combinatory}. A~CRS is \emph{orthogonal} if it is
+left-linear and non-ambiguous. We will need to adapt our formulation of the
+reduction rules so that they form a CRS and we will need to check whether
+we satisfy left-linearity and non-ambiguity (we will see what these two
+properties mean when we get to them).
 
 We refer the reader to~\cite{klop1993combinatory} for the definition of
 CRSs. The key point is that in a CRS, the free variables which appear in
@@ -993,7 +993,7 @@ rules, we find that this is indeed the case\footnote{Multiple occurrences
 
 Non-ambiguity demands that there is no non-trivial overlap between any of
 the left-hand sides\footnote{The definition of (non-trivial) overlap is the
-  same one as as the one used when defining critical
+  same one as the one used when defining critical
   pairs. See~\cite{klop1993combinatory} for the precise definition.}. In
 our CRS, we have overlaps between the $\beta$ and the $\eta$ rules. We
 split our CRS into one with just the $\eta$ rule ($\to_\eta$) and one with
