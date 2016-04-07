@@ -12,6 +12,9 @@
 
 \include{definitions}
 
+\newcommand{\negSpaceBeforeAlign}{\vspace{-4mm}}
+\newcommand{\negSpaceBetweenAlign}{\vspace{-8mm}}
+
 
 %
 \begin{document}
@@ -32,7 +35,7 @@ terms and/or the denotations studied tend to follow the same pattern: they
 are instances of a monad. In this paper, we present an extension of the
 simply-typed lambda calculus that exploits this uniformity using the
 recently discovered technique of effect
-handlers\cite{plotkin2009handlers}. We prove that our calculus exhibits
+handlers~\cite{plotkin2009handlers}. We prove that our calculus exhibits
 some of the key formal properties of the lambda calculus and we use it to
 construct a modular semantics for a small fragment that involves multiple
 distinct semantic phenomena.
@@ -242,6 +245,8 @@ over types, $\nu$ ranges over atomic types from some set $\TT$ and $E$,
 $E'$\ldots ranges over effect signatures (introduced below).
 
 The types of our language consist of:
+
+\negSpaceBeforeAlign
 
 \begin{align*}
   \alpha, \beta, \gamma ::= &\ \alpha \to \beta & \mbox{[function]} \\
@@ -516,6 +521,8 @@ $\FF_E(\beta)$-typed expressions. More intuitively, $M \hsbind N$ is the
 program that first runs $M$ to get its result $x$ and then continues as the
 program $\ap{N}{x}$.
 
+\negSpaceBeforeAlign
+
 \begin{align*}
   \_ \hsbind \_ &: \FF_E(\alpha) \to (\alpha \to \FF_E(\beta)) \to \FF_E(\beta) \\
   M \hsbind N &= \ap{\banana{\onto{\eta}{N}}}{M}
@@ -523,6 +530,8 @@ program $\ap{N}{x}$.
 
 Using $\hsbind$, we can define the following variations on the application
 operator.
+
+\negSpaceBeforeAlign
 
 \begin{align*}
   \_ \apl \_ &: \FF_E(\alpha \to \beta) \to \alpha \to \FF_E(\beta) \\
@@ -536,6 +545,17 @@ operator.
 All of these operators associate to the left, so $f \apr X \aplr Y$ should
 be read as $(f \apr X) \aplr Y$.
 
+Let $\circ : o \to o \to o$ be a binary operator on propositions. We define
+the following syntax for the same operator lifted to computations of
+propositions.
+
+\negSpaceBeforeAlign
+
+\begin{align*}
+  \_ \mathop{\overline{\circ}} \_ &: \FF_E(o) \to \FF_E(o) \to \FF_E(o) \\
+  M \mathop{\overline{\circ}} N &= (\lam{m n}{m \circ n}) \apr M \aplr N
+\end{align*}
+
 
 \section{Linguistic Phenomena as Effects}
 \label{sec:phenomena}
@@ -547,12 +567,16 @@ We will now try to use this calculus to do some semantics. Here is our
 tectogrammar in an abstract categorial grammar
 presentation~\cite{de2001towards}.
 
+\negSpaceBeforeAlign
+
 \begin{align*}
   \abs{John}, \abs{Mary}, \abs{me} &: NP \\
   \abs{loves} &: NP \limp NP \limp S
 \end{align*}
 
 And here is our semantics.
+
+\negSpaceBeforeAlign
 
 \begin{align*}
   \lex{John}{\etaE{\obj{j}}} \\
@@ -579,6 +603,8 @@ With this fragment, we can give meanings to trivial sentences like:
 
 whose meanings we can calculate as:
 
+\negSpaceBeforeAlign
+
 \begin{align}
   \sem{\app{\abs{loves}}{\abs{Mary}}{\abs{John}}} & \tto 
   \etaE{(\app{\obj{love}}{\obj{j}}{\obj{m}})} \\
@@ -596,6 +622,8 @@ propositions $\app{\obj{love}}{\obj{m}}{x}$ for all possible $x :
 truth-conditional meaning of the sentence and which can be evaluated in a
 model, we will need to fix the speaker. We will do so by defining an
 interpreting handler.
+
+\negSpaceBeforeAlign
 
 \begin{align*}
   \withSpeaker &: \iota \to \FF_{\{\typedop{speaker}{1}{\iota}\} \uplus
@@ -617,6 +645,8 @@ our object language, we can include them in lexical entries. With this, we
 can handle phenomena such as direct (quoted) speech, that rebinds the
 current speaker in a certain scope.
 
+\negSpaceBeforeAlign
+
 \begin{align*}
   \abs{said}_{\abs{is}} &: S \limp NP \limp S \\
   \abs{said}_{\abs{ds}} &: S \limp NP \limp S
@@ -626,6 +656,8 @@ Those are our new syntactic constructors: one for the indirect speech use
 of \emph{said} and the other for the direct speech use (their surface
 realizations would differ typographically or phonologically). Let us give
 them some semantics.
+
+\negSpaceBeforeAlign
 
 \begin{align*}
   \sem{\abs{said}_{\abs{is}}} &= \lam{C S}{\obj{say} \apr S \aplr C} \\
@@ -641,6 +673,8 @@ operator.
   \ex John said Mary loves me. \label{ex:indirect-speech}
   \ex John said, ``Mary loves me''. \label{ex:direct-speech}
 \end{exe}
+
+\negSpaceBetweenAlign
 
 \begin{align}
   \sem{\app{\abs{said}_{\abs{is}}}{(\app{\abs{loves}}{\abs{me}}{\abs{Mary}})}{\abs{John}}}
@@ -659,18 +693,14 @@ use of direct speech.
 
 Now we turn our attetion to quantificational noun phrases.
 
+\negSpaceBeforeAlign
+
 \begin{align*}
   \abs{every}, \abs{a} &: N \limp NP \\
   \abs{man}, \abs{woman} &: N
 \end{align*}
 
-Let $\circ : o \to o \to o$ be a binary operator on propositions. We define
-the following syntax for the same operator lifted to computations of propositions.
-
-\begin{align*}
-  \_ \mathop{\overline{\circ}} \_ &: \FF_E(o) \to \FF_E(o) \to \FF_E(o) \\
-  M \mathop{\overline{\circ}} N &= (\lam{m n}{m \circ n}) \apr M \aplr N
-\end{align*}
+\negSpaceBetweenAlign
 
 \begin{align*}
   \lex{every}{\lam{N}{\app{\op{scope}}{(\lam{c}{\forall \apr
@@ -713,6 +743,8 @@ type\footnote{Other solutions to this problem include separating the
 While the terms that use the $\op{scope}$ operator might be complex, the
 handler that interprets them is as simple as can be.
 
+\negSpaceBeforeAlign
+
 \begin{align*}
   \SI &= \lam{M}{\ap{\banana{\onto{\op{scope}}{(\lam{c k}{\ap{c}{k}})}}}{M}}
 \end{align*}
@@ -723,6 +755,8 @@ effectively determine the scope of the quantifier. Hence the name of $\SI$,
 short for Scope Island. If we want to model clause boundaries as scope
 islands, we can do so by inserting $\SI$ in the lexical entries of clause
 constructors (in our case, the verbs).
+
+\negSpaceBeforeAlign
 
 \begin{align*}
   \sem{\abs{loves}} &:= \lam{O S}{\ap{\SI}{(\app{\sem{\abs{loves}}}{O}{S})}} \\
@@ -739,7 +773,7 @@ definitions stand for the previous denotations.
   \ex John said, ``Every woman loves me''.
 \end{exe}
 
-For the sentences above, we derive:
+\negSpaceBetweenAlign
 
 \begin{align}
   & \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{woman}})}{(\ap{\abs{every}}{\abs{man}})}} \nonumber \\
@@ -768,10 +802,14 @@ conventional implicatures, as analyzed by
 Potts~\cite{potts2005logic}. Specifically, we will focus on nominal
 appositives.
 
+\negSpaceBeforeAlign
+
 \begin{align*}
   \abs{appos} &: NP \limp NP \limp NP \\
   \abs{best-friend} &: NP \limp NP
 \end{align*}
+
+\negSpaceBetweenAlign
 
 \begin{align*}
   \lex{appos}{\lam{X Y}{X \hsbind (\lam{x}{\ap{\SI}{(\etaE{x}
@@ -798,6 +836,8 @@ appositive should survive, e.g., logical negation\footnote{In our limited
 where we will accomodate the implicated truth-conditions will be determined
 by the use of the following handler:
 
+\negSpaceBeforeAlign
+
 \begin{align*}
   \accomodate &: \FF_{\{\typedop{implicate}{o}{1}\} \uplus E}(o) \to \FF_E(o) \\
   \accomodate &= \lam{M}{\ap{\banana{\onto{\op{implicate}}{(\lam{i
@@ -809,6 +849,8 @@ operators. However, when we consider direct quotes, we would not like to
 attribute the implicature made by the quotee to the quoter. We can
 implement this desideratum by inserting the $\accomodate$ handler into the
 lexical entry for direct speech.
+
+\negSpaceBeforeAlign
 
 $$
   \sem{\abs{said}_{\abs{ds}}} := \lam{C S}{\ap{\SI}{(S \hsbind (\lam{s}{\ap{\obj{say}}{s} \apr (\app{\withSpeaker}{s}{(\ap{\accomodate}{C})})}))}}
@@ -827,6 +869,8 @@ conventional implicature that John is the speaker's best friend projects
 from the scope of the universal quantifier. On the other hand,
 in~\eqref{ex:ci-in-quotes}, the implicature does not project from the
 quoted clause and so it is not misattributed.
+
+\negSpaceBeforeAlign
 
 \begin{align}
   & \app{\withSpeaker}{s}{(\ap{\accomodate}{\sem{\app{\abs{loves}}{(\ap{\abs{every}}{\abs{woman}})}{(\app{\abs{appos}}{\abs{John}}{(\ap{\abs{best-friend}}{\abs{me}})})}}})} \nonumber \\
