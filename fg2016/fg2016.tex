@@ -485,14 +485,13 @@ $\op{op}_j$ and $\eta$ with $M_j$ and $M_\eta$, respectively.
 
 The $\CC$ function recursively swaps [$\ap{\CC}{(\lam{x}{}}$] with
 [$\app{\op{op}}{M_{\mathrm{p}}}{(\lam{y}{}}$] using the $\CC_{\op{op}}$
-rule. When it finally hits the $\eta$ constructor, it swaps [$(\lam{x}$]
-with [$\eta$] and terminates. Note that the constraint that $x \notin
+rule. When $\CC$ finally hits the $\eta$ constructor, it swaps [$(\lam{x}$]
+with [$\eta$] and terminates. Note that the constraint $x \notin
 \FV(M_{\mathrm{p}})$ cannot be dismissed by renaming of bound variables. If
-the parameter to $M_{\mathrm{p}}$ contains a free occurrence of $x$ that
-cannot be reduced away, the evaluation of $\CC$ will get stuck. $\CC$ is
-thus a partial function: it is only applicable when none of the operations
-being commuted with the $\lambda$-binder actually depend on the bound
-variable.
+the parameter $M_{\mathrm{p}}$ contains a free occurrence of $x$, the
+evaluation of $\CC$ will get stuck. $\CC$ is thus a partial function: it is
+only applicable when none of the operations being commuted with the
+$\lambda$-binder actually depend on the bound variable.
 
 \subsection{Common Combinators}
 \label{ssec:common-combinators}
@@ -675,7 +674,30 @@ The entries for $\abs{every}$ and $\abs{a}$ might seem
 intimidating. However, if we ignore the $\apr$, the $\CC$, the $\apl$ and
 the overline on the logical operator, we get the familiar generalized
 quantifiers. These decorations are the plumbing that takes care of the
-order of evaluation.
+proper sequencing of effects.
+
+Note that we make use of the $\CC$ operator here. In the denotation of
+$\sem{\abs{every}}$, the term $(\lam{x}{(N \apl x) \dand (\ap{c}{x})})$
+describes the property to which we want to apply the quantifier
+$\exists$. However, this term is of type $\iota \to \FF_E(o)$. In order to
+apply $\exists$, we need something of type $\iota \to o$. Intuitively, the
+effects of $E$ correspond to the process of interpretation, the process of
+arriving at some logical form of the sentence. They should thus be
+independent of the particular individual that we use as a witness for $x$
+when we try to model check the resulting logical form. This independence
+lets us use the $\CC$ operator without fear of getting stuck. Once we
+arrive at the type $\FF_E(\iota \to o)$, it is a simple case of applying
+$\exists \apr \_$ to apply the quantifier within the computation
+type\footnote{Other approaches include separating the language of logical
+  forms and the metalanguage used in the semantic lexical entries to
+  manipulate logical forms as
+  objects~\cite{marsik2014algebraic,kiselyov2015applicative}.}\footnote{Our
+  $\CC$ has been inspired by an operator of the same name proposed
+  in~\cite{de2015conservativity}: de Groote introduces a structure that
+  specializes applicative functors in a similar direction as monads by
+  introducing the $\CC$ operator and equipping it with laws; our $\CC$
+  operator makes the $\FF_E$ type constructor an instance of this
+  structure.}.
 
 While the terms that use the $\op{scope}$ operator, the handler that
 interprets is as simple as can be.
@@ -710,11 +732,11 @@ For the sentences above, we derive:
 
 \begin{align}
   & \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{woman}})}{(\ap{\abs{every}}{\abs{man}})}} \nonumber \\
-  & \tto \etaE{(\forall x.\ \ap{\obj{man}}{x} \to (\exists y.\ \ap{\obj{woman}}{y} \land \app{\obj{love}}{x}{y}))} \\
+  & \tto \etaE{(\forall x. \ap{\obj{man}}{x} \to (\exists y. \ap{\obj{woman}}{y} \land \app{\obj{love}}{x}{y}))} \\
   & \app{\withSpeaker}{s}{\sem{\app{\abs{said}_{\abs{is}}}{(\app{\abs{loves}}{\abs{me}}{(\ap{\abs{every}}{\abs{woman}})})}{\abs{John}}}} \nonumber \\
-  & \tto \etaE{(\app{\obj{say}}{\obj{j}}{(\forall x.\ \ap{\obj{woman}}{x} \to \app{\obj{love}}{x}{s})})} \\
+  & \tto \etaE{(\app{\obj{say}}{\obj{j}}{(\forall x. \ap{\obj{woman}}{x} \to \app{\obj{love}}{x}{s})})} \\
   & \sem{\app{\abs{said}_{\abs{ds}}}{(\app{\abs{loves}}{\abs{me}}{(\ap{\abs{every}}{\abs{woman}})})}{\abs{John}}} \nonumber \\
-  & \tto \etaE{(\app{\obj{say}}{\obj{j}}{(\forall x.\ \ap{\obj{woman}}{x} \to \app{\obj{love}}{x}{\obj{j}})})}
+  & \tto \etaE{(\app{\obj{say}}{\obj{j}}{(\forall x. \ap{\obj{woman}}{x} \to \app{\obj{love}}{x}{\obj{j}})})}
 \end{align}
 
 The calculus offers us enough flexibility to model the semantics. We might
@@ -771,28 +793,73 @@ by the use of the following handler:
             k}{\etaE{i} \dand \ap{k}{\star}})}}}{M}}
 \end{align*}
 
+We want conventional implicatures to project out of the common logical
+operators. However, when we consider direct quotes, we would not like to
+attribute the implicature made by the quotee to the quoter. We can
+implement this desideratum by inserting the $\accomodate$ handler into the
+lexical entry for direct speech.
+
+$$
+  \sem{\abs{said}_{\abs{ds}}} := \lam{C S}{\ap{\SI}{(S \hsbind (\lam{s}{\ap{\obj{say}}{s} \apr (\app{\withSpeaker}{s}{(\ap{\accomodate}{C})})}))}}
+$$
+
+Consider the following three examples.
+
 \begin{exe}
-  \ex John, my best friend, loves every woman.
-  \ex Mary, everyone's best friend, loves John.
+  \ex John, my best friend, loves every woman. \label{ex:ci-from-quant}
+  \ex Mary, everyone's best friend, loves John. \label{ex:ci-with-quant}
+  \ex A man said, ``My best friend, Mary, loves me''. \label{ex:ci-in-quotes}
 \end{exe}
+
+In~\eqref{ex:ci-from-quant}, the
+conventional implicature that John is the speaker's best friend projects
+from the scope of the universal quantifier. On the other hand,
+in~\eqref{ex:ci-in-quotes}, the implicature does not project from the
+quoted clause and so it is not misattributed.
 
 \begin{align}
   & \app{\withSpeaker}{s}{(\ap{\accomodate}{\sem{\app{\abs{loves}}{(\ap{\abs{every}}{\abs{woman}})}{(\app{\abs{appos}}{\abs{John}}{(\ap{\abs{best-friend}}{\abs{me}})})}}})} \nonumber \\
-  & \tto \etaE{((\obj{j} = \ap{\obj{best-friend}}{s}) \land (\forall x.\ \ap{\obj{woman}}{x} \to \app{\obj{love}}{\obj{j}}{x}))} \\
+  & \tto \etaE{((\obj{j} = \ap{\obj{best-friend}}{s}) \land (\forall x. \ap{\obj{woman}}{x} \to \app{\obj{love}}{\obj{j}}{x}))} \\
   & \app{\withSpeaker}{s}{(\ap{\accomodate}{\sem{\app{\abs{loves}}{\abs{John}}{(\app{\abs{appos}}{\abs{Mary}}{(\ap{\abs{best-friend}}{\abs{everyone}})})}}})} \nonumber \\
-  & \tto \etaE{((\forall x.\ \obj{m} = \ap{\obj{best-friend}}{x}) \land (\app{\obj{love}}{\obj{m}}{\obj{j}}))}
+  & \tto \etaE{((\forall x. \obj{m} = \ap{\obj{best-friend}}{x}) \land (\app{\obj{love}}{\obj{m}}{\obj{j}}))} \\
+  & \sem{\app{\abs{said}_{\abs{ds}}}{(\app{\abs{loves}}{\abs{me}}{(\app{\abs{appos}}{(\ap{\abs{best-friend}}{\abs{me}})}{\abs{Mary}})})}{(\ap{\abs{a}}{\abs{man}})}} \nonumber \\
+  & \tto \etaE{(\exists x. \app{\obj{say}}{x}{((\ap{\obj{best-friend}}{x} = \obj{m}) \land (\app{\obj{love}}{(\ap{\obj{best-friend}}{x})}{x}))})}
 \end{align}
 
-Note that when adding appositives and their conventional implicatures, we
-did not have to modify any of the existing denotations in our fragment. In
-the new denotations, the only old effect that we mention is the
-$\op{scope}$ effect that we handle with $\SI$ to make a claim that
-appositives form scope islands.
+\subsection{Summary}
 
-Furthermore, adding quantification did not change the denotation of
-existing noun phrases. We did not have to type raise $\sem{\abs{John}}$ and
-$\sem{\abs{me}}$. We only added $\SI$ to existing places in the grammar
-which we wanted to act as scope islands.
+Let us look back at the modularity of our approach and count how often
+during the incremental development of our fragment we either had to modify
+existing denotations or explicitly mention previous effects in new
+denotations.
+
+When adding quantification:
+\begin{itemize}
+\item in the old denotations of verbs, we added the new $\SI$ handler so
+  that clauses form scope islands
+\end{itemize}
+
+When adding appositives and their conventional implicatures:
+\begin{itemize}
+\item in the old denotations $\sem{\abs{said}_{\abs{ds}}}$, we added the new
+  $\accomodate$ handler to state that conventional implicatures should not
+  project out of quoted speech
+\item in the new denotation $\sem{\abs{appos}}$, we used the old $\SI$
+  handler to state that appositives should form scope islands
+\end{itemize}
+
+Otherwise, none of the denotations prescribed in our semantic lexicon had
+to be changed. We did not have to type raise non-quantificational NP
+constructors like $\sem{\abs{John}}$, $\sem{\abs{me}}$ or
+$\sem{\abs{best-friend}}$. With the exception of direct speech, we did not
+have to modify any existing denotations to enable us to collect
+conventional implicatures from different subconstituents.
+
+Furthermore, all of the modifications we have performed to existing
+denotations are just additions of handlers for new effects. This gives us a
+strong guarantee that all of the old results are conserved, since applying
+a handler to a computation which does not use the operations being handled
+is the same as doing nothing.
 
 The goal of our calculus is to enable the creation of semantic lexicons
 with a high degree of separation of concerns. In this section, we have seen
