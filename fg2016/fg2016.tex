@@ -48,7 +48,7 @@ implicature).
 Among the solutions to these challenges, we find (at least) two types of
 solutions. First, we have those that relax the condition of
 compositionality. Notably, the denotation of a complex phrase is no longer
-a \emph{function} per se of the denotations of its immediate
+a \emph{function per se} of the denotations of its immediate
 subconstituents. Rather, it is some other formally defined
 process\footnote{This kind of distinction is the same distinction between a
   mathematical function and a function in a programming language, which
@@ -58,8 +58,8 @@ process\footnote{This kind of distinction is the same distinction between a
 \begin{itemize}
 \item the incremental algorithm used to build discourse representation
   structures in DRT, as presented in~\cite{kamp1993discourse}
-\item the $\lambda\mu$ calculus used in~\cite{de2001type} to analyse
-  quantification since, due to the lack of confluence, function terms no
+\item the $\lambda\mu$ calculus, used in~\cite{de2001type} to analyse
+  quantification, since, due to the lack of confluence, function terms no
   longer denote functions over simple denotations
 \item the use of exceptions and exception handlers
   in~\cite{lebedeva2012expression} to model presuppositions in an otherwise
@@ -79,9 +79,9 @@ superconstituents. Here are some examples of this style:
 \item any kind of semantic indices (e.g.\ the speaker and addressee for
   deixis, the current world for modality), since they amount to saying that
   a phrase denotes an indexed set of simpler meanings
-\item the continuized semantics of~\cite{barker2002continuations} for
-  quantification in which denotations are functions of their own
-  continuations
+\item the continuized semantics for
+  quantification~\cite{barker2002continuations} in which denotations are
+  functions of their own continuations
   \begin{itemize}
   \item and more generally, any semantics using type raising or generalized
     quantifiers for noun phrase denotations
@@ -127,14 +127,13 @@ by Shan in 2002~\cite{shan2002monads}\footnote{Side effects are to
   then come as no surprise that phenomena such as anaphora, presupposition,
   deixis and conventional implicature yield a monadic description.}. Since
 then, the problem that remained was how to compose several different monads
-in a single solution. Marlow used the popular method of monad
+in a single solution. Charlow used the popular method of monad
 morphisms\footnote{Also known as monad transformers in functional
   programming.} to combine several monads in his
 dissertation~\cite{charlow2014semantics}. Giorgolo and Asudeh have used
-distributive laws between monads to combine
-monads~\cite{giorgolo2015natural}, while Kiselyov has eschewed monads
-altogether in favor of applicative functors which enjoy easy composability
-\cite{kiselyov2015applicative}.
+distributive laws to combine monads~\cite{giorgolo2015natural}, while
+Kiselyov has eschewed monads altogether in favor of applicative functors
+which enjoy easy composability \cite{kiselyov2015applicative}.
 
 Our approach follows the recent trend in adopting effects and handlers to
 combine side effects~\cite{bauer2012programming,kammar2013handlers} and to
@@ -144,13 +143,13 @@ languages~\cite{kiselyov2013extensible,brady2013programming}.
 The idea is that we can represent each of the relevant monads using an
 algebra. We can then combine the algebras by summing up their
 signatures. The resulting algebra will serve as a universal representation
-format for terms built from any of the source algebras and closed on
-substitution. Then, we will build modular interpreters that will give
-meanings to the operators of the algebras in terms of individuals,
+format for the set of all terms built from any of the source algebras and
+closed on substitution. Then, we will build modular interpreters that will
+give meanings to the operators of the algebras in terms of individuals,
 truth-values and functions.
 
 In Sect.~\ref{sec:definition}, we will introduce a formal calculus for
-working with the algebraic terms that will use in our linguistic
+working with the algebraic terms that we will use in our linguistic
 denotations. In Sect.~\ref{sec:phenomena}, we will incrementally build up a
 fragment involving several of the linguistic phenomena and see the calculus
 in action. Before we conclude in Sect.~\ref{sec:conclusion}, we will also
@@ -219,7 +218,7 @@ expressions.
   algebraic expressions. If an algebraic expression is of the form
   $\ap{\eta}{M}$, applying $\cherry$ to it will yield $M$.
 \item The exchange operator $\CC$ permits a kind of commutation between the
-  $\lambda$ binder and the operation symbols. We will see its use later.
+  $\lambda$-binder and the operation symbols. We will see its use later.
 \end{itemize}
 
 
@@ -372,7 +371,7 @@ and so we will focus on the [$\op{op}$], [$\banana{}$] and [$\CC$] rules.
 
 To use an operation $\typedop{op}{\alpha}{\beta}$, we provide the input
 parameter $M_{\mathrm{p}} : \alpha$ and a continuation
-$\lam{x}{M_{\mathrm{c}}} : \beta \to \FF_E(\gamma)$ which expects the
+$\lam{x}{M_{\mathrm{c}}} : \beta \to \FF_E(\gamma)$, which expects the
 output of type $\beta$. The resulting term has the same type as the body of
 the continuation, $\FF_E(\gamma)$.
 
@@ -394,7 +393,7 @@ each operation symbol to a pair of types $\alpha \rightarrowtail \beta$.
   that an operator has arity $\beta$, where $\beta$ is a type, we mean that
   it takes one operand for every value of $\beta$
   \cite{pretnar2010logic}. We can also think of the operator as taking one
-  operand with $x : \beta$ as a free variable.
+  operand containing $x : \beta$ as a free variable.
 \end{itemize}
 
 We can look at the algebraic expression
@@ -417,7 +416,7 @@ The banana brackets describe iterators/catamorphisms\footnote{These are
   languages is actually the iterator/catamorphism for lists.}. In the
 typing rule, $E$ is the input's signature, $E'$ is the output's signature,
 $\gamma$ is the input's leaf type and $\delta$ is the output's leaf
-type. $E$ is decomposed into the operation that our iterator will actually
+type. $E$ is decomposed into the operations that our iterator will actually
 interpret, the other operations form a residual signature
 $E_{\mathrm{f}}$. The output signature will then still contain the
 uninterpreted operations $E_{\mathrm{f}}$ combined with any operations
@@ -485,18 +484,19 @@ $\op{op}_j$ and $\eta$ with $M_j$ and $M_\eta$, respectively.
 
 The $\CC$ function recursively swaps [$\ap{\CC}{(\lam{x}{}}$] with
 [$\app{\op{op}}{M_{\mathrm{p}}}{(\lam{y}{}}$] using the $\CC_{\op{op}}$
-rule. When $\CC$ finally hits the $\eta$ constructor, it swaps [$(\lam{x}$]
-with [$\eta$] and terminates. Note that the constraint $x \notin
-\FV(M_{\mathrm{p}})$ cannot be dismissed by renaming of bound variables. If
-the parameter $M_{\mathrm{p}}$ contains a free occurrence of $x$, the
-evaluation of $\CC$ will get stuck. $\CC$ is thus a partial function: it is
-only applicable when none of the operations being commuted with the
-$\lambda$-binder actually depend on the bound variable.
+rule. When $\CC$ finally meets the $\eta$ constructor, it swaps
+[$(\lam{x}$] with [$\eta$] and terminates. Note that the constraint $x
+\notin \FV(M_{\mathrm{p}})$ in rule $\CC_{\op{op}}$ cannot be dismissed by
+renaming of bound variables. If the parameter $M_{\mathrm{p}}$ contains a
+free occurrence of $x$, the evaluation of $\CC$ will get stuck. $\CC$ is
+thus a partial function: it is only applicable when none of the operations
+being commuted with the $\lambda$-binder actually depend on the bound
+variable.
 
 \subsection{Common Combinators}
 \label{ssec:common-combinators}
 
-When showing off the calculus in the next Section, the following
+When showing off the calculus in the next section, the following
 combinators will be helpful. First, we define a sequencing operator. The
 operator $\hsbind$, called bind\footnote{This is the same bind as the one
   used to define monads in functional programming languages.}, replaces all
@@ -578,7 +578,7 @@ whose meanings we can calculate as:
 The meaning of~\eqref{ex:trivial} is a proposition of type $o$ wrapped in
 $\eta$, i.e.\ something that we can interpret in a model. As for the
 meaning of~\eqref{ex:deixis}, the $\op{speaker}$ operator has propagated
-from the $\abs{me}$ lexical entry up to the meaning of the wholse
+from the $\abs{me}$ lexical entry up to the meaning of the whole
 setence. We now have an algebraic expression having as operands the
 propositions $\app{\obj{love}}{\obj{m}}{x}$ for all possible $x :
 \iota$. In order to get a single proposition which is to be seen as the
@@ -684,23 +684,23 @@ apply $\exists$, we need something of type $\iota \to o$. Intuitively, the
 effects of $E$ correspond to the process of interpretation, the process of
 arriving at some logical form of the sentence. They should thus be
 independent of the particular individual that we use as a witness for $x$
-when we try to model check the resulting logical form. This independence
+when we try to model-check the resulting logical form. This independence
 lets us use the $\CC$ operator without fear of getting stuck. Once we
 arrive at the type $\FF_E(\iota \to o)$, it is a simple case of applying
 $\exists \apr \_$ to apply the quantifier within the computation
-type\footnote{Other approaches include separating the language of logical
-  forms and the metalanguage used in the semantic lexical entries to
-  manipulate logical forms as
+type\footnote{Other solutions to this problem include separating the
+  language of logical forms and the metalanguage used in the semantic
+  lexical entries to manipulate logical forms as
   objects~\cite{marsik2014algebraic,kiselyov2015applicative}.}\footnote{Our
   $\CC$ has been inspired by an operator of the same name proposed
   in~\cite{de2015conservativity}: de Groote introduces a structure that
   specializes applicative functors in a similar direction as monads by
-  introducing the $\CC$ operator and equipping it with laws; our $\CC$
-  operator makes the $\FF_E$ type constructor an instance of this
+  introducing the $\CC$ operator and equipping it with certain laws; our
+  $\CC$ operator makes the $\FF_E$ type constructor an instance of this
   structure.}.
 
-While the terms that use the $\op{scope}$ operator, the handler that
-interprets is as simple as can be.
+While the terms that use the $\op{scope}$ operator might be complex, the
+handler that interprets them is as simple as can be.
 
 \begin{align*}
   \SI &= \lam{M}{\ap{\banana{\onto{\op{scope}}{(\lam{c k}{\ap{c}{k}})}}}{M}}
@@ -719,8 +719,8 @@ constructors (in our case, the verbs).
   \sem{\abs{said}_{\abs{ds}}} &:= \lam{C S}{\ap{\SI}{(\app{\sem{\abs{said}_{\abs{ds}}}}{C}{S})}}
 \end{align*}
 
-The denotations used on the right-hand side of these revised definitions
-stand for the denotations given to them previously.
+NB: The semantic brackets used on the right-hand side of these revised
+definitions stand for the previous denotations.
 
 \begin{exe}
   \ex Every man loves a woman.
@@ -739,20 +739,20 @@ For the sentences above, we derive:
   & \tto \etaE{(\app{\obj{say}}{\obj{j}}{(\forall x. \ap{\obj{woman}}{x} \to \app{\obj{love}}{x}{\obj{j}})})}
 \end{align}
 
-The calculus offers us enough flexibility to model the semantics. We might
+The calculus offers us flexibility when modelling the semantics. We might
 choose to relax the constraint that clauses are scope islands by keeping
 the old entries for verbs that do not use the $\SI$ handler. We might then
 want to add the $\SI$ handler to the lexical entry of
-$\abs{said}_{\abs{ds}}$ next to the $\withSpeaker$ handler so that
+$\abs{said}_{\abs{ds}}$, next to the $\withSpeaker$ handler, so that
 quantifiers cannot escape quoted expressions. We might also allow for
 inverse scope readings by, e.g., providing entries for transitive verbs
 that evaluate their arguments right-to-left (though then we would have to
-watch out for crossover effects if we were to add dynamicity).
+watch out for crossover effects if we were to add anaphoric effects).
 
-\subsection{Conventional Implicatures}
+\subsection{Conventional Implicature}
 \label{ssec:ci}
 
-We will add one last phenomenon to our growing fragment and those will be
+We will add one last phenomenon to our growing fragment and that will be
 conventional implicatures, as analyzed by
 Potts~\cite{potts2005logic}. Specifically, we will focus on nominal
 appositives.
@@ -780,10 +780,10 @@ the $\SI$ handler to establish a scope island. Finally, we pass this
 proposition as an argument to $\op{implicate}$ and we return $x$ as the
 referent of the entire noun phrase.
 
-The point of the $\op{implicate}$ is to smuggle out non-at-issue content
-outside the scope of any logical operators. The contribution of an
+The point of the $\op{implicate}$ operation is to smuggle out non-at-issue
+content outside the scope of any logical operators. The contribution of an
 appositive should survive, e.g., logical negation\footnote{In our limited
-  fragment, we will only see it crawl out of a quantifier.}. The place
+  fragment, we will only see it sneak out of a quantifier.}. The place
 where we will accomodate the implicated truth-conditions will be determined
 by the use of the following handler:
 
@@ -823,7 +823,7 @@ quoted clause and so it is not misattributed.
   & \app{\withSpeaker}{s}{(\ap{\accomodate}{\sem{\app{\abs{loves}}{\abs{John}}{(\app{\abs{appos}}{\abs{Mary}}{(\ap{\abs{best-friend}}{\abs{everyone}})})}}})} \nonumber \\
   & \tto \etaE{((\forall x. \obj{m} = \ap{\obj{best-friend}}{x}) \land (\app{\obj{love}}{\obj{m}}{\obj{j}}))} \\
   & \sem{\app{\abs{said}_{\abs{ds}}}{(\app{\abs{loves}}{\abs{me}}{(\app{\abs{appos}}{(\ap{\abs{best-friend}}{\abs{me}})}{\abs{Mary}})})}{(\ap{\abs{a}}{\abs{man}})}} \nonumber \\
-  & \tto \etaE{(\exists x. \app{\obj{say}}{x}{((\ap{\obj{best-friend}}{x} = \obj{m}) \land (\app{\obj{love}}{(\ap{\obj{best-friend}}{x})}{x}))})}
+  & \tto \etaE{(\exists x. \ap{\obj{man}}{x} \land \app{\obj{say}}{x}{((\ap{\obj{best-friend}}{x} = \obj{m}) \land (\app{\obj{love}}{(\ap{\obj{best-friend}}{x})}{x}))})}
 \end{align}
 
 \subsection{Summary}
@@ -849,7 +849,7 @@ When adding appositives and their conventional implicatures:
 \end{itemize}
 
 Otherwise, none of the denotations prescribed in our semantic lexicon had
-to be changed. We did not have to type raise non-quantificational NP
+to be changed. We did not have to type-raise non-quantificational NP
 constructors like $\sem{\abs{John}}$, $\sem{\abs{me}}$ or
 $\sem{\abs{best-friend}}$. With the exception of direct speech, we did not
 have to modify any existing denotations to enable us to collect
@@ -901,8 +901,8 @@ We refer the reader to~\cite{klop1993combinatory} for the definition of
 CRSs. The key point is that in a CRS, the free variables which appear in
 the left-hand side of a rewrite rule, called metavariables, are explicitly
 annotated with the set of all free variables that are allowed to occur
-within a term which would instantiate said rewrite rule. This allows us to
-encode all of our $x \notin FV(M)$ constraints.
+within a term which would instantiate them. This allows us to encode all of
+our $x \notin FV(M)$ constraints.
 
 One detail which must be taken care of is the set notation
 $(\onto{\op{op}_i}{M_i})_{i \in I}$ and the indices $I$ used in the
@@ -930,24 +930,23 @@ end up with:
 
 So now we have a CRS which defines the same reduction relation as the rules
 we have shown in~\ref{ssec:reductions}. Next, we verify the two
-conditions. Left-linearity states that no left-hand side of any rule can
-contain multiple occurrences of the same metavariable. By examining our
+conditions. Left-linearity states that no left-hand side of any rule
+contains multiple occurrences of the same metavariable. By examining our
 rules, we find that this is indeed the case\footnote{Multiple occurrences
-  of the same $\op{op}_i$ are alright, since those are not
-  metavariables.}.
+  of the same $\op{op}_i$ are alright, since those are not metavariables.}.
 
 Non-ambiguity demands that there is no non-trivial overlap between any of
-the left-hand sides\footnote{Same definition as used in when defining the
-  notion of a critical pair. See~\cite{klop1993combinatory} for precise
-  definition.}. In our CRS, we have overlaps between the $\beta$ and the
-$\eta$ rules. We split our CRS into one with just the $\eta$ rule
-($\to_\eta$) and the one with all the other rules
-($\to_{\banana{\lambda}}$). Now, there is no overlap in either of these
-CRSs, so they are both orthogonal and therefore confluent.
+the left-hand sides\footnote{The definition of (non-trivial) overlap is the
+  same one as as the one used when defining critical
+  pairs. See~\cite{klop1993combinatory} for the precise definition.}. In
+our CRS, we have overlaps between the $\beta$ and the $\eta$ rules. We
+split our CRS into one with just the $\eta$ rule ($\to_\eta$) and one with
+all the other rules ($\to_{\banana{\lambda}}$). Now, there is no overlap in
+either of these CRSs, so they are both orthogonal and therefore confluent.
 
 We then use the Lemma of Hindley-Rosen~\cite{klop1992term} to show that the
-union of $\to_{\banana{\lambda}}$ and $\to_\eta$ is confluent when both
-$\to_{\banana{\lambda}}$ and $\to_\eta$ are confluent and commute
+union of $\to_{\banana{\lambda}}$ and $\to_\eta$ is confluent when
+$\to_{\banana{\lambda}}$ and $\to_\eta$ are both confluent and commute
 together. For that, all that is left to prove is that
 $\to_{\banana{\lambda}}$ and $\to_\eta$ commute. Thanks to another result
 due to Hindley~\cite{klop1992term}, it is enough to prove that for all $a$,
@@ -956,8 +955,12 @@ have a $d$ such that $b \tto_\eta d$ and $c \to^=_{\banana{\lambda}}
 d$. The proof of this is a straightforward induction on the structure of
 $a$.
 
+
 \section{Conclusion}
 \label{sec:conclusion}
+
+
+
 
 %
 % ---- Bibliography ----
