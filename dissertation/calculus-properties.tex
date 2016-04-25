@@ -1,12 +1,36 @@
 \chapter{Properties}
 \label{chap:properties}
 
+
 \section{Algebraic Properties}
 \label{sec:algebraic-properties}
 
+
 \section{Subject Reduction}
+
+
+\section{Confluence}
+
+The object of our study during this section will be the proof of the
+\emph{confluence property} of $\banana{\lambda}$.
+
+\begin{theorem}\label{thm:confluence}
+  \demph{Confluence of $\banana{\lambda}$}
+  
+  Let $a$, $b$ and $c$ be terms of $\banana{\lambda}$. If $a \to b$ and $a
+  \to c$, then there must exist a term $d$ such that $b \tto d$ and $c \tto
+  d$.
+\end{theorem}
+
+Proofs of this property are often mechanical and follow the same
+pattern. Our strategy will be to reuse a general result which applies one
+such proof for a general class of rewriting systems. Our reduction system
+is a system of reduction on terms and the reductions have side conditions
+concerning the binding of free variables. A good fit for this kind of
+system are the Combinatory Reductions Systems (CRSs) of
+Klop~\cite{klop1993combinatory}.
+
 
 \section{Termination}
 
-\section{Confluence}
 
