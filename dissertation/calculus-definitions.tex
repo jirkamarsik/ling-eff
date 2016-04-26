@@ -828,14 +828,28 @@ notion.
   \item if $M \syntclos{\sim} M'$, then $(\lam{x}{M}) \syntclos{\sim} (\lam{x}{M'})$
   \item if $M \syntclos{\sim} M'$, then $(\ap{M}{N}) \syntclos{\sim} (\ap{M'}{N})$
   \item if $N \syntclos{\sim} N'$, then $(\ap{M}{N}) \syntclos{\sim} (\ap{M}{N'})$
+  \item if $M \syntclos{\sim} M'$, then $\etaE{M} \syntclos{\sim}
+    \etaE{M'}$
+  \item if $M_{\mathrm{p}} \syntclos{\sim} M'_{\mathrm{p}}$, then
+    $\app{\op{op}}{M_{\mathrm{p}}}{(\lam{x}{M_\mathrm{c}})} \syntclos{\sim}
+    \app{\op{op}}{M'_{\mathrm{p}}}{(\lam{x}{M_\mathrm{c}})}$
+  \item if $M_{\mathrm{c}} \syntclos{\sim} M'_{\mathrm{c}}$, then
+    $\app{\op{op}}{M_{\mathrm{p}}}{(\lam{x}{M_\mathrm{c}})} \syntclos{\sim}
+    \app{\op{op}}{M_{\mathrm{p}}}{(\lam{x}{M'_\mathrm{c}})}$
   \item if $M_i \syntclos{\sim} M_i'$, then $\banana{\onto{\op{op}_1}
     M_1,\ \dots,\ \onto{\op{op}_i} M_i,\ \dots,\ \onto{\op{op}_n}
-    M_n,\ \onto{\eta}{M_\eta}} \syntclos{\sim} \banana{\onto{\op{op}_1}
+    M_n,\ \onto{\eta}{M_\eta}}{N} \syntclos{\sim} \banana{\onto{\op{op}_1}
     M_1,\ \dots,\ \onto{\op{op}_i} M_i',\ \dots,\ \onto{\op{op}_n}
-    M_n,\ \onto{\eta} M_\eta}$
+    M_n,\ \onto{\eta} M_\eta}{N}$
   \item if $M_\eta \syntclos{\sim} M_\eta'$, then
-    $\cibanana \syntclos{\sim}
-     \banana{(\onto{\op{op}_i}{M_i})_{i \in I},\ \onto{\eta}{M_\eta'}}$
+    $\ap{\cibanana}{N} \syntclos{\sim}
+     \banana{(\onto{\op{op}_i}{M_i})_{i \in I},\ \onto{\eta}{M_\eta'}}{N}$
+  \item if $N \syntclos{\sim} N'$, then $\ap{\cibanana}{N} \syntclos{\sim}
+    \ap{\cibanana}{N'}$
+  \item if $M \syntclos{\sim} M'$, then $\ap{\cherry}{M} \syntclos{\sim}
+    \ap{\cherry}{M'}$ 
+  \item if $M \syntclos{\sim} M'$, then $\ap{\CC}{M} \syntclos{\sim}
+    \ap{\CC}{M'}$ 
   \end{itemize}
 \end{definition}
 
@@ -1006,8 +1020,8 @@ Figure~\ref{fig:reductions}, one by one.
   & where $\op{op}' \notin \{\op{op}_i\}_{i \in I}$ \\
   & and $x$ is fresh for $M_\eta$ \\ & and $M_i$ for all $i \in I$ \\
   \\
-  $\ap{\cherry}{(\ap{\eta}{M})} \to$ & rule $\cherry$ \\
-  $M$ & \\
+  $\ap{\cherry}{(\ap{\eta}{N})} \to$ & rule $\cherry$ \\
+  $N$ & \\
   \\
   $\ap{\CC}{(\lam{x}{\ap{\eta}{M}})} \to$ & rule $\CC_\eta$ \\
   $\ap{\eta}{(\lam{x}{M})}$ & \\

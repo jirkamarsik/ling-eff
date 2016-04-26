@@ -27,8 +27,278 @@ pattern. Our strategy will be to reuse a general result which applies one
 such proof for a general class of rewriting systems. Our reduction system
 is a system of reduction on terms and the reductions have side conditions
 concerning the binding of free variables. A good fit for this kind of
-system are the Combinatory Reductions Systems (CRSs) of
+system are the Combinatory Reduction Systems (CRSs) of
 Klop~\cite{klop1993combinatory}.
+
+The main result about CRSs that we will make use of is the following
+(Corollary~13.6 in~\cite{klop1993combinatory}).
+
+\begin{theorem}
+  \demph{Confluence of orthogonal CRSs}
+
+  All orthogonal CRSs are confluent.
+\end{theorem}
+
+The rest of this section will go like this:
+\begin{itemize}
+\item First, we define Combinatory Reduction Systems.
+\item We then show that our reduction relation can be coded as a CRS.
+\item Afterwards, we explain the orthogonality condition.
+\item Finally, we verify whether orthogonality holds for our CRS.
+\end{itemize}
+
+
+\subsection{Combinatory Reduction Systems}
+\label{ssec:crs}
+
+A Combinatory Reduction System is defined by an alphabet and a set of
+rewriting rules. We will first cover the alphabet.
+
+\begin{definition}
+  A \demph{CRS alphabet} consists of:
+  \begin{itemize}
+  \item a set $\Var$ of \emph{variables} (written lower-case as $x$, $y$,
+    $z$,\ldots)
+  \item a set $\MVar$ of \emph{metavariables} (written upper-case as $M$,
+    $N$, \ldots), each with is own arity
+  \item a set of \emph{function symbols}, each with its own arity
+  \end{itemize}
+\end{definition}
+
+Let us sketch the difference between the variables in $\Var$ and the
+metavariables in $\MVar$. The variables in $\Var$ are the variables of the
+object-level terms, in our case it will be the variables of
+$\banana{\lambda}$. The variables in $\MVar$ are the metavariables that
+will occur in our reduction rules and which we will have to instantiate in
+order to derive specific application of those rules. In other words, the
+variables in $\Var$ are there to express the binding structure within the
+terms being reduced and the metavariables in $\MVar$ are there to stand in
+for specific terms when applying a reduction rule.
+
+\begin{definition}
+  The \demph{metaterms} of a CRS are given inductively with:
+  \begin{itemize}
+  \item variables are metaterms
+  \item if $t$ is a metaterm and $x$ a variable, then $[x]t$ is a metaterm
+    called \emph{abstraction}
+  \item if $F$ is an $n$-ary function symbol and $t_1$,\ldots,$t_n$ are
+    metaterms, then $F(t_1,\ldots,t_n)$ is a metaterm
+  \item if $M$ is an $n$-ary metavariable and $t_1$,\ldots,$t_n$ are
+    metaterms, then $M(t_1,\ldots,t_n)$ is a metaterm
+  \end{itemize}
+\end{definition}
+
+\begin{definition}
+  The \demph{terms} of a CRS are its metaterms which do not contain any
+  metavariables.
+\end{definition}
+
+To finish the formal introduction of CRSs, we give the definition of a CRS
+reduction rule.
+
+\begin{definition}
+  A CRS \emph{reduction} (or \emph{rewrite}) rule is a pair of metaterms $s
+  \to t$ such that:
+  \begin{itemize}
+  \item $s$ and $t$ are both closed, i.e.\ all variables from $\Var$ are
+    bound using the $[\_]\_$ binder
+  \item $s$ is of the form $F(t_1,\ldots,t_n)$
+  \item all the metavariables that occur in $t$ also occur in $s$
+  \item the metavariables $M$ that occur in $s$ only occur in the form
+    $M(x_1,\ldots,x_k)$, where $x_i$ are pairwise distinct variables
+  \end{itemize}
+\end{definition}
+
+A CRS is then an alphabet coupled with a set of reduction rules. We will
+only sketch the way that a CRS gives rise to a reduction relation and we
+will direct curious readers to Sections~11 and 12 of
+$\cite{klop1993combinatory}$.
+
+When we instantiate the metavariables in a CRS rule, we use a
+\emph{valuation} that assigns to $n$-ary metavariables terms with holes
+labelled from 1 to $n$. The instantiation of $M(t_1,\ldots,t_n)$ then
+replaces the metavariable $M$ by the term with holes and fills the holes
+labelled $1,\ldots,n$ with the terms $t_1,\ldots,t_n$ respectively.
+
+The crucial detail is that in a particular context, a metavariable can only
+be instantiated with terms $M$ that do not contain any free variables bound
+in that context. This means that in order to for the instantiation of $M$
+to contain a variable bound in the context, $M$ must explicitly take that
+variable as an argument. All other variables not explicitly declared can
+therefore be safely assumed to not occur freely.
+
+Consider the following examples of $\beta$ and $\eta$ reduction.
+
+\begin{align*}
+  \ap{(\lam{x}{M(x)})}{N} & \to M(N) \\
+  \lam{x}{\ap{N}{x}} & \to N
+\end{align*}
+
+More formally written as:
+
+\begin{align*}
+  @(\lambda([x]M(x)),N) & \to M(N) \\
+  \lambda([x]@(N,x)) & \to N
+\end{align*}
+
+where $\lambda$ is a unary function symbol and $@$ is a binary function
+symbol. In both of the versions, $M$ is a unary metavariable and $N$ is a
+nullary metavariable. In the rule for $\beta$-reduction, we can observe how
+the idea of instantiating metavariables by terms with holes lets us express
+the same idea for which we had to introduce the meta-level operation of
+substitution. In the rule for $\eta$-reduction, we see that $N$ appears in
+a context where $x$ is bound but it does not have $x$ as one of its
+arguments. Therefore, it will be impossible to instantiate $N$ in such a
+way that it contains a free occurrence of $x$. In both of those rules, we
+were able to get rid of meta-level operations (substitution) and conditions
+($x \notin FV(N)$) and have them both implemented by the formalism itself.
+
+
+\subsection{$\banana{\lambda}$ as a CRS}
+
+We will now see how to rephrase the reduction rules in our calculus in
+order to fit in to the CRS framework. We have already seen how to translate
+the $\beta$ and $\eta$ reduction rules in the previous subsection. The next
+rules to address are the rules defining the semantics of the $\banana{}$
+handlers.
+
+We will repeat the rules for handlers to make the issue at hand clear.
+
+\begin{tabular}{lr}
+  $\ap{\cibanana}{(\ap{\eta}{N})} \to$ & rule $\banana{\eta}$ \\
+  $\ap{M_\eta}{N}$ & \\
+  \\
+  $\ap{\cibanana}{(\ap{\ap{\op{op}_j}{N_{\mathrm{p}}}}{(\lam{x}{N_{\mathrm{c}}})})} \to$ & rule $\banana{\op{op}}$ \\
+  $\ap{M_j}{\ap{N_{\mathrm{p}}}{(\lam{x}{\ap{\cibanana}{N_{\mathrm{c}}}})}}$
+  & where $j \in I$ \\
+  & and $x \notin \FV((M_i)_{i \in I}, M_\eta)$ \\
+  \\
+  $\ap{\cibanana}{(\ap{\ap{\op{op}_j}{N_{\mathrm{p}}}}{(\lam{x}{N_{\mathrm{c}}})})} \to$ & rule $\banana{\op{op}'}$ \\
+  $\ap{\op{op}_j}{\ap{N_{\mathrm{p}}}{(\lam{x}{\ap{\cibanana}{N_{\mathrm{c}}}})}}$
+  & where $j \notin I$ \\
+  & and $x \notin \FV((M_i)_{i \in I}, M_\eta)$
+\end{tabular}
+
+\TODO{Make sure later that the form of these rules in the Definitions
+  chapter is the same as the one above.}
+
+The syntax of CRSs does not allow us to use the $(\onto{\op{op}_i}{M_i})_{i
+  \in I}$ notation nor capture the $j \in I$ or $j \notin I$ conditions.
+The symbols $\op{op}_i$ are problematic as well, since technically, they
+are not pure $\banana{\lambda}$ but metavariables standing in for operation
+symbols.
+
+We do away with all of the above problems by expanding these meta-notations
+and adding a separate rule for every possible instantiation of the
+schema. This means that for each sequence of distinct operation symbols
+$\op{op}_1$,\ldots,$\op{op}_n$, we end up with:
+\begin{itemize}
+\item a special rewriting rule
+  $\ap{\banana{\onto{\op{op}_1}{M_1},\ldots,\onto{\op{op}_n}{M_n},\ 
+    \onto{\eta}{M_\eta}}}{(\etaE{N})}
+  \to \ap{M_\eta}{N}$
+\item for every $1 \le i \le n$, a special rewriting rule \\
+  $\ap{\banana{\onto{\op{op}_1}{M_1},\ldots,\onto{\op{op}_n}{M_n},\ 
+    \onto{\eta}{M_\eta}}}{(\app{\op{op}_i}{N_{\mathrm{p}}}{(\lam{x}{N_{\mathrm{c}}(x)})})}
+  \\ \to
+  \app{M_i}{N_{\mathrm{p}}}{(\lam{x}{\ap{\banana{\onto{\op{op}_1}{M_1},\ldots,\onto{\op{op}_n}{M_n},\ \onto{\eta}{M_\eta}}}{N_{\mathrm{c}}(x)}})}$
+\item for every $\op{op}' \in \EE \setminus \{\op{op}_i \| 1 \le i \le n\}$, a special
+  rewriting rule \\
+  $\ap{\banana{\onto{\op{op}_1}{M_1},\ldots,\onto{\op{op}_n}{M_n},\ 
+    \onto{\eta}{M_\eta}}}{(\app{\op{op}'}{N_{\mathrm{p}}}{(\lam{x}{N_{\mathrm{c}}(x)})})}
+  \\ \to
+  \app{\op{op}'}{N_{\mathrm{p}}}{(\lam{x}{\ap{\banana{\onto{\op{op}_1}{M_1},\ldots,\onto{\op{op}_n}{M_n},\ \onto{\eta}{M_\eta}}}{N_{\mathrm{c}}(x)}})}$
+\end{itemize}
+
+The rule for the cherry $\cherry$ extraction operator is already in CRS
+form, so all we have to do is address the rules for the $\CC$ operator. We
+present them side-by-side in their original form and in CRS-style.
+
+Original:
+\begin{align*}
+  \ap{\CC}{(\lam{x}{\ap{\eta}{M}})} & \to \ap{\eta}{(\lam{x}{M})} \\
+  \ap{\CC}{(\lam{x}{\ap{\ap{\op{op}}{M_{\mathrm{p}}}}{(\lam{y}{M_{\mathrm{c}}})}})}
+  & \to
+  \ap{\ap{\op{op}}{M_{\mathrm{p}}}}{(\lam{y}{\ap{\CC}{(\lam{x}{M_{\mathrm{c}}})}})} \\
+  & \mathrm{where\ } x \notin \FV(M_{\mathrm{p}})
+\end{align*}
+
+CRS-style:
+\begin{align*}
+  \ap{\CC}{(\lam{x}{\ap{\eta}{(M(x))}})} & \to \ap{\eta}{(\lam{x}{M(x)})} \\
+  \ap{\CC}{(\lam{x}{\ap{\ap{\op{op}}{M_{\mathrm{p}}}}{(\lam{y}{M_{\mathrm{c}}(x,y)})}})}
+  & \to \ap{\ap{\op{op}}{M_{\mathrm{p}}}}{(\lam{y}{\ap{\CC}{(\lam{x}{M_{\mathrm{c}}(x,y)})}})}
+\end{align*}
+
+We can see that the only difference is to replace ``simple'' metavariables
+$M$, $M_{\mathrm{p}}$ and $M_{\mathrm{c}}$ with their higher-order
+versions: the unary $M$, nullary $M_{\mathrm{p}}$ and binary
+$M_{\mathrm{c}}$. We see that every CRS metavariable is applied to the
+variables in scope, except for the $M_{\mathrm{p}}$, which thus loses
+access to the variable $x$. This way, the condition that $x$ must not
+appear free in $M_{\mathrm{p}}$ is now encoded directly in the reduction
+rule itself.
+
+In~\ref{ssec:crs}, we have said that a CRS is formed by a set of reductions
+and by an alphabet. We have already seen all of the rules of our CRS
+($\beta$ and $\eta$ reduction were given at the end of~\ref{ssec:crs}, the
+rule for $\cherry$ is the same as the original one
+in~\ref{sec:reductions}). In order to have clear definition, all that
+remains is to identify the alphabet.
+
+The set of variables $Var$ is exactly the set of variables $\XX$ used in
+the definition of $\banana{\lambda}$. The set of metavariables $MVar$
+consists of the unary $M$, nullary $N$, nullary $N_{\mathrm{p}}$, unary
+$N_{\mathrm{c}}$, nullary $M_{\mathrm{p}}$ and binary $M_{\mathrm{c}}$. The
+set of function symbols is composed of the following:
+
+\begin{itemize}
+\item the binary symbol $@$ for function application
+\item the unary symbol $\lambda$ for function abstraction
+\item a nullary symbol for any constant in the signature $\Sigma$
+\item the unary symbol $\eta$ for the injection operator
+\item a binary symbol $\op{op}$ for every $\op{op} \in \EE$
+\item a $(n+2)$-ary symbol
+  $(\ap{\banana{\onto{\op{op}_1}{\_},\ \ldots,\ \onto{\op{op}_n}{\_},\ \onto{\eta}{\_}}}{\_})$
+  for every sequence $\op{op}_1,\ldots,\op{op}_n$ of distinct symbols from
+  $\EE$ of length $n$
+\item the unary symbol $\cherry$ for the extraction operator
+\item the unary symbol $\CC$ for the $\CC$ operator
+\end{itemize}
+
+In giving the CRS-style reduction rules above, we have used the ``native''
+syntax of our calculus instead of writing out everything in terms of
+function symbols. For clarity, we give the rules governing the relationship
+of the two. We write:
+
+\begin{itemize}
+\item $@(t,u)$ as $\ap{t}{u}$
+\item $\lambda([x]t)$ as $\lam{x}{t}$
+\item $\eta(t)$ as $\etaE{t}$
+\item $\op{op}(t_{\mathrm{p}},[x]t_{\mathrm{c}})$ as
+  $\app{\op{op}}{t_{\mathrm{p}}}{(\lam{x}{t_{\mathrm{c}}})}$\footnote{Note
+  that with this translation,
+  $\app{\op{op}}{t_{\mathrm{p}}}{(\lam{x}{t_{\mathrm{c}}})}$ does not
+  contain $\lam{x}{t_{\mathrm{c}}}$ as a subterm. This is the same as in
+  our calculus, where the syntactic closure (see~\ref{sec:reductions})
+  does not identify $\lam{x}{t_{\mathrm{c}}}$ but $t_{\mathrm{c}}$ as a
+  subterm of
+  $\app{\op{op}}{t_{\mathrm{p}}}{(\lam{x}{t_{\mathrm{c}}})}$. This becomes
+  important in our discussion of confluence since it makes it impossible to
+  make the $\lambda$ disappear by something like $\eta$-reduction.}
+\item
+  $(\ap{\banana{\onto{\op{op}_1}{\_},\ \ldots,\ \onto{\op{op}_n}{\_},\ \onto{\eta}{\_}}}{\_})(t_1,\ldots,t_n,t_\eta,u)$
+  as $\ap{\banana{\onto{\op{op}_1}{t_1},\ \ldots,\ \onto{\op{op}_n}{t_n},\ \onto{\eta}{t_\eta}}}{u}$
+\item $\cherry(t)$ as $\ap{\cherry}{t}$
+\item $\CC(t)$ as $\ap{\CC}{t}$
+\end{itemize}
+
+We have connected the terms of $\banana{\lambda}$ with CRS terms and we
+have also expressed all of our reduction rules in terms of CRS reduction
+rules. In our theory of $\banana{\lambda}$ in~\ref{sec:reductions}, we
+then apply the syntactic closure to this redex-contractum relation in order
+to be able to reduce subterms anywhere inside a larger term. This is
+parallel to what CRSs do 
 
 
 \section{Termination}
