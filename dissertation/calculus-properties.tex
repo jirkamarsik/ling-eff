@@ -456,14 +456,109 @@ We can use this to prove that $\banana{\lambda}$ commutes with the
 $\eta.\to$ reduction rule.
 
 \begin{lemma}\label{lem:eta-commutes}
-  \demph{Commutativity of $\eta$ and $\banana{\lambda}$}
+  \demph{Commutativity of $\eta$ and $\banana{\lambda}_{-\eta}$}
 
   The reduction relations induced by $\eta$ and by the rest of the
   $\banana{\lambda}$ rules commute.
 \end{lemma}
 
 \begin{proof}
-  
+  We will prove this lemma by an appeal to
+  Lemma~\ref{lem:commutativity}. Let $\to_\eta$ be the reduction relation
+  induced by the rule $\eta.\to$ and $\to_{\banana{\lambda}}$ the reduction
+  relation induced by all the other reduction rules in
+  $\banana{\lambda}$. We need to prove that for all terms $a$, $b$ and $c$
+  where $a \to_{\calc} b$ and $a \to_\eta c$, we have a term $d$ such that $b
+  \tto_\eta d$ and $c \to_{\calc}^= d$.
+
+  This will turn out to be a routine proof by induction on the structure of
+  the term $a$. The base cases are trivial since terms without any proper
+  subterms happen to have no redexes in our calculus and therefore
+  trivially satisfy the criterion. In the inductive step, we will proceed
+  by analyzing the relative positions of the redexes which led to the
+  reductions $a \to_{\calc} b$ and $a \to_\eta c$.
+  \begin{itemize}
+  \item If both reductions occurred within a common subterm of $a$,
+    i.e.\ $a = C[a']$, $b = C[b']$ and $c = C[c']$ while at the same time
+    $a' \to_{\calc} b'$ and $a' \to_\eta c'$: We can use the induction
+    hypothesis for $a'$. This gives us a $d'$ such that $b' \tto_\eta d'$
+    and $c' \to_{\calc}^= d'$ and therefore we also have $d = C[d']$ with $b
+    \tto_\eta d$ and $c \to_{\calc}^= d$.\footnote{\TODO{Formally introducing
+      contexts before defining syntactic closure in~\ref{sec:reductions}
+      might be worth it!}}
+  \item If both reductions occurred within non-overlapping subterms of $a$,
+    i.e.\ $a = C[a_1, a_2]$, $b = C[b', a_2]$ and $c = C[a_1, c']$ with $a
+    \to_{\calc} b$ and $a \to_\eta c$: We can take $d = C[b', c']$ since we
+    have $b \tto_\eta d$ in one step and $c \to_{\calc}^= d$ in one step
+    too.
+  \item If the redex in $a \to_{\calc} b$ is the entire term $a$, but the
+    redex in $a \to_\eta c$ is a proper subterm of $a$: We will solve this
+    by case analysis on the form of $a$:
+    \begin{itemize}
+    \item If $a$ is an application: Since $a$ is an application and also a
+      $\banana{\lambda}$-redex, it must match the left-hand side of the
+      $\beta.\to$ rule, $\ap{(\lam{x}{M(x)})}{N}$, and $b$ must be $M(N)$.
+      \begin{itemize}
+      \item We will first deal with the case when the $\eta$-redex which
+        lead to $c$ originated in $M(x)$. In that case $M(x) \to_\eta
+        M'(x)$ and $c = \ap{(\lam{x}{M'(x)})}{N}$. Our sought-after $d$ is
+        then $M'(N)$, since $c \to_{\calc}^= d$ via $\beta.\to$ in one step
+        and $b = M(N) \tto_\eta d = M'(N)$.
+      \item Now we get to one of the two interesting cases which
+        necessitated this whole lemma: the overlap between $\beta$ and
+        $\eta$, with $\beta$ on the top. If the $\eta$-redex did not
+        originate in $M(x)$, then the $\eta$-redex must be
+        $\lam{x}{M(x)}$. Therefore, $M = \ap{T}{x}$ and $a =
+        \ap{(\lam{x}{\ap{T}{x}})}{N}$. Performing the $\eta$-reduction
+        yields $c = \ap{T}{N}$. In this case, both $b$ and $c$ are equal to
+        $\ap{T}{N}$ and so we can choose $\ap{T}{N}$ as our $d$.
+      \end{itemize}
+      \item If $a$ is any other kind of term: Let $l \to r$ be the rule
+        used in $a \to_{\calc} b$. Not counting $\beta.\to$, which only
+        acts on applications and which we dealt with just above, the rules
+        of $\banana{\lambda}$ do not overlap with the $\eta.\to$ rule. This
+        means the $\eta$-redex which led to $c$ must lie entirely inside a
+        part the part of $l$ which corresponds to a metavariable. Let $M$
+        be that metavariable, then we will decompose $l$ into $L(M)$ and
+        $r$ into $R(M)$. We have $a = L(a')$ for some $a'$, $b = R(a')$ and
+        $c = L(a'')$\footnote{Since our rules are left-linear, $M$ is
+          guaranteed to appear in $L(M)$ at most once. Therefore, if $a'
+          \to_\eta a''$ in one step, then also $L(a') \to_\eta L(a'')$ in
+          one step as well.}. Our $d$ will be $R(a'')$ and we have $b =
+        R(a') \tto_\eta d = R(a'')$ in several steps\footnote{$a'$ can
+          occur multiple times in $R(a')$ when the rule $l \to r$ is
+          duplicating (which is actually the case for the
+          $\banana{\op{op}}$ rules). However, we are able to go from
+          $R(a')$ to $R(a'')$ in multiple steps. NB: This is why we use
+          Lemma~\ref{lem:commutativity} instead of trying to prove
+          commutativity directly.} and $c = L(a'') \to_{\calc}^= d =
+        R(a'')$ in one step of $l \to r$.
+    \end{itemize}
+  \item If the redex in $a \to_\eta c$ is the entire term $a$, but the
+    redex in $a \to_{\calc} b$ is a proper subterm of $a$: In this case,
+    $a$ must be an abstraction that matches the left-hand side of the
+    $\eta.\to$ rule, i.e.\ $a = \lam{x}{\ap{N}{x}}$. Also, we have $c = N$.
+    \begin{itemize}
+    \item As before, we will first deal with the case when the
+      $\banana{\lambda}$-redex is contained completely within $N$. Then $N
+      \to_{\calc} N'$ and $b = \lam{x}{\ap{N'}{x}}$. The common reduct $d$
+      is $N'$ since $b \tto_\eta d$ in one step and $c = N \to_{\calc}^= d
+      = N'$ as established before.
+    \item Now this is where we deal with the second overlap between $\beta$
+      and $\eta$ in our reduction system, the one with $\eta$ on top. Let
+      us assume that the $\banana{\lambda}$-redex in $a$ is actually
+      $\ap{N}{x}$. Since this is an application, the only admissible
+      reduction is with $\beta.\to$. In that case, $N = \lam{y}{T(y)}$ and
+      $a = \lam{x}{\ap{(\lam{y}{T(y)})}{x}}$. Performing the
+      $\beta$-reduction gives us $b = \lam{x}{T(x)}$ which is however equal
+      to $c = N = \lam{y}{T(y)}$. So we can choose $d = b$ and be done.
+    \end{itemize}
+  \item If $a$ is the redex for both reductions $a \to_{\calc} b$ and $a
+    \to_\eta c$, then $a$ must match the left-hand side of two reduction
+    rules. However, that is impossible in our calculus and so $a$ must have
+    matched the same rule twice and therefore $b = c$. Then, we have a
+    trivial $d = b$.
+  \end{itemize}
 \end{proof}
 
 Equipped with this lemma, we can go on to prove our main result,
