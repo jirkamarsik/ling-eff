@@ -14,12 +14,18 @@
 The object of our study during this section will be the proof of the
 \emph{confluence property} of $\banana{\lambda}$.
 
+\begin{definition}
+  A reduction relution $\to$ on a set $A$ is said to be \demph{confluent}
+  whenever for each $a,b,c \in A$ such that $a \to b$ and $a \to c$ there
+  is a $d \in A$ such that $b \tto d$ and $c \tto d$.
+\end{definition}
+
 \begin{theorem}\label{thm:confluence}
   \demph{Confluence of $\banana{\lambda}$}
   
-  Let $a$, $b$ and $c$ be terms of $\banana{\lambda}$. If $a \to b$ and $a
-  \to c$, then there must exist a term $d$ such that $b \tto d$ and $c \tto
-  d$.
+  The reduction relation $\to$, defined by the reduction rules
+  in~\ref{sec:reductions}, on the set of $\banana{\lambda}$ terms is
+  confluent.
 \end{theorem}
 
 Proofs of this property are often mechanical and follow the same
@@ -33,7 +39,7 @@ Klop~\cite{klop1993combinatory}.
 The main result about CRSs that we will make use of is the following
 (Corollary~13.6 in~\cite{klop1993combinatory}).
 
-\begin{theorem}
+\begin{theorem}\label{thm:confluence-crs}
   \demph{Confluence of orthogonal CRSs}
 
   All orthogonal CRSs are confluent.
@@ -155,6 +161,7 @@ were able to get rid of meta-level operations (substitution) and conditions
 
 
 \subsection{$\banana{\lambda}$ as a CRS}
+\label{ssec:banana-as-crs}
 
 We will now see how to rephrase the reduction rules of our calculus in
 order to fit in to the CRS framework. We have already seen how to translate
@@ -309,7 +316,176 @@ and so we end up constructing the same reduction relation.
 \subsection{Orthogonal CRSs}
 \label{ssec:orthogonal-crs}
 
+In order to use Theorem~\ref{thm:confluence-crs}, we need to show that our
+CRS is orthogonal, so let us start us by looking at what ``orthogonal''
+means in the context of CRSs.
 
+\begin{definition}
+  A CRS is \demph{orthogonal} if it is non-overlapping and left-linear.
+\end{definition}
+
+We will need to satisfy two criteria: no overlaps and left linearity. We
+will start with the latter.
+
+\begin{definition}
+  A CRS is \demph{left-linear} if the left-hand sides of all its reduction
+  rules are linear. A CRS metaterm is \demph{linear} if no metavariable
+  occurs twice within it.
+\end{definition}
+
+By going through the rules we have given in~\ref{ssec:banana-as-crs}, we
+can see at a glance that no rule uses the same metavariable twice in its
+left-hand side and so our CRS is indeed left-linear.
+
+\begin{definition}
+  A CRS is \demph{non-overlapping} if:
+  \begin{itemize}
+    \item Let $r = s \to t$ be some reduction rule of the CRS and let
+      $M_1$,\ldots,$M_n$ be all the metavariables occurring in the
+      left-hand side $s$. Whenever we can instantiate the metavariables in
+      $s$ such that the resulting term contains a redex for some other rule
+      $r'$, then said redex must be contained in the instantiation of one
+      of the metavariables $M_i$.
+    \item Similarly, whenever we can instantiate the metavariables in $s$
+      such that the resulting term \emph{properly contains} a redex
+      \emph{for the same rule $r$}, then that redex as well must be
+      contained in the instantiation of one of the metavariables $M_i$.
+  \end{itemize}
+\end{definition}
+
+In simpler words, no left-hand side of any rule can contain bits which look
+like the top of the left-hand side of some other rule. Let us try and
+verify this property in our calculus:
+\begin{itemize}
+\item The $\banana{}$ rules have no overlaps with any of the other
+  rules. Their left-hand sides are constructed only of the $\banana{}$
+  symbols and the $\op{op}$ and $\eta$ constructors. Since there is no
+  reduction rule headed by $\op{op}$ and $\eta$, they have no overlap with
+  any of the other rules. Furthermore, the three $\banana{}$ rules are
+  mutually exclusive, so there is no overlap between themselves.
+\item The $\cherry$ rule does not overlap with any of the other neither,
+  since the left-hand side contains only $\cherry$ and $\eta$, and there is
+  no reduction rule headed by $\eta$.
+\item The $\CC$ rules are both mutually exclusives, so there is no overlap
+  between the two. However, their left-hand sides are built out of not only
+  $\CC$, $\op{op}$ and $\eta$, but also $\lambda$, for which there is the
+  $\eta.\to$ reduction rule. Fortunately in this case, the $\CC$ rules only
+  apply when the $\lambda$-abstraction's body is an $\eta$ expression or an
+  $\op{op}$ expression, whereas the $\eta.\to$ rule applies only when the
+  body is an application expression\footnote{This is not so much a
+    fortunate conincidence but rather a deliberate choice in the design of
+    the calculus.}. Therefore, there is no overlap.
+\end{itemize}
+
+We have established that all the reduction rules in our system are pairwise
+non-overlapping \emph{except} for $\beta.\to$ and $\eta.\to$. However,
+these two are notoriously overlapping.
+
+We can instantiate the metavariables in the left-hand side of the
+$\beta.\to$ rule to get a term which contains a $\eta$-redex which shares
+the $\lambda$-abstraction with the $\beta$-redex.
+
+$$
+\ap{(\lam{x}{\ap{y}{x}})}{z}
+$$
+
+We can also instantiate the metavariables in the left-hand side of the
+$\eta.\to$ rule to create a $\beta$-redex which shares the application with
+the $\eta$-redex.
+
+$$
+\lam{x}{\ap{(\lam{z}{z})}{x}}
+$$
+
+Our CRS is therefore \emph{not} orthogonal. However, we can still make good
+use of Theorem~\ref{thm:confluence-crs}.
+
+\begin{lemma}\label{lem:confluence-int}
+  \demph{Confluence of intensional $\banana{\lambda}$}
+
+  The $\banana{\lambda}$ reduction systems without the $\eta.\to$ rule is
+  confluent.
+\end{lemma}
+
+\begin{proof}
+  If we exclude the $\eta.\to$ rule, we have a CRS which is left-linear and
+  also non-overlapping\footnote{We know that $\beta.\to$ does not overlap
+    any of the other rules. Neither does it overlap itself since its
+    left-hand side does not have an application subexpression.}. Therefore,
+  it is orthogonal and thanks to Theorem~\ref{thm:confluence-crs}, also
+  confluent.
+\end{proof}
+
+\begin{lemma}\label{lem:confluence-eta}
+  \demph{Confluence of $\eta$-reduction}
+
+  The reduction system on $\banana{\lambda}$ terms containing only the
+  $\eta.\to$ reduction rule is confluent.
+\end{lemma}
+
+\begin{proof}
+  We have seen that $\eta.\to$ is a valid left-linear CRS rule. It also
+  does not overlap itself since its left-hand side does not contain any
+  $\lambda$ subexpression. The CRS consisting of just the $\eta.\to$ rule
+  is therefore orthogonal and confluent.
+\end{proof}
+
+
+\subsection{Adding $\eta.\to$ Back to $\banana{\lambda}$}
+
+We have shown that both $\banana{\lambda}$ without $\eta.\to$ and
+$\eta.\to$ by itself are confluent. The reduction relation of the complete
+$\banana{\lambda}$ calculus is the union of these two reduction
+relations. Using the Lemma of Hindley-Rosen (Point~2 in Exercises~1.0.8
+in~\cite{klop1992term}), we can show that this union is confluent by
+showing that the two reduction relations commute together.
+
+We will not even need to know the definition of commuting reductions, since
+we will base our proof on an other result due to Hindley (Point~3 in
+Exercises~1.0.8 in~\cite{klop1992term}).
+
+\begin{lemma}\label{lem:commutativity}
+  Let $\to_1$ and $\to_2$ be two reduction relations on the same set of
+  terms $A$. Suppose that whenever there are $a,b,c \in A$ such that $a
+  \to_1 b$ and $a \to_2 c$, there is also some $d \in A$ such that $b
+  \tto_2 d$ and $c \to_1^= d$ (meaning $c \to_1 d$ or $c = d$). In that
+  case, $\to_1$ commutes with $\to_2$.
+\end{lemma}
+
+We can use this to prove that $\banana{\lambda}$ commutes with the
+$\eta.\to$ reduction rule.
+
+\begin{lemma}\label{lem:eta-commutes}
+  \demph{Commutativity of $\eta$ and $\banana{\lambda}$}
+
+  The reduction relations induced by $\eta$ and by the rest of the
+  $\banana{\lambda}$ rules commute.
+\end{lemma}
+
+\begin{proof}
+  
+\end{proof}
+
+Equipped with this lemma, we can go on to prove our main result,
+Theorem~\ref{thm:confluence}, the confluence of $\banana{\lambda}$.
+
+\begin{theorem}\label{thm:confluence}
+  \demph{Confluence of $\banana{\lambda}$}
+  
+  The reduction relation $\to$, defined by the reduction rules
+  in~\ref{sec:reductions}, on the set of $\banana{\lambda}$ terms is
+  confluent.
+\end{theorem}
+
+\begin{proof}
+  From Lemma~\ref{lem:confluence-int}, we know that the $\banana{\lambda}$
+  system without $\eta.\to$ is confluent and from
+  Lemma~\ref{lem:confluence-eta}, we know that the $\eta.\to$ reduction
+  rule is confluent as well. Lemma~\ref{lem:eta-commutes} tells us that
+  these two reduction systems commute and therefore, by the Lemma of
+  Hindley-Rosen, their union, which is the $\banana{\lambda}$ reduction
+  system, commutes as well.
+\end{proof}
 
 
 \section{Termination}
