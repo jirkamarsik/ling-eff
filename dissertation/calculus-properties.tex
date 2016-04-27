@@ -483,9 +483,7 @@ $\eta.\to$ reduction rule.
     $a' \to_{\calc} b'$ and $a' \to_\eta c'$: We can use the induction
     hypothesis for $a'$. This gives us a $d'$ such that $b' \tto_\eta d'$
     and $c' \to_{\calc}^= d'$ and therefore we also have $d = C[d']$ with $b
-    \tto_\eta d$ and $c \to_{\calc}^= d$.\footnote{\TODO{Formally introducing
-      contexts before defining syntactic closure in~\ref{sec:reductions}
-      might be worth it!}}
+    \tto_\eta d$ and $c \to_{\calc}^= d$.
   \item If both reductions occurred within non-overlapping subterms of $a$,
     i.e.\ $a = C[a_1, a_2]$, $b = C[b', a_2]$ and $c = C[a_1, c']$ with $a
     \to_{\calc} b$ and $a \to_\eta c$: We can take $d = C[b', c']$ since we
