@@ -24,8 +24,8 @@ The object of our study during this section will be the proof of the
 
 Proofs of this property are often mechanical and follow the same
 pattern. Our strategy will be to reuse a general result which applies one
-such proof for a general class of rewriting systems. Our reduction system
-is a system of reduction on terms and the reductions have side conditions
+such proof for a general class of rewriting systems. Our rewriting system
+is a system of reductions on terms and the reductions have side conditions
 concerning the binding of free variables. A good fit for this kind of
 system are the Combinatory Reduction Systems (CRSs) of
 Klop~\cite{klop1993combinatory}.
@@ -42,7 +42,7 @@ The main result about CRSs that we will make use of is the following
 The rest of this section will go like this:
 \begin{itemize}
 \item First, we define Combinatory Reduction Systems.
-\item We then show that our reduction relation can be coded as a CRS.
+\item Next, we show that our reduction relation can be coded as a CRS.
 \item Afterwards, we explain the orthogonality condition.
 \item Finally, we verify whether orthogonality holds for our CRS.
 \end{itemize}
@@ -100,11 +100,11 @@ reduction rule.
   A CRS \emph{reduction} (or \emph{rewrite}) rule is a pair of metaterms $s
   \to t$ such that:
   \begin{itemize}
-  \item $s$ and $t$ are both closed, i.e.\ all variables from $\Var$ are
-    bound using the $[\_]\_$ binder
+  \item $s$ and $t$ are both closed, i.e.\ all variables are bound using
+    the $[\_]\_$ binder
   \item $s$ is of the form $F(t_1,\ldots,t_n)$
   \item all the metavariables that occur in $t$ also occur in $s$
-  \item the metavariables $M$ that occur in $s$ only occur in the form
+  \item any metavariable $M$ that occurs in $s$ only occurs in the form
     $M(x_1,\ldots,x_k)$, where $x_i$ are pairwise distinct variables
   \end{itemize}
 \end{definition}
@@ -115,17 +115,17 @@ will direct curious readers to Sections~11 and 12 of
 $\cite{klop1993combinatory}$.
 
 When we instantiate the metavariables in a CRS rule, we use a
-\emph{valuation} that assigns to $n$-ary metavariables terms with holes
-labelled from 1 to $n$. The instantiation of $M(t_1,\ldots,t_n)$ then
+\emph{valuation} that assigns to every $n$-ary metavariable a term with
+holes labelled from 1 to $n$. The instantiation of $M(t_1,\ldots,t_n)$ then
 replaces the metavariable $M$ by the term with holes and fills the holes
 labelled $1,\ldots,n$ with the terms $t_1,\ldots,t_n$ respectively.
 
 The crucial detail is that in a particular context, a metavariable can only
 be instantiated with terms $M$ that do not contain any free variables bound
-in that context. This means that in order to for the instantiation of $M$
-to contain a variable bound in the context, $M$ must explicitly take that
-variable as an argument. All other variables not explicitly declared can
-therefore be safely assumed to not occur freely.
+in that context. This means that for the instantiation of $M$ to contain a
+variable bound in the context, $M$ must explicitly take that variable as an
+argument. All other variables not explicitly declared can therefore be
+safely assumed to not occur freely within.
 
 Consider the following examples of $\beta$ and $\eta$ reduction.
 
@@ -156,9 +156,9 @@ were able to get rid of meta-level operations (substitution) and conditions
 
 \subsection{$\banana{\lambda}$ as a CRS}
 
-We will now see how to rephrase the reduction rules in our calculus in
+We will now see how to rephrase the reduction rules of our calculus in
 order to fit in to the CRS framework. We have already seen how to translate
-the $\beta$ and $\eta$ reduction rules in the previous subsection. The next
+the $\beta.\to$ and $\eta.\to$ rules in the previous subsection. The next
 rules to address are the rules defining the semantics of the $\banana{}$
 handlers.
 
@@ -185,8 +185,8 @@ We will repeat the rules for handlers to make the issue at hand clear.
 The syntax of CRSs does not allow us to use the $(\onto{\op{op}_i}{M_i})_{i
   \in I}$ notation nor capture the $j \in I$ or $j \notin I$ conditions.
 The symbols $\op{op}_i$ are problematic as well, since technically, they
-are not pure $\banana{\lambda}$ but metavariables standing in for operation
-symbols.
+are not pure $\banana{\lambda}$ syntax but metavariables standing in for
+operation symbols.
 
 We do away with all of the above problems by expanding these meta-notations
 and adding a separate rule for every possible instantiation of the
@@ -234,17 +234,16 @@ We can see that the only difference is to replace ``simple'' metavariables
 $M$, $M_{\mathrm{p}}$ and $M_{\mathrm{c}}$ with their higher-order
 versions: the unary $M$, nullary $M_{\mathrm{p}}$ and binary
 $M_{\mathrm{c}}$. We see that every CRS metavariable is applied to the
-variables in scope, except for the $M_{\mathrm{p}}$, which thus loses
-access to the variable $x$. This way, the condition that $x$ must not
-appear free in $M_{\mathrm{p}}$ is now encoded directly in the reduction
-rule itself.
+variables in scope, except for $M_{\mathrm{p}}$, which thus loses access to
+the variable $x$. This way, the condition that $x$ must not appear free in
+$M_{\mathrm{p}}$ is now encoded directly in the reduction rule itself.
 
-In~\ref{ssec:crs}, we have said that a CRS is formed by a set of reductions
-and by an alphabet. We have already seen all of the rules of our CRS
-($\beta$ and $\eta$ reduction were given at the end of~\ref{ssec:crs}, the
-rule for $\cherry$ is the same as the original one
-in~\ref{sec:reductions}). In order to have clear definition, all that
-remains is to identify the alphabet.
+In~\ref{ssec:crs}, we have said that a CRS is formed by a set of reduction
+rules and by an alphabet. We have already seen all of the rules of our CRS
+($\beta.\to$ and $\eta.\to$ were given at the end of~\ref{ssec:crs} and the
+$\cherry$ rule is the same as the original one in~\ref{sec:reductions}). In
+order to have a clear definition, all that remains is to identify the
+alphabet.
 
 The set of variables $Var$ is exactly the set of variables $\XX$ used in
 the definition of $\banana{\lambda}$. The set of metavariables $MVar$
@@ -255,7 +254,7 @@ set of function symbols is composed of the following:
 \begin{itemize}
 \item the binary symbol $@$ for function application
 \item the unary symbol $\lambda$ for function abstraction
-\item a nullary symbol for any constant in the signature $\Sigma$
+\item a nullary symbol for every constant in the signature $\Sigma$
 \item the unary symbol $\eta$ for the injection operator
 \item a binary symbol $\op{op}$ for every $\op{op} \in \EE$
 \item a $(n+2)$-ary symbol
@@ -280,8 +279,8 @@ of the two. We write:
   that with this translation,
   $\app{\op{op}}{t_{\mathrm{p}}}{(\lam{x}{t_{\mathrm{c}}})}$ does not
   contain $\lam{x}{t_{\mathrm{c}}}$ as a subterm. This is the same as in
-  our calculus, where the syntactic closure (see~\ref{sec:reductions})
-  does not identify $\lam{x}{t_{\mathrm{c}}}$ but $t_{\mathrm{c}}$ as a
+  our calculus, where the syntactic closure (see~\ref{sec:reductions}) does
+  not identify $\lam{x}{t_{\mathrm{c}}}$, but rather $t_{\mathrm{c}}$, as a
   subterm of
   $\app{\op{op}}{t_{\mathrm{p}}}{(\lam{x}{t_{\mathrm{c}}})}$. This becomes
   important in our discussion of confluence since it makes it impossible to
@@ -295,10 +294,22 @@ of the two. We write:
 
 We have connected the terms of $\banana{\lambda}$ with CRS terms and we
 have also expressed all of our reduction rules in terms of CRS reduction
-rules. In our theory of $\banana{\lambda}$ in~\ref{sec:reductions}, we
-then apply the syntactic closure to this redex-contractum relation in order
-to be able to reduce subterms anywhere inside a larger term. This is
-parallel to what CRSs do 
+rules. As in our calculus, CRS then proceeds to take a syntactic closure of
+this redex-contractum relation. Our translation from $\banana{\lambda}$ to
+a CRS also preserves subterms\footnote{More precisely, if $a$ is a subterm
+  of $b$ in $\banana{\lambda}$ then the CRS version of $a$ is a subterm of
+  the CRS version of $b$. In the other direction, whenever $a$ is a
+  variable or a function-headed term which is a subterm of $b$ in the CRS
+  version of $\banana{\lambda}$, then the corresponding $a$ in
+  $\banana{\lambda}$ is a subterm of the corresponding $b$ (according to
+  the notion of subterm inherent in the definition of syntactic closure).}
+and so we end up constructing the same reduction relation.
+
+
+\subsection{Orthogonal CRSs}
+\label{ssec:orthogonal-crs}
+
+
 
 
 \section{Termination}
