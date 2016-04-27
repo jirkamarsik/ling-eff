@@ -1,0 +1,1067 @@
+\documentclass{beamer}
+
+\usepackage{bussproofs}
+\usepackage{stmaryrd}
+\usepackage[utf8]{inputenc}
+\usepackage{pgfpages}
+\usepackage{mathtools}
+\usepackage{array}
+\usepackage{drs}
+\input{qobitree}
+\usepackage{listings}
+\usepackage{cancel}
+\usepackage{subcaption}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}
+  {\hfill {\normalsize \insertframenumber{}/\inserttotalframenumber{}}}
+\hypersetup{pdfstartview={Fit}}
+
+\AtBeginSection[]
+{
+\begin{frame}{Outline}
+  \tableofcontents[currentsection]
+\end{frame}
+}
+
+\input{definitions}
+
+
+\title{Side Effects in Natural Languages}
+\author{Jirka Maršík}
+\date{April 15, 2016}
+\institute{INRIA/LORIA}
+
+
+\begin{document}
+
+
+\begin{frame}
+  \maketitle
+\end{frame}
+
+
+\begin{frame}{Outline}
+  \tableofcontents
+\end{frame}
+
+
+
+\section{Introducing Formal Semantics}
+
+
+\begin{frame}{Syllogisms}
+All men are mortal. Socrates is a man. \\
+$\vDash$ Socrates is mortal.
+\vfill
+\pause
+$(\forall x.\, \obj{man}(x) \to \obj{mortal}(x)) \land
+(\obj{man}(\obj{Socrates}))$ \\
+$\vDash \obj{mortal}(\obj{Socrates})$
+\end{frame}
+
+
+\begin{frame}{The Plan}
+  \begin{center}
+  \includegraphics[width=\textheight]{plan}
+  \end{center}
+\end{frame}
+
+
+\begin{frame}{Adjectives}
+John owns a large house. \\
+$\vDash$ John owns a house.
+\vfill
+\pause
+John is an alleged criminal. \\
+$\cancel{\vDash}$ John is a criminal.
+\vfill
+\pause
+Coke is a good detergent. Coke is a drink. \\
+$\cancel{\vDash}$ Coke is a good drink.
+\end{frame}
+
+
+\begin{frame}{Events and Adverbs}
+Brutus stabbed Caesar with a knife on the forum at noon. \\
+\pause
+$\vDash$ Brutus stabbed Caesar on the forum at noon. \\
+\pause
+$\vDash$ Brutus stabbed Caesar at noon. \\
+\pause
+$\vDash$ Brutus stabbed Caesar.
+\vfill
+\pause
+Brutus merrily stabbed Caesar. \pause Brutus publicly stabbed Caesar. \ldots
+\vfill
+\pause
+Brutus supposedly stabbed Caesar. \\
+$\cancel{\vDash}$ Brutus stabbed Caesar.
+\end{frame}
+
+
+\begin{frame}{Coordination and Plurals}
+Tony and Geezer are fans of football.\\
+$\vDash$ Tony is a fan of football.
+\vfill
+\pause
+Tony and Geezer lifted the amp and the organ.\\
+$\cancel{\vDash}$ Tony lifted the amp.
+\vfill
+\pause
+Lee, Mo and 5,000 of their classmates surrounded the Forbidden City.\\
+$\cancel{\vDash}$ Lee and Mo surrounded the Forbidden City.
+\vfill
+\pause
+Three boys invited four girls.\\
+$\cancel{\vDash}$ A boy invited four girls.
+\end{frame}
+
+
+\begin{frame}{Defeasible Reasoning}
+John hates sports but loves football. (Football is a sport.) \\
+$\cancel{\vDash}$ John hates football.
+\end{frame}
+
+
+\begin{frame}{Presuppositions}
+My son is a carpenter. \\
+$\vDash$ My son a carpenter. \\
+$\vDash$ I have a son.
+\vfill
+\pause
+My son is not a carpenter. \\
+$\cancel{\vDash}$ My son is a carpenter. \\
+$\vDash$ I have a son.
+\vfill
+\pause
+If my son were a carpenter, he would be able to help me. \\
+$\cancel{\vDash}$ My son is carpenter. \\
+$\vDash$ I have a son.
+\vfill
+\pause
+If I had a son, my son would be a carpenter. \\
+$\cancel{\vDash}$ I have a son.
+\end{frame}
+
+
+\begin{frame}{Conventional Implicatures}
+John, a swell guy, is a carpenter. \\
+$\vDash$ John is a carpenter. \\
+$\vDash$ John is a swell guy.
+\vfill
+\pause
+John, a swell guy, is not a carpenter. \\
+$\cancel{\vDash}$ John is a carpenter. \\
+$\vDash$ John is a swell guy.
+\vfill
+\pause
+If John, a swell guy, were a carpenter, he would be able to help me. \\
+$\cancel{\vDash}$ John is a carpenter. \\
+$\vDash$ John is a swell guy.
+\end{frame}
+
+
+\begin{frame}{Identities/Intensions}
+Mary Jane loves Peter Parker but she doesn't love Spider-Man. (Peter Parker
+is Spider-Man.)
+\vfill
+\pause
+Reza doesn't believe Jesus is Jesus.
+\vfill
+\pause
+Kim doesn't believe Sandy is Sandy. (Kim suffers from Capgras syndrome.)
+\end{frame}
+
+
+\begin{frame}{Pronouns and Anaphora}
+  John has a car$_1$. It$_1$ is red.
+  \vfill
+  \pause
+  $^*$John does not have a car$_1$. It$_1$ is red.
+  \vfill
+  \pause
+  Every farmer who owns a donkey$_1$ beats it$_1$. \\
+  \pause
+  Or: If a farmer$_1$ owns a donkey$_2$, he$_1$ beats it$_2$.
+  \vfill
+  \pause
+  $^*$If a farmer$_1$ owns a donkey$_2$, he$_1$ beats it$_2$. It$_2$ is an
+  unhappy donkey.
+  \vfill
+  \pause
+  Either there is no bathroom$_1$ in this house or it$_1$ is in a funny
+  place.
+\end{frame}
+
+
+
+\section{Abstract Categorial Grammars}
+
+
+\begin{frame}{IILL}
+  \begin{prooftree}
+    \AxiomC{$\emptyset \vdash_\Sigma c : \Sigma(c)$ (cons)}
+  \end{prooftree}
+  \begin{prooftree}
+    \AxiomC{$x : \alpha \vdash_\Sigma x : \alpha$ (var)}
+  \end{prooftree}
+  \begin{prooftree}
+    \AxiomC{$\Gamma, x : \alpha \vdash_\Sigma t : \beta$}
+    \RightLabel{(abs)}
+    \UnaryInfC{$\Gamma \vdash_\Sigma \lam{x}{t} : \alpha \limp \beta$}
+  \end{prooftree}
+  \begin{prooftree}
+    \AxiomC{$\Gamma \vdash_\Sigma t : \alpha \limp \beta$}
+    \AxiomC{$\Delta \vdash_\Sigma u : \alpha$}
+    \RightLabel{(app)}
+    \BinaryInfC{$\Gamma, \Delta \vdash_\Sigma \ap{t}{u} : \beta$}
+  \end{prooftree}
+  \vfill
+  where $\Sigma = \mathopen{<}A, C, \tau\mathclose{>}$
+\end{frame}
+
+
+\begin{frame}{Definition (de Groote, 2001)}
+ 
+\textbf{higher-order signature $\Sigma$} is a triple $\mathopen{<}A, C,
+\tau\mathclose{>}$, with:
+\begin{itemize}
+  \item $A$ a finite set of atomic types
+  \item $C$ a set of constants
+  \item $\tau : C \to \mathcal{T}(A)$
+\end{itemize}
+
+\vfill
+\pause
+
+\textbf{lexicon $\mathcal{L}$} from $\Sigma_1 = \mathopen{<}A_1, C_1,
+\tau_1\mathclose{>}$ to $\Sigma_2 = \mathopen{<}A_2, C_2,
+\tau_2\mathclose{>}$ is a pair $\mathopen{<}F, G\mathclose{>}$
+
+\begin{itemize}
+  \item $F : A_1 \to \mathcal{T}(A_2)$
+  \item $G : C_1 \to \Lambda(\Sigma_2)$
+  \item $F$ and $G$ are compatible, i.e. $\forall c \in C_1$
+    $$
+      \vdash_{\Sigma_2} G(c) : F(\tau_1(c))
+    $$
+\end{itemize}
+ 
+\end{frame}
+
+
+\begin{frame}{Definition (de Groote, 2001)}
+  \textbf{abstract categorial grammar $\mathcal{G}$} is a lexicon
+  $\mathcal{L} = \mathopen{<}F, G\mathclose{>}$ from $\Sigma_1 =
+  \mathopen{<}A_1, C_1, \tau_1\mathclose{>}$ to $\Sigma_2 =
+  \mathopen{<}A_2, C_2, \tau_2\mathclose{>}$ along with a distinguished
+  type $s$
+  \vfill
+  \textbf{abstract language $\mathcal{A(G)}$} =
+  $$
+  \{ t \in \Lambda(\Sigma_1)\ |\ \vdash_{\Sigma_1} t : s \}
+  $$
+  \vfill
+  \textbf{object language} $\mathcal{O(G)}$ = 
+  $$
+  \{ t \in \Lambda(\Sigma_2)\ |\ \exists u \in \mathcal{A(G)}.\ t = \mathcal{L}(u) \}
+  $$
+\end{frame}
+
+\begin{frame}{Example ACG}
+  $\Sigma_{\mathrm{tecto}}$
+  \begin{align*}
+    \abs{John}, \abs{Mary} &: NP & \abs{book}, \abs{man} &: N \\
+    \abs{sleeps} &: NP \limp S & \abs{loves}, \abs{read} &: NP \limp NP \limp S \\
+    \abs{some}, \abs{every} &: N \limp NP & \abs{who}, \abs{which} &: (NP \limp S) \limp N \limp N
+  \end{align*}
+  
+  \vfill
+  
+  \only<2>{
+  $\Sigma_{\mathrm{phono}}$
+  \begin{align*}
+    \syn{John}, \syn{Mary}, \syn{book}, \syn{man}, \syn{sleeps},
+    \syn{loves} &: Str \\
+    \syn{read}, \syn{some}, \syn{every}, \syn{who},
+    \syn{which} &: Str \\
+    (+) &: Str \limp Str \limp Str \\
+    \epsilon &: Str
+  \end{align*}
+  }
+  \only<3-4>{$\mathcal{L}_{\mathrm{syntax}} : \Sigma_{\mathrm{tecto}} \to \Sigma_{\mathrm{phono}}$}
+  \only<3>{
+  \begin{align*}
+    \sem{S} &= Str \\
+    \sem{NP} &= Str \\
+    \sem{N} &= Str
+  \end{align*}
+  }
+  \only<4>{
+  \begin{align*}
+    \sem{\abs{John}} &= \syn{John} & \sem{\abs{Mary}} &= \syn{Mary} \\
+    \sem{\abs{book}} &= \syn{book} & \sem{\abs{man}} &= \syn{man} \\
+    \sem{\abs{sleeps}} &= \lam{s}{s + \syn{sleeps}} & & \\
+    \sem{\abs{loves}} &= \lam{o s}{s + \syn{loves} + o} & \sem{\abs{read}} &= \lam{o s}{s + \syn{read} + o} \\
+    \sem{\abs{some}} &= \lam{n}{\syn{some} + n} & \sem{\abs{every}} &= \lam{n}{\syn{every} + n} \\
+    \sem{\abs{who}} &= \lam{P n}{n + \syn{who} + \ap{P}{\epsilon}} & \sem{\abs{which}} &= \lam{P n}{n + \syn{which} + \ap{P}{\epsilon}}
+  \end{align*}
+  }
+\end{frame}
+
+
+\begin{frame}{Example ACG}
+  $\mathcal{G} = \mathopen{<}\Sigma_{\mathrm{tecto}},
+  \Sigma_{\mathrm{phono}}, \mathcal{L}_{\mathrm{syntax}}, S \mathclose{>}$
+  
+  
+  \begin{align*}
+  A &= \app{\abs{loves}}{\abs{Mary}}{\abs{John}} \\
+  \sem{A} &= \syn{John} + \syn{loves} + \syn{Mary} \\
+  \\
+  B &= \app{\abs{loves}}{(\ap{\abs{some}}{(\app{\abs{who}}{(\ap{\abs{read}}{(\ap{\abs{every}}{\abs{book}})})}{\abs{man}})})}{\abs{Mary}} \\
+  \sem{B} &= \syn{Mary} + \syn{loves} + \syn{some} + \syn{man} + \syn{who} + \syn{read} + \syn{every} + \syn{book} \\
+  \\
+  C &= \app{\abs{read}}{(\ap{\abs{every}}{(\app{\abs{which}}{(\lam{x}{\app{\abs{loves}}{x}{\abs{Mary}}})}{\abs{book}})})}{\abs{John}} \\
+  \sem{C} &= \syn{John} + \syn{read} + \syn{every} + \syn{book} + \syn{which} + \syn{Mary} + \syn{loves} \\
+  \end{align*}
+
+  $A : S, B : S, C : S \in \mathcal{A(G)}$ and therefore $\sem{A}, \sem{B},
+  \sem{C} \in \mathcal{O(G)}$
+\end{frame}
+
+
+
+\section{Doing Formal Semantics}
+
+
+\begin{frame}{Giving a Semantics to Our Fragment}
+  $\Sigma_{\mathrm{tecto}}$
+  \begin{align*}
+    \abs{John}, \abs{Mary} &: NP & \abs{book}, \abs{man} &: N \\
+    \abs{sleeps} &: NP \limp S & \abs{loves}, \abs{read} &: NP \limp NP \limp S \\
+    \abs{some}, \abs{every} &: N \limp NP & \abs{who}, \abs{which} &: (NP \limp S) \limp N \limp N
+  \end{align*}
+  
+  \vfill
+  
+  \only<2>{
+  $\Sigma_{\mathrm{logic}}$
+  \begin{align*}
+    \obj{j}, \obj{m} &: \iota & \obj{man}, \obj{book} &: \iota \to o \\
+    \obj{sleep} &: \iota \to o & \obj{love}, \obj{read} &: \iota \to \iota \to o \\
+    (\land), (\lor), (\to) &: o \to o \to o & \lnot &: o \to o \\
+    \exists, \forall &: (\iota \to o) \to o & \top, \bot &: o
+  \end{align*}
+  }
+  \only<3-4>{
+    $\mathcal{L}_{\mathrm{semantics}} : \Sigma_{\mathrm{tecto}} \to \Sigma_{\mathrm{logic}}$
+  }
+  \only<3>{
+  \begin{align*}
+    \sem{S} &= o \\
+    \sem{NP} &= \iota \\
+    \sem{N} &= \iota \to o
+  \end{align*}
+  }
+  \only<4>{
+  \begin{align*}
+    \sem{\abs{John}} &= \obj{j} & \sem{\abs{Mary}} &= \obj{m} \\
+    \sem{\abs{book}} &= \obj{book} & \sem{\abs{man}} &= \obj{man} \\
+    \sem{\abs{sleeps}} &= \lam{s}{\ap{\obj{sleep}}{s}} & & \\
+    \sem{\abs{loves}} &= \lam{o s}{\app{\obj{love}}{s}{o}} & \sem{\abs{read}} &= \lam{o s}{\app{\obj{read}}{s}{o}} \\
+    \sem{\abs{who}}, \sem{\abs{which}} &= \lam{P n}{\lam{x}{\ap{n}{x} \land \ap{P}{x}}} \\
+        \sem{\abs{some}} &=\ ??? & \sem{\abs{every}} &=\ ??? \\
+  \end{align*}
+  }
+  \only<5-6>{
+    $\mathcal{L}_{\mathrm{quantifiers}} : \Sigma_{\mathrm{tecto}} \to \Sigma_{\mathrm{logic}}$
+  }
+  \only<5>{
+  \begin{align*}
+    \sem{S} &= o \\
+    \sem{NP} &= (\iota \to o) \to o \\
+    \sem{N} &= \iota \to o
+  \end{align*}
+  }
+  \only<6>{
+  \begin{align*}
+    \sem{\abs{John}} &= \lam{P}{\ap{P}{\obj{j}}} & \sem{\abs{Mary}} &= \lam{P}{\ap{P}{\obj{m}}} \\
+    \sem{\abs{book}} &= \obj{book} & \sem{\abs{man}} &= \obj{man} \\
+    \sem{\abs{sleeps}} &= \lam{S}{\ap{S}{(\lam{s}{\ap{\obj{sleep}}{s}})}} & & \\
+    \sem{\abs{loves}} &= \lam{O S}{\ap{S}{(\lam{s}{\ap{O}{(\lam{o}{\app{\obj{love}}{s}{o}})}})}} \\
+    \sem{\abs{read}} &= \lam{O S}{\ap{S}{(\lam{s}{\ap{O}{(\lam{o}{\app{\obj{read}}{s}{o}})}})}} \\
+    \sem{\abs{who}}, \sem{\abs{which}} &= \lam{P n}{\lam{x}{\ap{n}{x} \land \ap{P}{(\lam{k}{\ap{k}{x}})}}} \\
+    \sem{\abs{some}} &= \lam{n P}{\exists x.\, \ap{n}{x} \land \ap{P}{x}} \\
+    \sem{\abs{every}} &= \lam{n P}{\forall x.\, \ap{n}{x} \to \ap{P}{x}}
+  \end{align*}
+  }
+\end{frame}
+
+
+\begin{frame}{Giving a Semantics to Our Fragment}
+  
+  \begin{align*}
+  A &= \app{\abs{loves}}{\abs{Mary}}{\abs{John}} \\
+  \sem{A}_{\mathrm{syn}} &= \syn{John} + \syn{loves} + \syn{Mary} \\
+  \sem{A}_{\mathrm{quant}} &= \app{\obj{love}}{\obj{j}}{\obj{m}} \\
+  \\
+  B &= \app{\abs{loves}}{(\ap{\abs{some}}{(\app{\abs{who}}{(\ap{\abs{read}}{(\ap{\abs{every}}{\abs{book}})})}{\abs{man}})})}{\abs{Mary}} \\
+  \sem{B}_{\mathrm{syn}} &= \syn{Mary} + \syn{loves} + \syn{some} + \syn{man} + \syn{who} + \syn{read} + \syn{every} + \syn{book} \\
+  \sem{B}_{\mathrm{quant}} &= \exists x.\, \ap{\obj{man}}{x} \land (\forall y.\, \ap{\obj{book}}{y} \to \app{\obj{read}}{x}{y}) \land \app{\obj{love}}{\obj{m}}{x} \\
+  \\
+  C &= \app{\abs{read}}{(\ap{\abs{every}}{(\app{\abs{which}}{(\lam{x}{\app{\abs{loves}}{x}{\abs{Mary}}})}{\abs{book}})})}{\abs{John}} \\
+  \sem{C}_{\mathrm{syn}} &= \syn{John} + \syn{read} + \syn{every} + \syn{book} + \syn{which} + \syn{Mary} + \syn{loves} \\
+  \sem{C}_{\mathrm{quant}} &= \forall x.\, (\ap{\obj{book}}{x} \land \app{\obj{love}}{\obj{m}}{x}) \to \app{\obj{read}}{\obj{j}}{x}
+  \end{align*}
+
+\end{frame}
+
+
+\begin{frame}{Generalizing Denotations}
+  ``Upgrading'' the types of denotations in order to keep a compositional
+  semantics seems like a common strategy.
+  \vfill
+  \begin{tabular}{llr}
+    Natural Languages & Prog. Languages & Type $\alpha$ becomes \\
+    \hline
+    Quantification & Control &
+    $(\alpha \to \omega) \to \omega$ \\
+    Anaphora & State &
+    $\gamma \to \alpha \times \gamma$ \\
+    Intensionality & Environment &
+    $\delta \to \alpha$ \\
+    Presuppositions & Exceptions &
+    $\alpha \oplus \chi$ \\
+    Questions & Non-determinism &
+    $\alpha \to o$ \\
+    Focus & &
+    $\alpha \times (\alpha \to o)$ \\
+    Expressives & Output &
+    $\alpha \times \epsilon$ \\
+    Prob. semantics & Prob. programming &
+    $[\mathbb{R} \times \alpha]$ \\
+  \end{tabular}
+\end{frame}
+
+
+\begin{frame}{Montague and Continuations}
+  As we have seen, side effects and pragmatics align in their theories.
+  \pause
+  \vfill
+  Montague's generalized quantifiers
+  \begin{itemize}
+  \item $\sem{NP} = (\iota \to o) \to o$
+  \item e.g., the meaning of a transitive verb such as \textit{read}
+    $$ \sem{\abs{read}} = \lam{S O}{\ap{S}{(\lam{s}{\ap{O}{(\lam{o}{\app{\obj{read}}{s}{o}})}})}} $$
+  \end{itemize}
+  \vfill
+  \pause
+  In computer science, discovered as continuations
+  \begin{itemize}
+  \item $\sem{exp_{\tau}} = (\tau \to \omega) \to \omega$
+  \item e.g., applying a function $f$ to two arguments $S$ and $O$ in
+    continuation-passing style
+    $$\lam{P}{\ap{S}{(\lam{s}{\ap{O}{(\lam{o}{\ap{P}{(\app{f}{s}{o})}})}})}}$$
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Side Effects and Pragmatics}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+   \begin{block}{Side Effects}
+   Account for:
+  \pause
+  \vfill
+  \begin{itemize}
+  \item a program's interaction with the world of its users
+    \begin{itemize}
+    \item e.g., makings sounds, printing documents, moving robotic limbs\ldots
+    \end{itemize}
+  \end{itemize}
+  \pause
+  \vfill
+  \begin{itemize}
+  \item non-local interactions between parts of a program
+    \begin{itemize}
+    \item e.g., writing to and reading from variables, throwing and
+      catching exceptions\ldots
+    \end{itemize}
+  \end{itemize}
+  \end{block}
+   \pause
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{block}{Pragmatics}
+        Account for:
+        \pause
+        \vfill
+        \begin{itemize}
+        \item how language fits into the world of its users
+          \begin{itemize}
+          \item e.g., asking a colleague to print some documents\ldots
+          \end{itemize}
+        \pause \vfill
+        \item phenomena that transcend the bounds of an isolated sentence
+          \begin{itemize}
+          \item e.g., the link between antecedent and pronoun, making and
+            cancelling presuppositions\ldots
+          \end{itemize}
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+  \vfill
+  \pause
+  \alert{Side effects also align with pragmatics in their purpose.}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{A Fistful of Types}
+
+  $\sem{\abs{read}}$ has had many semantic types
+
+  \vfill
+
+  \begin{tabular}{rl}
+    Naive & $\iota \to \iota \to o$ \\
+    Type-raised & $((\iota \to o) \to o) \to ((\iota \to o) \to o) \to o$ \\
+    Dynamic$_1$ & $((\iota \to \gamma \to (\gamma \to o) \to o) \to \gamma \to (\gamma \to o) \to o)$ \\ & $\to ((\iota \to \gamma \to (\gamma \to o) \to o) \to \gamma \to (\gamma \to o) \to o)$ \\ & $\to \gamma \to (\gamma \to o) \to o$ \\
+    Dynamic$_2$ & $(((\gamma \to \iota) \to \gamma \to (\gamma \to o) \to o) \to \gamma \to (\gamma \to o) \to o)$ \\ & $\to (((\gamma \to \iota) \to \gamma \to (\gamma \to o) \to o) \to \gamma \to (\gamma \to o) \to o)$ \\ & $\to \gamma \to (\gamma \to o) \to o$ \\
+    Intensional$_1$ & $\iota \to \iota \to \sigma \to o$ \\
+    Intensional$_2$ & $(\sigma \to \iota) \to (\sigma \to \iota) \to \sigma \to o$ \\
+    Optional & $(\iota \oplus *) \to \iota \to o$ \\
+    Events & $\iota \to \iota \to \beta \to \gamma \to (\gamma \to o) \to o$
+  \end{tabular}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{For a Few Types More}
+  
+  \begin{align*}
+    \sem{\abs{read}} &: \, ((((\sigma \to \gamma \to \iota) \to \sigma \to \gamma \to (\gamma \to o) \to o) \\
+    & \to \sigma \to \gamma \to (\gamma \to o) \to o) \oplus *) \\
+    & \to (((\sigma \to \gamma \to \iota) \to \sigma \to \gamma \to (\gamma \to o) \to o) \\
+    & \to \sigma \to \gamma \to (\gamma \to o) \to o) \\
+    & \to \beta \to \sigma \to \gamma \to (\gamma \to o) \to o \\
+    \sem{\abs{read}} &: \ap{\operatorname{Dyn}}{(\ap{\operatorname{Int}}{(\ap{\operatorname{Evt}}{(\ap{\operatorname{Opt}}{(\iota \to \iota \to o)})})})} \\
+    \sem{\abs{read}} & =\, ???
+  \end{align*}
+\end{frame}
+
+
+\begin{frame}{How to Avoid Changing Denotations?}
+  Different linguistic features, all in one theory \\
+    $\rightarrow$ more and more elaborate types
+  \vfill
+  \pause
+  We often have to change our minds on what is meaning
+  \begin{itemize}
+  \item old denotations $\rightarrow$ outdated
+  \item denotations from other strands of work $\rightarrow$ incompatible
+  \end{itemize}
+  \pause
+  \vfill
+  Some solutions to this problem exist already in computer science.
+\end{frame}
+
+
+\begin{frame}{Inspirations}
+  Origins
+  \begin{itemize}
+    \item Extensible Denotational Language Specifications (Cartwright \&
+      Felleisen, 1994)
+    \item Handlers of Algebraic Effects (Plotkin \& Pretnar, 2009)
+  \end{itemize}
+  \vfill
+  \pause
+  Effects and Handlers Spring
+  \begin{itemize}
+    \item Programming with Algebraic Effects and Handlers (Bauer \&
+      Pretnar, 2012)
+    \item Handlers in Action (Kammar \& Lindley \& Oury, 2013)
+    \item Programming and Reasoning with Algebraic Effects and Dependent
+      Types (Brady, 2013)
+    \item Extensible Effects -- An Alternative to Monad Transformers
+      (Kiselyov \& Sabry \& Swords, 2013)
+  \end{itemize}
+\end{frame}
+
+
+
+\section{Calculus of Effects and Handlers}
+
+\begin{frame}{Extension of the Simply-Typed Lambda Calculus}
+
+  \def\labelSpacing{4pt}
+
+  \begin{columns}
+    \begin{column}{.4\textwidth}
+      \begin{prooftree}
+        \AxiomC{$\Gamma, x : \alpha \vdash_\Sigma M : \beta$}
+        \RightLabel{[abs]}
+        \UnaryInfC{$\Gamma \vdash_\Sigma \lam{x}{M} : \alpha \to \beta$}
+      \end{prooftree}
+    \end{column}
+
+    \begin{column}{.6\textwidth}
+      \begin{prooftree}
+        \AxiomC{$\Gamma \vdash_\Sigma M : \alpha \to \beta$}
+        \AxiomC{$\Gamma \vdash_\Sigma N : \alpha$}
+        \RightLabel{[app]}
+        \BinaryInfC{$\Gamma \vdash_\Sigma M N : \beta$}
+      \end{prooftree}
+    \end{column}
+  \end{columns}
+
+  \begin{columns}
+    \begin{column}{.4\textwidth}
+      \begin{prooftree}
+        \AxiomC{$x : \alpha \in \Gamma$}
+        \RightLabel{[var]}
+        \UnaryInfC{$\Gamma \vdash_\Sigma x : \alpha$}
+      \end{prooftree}
+    \end{column}
+
+    \begin{column}{.6\textwidth}
+      \begin{prooftree}
+        \AxiomC{$c : \alpha \in \Sigma$}
+        \RightLabel{[const]}
+        \UnaryInfC{$\Gamma \vdash_\Sigma c : \alpha$}
+      \end{prooftree}
+    \end{column}   
+  \end{columns}
+
+  \vfill
+  \pause
+  
+  \begin{center}
+  \begin{tabular}{lr}
+    $\ap{(\lam{x}{M})}{N} \to \subst{M}{x}{N}$ & rule $\beta$ \\
+    \\
+    $\lam{x}{\ap{M}{x}} \to M$ & rule $\eta$ \\
+    & where $x \notin \FV(M)$ \\
+  \end{tabular}
+  \end{center}
+
+\end{frame}
+
+
+\begin{frame}{Constructors for Algebraic Expressions}
+  \begin{columns}
+    \begin{column}{0.4\textwidth}
+      \begin{prooftree}
+       \AxiomC{$\Gamma \vdash_\Sigma M : \alpha$}
+       \RightLabel{[$\eta$]}
+       \UnaryInfC{$\Gamma \vdash_\Sigma \ap{\eta}{M} : \FF_E(\alpha)$}
+      \end{prooftree}
+    \end{column}
+    \begin{column}{0.6\textwidth}
+       \begin{prooftree}
+       \AxiomC{$\Gamma \vdash_\Sigma M_{\mathrm{p}} : \alpha$}
+       \AxiomC{$\Gamma, x : \beta \vdash_\Sigma M_{\mathrm{c}} : \FF_E(\gamma)$}
+       \def\extraVskip{0pt}
+       \noLine
+       \BinaryInfC{$\typedop{op}{\alpha}{\beta} \in E$}
+       \def\extraVskip{2pt}
+       \RightLabel{[op]}
+       \UnaryInfC{$\Gamma \vdash_\Sigma \app{\op{op}}{M_{\mathrm{p}}}{(\lam{x}{M_{\mathrm{c}}})} : \FF_E(\gamma)$}
+      \end{prooftree}
+    \end{column}
+  \end{columns}
+
+  \vfill
+  \pause
+
+  \begin{align*}
+  s : \NN & \vdash_\Sigma \etaE{s} : \FF_E(\NN) \\
+  s : \NN & \vdash_\Sigma \app{\op{put}}{(s + 1)}{(\lam{\_}{\etaE{s}})} : \FF_{E' \uplus \{\typedop{put}{\NN}{1}\}}(\NN) \\
+  & \vdash_\Sigma \app{\op{get}}{\star}{(\lam{s}{\app{\op{put}}{(s + 1)}{(\lam{\_}{\etaE{s}})}})} : \FF_{E'' \uplus \{\typedop{get}{1}{\NN}, \typedop{put}{\NN}{1}\}}(\NN)
+  \end{align*}
+\end{frame}
+
+
+\begin{frame}{Bananas}
+ \begin{center}
+ \begin{prooftree}
+  \AxiomC{$E = \{\typedopg{\op{op}_i}{\alpha_i}{\beta_i}\}_{i \in I} \uplus E_{\mathrm{f}}$}
+  \noLine
+  \def\extraVskip{0pt}
+  \UnaryInfC{$E' = E'' \uplus E_{\mathrm{f}}$}
+  \noLine
+  \UnaryInfC{$[\Gamma \vdash M_i : \alpha_i \to (\beta_i \to
+    \FF_{E'}(\delta)) \to \FF_{E'}(\delta)]_{i \in I}$}
+  \noLine
+  \UnaryInfC{$\Gamma \vdash M_\eta : \gamma \to \FF_{E'}(\delta)$}
+  \noLine
+  \UnaryInfC{$\Gamma \vdash N : \FF_{E}(\gamma)$}
+  \def\extraVskip{2pt}
+  \RightLabel{[$\banana{}$]}
+  \UnaryInfC{$\Gamma \vdash \ap{\cibanana}{N} : \FF_{E'}(\delta)$}
+ \end{prooftree}
+ \end{center}
+
+ \vfill
+ \pause
+
+ \begin{center}
+ \begin{tabular}{lr}
+  $\ap{\cibanana}{(\ap{\eta}{N})} \to$ & rule $\banana{\eta}$ \\
+  $\ap{M_\eta}{N}$ & \\
+  \\
+  $\ap{\cibanana}{(\ap{\ap{\op{op}_j}{N_{\mathrm{p}}}}{(\lam{x}{N_{\mathrm{c}}})})} \to$ & rule $\banana{\op{op}}$ \\
+  $\ap{M_j}{\ap{N_{\mathrm{p}}}{(\lam{x}{\ap{\cibanana}{N_{\mathrm{c}}}})}}$
+  & where $j \in I$ \\
+  & and $x \notin \FV((M_i)_{i \in I}, M_\eta)$ \\
+  \\
+  $\ap{\cibanana}{(\ap{\ap{\op{op}_j}{N_{\mathrm{p}}}}{(\lam{x}{N_{\mathrm{c}}})})} \to$ & rule $\banana{\op{op}'}$ \\
+  $\ap{\op{op}_j}{\ap{N_{\mathrm{p}}}{(\lam{x}{\ap{\cibanana}{N_{\mathrm{c}}}})}}$
+  & where $j \notin I$ \\
+  & and $x \notin \FV((M_i)_{i \in I}, M_\eta)$ \\
+ \end{tabular}
+ \end{center}
+\end{frame}
+
+
+\begin{frame}{Cherries}
+  \begin{prooftree}
+    \AxiomC{$\Gamma \vdash M : \FF_\emptyset(\alpha)$}
+    \RightLabel{[$\cherry$]}
+    \UnaryInfC{$\Gamma \vdash \ap{\cherry}{M} : \alpha$}
+  \end{prooftree}
+
+  \vfill
+  \pause
+
+  \begin{center}
+  \begin{tabular}{lr}
+    $\ap{\cherry}{(\ap{\eta}{M})} \to M$ & \qquad rule $\cherry$
+  \end{tabular}
+  \end{center}
+\end{frame}
+
+
+\begin{frame}{Magic Sauce}
+  \begin{prooftree}
+    \AxiomC{$\Gamma \vdash M : \alpha \to \FF_E(\beta)$}
+    \RightLabel{[$\CC$]}
+    \UnaryInfC{$\Gamma \vdash \ap{\CC}{M} : \FF_E(\alpha \to \beta)$}
+  \end{prooftree}
+  
+  \vfill
+  \pause
+
+  \begin{center}
+    \begin{tabular}{lr}
+  $\ap{\CC}{(\lam{x}{\ap{\eta}{M}})} \to$ & rule $\CC_\eta$ \\
+  $\ap{\eta}{(\lam{x}{M})}$ & \\
+  \\
+  $\ap{\CC}{(\lam{x}{\ap{\ap{\op{op}}{M_{\mathrm{p}}}}{(\lam{y}{M_{\mathrm{c}}})}})} \to$ & rule $\CC_\op{op}$ \\
+  $\ap{\ap{\op{op}}{M_{\mathrm{p}}}}{(\lam{y}{\ap{\CC}{(\lam{x}{M_{\mathrm{c}}})}})}$
+  & where $x \notin \FV(M_{\mathrm{p}})$
+    \end{tabular}
+  \end{center}
+\end{frame}
+
+
+\begin{frame}{Where Does $\CC$ Come From?}
+  \begin{block}{Philippe de Groote: On Logical Relations and Conservativity (2015)}
+    \begin{align*}
+      \pU &: \alpha \to \pT \alpha \\
+      \bullet &: \pT (\alpha \to \beta) \to \pT \alpha \to \pT \beta \\
+      \pC &: (\alpha \to \pT \beta) \to \pT (\alpha \to \beta)
+    \end{align*}
+    \begin{align*}
+      (\ap{\pU}{f}) \bullet (\ap{\pU}{a}) &= \ap{\pU}{(\ap{f}{a})} \\
+      \ap{\pC}{(\lam{x}{\ap{\pU}{(\ap{f}{x})}})} &= \ap{\pU}{f}
+    \end{align*}
+  \end{block}
+\end{frame}
+
+
+\begin{frame}{Formal Properties}
+  Subject Reduction
+  \vfill
+  \pause
+  Confluence
+  \begin{itemize}
+  \item using a translation to Combinatory Reduction Systems
+  \end{itemize}
+  \vfill
+  \pause
+  Termination
+  \begin{itemize}
+  \item using a translation to Inductive Data Type Systems
+  \end{itemize}
+  \vfill
+  \pause
+  Strong Normalization
+  \begin{itemize}
+  \item corollary of the last two
+  \end{itemize}
+  \vfill
+  \pause
+  No Progress though!
+
+  NB: All this compatible with sums and products.
+\end{frame}
+
+
+\begin{frame}{$\FF_E$ is a Monad}
+ \begin{align*}
+   \ap{\eta}{\_} &: \alpha \to \FF_E(\alpha) \\
+   \_ \hsbind \_ &: \FF_E(\alpha) \to (\alpha \to \FF_E(\beta)) \to \FF_E(\beta) \\
+   M \hsbind N &= \ap{\banana{\onto{\eta}{N}}}{M}
+\end{align*}
+\end{frame}
+
+
+
+\section{Using the Calculus}
+
+
+\begin{frame}{Some Useful Combinators}
+  
+\begin{align*}
+  \_ \apl \_ &: \FF_E(\alpha \to \beta) \to \alpha \to \FF_E(\beta) \\
+  F \apl x &= F \hsbind (\lam{f}{\ap{\eta}{(\ap{f}{x})}}) \\
+  \_ \apr \_ &: (\alpha \to \beta) \to \FF_E(\alpha) \to \FF_E(\beta) \\
+  f \apr X &= X \hsbind (\lam{x}{\ap{\eta}{(\ap{f}{x})}}) \\
+  \_ \aplr \_ &: \FF_E(\alpha \to \beta) \to \FF_E(\alpha) \to \FF_E(\beta) \\
+  F \aplr X &= F \hsbind (\lam{f}{X \hsbind (\lam{x}{\ap{\eta}{(\ap{f}{x})}})})
+\end{align*}
+
+\vfill
+\pause
+Let $\circ : o \to o \to o$ be a binary operator on propositions.
+\begin{align*}
+  \_ \mathop{\overline{\circ}} \_ &: \FF_E(o) \to \FF_E(o) \to \FF_E(o) \\
+  M \mathop{\overline{\circ}} N &= (\lam{m n}{m \circ n}) \apr M \aplr N
+\end{align*}
+
+\end{frame}
+
+
+\begin{frame}{Deixis}
+
+\begin{align*}
+  \abs{John}, \abs{Mary}, \abs{me} &: NP \\
+  \abs{loves} &: NP \limp NP \limp S
+\end{align*}
+
+\vfill
+\pause
+
+\begin{align*}
+  \lex{John}{\etaE{\obj{j}}} \\
+  \lex{Mary}{\etaE{\obj{m}}} \\
+  \lex{me}{\app{\op{speaker}}{\star}{(\lam{x}{\etaE{x}})}} \\
+  \lex{loves}{\lam{O S}{{\obj{love}} \apr S \aplr O}}
+\end{align*}
+
+\end{frame}
+
+
+\begin{frame}{Deixis in Action}
+
+\begin{itemize}
+  \item John loves Mary.
+  \item Mary loves me.
+\end{itemize}
+
+\vfill
+\pause
+
+\begin{align*}
+  \sem{\app{\abs{loves}}{\abs{Mary}}{\abs{John}}} & \tto 
+  \etaE{(\app{\obj{love}}{\obj{j}}{\obj{m}})} \\
+  \sem{\app{\abs{loves}}{\abs{me}}{\abs{Mary}}} & \tto
+  \app{\op{speaker}}{\star}{(\lam{x}{\app{\obj{love}}{\obj{m}}{x}})}
+\end{align*}
+
+\vfill
+\pause
+
+\begin{align*}
+  \withSpeaker &: \iota \to \FF_{\{\typedop{speaker}{1}{\iota}\} \uplus
+    E}(\alpha) \to \FF_E(\alpha) \\
+  \withSpeaker &= \lam{s M}{\ap{\banana{\onto{\op{speaker}}{(\lam{x k}{\ap{k}{s}})}}}{M}}
+\end{align*}
+
+\pause
+
+$$
+  \app{\withSpeaker}{s}{\sem{\app{\abs{loves}}{\abs{me}}{\abs{Mary}}}} \tto
+  \etaE{(\app{\obj{love}}{\obj{m}}{s})}
+$$
+
+\end{frame}
+
+
+\begin{frame}{Direct and Indirect Speech}
+  
+\begin{align*}
+  \abs{said}_{\abs{is}} &: S \limp NP \limp S \\
+  \abs{said}_{\abs{ds}} &: S \limp NP \limp S
+\end{align*}
+
+\vfill
+\pause
+
+\begin{align*}
+  \sem{\abs{said}_{\abs{is}}} &= \lam{C S}{\obj{say} \apr S \aplr C} \\
+                             &= \lam{C S}{S \hsbind (\lam{s}{\ap{\obj{say}}{s} \apr C})} \\
+  \sem{\abs{said}_{\abs{ds}}} &= \lam{C S}{S \hsbind (\lam{s}{\ap{\obj{say}}{s} \apr (\app{\withSpeaker}{s}{C})})}
+\end{align*}
+
+\end{frame}
+
+
+\begin{frame}{Direct and Indirect Speech in Action}
+  
+\begin{itemize}
+  \item John said Mary loves me.
+  \item John said, ``Mary loves me''.
+\end{itemize}
+
+\vfill
+\pause
+
+\begin{align*}
+  \sem{\app{\abs{said}_{\abs{is}}}{(\app{\abs{loves}}{\abs{me}}{\abs{Mary}})}{\abs{John}}}
+  & \tto \app{\op{speaker}}{\star}{(\lam{x}{\etaE{(\app{\obj{say}}{\obj{j}}{(\app{\obj{love}}{\obj{m}}{x})})}})} \\
+  \sem{\app{\abs{said}_{\abs{ds}}}{(\app{\abs{loves}}{\abs{me}}{\abs{Mary}})}{\abs{John}}}
+  & \tto \etaE{(\app{\obj{say}}{\obj{j}}{(\app{\obj{love}}{\obj{m}}{\obj{j}})})}
+\end{align*}
+
+\end{frame}
+
+
+\begin{frame}{Quantification}
+  
+\begin{align*}
+  \abs{every}, \abs{a} &: N \limp NP \\
+  \abs{man}, \abs{woman} &: N
+\end{align*}
+
+\vfill
+\pause
+
+\begin{align*}
+  \lex{every}{\lam{N}{\app{\op{scope}}{(\lam{c}{\forall \apr
+          (\ap{\CC}{(\lam{x}{(N \apl x) \dimpl (\ap{c}{x})})})})}{(\lam{x}{\etaE{x}})}}} \\
+  \lex{a}{\lam{N}{\app{\op{scope}}{(\lam{c}{\exists \apr
+          (\ap{\CC}{(\lam{x}{(N \apl x) \dand (\ap{c}{x})})})})}{(\lam{x}{\etaE{x}})}}} \\
+  \lex{man}{\etaE{\obj{man}}} \\
+  \lex{woman}{\etaE{\obj{woman}}}
+\end{align*}
+
+\vfill
+\pause
+
+\begin{align*}
+  \SI &= \lam{M}{\ap{\banana{\onto{\op{scope}}{(\lam{c k}{\ap{c}{k}})}}}{M}}
+\end{align*}
+
+\end{frame}
+
+
+\begin{frame}{Quantification --- Changing Old Denotations }
+ 
+\begin{align*}
+  \sem{\abs{loves}} &:= \lam{O S}{\ap{\SI}{(\app{\sem{\abs{loves}}}{O}{S})}} \\
+  \sem{\abs{said}_{\abs{is}}} &:= \lam{C S}{\ap{\SI}{(\app{\sem{\abs{said}_{\abs{is}}}}{C}{S})}} \\
+  \sem{\abs{said}_{\abs{ds}}} &:= \lam{C S}{\ap{\SI}{(\app{\sem{\abs{said}_{\abs{ds}}}}{C}{S})}}
+\end{align*}
+
+\end{frame}
+
+
+\begin{frame}{Quantification in Action}
+ 
+\begin{itemize}
+  \item Every man loves a woman.
+  \item John said every woman loves me.
+  \item John said, ``Every woman loves me''.
+\end{itemize}
+
+\vfill
+\pause
+ 
+\begin{align*}
+  & \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{woman}})}{(\ap{\abs{every}}{\abs{man}})}} \nonumber \\
+  & \tto \etaE{(\forall x. \ap{\obj{man}}{x} \to (\exists y. \ap{\obj{woman}}{y} \land \app{\obj{love}}{x}{y}))} \\
+  & \app{\withSpeaker}{s}{\sem{\app{\abs{said}_{\abs{is}}}{(\app{\abs{loves}}{\abs{me}}{(\ap{\abs{every}}{\abs{woman}})})}{\abs{John}}}} \nonumber \\
+  & \tto \etaE{(\app{\obj{say}}{\obj{j}}{(\forall x. \ap{\obj{woman}}{x} \to \app{\obj{love}}{x}{s})})} \\
+  & \sem{\app{\abs{said}_{\abs{ds}}}{(\app{\abs{loves}}{\abs{me}}{(\ap{\abs{every}}{\abs{woman}})})}{\abs{John}}} \nonumber \\
+  & \tto \etaE{(\app{\obj{say}}{\obj{j}}{(\forall x. \ap{\obj{woman}}{x} \to \app{\obj{love}}{x}{\obj{j}})})}
+\end{align*}
+
+\end{frame}
+
+
+\begin{frame}{Conventional Implicature}
+  
+\begin{align*}
+  \abs{appos} &: NP \limp NP \limp NP \\
+  \abs{best-friend} &: NP \limp NP
+\end{align*}
+
+\vfill
+\pause
+
+\begin{align*}
+  \lex{appos}{\lam{X Y}{X \hsbind (\lam{x}{\\
+      & \qquad \qquad \ap{\SI}{(\etaE{x} \mathbin{\overline{=}} Y)} \hsbind (\lam{i}{\\
+          & \qquad \qquad \app{\op{implicate}}{i}{(\lam{z}{\etaE{x}})}})})}} \\
+  \lex{best-friend}{\lam{X}{\obj{best-friend} \apr X}}
+\end{align*}
+
+\vfill
+\pause
+
+\begin{align*}
+  \accommodate &: \FF_{\{\typedop{implicate}{o}{1}\} \uplus E}(o) \to \FF_E(o) \\
+  \accommodate &= \lam{M}{\ap{\banana{\onto{\op{implicate}}{(\lam{i
+            k}{\etaE{i} \dand \ap{k}{\star}})}}}{M}}
+\end{align*}
+
+\end{frame}
+
+
+\begin{frame}{Conventional Implicature --- Changing Old Denotations}
+\begin{align*}
+  \sem{\abs{said}_{\abs{ds}}} := \lam{C S}{\ap{\SI}{( & S \hsbind (\lam{s}{
+        \\ & \ap{\obj{say}}{s} \apr (\app{\withSpeaker}{s}{(\ap{\accommodate}{C})})}))}}
+\end{align*}
+\end{frame}
+
+
+\begin{frame}{Conventional Implicature in Action}
+ 
+\begin{itemize}
+  \item John, my best friend, loves every woman.
+  \item Mary, everyone's best friend, loves John.
+  \item A man said, ``My best friend, Mary, loves me''.
+\end{itemize}
+
+\vfill
+\pause
+
+\begin{align*}
+  & \app{\withSpeaker}{s}{(\ap{\accommodate}{\\
+      &\sem{\app{\abs{loves}}{(\ap{\abs{every}}{\abs{woman}})}{(\app{\abs{appos}}{\abs{John}}{(\ap{\abs{best-friend}}{\abs{me}})})}}})} \nonumber \\
+  & \tto \etaE{((\obj{j} = \ap{\obj{best-friend}}{s}) \land (\forall x. \ap{\obj{woman}}{x} \to \app{\obj{love}}{\obj{j}}{x}))} \\
+  & \ap{\accommodate}{\sem{\app{\abs{loves}}{\abs{John}}{(\app{\abs{appos}}{\abs{Mary}}{(\ap{\abs{best-friend}}{\abs{everyone}})})}}} \nonumber \\
+  & \tto \etaE{((\forall x. \obj{m} = \ap{\obj{best-friend}}{x}) \land (\app{\obj{love}}{\obj{m}}{\obj{j}}))} \\
+  & \sem{\app{\abs{said}_{\abs{ds}}}{(\app{\abs{loves}}{\abs{me}}{(\app{\abs{appos}}{(\ap{\abs{best-friend}}{\abs{me}})}{\abs{Mary}})})}{(\ap{\abs{a}}{\abs{man}})}} \nonumber \\
+  & \tto \etaE{(\exists x. \ap{\obj{man}}{x} \land \app{\obj{say}}{x}{((\ap{\obj{best-friend}}{x} = \obj{m}) \land (\app{\obj{love}}{(\ap{\obj{best-friend}}{x})}{x}))})}
+\end{align*}
+ 
+\end{frame}
+
+\end{document}
