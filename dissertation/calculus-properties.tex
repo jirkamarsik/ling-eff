@@ -61,7 +61,7 @@ A Combinatory Reduction System is defined by an alphabet and a set of
 rewriting rules. We will first cover the alphabet.
 
 \begin{definition}
-  A \demph{CRS alphabet} consists of:
+  A \demph{CRS-alphabet} consists of:
   \begin{itemize}
   \item a set $\Var$ of \emph{variables} (written lower-case as $x$, $y$,
     $z$,\ldots)
@@ -82,7 +82,7 @@ terms being reduced and the metavariables in $\MVar$ are there to stand in
 for specific terms when applying a reduction rule.
 
 \begin{definition}
-  The \demph{metaterms} of a CRS are given inductively with:
+  The \demph{metaterms} of a CRS are given inductively:
   \begin{itemize}
   \item variables are metaterms
   \item if $t$ is a metaterm and $x$ a variable, then $[x]t$ is a metaterm
@@ -103,8 +103,7 @@ To finish the formal introduction of CRSs, we give the definition of a CRS
 reduction rule.
 
 \begin{definition}
-  A CRS \emph{reduction} (or \emph{rewrite}) rule is a pair of metaterms $s
-  \to t$ such that:
+  A \demph{CRS-reduction rule} is a pair of metaterms $s \to t$ such that:
   \begin{itemize}
   \item $s$ and $t$ are both closed, i.e.\ all variables are bound using
     the $[\_]\_$ binder
@@ -115,9 +114,13 @@ reduction rule.
   \end{itemize}
 \end{definition}
 
-A CRS is then an alphabet coupled with a set of reduction rules. We will
-only sketch the way that a CRS gives rise to a reduction relation and we
-will direct curious readers to Sections~11 and 12 of
+\begin{definition}
+  A \demph{Combinatory Reduction System (CRS)} is a pair of a CRS-alphabet
+  and a set of CRS-reduction rules.
+\end{definition}
+
+We will only sketch the way that a CRS gives rise to a reduction relation
+and we will direct curious readers to Sections~11 and 12 of
 $\cite{klop1993combinatory}$.
 
 When we instantiate the metavariables in a CRS rule, we use a
@@ -446,9 +449,9 @@ Exercises~1.0.8 in~\cite{klop1992term}).
 
 \begin{lemma}\label{lem:commutativity}
   Let $\to_1$ and $\to_2$ be two reduction relations on the same set of
-  terms $A$. Suppose that whenever there are $a,b,c \in A$ such that $a
-  \to_1 b$ and $a \to_2 c$, there is also some $d \in A$ such that $b
-  \tto_2 d$ and $c \to_1^= d$ (meaning $c \to_1 d$ or $c = d$). In that
+  terms $A$. Suppose that whenever there are $a,b,c \in A$ such that
+  $a \to_1 b$ and $a \to_2 c$, there is also some $d \in A$ such that
+  $b \tto_2 d$ and $c \to_1^= d$ (meaning $c \to_1 d$ or $c = d$). In that
   case, $\to_1$ commutes with $\to_2$.
 \end{lemma}
 
@@ -468,8 +471,8 @@ $\eta.\to$ reduction rule.
   induced by the rule $\eta.\to$ and $\to_{\banana{\lambda}}$ the reduction
   relation induced by all the other reduction rules in
   $\banana{\lambda}$. We need to prove that for all terms $a$, $b$ and $c$
-  where $a \to_{\calc} b$ and $a \to_\eta c$, we have a term $d$ such that $b
-  \tto_\eta d$ and $c \to_{\calc}^= d$.
+  where $a \to_{\calc} b$ and $a \to_\eta c$, we have a term $d$ such that
+  $b \tto_\eta d$ and $c \to_{\calc}^= d$.
 
   This will turn out to be a routine proof by induction on the structure of
   the term $a$. The base cases are trivial since terms without any proper
@@ -478,16 +481,16 @@ $\eta.\to$ reduction rule.
   by analyzing the relative positions of the redexes which led to the
   reductions $a \to_{\calc} b$ and $a \to_\eta c$.
   \begin{itemize}
-  \item If both reductions occurred within a common subterm of $a$,
-    i.e.\ $a = C[a']$, $b = C[b']$ and $c = C[c']$ while at the same time
+  \item If both reductions occurred within a common subterm of $a$, i.e.\
+    $a = C[a']$, $b = C[b']$ and $c = C[c']$ while at the same time
     $a' \to_{\calc} b'$ and $a' \to_\eta c'$: We can use the induction
     hypothesis for $a'$. This gives us a $d'$ such that $b' \tto_\eta d'$
-    and $c' \to_{\calc}^= d'$ and therefore we also have $d = C[d']$ with $b
-    \tto_\eta d$ and $c \to_{\calc}^= d$.
+    and $c' \to_{\calc}^= d'$ and therefore we also have $d = C[d']$ with
+    $b \tto_\eta d$ and $c \to_{\calc}^= d$.
   \item If both reductions occurred within non-overlapping subterms of $a$,
-    i.e.\ $a = C[a_1, a_2]$, $b = C[b', a_2]$ and $c = C[a_1, c']$ with $a
-    \to_{\calc} b$ and $a \to_\eta c$: We can take $d = C[b', c']$ since we
-    have $b \tto_\eta d$ in one step and $c \to_{\calc}^= d$ in one step
+    i.e.\ $a = C[a_1, a_2]$, $b = C[b', a_2]$ and $c = C[a_1, c']$ with
+    $a \to_{\calc} b$ and $a \to_\eta c$: We can take $d = C[b', c']$ since
+    we have $b \tto_\eta d$ in one step and $c \to_{\calc}^= d$ in one step
     too.
   \item If the redex in $a \to_{\calc} b$ is the entire term $a$, but the
     redex in $a \to_\eta c$ is a proper subterm of $a$: We will solve this
@@ -498,39 +501,39 @@ $\eta.\to$ reduction rule.
       $\beta.\to$ rule, $\ap{(\lam{x}{M(x)})}{N}$, and $b$ must be $M(N)$.
       \begin{itemize}
       \item We will first deal with the case when the $\eta$-redex which
-        lead to $c$ originated in $M(x)$. In that case $M(x) \to_\eta
-        M'(x)$ and $c = \ap{(\lam{x}{M'(x)})}{N}$. Our sought-after $d$ is
-        then $M'(N)$, since $c \to_{\calc}^= d$ via $\beta.\to$ in one step
-        and $b = M(N) \tto_\eta d = M'(N)$.
+        lead to $c$ originated in $M(x)$. In that case
+        $M(x) \to_\eta M'(x)$ and $c = \ap{(\lam{x}{M'(x)})}{N}$. Our
+        sought-after $d$ is then $M'(N)$, since $c \to_{\calc}^= d$ via
+        $\beta.\to$ in one step and $b = M(N) \tto_\eta d = M'(N)$.
       \item Now we get to one of the two interesting cases which
         necessitated this whole lemma: the overlap between $\beta$ and
         $\eta$, with $\beta$ on the top. If the $\eta$-redex did not
         originate in $M(x)$, then the $\eta$-redex must be
-        $\lam{x}{M(x)}$. Therefore, $M = \ap{T}{x}$ and $a =
-        \ap{(\lam{x}{\ap{T}{x}})}{N}$. Performing the $\eta$-reduction
+        $\lam{x}{M(x)}$. Therefore, $M = \ap{T}{x}$ and
+        $a = \ap{(\lam{x}{\ap{T}{x}})}{N}$. Performing the $\eta$-reduction
         yields $c = \ap{T}{N}$. In this case, both $b$ and $c$ are equal to
         $\ap{T}{N}$ and so we can choose $\ap{T}{N}$ as our $d$.
       \end{itemize}
-      \item If $a$ is any other kind of term: Let $l \to r$ be the rule
-        used in $a \to_{\calc} b$. Not counting $\beta.\to$, which only
-        acts on applications and which we dealt with just above, the rules
-        of $\banana{\lambda}$ do not overlap with the $\eta.\to$ rule. This
-        means the $\eta$-redex which led to $c$ must lie entirely inside a
-        part the part of $l$ which corresponds to a metavariable. Let $M$
-        be that metavariable, then we will decompose $l$ into $L(M)$ and
-        $r$ into $R(M)$. We have $a = L(a')$ for some $a'$, $b = R(a')$ and
-        $c = L(a'')$\footnote{Since our rules are left-linear, $M$ is
-          guaranteed to appear in $L(M)$ at most once. Therefore, if $a'
-          \to_\eta a''$ in one step, then also $L(a') \to_\eta L(a'')$ in
-          one step as well.}. Our $d$ will be $R(a'')$ and we have $b =
-        R(a') \tto_\eta d = R(a'')$ in several steps\footnote{$a'$ can
-          occur multiple times in $R(a')$ when the rule $l \to r$ is
-          duplicating (which is actually the case for the
-          $\banana{\op{op}}$ rules). However, we are able to go from
-          $R(a')$ to $R(a'')$ in multiple steps. NB: This is why we use
-          Lemma~\ref{lem:commutativity} instead of trying to prove
-          commutativity directly.} and $c = L(a'') \to_{\calc}^= d =
-        R(a'')$ in one step of $l \to r$.
+    \item If $a$ is any other kind of term: Let $l \to r$ be the rule used
+      in $a \to_{\calc} b$. Not counting $\beta.\to$, which only acts on
+      applications and which we dealt with just above, the rules of
+      $\banana{\lambda}$ do not overlap with the $\eta.\to$ rule. This
+      means the $\eta$-redex which led to $c$ must lie entirely inside a
+      part the part of $l$ which corresponds to a metavariable. Let $M$ be
+      that metavariable, then we will decompose $l$ into $L(M)$ and $r$
+      into $R(M)$. We have $a = L(a')$ for some $a'$, $b = R(a')$ and
+      $c = L(a'')$\footnote{Since our rules are left-linear, $M$ is
+        guaranteed to appear in $L(M)$ at most once. Therefore, if
+        $a' \to_\eta a''$ in one step, then also $L(a') \to_\eta L(a'')$ in
+        one step as well.}. Our $d$ will be $R(a'')$ and we have
+      $b = R(a') \tto_\eta d = R(a'')$ in several steps\footnote{$a'$ can
+        occur multiple times in $R(a')$ when the rule $l \to r$ is
+        duplicating (which is actually the case for the $\banana{\op{op}}$
+        rules). However, we are able to go from $R(a')$ to $R(a'')$ in
+        multiple steps. NB: This is why we use
+        Lemma~\ref{lem:commutativity} instead of trying to prove
+        commutativity directly.} and $c = L(a'') \to_{\calc}^= d = R(a'')$
+      in one step of $l \to r$.
     \end{itemize}
   \item If the redex in $a \to_\eta c$ is the entire term $a$, but the
     redex in $a \to_{\calc} b$ is a proper subterm of $a$: In this case,
@@ -538,10 +541,10 @@ $\eta.\to$ reduction rule.
     $\eta.\to$ rule, i.e.\ $a = \lam{x}{\ap{N}{x}}$. Also, we have $c = N$.
     \begin{itemize}
     \item As before, we will first deal with the case when the
-      $\banana{\lambda}$-redex is contained completely within $N$. Then $N
-      \to_{\calc} N'$ and $b = \lam{x}{\ap{N'}{x}}$. The common reduct $d$
-      is $N'$ since $b \tto_\eta d$ in one step and $c = N \to_{\calc}^= d
-      = N'$ as established before.
+      $\banana{\lambda}$-redex is contained completely within $N$. Then
+      $N \to_{\calc} N'$ and $b = \lam{x}{\ap{N'}{x}}$. The common reduct
+      $d$ is $N'$ since $b \tto_\eta d$ in one step and
+      $c = N \to_{\calc}^= d = N'$ as established before.
     \item Now this is where we deal with the second overlap between $\beta$
       and $\eta$ in our reduction system, the one with $\eta$ on top. Let
       us assume that the $\banana{\lambda}$-redex in $a$ is actually
@@ -551,8 +554,8 @@ $\eta.\to$ reduction rule.
       $\beta$-reduction gives us $b = \lam{x}{T(x)}$ which is however equal
       to $c = N = \lam{y}{T(y)}$. So we can choose $d = b$ and be done.
     \end{itemize}
-  \item If $a$ is the redex for both reductions $a \to_{\calc} b$ and $a
-    \to_\eta c$, then $a$ must match the left-hand side of two reduction
+  \item If $a$ is the redex for both reductions $a \to_{\calc} b$ and
+    $a \to_\eta c$, then $a$ must match the left-hand side of two reduction
     rules. However, that is impossible in our calculus and so $a$ must have
     matched the same rule twice and therefore $b = c$. Then, we have a
     trivial $d = b$.
@@ -582,5 +585,86 @@ Theorem~\ref{thm:confluence}, the confluence of $\banana{\lambda}$.
 
 
 \section{Termination}
+\label{sec:termination}
 
+We will prove termination with a similar strategy. $\banana{\lambda}$ is an
+extension of the $\lambda$-calculus with computation types and some
+operations on computations. Our computations can be thought of as algebraic
+expressions, i.e.\ they have a tree-like inductive structure. The reason
+that all computations in our calculus terminate is that the operations
+defined on computations rely on well-founded recursion. However, it is
+quite tricky to go from this intuition to a formal proof of
+termination. Fortunately, we can rely on existing results.
+
+Blanqui, Jounnaud and Okada have introduced Inductive Data Type Systems
+(IDTSs)~\cite{blanqui2002inductive,blanqui2000termination}. Similar to the
+CRSs, IDTSs are a class of rewriting systems for which we can prove certain
+interesting general results. In this section, we will start by examining
+the definition of an IDTS and fitting our calculus into that
+definition. Then, we will verify that the IDTS version of our calculus
+satisfies the sufficient conditions for being a terminating IDTS and thus
+end up with a proof of termination for our calculus.
+
+\subsection{Defining Inductive Data Type Systems}
+\label{ssec:defining-idtss}
+
+We will go by the revised definition of Inductive Data Type Systems that
+figures in~\cite{blanqui2000termination}. This formulation extends IDTSs to
+higher-order rewriting and does so using the CRS formalism that we
+introduced earlier.
+
+\begin{definition}
+  An \demph{Inductive Data Type System (IDTS)} is a pair of an IDTS-alphabet
+  and a set of IDTS-rewrite rules.
+\end{definition}
+
+Just like a CRS, an IDTS is an alphabet coupled with some rewrite
+rules. Let us first look at the alphabet and the rules for building terms
+out of the elements of the alphabet; the rewrite rules will follow.
+
+\begin{definition}
+  The set of types $T(\BB)$ contains:
+  \begin{itemize}
+  \item all the types from $\BB$
+  \item a type $\alpha \to \beta$ for every $\alpha$ and $\beta$ in $T(\BB)$
+  \end{itemize}
+\end{definition}
+
+\begin{definition}
+  An \demph{IDTS-alphabet} consists of:
+  \begin{itemize}
+  \item $\BB$, a set of \emph{base types}
+  \item $\XX$, a family $(X_\tau)_{\tau \in T(\BB)}$ of sets of \emph{variables}
+  \item $\FF$, a family ${(F_{\alpha_1,\ldots,\alpha_n,\beta})}_{\alpha_1,\ldots,\alpha_n,\beta \in T(\BB)}$ of sets of \emph{function symbols}
+  \item $\ZZ$, a family ${(Z_{\alpha_1,\ldots,\alpha_n,\beta})}_{\alpha_1,\ldots,\alpha_n,\beta \in T(\BB)}$ of sets of
+    \emph{metavariables}
+  \end{itemize}
+\end{definition}
+
+The distinction between a CRS-alphabet and an IDTS-alphabet is that the
+IDTS-alphabet comes equipped with a set of types. Furthermore, all the
+other symbols in the alphabet are indexed by types, so we end up with typed
+variables, typed function symbols and typed metavariables.
+
+When we consider IDTS metaterms, we admit only well-typed terms. The below
+definition of IDTS metaterms refines the definition of CRS metaterms by
+restraining term formation in accordance with the types.
+
+\begin{definition}
+  The \demph{typed metaterms} of an IDTS are given inductively:
+  \begin{itemize}
+  \item variables from $X_\tau$ are metaterms of type $\tau$
+  \item if $t$ is a metaterm of type $\beta$ and $x$ a variable from
+    $X_\alpha$, then $[x]t$ is a metaterm of type $\alpha \to \beta$ called
+    \emph{abstraction}
+  \item if $F$ is an function symbol from
+    $F_{\alpha_1,\ldots,\alpha_n,\beta}$ and $t_1$,\ldots,$t_n$ are
+    metaterms of types $\alpha_1,\ldots,\alpha_n$, respectively, then
+    $F(t_1,\ldots,t_n)$ is a metaterm of type $\beta$
+  \item if $M$ is a metavariable from $Z_{\alpha_1,\ldots,\alpha_n,\beta}$
+    and $t_1$,\ldots,$t_n$ are metaterms of types
+    $\alpha_1,\ldots,\alpha_n$, then $M(t_1,\ldots,t_n)$ is a metaterm of
+    type $\beta$
+  \end{itemize}
+\end{definition}
 
