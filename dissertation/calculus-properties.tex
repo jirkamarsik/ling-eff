@@ -663,8 +663,148 @@ restraining term formation in accordance with the types.
     $F(t_1,\ldots,t_n)$ is a metaterm of type $\beta$
   \item if $M$ is a metavariable from $Z_{\alpha_1,\ldots,\alpha_n,\beta}$
     and $t_1$,\ldots,$t_n$ are metaterms of types
-    $\alpha_1,\ldots,\alpha_n$, then $M(t_1,\ldots,t_n)$ is a metaterm of
-    type $\beta$
+    $\alpha_1,\ldots,\alpha_n$, respectively, then $M(t_1,\ldots,t_n)$ is a
+    metaterm of type $\beta$
   \end{itemize}
 \end{definition}
 
+\begin{definition}
+  The \demph{terms} of an IDTS are its metaterms which do not contain any
+  metavariables.
+\end{definition}
+
+The definition of an IDTS rewrite rule is almost identical to the one for
+CRS reduction rules. The only difference is the extra condition stating
+that the redex and contractum must have identical types.
+
+\begin{definition}
+  An \demph{IDTS rewrite rule} is a pair of metaterms $s \to t$ such that:
+  \begin{itemize}
+  \item $s$ and $t$ are both closed, i.e.\ all variables are bound using
+    the $[\_]\_$ binder
+  \item $s$ is of the form $F(t_1,\ldots,t_n)$
+  \item all the metavariables that occur in $t$ also occur in $s$
+  \item any metavariable $M$ that occurs in $s$ only occurs in the form
+    $M(x_1,\ldots,x_k)$, where $x_i$ are pairwise distinct variables
+  \item $s$ and $t$ are both of the same type
+  \end{itemize}
+\end{definition}
+
+As stated above, an IDTS is just an alphabet along with a set of rewrite
+rules. An IDTS induces a rewriting relation in exactly the same way as a
+CRS does, see~\cite{blanqui2000termination} for more details.
+
+
+\subsection{$\banana{\lambda}$ as an Inductive Data Type System}
+\label{ssec:banana-idts}
+
+Now we will try to link our calculus to the IDTS framework in order to
+benefit from its general termination results. The biggest obstacle will be
+that IDTS assigns a fixed type to every symbol. In our calculus, symbols
+are polymorphic: the $\eta$ constructor can produce expressions like
+$\etaE{\star} : \FF_E(1)$ or $\etaE{(\lam{x}{x})} : \FF_E(\alpha \to
+\alpha)$ and that for any choice of $E$. We would therefore like to replace
+function symbols such as $\eta$ with specialized symbols
+$\eta_{\FF_E(\alpha)}$. For a given type $\alpha$ and effect signature $E$,
+the symbol $\eta_{\FF_E(\alpha)}$ would have the type $\alpha \to
+\FF_E(\alpha)$, i.e.\ it would belong to $F_{\alpha,\FF_E(\alpha)}$.
+
+We will call this calculus with specialized symbols
+$\banana{\lambda}_\tau$. There will not be a bijection between
+$\banana{\lambda}$ and $\banana{\lambda}_\tau$ since a single term in
+$\banana{\lambda}$ will generally correspond to a multitude of specialized
+versions in $\banana{\lambda}_\tau$ (think of $\lam{x}{x}$ in
+$\banana{\lambda}$ versus $\lam{x_\iota}{x_\iota}$, $\lam{x_o}{x_o}$\ldots
+in $\banana{\lambda}_\tau$). Therefore, the results we prove for
+$\banana{\lambda}_\tau$ will not automatically transfer to
+$\banana{\lambda}$. In the rest of this subsection, we will elaborate the
+definition of $\banana{\lambda}_\tau$ and show why termination carries over
+from $\banana{\lambda}_\tau$ to $\banana{\lambda}$.
+
+
+\subsubsection{$\banana{\lambda}_\tau$}
+\label{sssec:banana-tau}
+
+$\banana{\lambda}_\tau$ will be defined as an IDTS. This means we need to
+first identify the alphabet. The base types $\BB$ of
+$\banana{\lambda}_\tau$ will be all the atomic types and computation types
+of $\banana{\lambda}$ (i.e.\ all types except for function types). This
+means that the set of types $T(\BB)$ of $\banana{\lambda}_\tau$ will be
+exactly the set of types of $\banana{\lambda}$.
+
+Next, we will introduce function symbols for all the syntactic
+constructions of $\banana{\lambda}$ except for abstraction, which is
+handled by the $[\_]\_$ binder construct already found in IDTSs:
+
+\begin{itemize}
+\item $@_{\alpha, \beta} \in F_{\alpha \to \beta, \alpha, \beta}$
+  (i.e.\ for every pair of types $\alpha$ and $\beta$, there will be a
+  function symbol $@_{\alpha,\beta}$ of type $(\alpha \to \beta) \to
+  \alpha \to \beta$ in our alphabet)
+\item $c \in F_{\alpha}$ for any constant $c : \alpha \in \Sigma$
+\item $\eta_{\FF_E(\alpha)} \in F_{\alpha, \FF_E(\alpha)}$
+\item $\op{op}_{\FF_E(\gamma)} \in F_{\alpha, \beta \to \FF_E(\gamma),
+  \FF_E(\gamma)}$ for any operation symbol $\op{op}$ from $\EE$ and any $E$
+  such that $\typedop{op}{\alpha}{\beta} \in E$
+\item $\cherry_\alpha \in F_{\FF_\emptyset(\alpha), \alpha}$
+\item $\banana{}_{\op{op}_1, \ldots, \op{op}_n, \FF_E(\gamma),
+  \FF_{E'}(\delta)} \in F_{\alpha_1 \to (\beta_1 \to \FF_{E'}(\delta)), \ldots,
+  \alpha_n \to (\beta_n \to \FF_E'(\delta)), \gamma \to \FF_{E'}(\delta),
+  \FF_E(\gamma), \FF_{E'}(\delta)}$ where:
+  \begin{itemize}
+  \item $\op{op}_1 : \alpha_1 \rightarrowtail \beta_1 \in E$, \ldots,
+    $\op{op}_n : \alpha_n \rightarrowtail \beta_n \in E$
+  \item $E \setminus \{\op{op}_1, \ldots, \op{op}_n\} \subseteq E'$
+  \end{itemize}
+\item $\CC_{\alpha,\beta,E} \in F_{\alpha \to \FF_E(\beta),\FF_E(\alpha \to
+  \beta)}$
+\end{itemize}
+
+The list above is based on the typing rules of our calculus found on
+Figure~\ref{fig:types}. The idea behind the conversion from our typing
+rules to this list of typed symbols is to index every symbol by the type
+and effect signature metavariables that appear in the conclusion of the
+symbol's typing rule. A specifically-typed symbol in
+$\banana{\lambda}_\tau$ then corresponds to an instantiation of the type
+metavariables in a $\banana{\lambda}$ typing rule.
+
+Our alphabet now has types and function symbols. For variables and
+metavariables, we will take some arbitrary sets containing\ldots \TODO{Put
+  the variables and metavariables used in the rules below in here.}.
+
+To complete our IDTS, we have to give the rewrite rules. The rules for
+$\banana{\lambda}_\tau$ are given in Figure~\ref{fig:tau-types}.
+
+\begin{figure}
+  \centering
+  \begin{tabular}{lr}
+  $@_{\alpha, \beta}([x_\alpha]M_{\alpha, \beta}(x_\alpha), N_\alpha) \to$ & rule $\beta_{\alpha, \beta}$ \\
+  $M_{\alpha, \beta}(N_\alpha)$ & \\
+  \\
+  $\ap{\cibanana}{(\ap{\eta}{N})} \to$ & rule $\banana{\eta}$ \\
+  $\ap{M_\eta}{N}$ & \\
+  \\
+  $\ap{\cibanana}{(\ap{\ap{\op{op}_i}{N_p}}{(\lam{x}{N_c})})} \to$ & rule $\banana{\op{op}}$ \\
+  $\ap{M_i}{\ap{N_p}{(\lam{x}{\ap{\cibanana}{N_c}})}}$
+  & where $x$ is fresh for $M_\eta$ \\ & and $M_i$ for all $i \in I$ \\
+  \\
+  $\ap{\cibanana}{(\ap{\ap{\op{op}'}{N_p}}{(\lam{x}{N_c})})} \to$ & rule $\banana{\op{op}'}$ \\
+  $\ap{\op{op}'}{\ap{N_p}{(\lam{x}{\ap{\cibanana}{N_c}})}}$
+  & where $\op{op}' \notin \{\op{op}_i\}_{i \in I}$ \\
+  & and $x$ is fresh for $M_\eta$ \\ & and $M_i$ for all $i \in I$ \\
+  \\
+  $\ap{\cherry}{(\ap{\eta}{N})} \to$ & rule $\cherry$ \\
+  $N$ & \\
+  \\
+  $\ap{\CC}{(\lam{x}{\ap{\eta}{M}})} \to$ & rule $\CC_\eta$ \\
+  $\ap{\eta}{(\lam{x}{M})}$ & \\
+  \\
+  $\ap{\CC}{(\lam{x}{\ap{\ap{\op{op}}{M_p}}{(\lam{y}{M_c})}})} \to$ & rule $\CC_\op{op}$ \\
+  $\ap{\ap{\op{op}}{M_p}}{(\lam{y}{\ap{\CC}{(\lam{x}{M_c})}})}$
+  & where $x$ is fresh for $M_p$
+  \end{tabular}
+  
+  \caption{\label{fig:tau-types} IDTS rewrite rules for
+    $\banana{\lambda}_\tau$.}
+  
+\end{figure}
