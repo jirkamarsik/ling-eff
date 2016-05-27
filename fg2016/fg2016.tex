@@ -514,12 +514,10 @@ variable.
 
 When showing off the calculus in the next section, the following
 combinators will be helpful. First, we define a sequencing operator. The
-operator $\hsbind$, called bind\footnote{This is the same bind as the one
-  used to define monads in functional programming languages.}, replaces all
-the $\alpha$-typed leaves of a $\FF_E(\alpha)$-typed expression with
-$\FF_E(\beta)$-typed expressions. More intuitively, $M \hsbind N$ is the
-program that first runs $M$ to get its result $x$ and then continues as the
-program $\ap{N}{x}$.
+operator $\hsbind$, called bind, replaces all the $\alpha$-typed leaves of
+a $\FF_E(\alpha)$-typed expression with $\FF_E(\beta)$-typed
+expressions. More intuitively, $M \hsbind N$ is the program that first runs
+$M$ to get its result $x$ and then continues as the program $\ap{N}{x}$.
 
 \negSpaceBeforeAlign
 
@@ -528,8 +526,10 @@ program $\ap{N}{x}$.
   M \hsbind N &= \ap{\banana{\onto{\eta}{N}}}{M}
 \end{align*}
 
-Using $\hsbind$, we can define the following variations on the application
-operator.
+The type constructor $\FF_E$ along with the operators $\eta$ and $\hsbind$
+form a free monad. Using this monadic structure, we can define the
+following combinators (variations on the application operator) which we
+will make heavy use of in Section~\ref{sec:phenomena}.
 
 \negSpaceBeforeAlign
 
