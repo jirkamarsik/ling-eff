@@ -722,7 +722,7 @@ definition of $\banana{\lambda}_\tau$ and show why termination carries over
 from $\banana{\lambda}_\tau$ to $\banana{\lambda}$.
 
 
-\subsubsection{$\banana{\lambda}_\tau$}
+\subsubsection{Defining $\banana{\lambda}_\tau$}
 \label{sssec:banana-tau}
 
 $\banana{\lambda}_\tau$ will be defined as an IDTS. This means we need to
@@ -733,7 +733,7 @@ means that the set of types $T(\BB)$ of $\banana{\lambda}_\tau$ will be
 exactly the set of types of $\banana{\lambda}$.
 
 Next, we will introduce function symbols for all the syntactic
-constructions of $\banana{\lambda}$ except for abstraction, which is
+constructions of $\banana{\lambda}$, except for abstraction, which is
 handled by the $[\_]\_$ binder construct already found in IDTSs:
 
 \begin{itemize}
@@ -742,14 +742,14 @@ handled by the $[\_]\_$ binder construct already found in IDTSs:
   function symbol $@_{\alpha,\beta}$ of type $(\alpha \to \beta) \to
   \alpha \to \beta$ in our alphabet)
 \item $c \in F_{\alpha}$ for any constant $c : \alpha \in \Sigma$
-\item $\eta_{\FF_E(\alpha)} \in F_{\alpha, \FF_E(\alpha)}$
-\item $\op{op}_{\FF_E(\gamma)} \in F_{\alpha, \beta \to \FF_E(\gamma),
+\item $\eta_{\alpha, E} \in F_{\alpha, \FF_E(\alpha)}$
+\item $\op{op}_{\gamma, E} \in F_{\alpha, \beta \to \FF_E(\gamma),
   \FF_E(\gamma)}$ for any operation symbol $\op{op}$ from $\EE$ and any $E$
   such that $\typedop{op}{\alpha}{\beta} \in E$
 \item $\cherry_\alpha \in F_{\FF_\emptyset(\alpha), \alpha}$
 \item $\banana{}_{\op{op}_1, \ldots, \op{op}_n, \FF_E(\gamma),
   \FF_{E'}(\delta)} \in F_{\alpha_1 \to (\beta_1 \to \FF_{E'}(\delta)), \ldots,
-  \alpha_n \to (\beta_n \to \FF_E'(\delta)), \gamma \to \FF_{E'}(\delta),
+  \alpha_n \to (\beta_n \to \FF_{E'}(\delta)), \gamma \to \FF_{E'}(\delta),
   \FF_E(\gamma), \FF_{E'}(\delta)}$ where:
   \begin{itemize}
   \item $\op{op}_1 : \alpha_1 \rightarrowtail \beta_1 \in E$, \ldots,
@@ -775,36 +775,57 @@ metavariables, we will take some arbitrary sets containing\ldots \TODO{Put
 To complete our IDTS, we have to give the rewrite rules. The rules for
 $\banana{\lambda}_\tau$ are given in Figure~\ref{fig:tau-types}.
 
-\begin{figure}
+\begin{sidewaysfigure}
   \centering
   \begin{tabular}{lr}
-  $@_{\alpha, \beta}([x_\alpha]M_{\alpha, \beta}(x_\alpha), N_\alpha) \to$ & rule $\beta_{\alpha, \beta}$ \\
-  $M_{\alpha, \beta}(N_\alpha)$ & \\
+  $@([x]M(x), N) \to$ & rules $\beta$ \\
+  $M (N)$ & \\
+  \multicolumn{2}{l}{$@_{\typehint{\alpha \to \gamma, \alpha, \gamma}}([x_{\typehint\alpha}]M_{\typehint{\alpha, \gamma}}(x_{\typehint\alpha}), N_{\typehint\alpha}) \to$} \\
+  \multicolumn{2}{l}{$M_{\typehint{\alpha, \gamma}}(N_{\typehint\alpha})$} \\
   \\
-  $\ap{\cibanana}{(\ap{\eta}{N})} \to$ & rule $\banana{\eta}$ \\
-  $\ap{M_\eta}{N}$ & \\
+  let $\banana{}^{(\op{op}_i)_{i \in
+    I}}_{\typehint{\FF_E(\gamma),\FF_{E'}(\delta)}}(N_{\typehint{\FF_E(\gamma)}})$ & \\
+  \multicolumn{2}{l}{$ = \banana{}^{(\op{op}_i)_{i \in I}}_{\typehint{(\alpha_i \to (\beta_i \to \FF_{E'}(\delta)) \to
+  \FF_{E'}(\delta))_{i \in I}, \gamma \to \FF_{E'}(\delta), \FF_E(\gamma),
+  \FF_{E'}(\delta)}} (([x^i_{\typehint{\alpha_i}} k^i_{\typehint{\beta_i \to
+    \FF_{E'}(\delta)}}]M^i_{\typehint{\alpha_i, \beta_i \to \FF_{E'}(\delta),
+    \FF_{E'}(\delta)}}(x^i_{\typehint{\alpha_i}}, k^i_{\typehint{\beta_i \to
+    \FF_{E'}(\delta)}}))_{i \in I},
+    [x_{\typehint{\gamma}}]M^\eta_{\typehint{\gamma, \FF_{E'}(\delta)}}
+    (x_{\typehint{\gamma}}), N_{\typehint{\FF_E(\gamma)}})$} \\
   \\
-  $\ap{\cibanana}{(\ap{\ap{\op{op}_i}{N_p}}{(\lam{x}{N_c})})} \to$ & rule $\banana{\op{op}}$ \\
-  $\ap{M_i}{\ap{N_p}{(\lam{x}{\ap{\cibanana}{N_c}})}}$
-  & where $x$ is fresh for $M_\eta$ \\ & and $M_i$ for all $i \in I$ \\
+  $\banana{}^{(\op{op}_i)_{i \in I}} (\eta (N)) \to$ & rules $\banana{\eta}^{(\op{op}_i)_{i \in I}}_{\FF_E(\gamma),\FF_{E'}(\delta)}$ \\
+  $M^\eta (N)$ & \\
+  \multicolumn{2}{l}{$\banana{}^{(\op{op}_i)_{i \in I}}_{\typehint{\FF_E(\gamma), \FF_{E'}(\delta)}} (\eta_{\typehint{\gamma, \FF_E(\gamma)}} (N_{\typehint{\gamma}})) \to$} \\
+  \multicolumn{2}{l}{$M^\eta_{\typehint{\gamma, \FF_{E'}(\delta)}} (N_{\typehint{\gamma}})$} \\
   \\
-  $\ap{\cibanana}{(\ap{\ap{\op{op}'}{N_p}}{(\lam{x}{N_c})})} \to$ & rule $\banana{\op{op}'}$ \\
-  $\ap{\op{op}'}{\ap{N_p}{(\lam{x}{\ap{\cibanana}{N_c}})}}$
-  & where $\op{op}' \notin \{\op{op}_i\}_{i \in I}$ \\
-  & and $x$ is fresh for $M_\eta$ \\ & and $M_i$ for all $i \in I$ \\
+  $\banana{}^{(\op{op}_i)_{i \in I}} (\op{op}_j (N^{\mathrm{p}}, [y] N^{\mathrm{c}}(y))) \to$ & rules $\banana{\op{op}}^{(\op{op}_i)_{i \in I}}_{\FF_E(\gamma),\FF_{E'}(\delta)}$ \\
+  $M^j (N^{\mathrm{p}}, [y] \banana{}^{(\op{op}_i)_{i \in I}} (N^{\mathrm{c}}(y)))$ & where $j \in I$ \\
+  \multicolumn{2}{l}{$\banana{}^{(\op{op}_i)_{i \in I}}_{\typehint{\FF_E(\gamma), \FF_{E'}(\delta)}} (\op{op}_{j \typehint{\alpha, \beta \to \FF_E(\gamma), \FF_E(\gamma)}} (N^{\mathrm{p}}_{\typehint{\alpha}}, [y_{\typehint{\beta}}] N^{\mathrm{c}}_{\typehint{\beta, \FF_E(\gamma)}}(y_{\typehint{\beta}}))) \to$} \\
+  \multicolumn{2}{l}{$M^j_{\typehint{\alpha, \beta \to \FF_{E'}(\delta), \FF_{E'}(\delta)}} (N^{\mathrm{p}}_{\typehint{\alpha}}, [y_{\typehint{\beta}}] \banana{}^{(\op{op}_i)_{i \in I}}_{\typehint{\FF_E(\gamma), \FF_{E'}(\delta)}} (N^{\mathrm{c}}_{\typehint{\beta, \FF_E(\gamma)}}(y_{\typehint{\beta}})))$} \\
   \\
-  $\ap{\cherry}{(\ap{\eta}{N})} \to$ & rule $\cherry$ \\
+  $\banana{}^{(\op{op}_i)_{i \in I}} (\op{op}_j (N^{\mathrm{p}}, [y] N^{\mathrm{c}}(y))) \to$ & rules $\banana{\op{op}'}^{(\op{op}_i)_{i \in I}}_{\FF_E(\gamma),\FF_{E'}(\delta)}$ \\
+  $\op{op}_j (N^{\mathrm{p}}, [y] \banana{}^{(\op{op}_i)_{i \in I}} (N^{\mathrm{c}}(y)))$ & where $j \notin I$ \\
+  \multicolumn{2}{l}{$\banana{}^{(\op{op}_i)_{i \in I}}_{\typehint{\FF_E(\gamma), \FF_{E'}(\delta)}} (\op{op}_{j \typehint{\alpha, \beta \to \FF_E(\gamma), \FF_E(\gamma)}} (N^{\mathrm{p}}_{\typehint{\alpha}}, [y_{\typehint{\beta}}] N^{\mathrm{c}}_{\typehint{\beta, \FF_E(\gamma)}}(y_{\typehint{\beta}}))) \to$} \\
+  \multicolumn{2}{l}{$\op{op}_{j \typehint{\alpha, \beta \to \FF_{E'}(\delta), \FF_{E'}(\delta)}} (N^{\mathrm{p}}_{\typehint{\alpha}}, [y_{\typehint{\beta}}] \banana{}^{(\op{op}_i)_{i \in I}}_{\typehint{\FF_E(\gamma), \FF_{E'}(\delta)}} (N^{\mathrm{c}}_{\typehint{\beta, \FF_E(\gamma)}}(y_{\typehint{\beta}})))$} \\
+  \\
+  $\cherry (\eta (N)) \to$ & rules $\cherry_\alpha$ \\
   $N$ & \\
+  \multicolumn{2}{l}{$\cherry_{\typehint{\FF_\emptyset(\alpha), \alpha}} (\eta_{\typehint{\alpha, \FF_\emptyset(\alpha)}} (N_{\typehint\alpha})) \to$} \\
+  \multicolumn{2}{l}{$N_{\typehint\alpha}$} \\
   \\
-  $\ap{\CC}{(\lam{x}{\ap{\eta}{M}})} \to$ & rule $\CC_\eta$ \\
-  $\ap{\eta}{(\lam{x}{M})}$ & \\
+  $\CC ([x]\eta (M(x))) \to$ & rules $\CC^\eta_{\alpha, \beta, E}$ \\
+  $\eta ([x] M(x))$ & \\
+  \multicolumn{2}{l}{$\CC_{\typehint{\alpha \to \FF_E(\beta), \FF_E(\alpha \to \beta)}} ([x_{\typehint\alpha}]\eta_{\typehint{\beta, \FF_E(\beta)}} (M_{\typehint{\alpha, \beta}}(x_{\typehint\alpha}))) \to$} \\
+  \multicolumn{2}{l}{$\eta_{\typehint{(\alpha \to \beta), \FF_E(\alpha \to \beta)}} ([x_{\typehint\alpha}] M_{\typehint{\alpha, \beta}}(x_{\typehint\alpha}))$} \\
   \\
-  $\ap{\CC}{(\lam{x}{\ap{\ap{\op{op}}{M_p}}{(\lam{y}{M_c})}})} \to$ & rule $\CC_\op{op}$ \\
-  $\ap{\ap{\op{op}}{M_p}}{(\lam{y}{\ap{\CC}{(\lam{x}{M_c})}})}$
-  & where $x$ is fresh for $M_p$
+  $\CC ([x] \op{op} (M^p, [y]M^c(x, y))) \to$ & rules $\CC^{\op{op}}_{\alpha, \beta, E}$ \\
+  $\op{op} (M^p, [y] \CC ([x] M^c(x, y)))$ & \\
+  \multicolumn{2}{l}{$\CC_{\typehint{\alpha \to \FF_E(\beta), \FF_E(\alpha \to \beta)}} ([x_{\typehint\alpha}] \op{op}_{\typehint{\gamma, \delta \to \FF_E(\beta), \FF_E(\beta)}} (M^p_{\typehint\gamma}, [y_{\typehint\delta}]M^c_{\typehint{\alpha, \delta, \FF_E(\beta)}}(x_{\typehint\alpha}, y_{\typehint\delta}))) \to$} \\
+  \multicolumn{2}{l}{$\op{op}_{\typehint{\gamma, \delta \to \FF_E(\alpha \to \beta), \FF_E(\alpha \to \beta)}} (M^p_{\typehint\gamma}, [y_{\typehint\delta}] \CC_{\typehint{\alpha \to \FF_E(\beta), \FF_E(\alpha \to \beta)}} ([x_{\typehint\alpha}] M^c_{\typehint{\alpha, \delta, \FF_E(\beta)}}(x_{\typehint\alpha}, y_{\typehint\delta})))$}
   \end{tabular}
   
   \caption{\label{fig:tau-types} IDTS rewrite rules for
     $\banana{\lambda}_\tau$.}
   
-\end{figure}
+\end{sidewaysfigure}
