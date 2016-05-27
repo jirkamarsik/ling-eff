@@ -585,6 +585,10 @@ And here is our semantics.
   \lex{loves}{\lam{O S}{{\obj{love}} \apr S \aplr O}}
 \end{align*}
 
+In the semantics for $\sem{me}$, we use the $\op{speaker}$ operation to
+retrieve the current speaker and make it available as the value of the
+variable $x$.
+
 This, and all the semantics we will see in this paper, satisfies a
 homomorphism condition that whenever $M : \tau$, then $\sem{M} :
 \sem{\tau}$. In our case, $\sem{NP} = \FF_E(\iota)$ and $\sem{S} =
