@@ -119,15 +119,15 @@ known as \emph{monad} has been used:
 These two principal applications of monads align with the two approaches we
 have seen above. The one where we change our calculus so it no longer
 defines pure functions (e.g.\ is non-deterministic, stateful or throws
-exceptions) and the one where we use use a pure calculus to manipulate
-terms (denotations) that encode some interaction (e.g.\ dynamicity,
-continuations or event predication).
+exceptions) and the one where we use a pure calculus to manipulate terms
+(denotations) that encode some interaction (e.g.\ dynamicity, continuations
+or event predication).
 
 Monad is a term from category-theory. Its meaning is relative to some
 category. For us, this will always be the category whose objects are types
 and whose arrows are functions between different types. A monad is formed
 by a functor and a pair of natural transformations that satisfy certain
-laws. In our case, this means that a monad is some type wrapper (the
+laws. In our case, this means that a monad is some type constructor (the
 functor part) and some combinators (the natural transformations) that
 follow some basic laws. To give an example of this, we can think of the
 functor $T(\alpha) = (\alpha \to o) \to o$ together with combinators such
@@ -158,12 +158,12 @@ encode effectful programs in pure functional programming
 languages~\cite{kiselyov2013extensible,brady2013programming}.
 
 The idea is that we can represent each of the relevant monads using an
-algebra. We can then combine the signatures of the algebras by summing them
-up. The free algebra of the resulting signature will serve as a universal
-representation format for the set of all terms built from any of the source
-algebras and closed on substitution. Then, we will build modular
-interpreters that will give meanings to the operators of the algebras in
-terms of individuals, truth-values and functions.
+algebra. We can then combine the signatures of the algebras by taking a
+disjoint union. The free algebra of the resulting signature will serve as a
+universal representation format for the set of all terms built from any of
+the source algebras and closed under substitution. Then, we will build
+modular interpreters that will give meanings to the operators of the
+algebras in terms of individuals, truth-values and functions.
 
 In Sect.~\ref{sec:definition}, we will introduce a formal calculus for
 working with the algebraic terms that we will use in our linguistic
@@ -197,8 +197,8 @@ constructions used to build the terms of our language.
 
 First off, let $\XX$ be a set of variables, $\Sigma$ a typed signature and
 $\EE$ a set of operation symbols. In the definition below, we will let $M$,
-$N$\ldots range over terms, $x$, $y$, $z$\ldots range over variables from
-$\XX$, $c$, $d$\ldots range over the names constants from $\Sigma$ and
+$N$\ldots range over terms,\, $x$, $y$, $z$\ldots range over variables from
+$\XX$,\, $c$, $d$\ldots range over the names constants from $\Sigma$ and
 $\op{op}$, $\op{op}_i$\ldots range over the operation symbols in $\EE$.
 
 The terms of our language are comprised of the following:
@@ -224,12 +224,11 @@ expressions.
 
 The operation ($\op{op}$) and injection ($\eta$) expressions will serve as
 the constructors for our algebraic expressions. Algebraic expressions are
-usually formed by operation symbols and then variables at the
-leaves. Instead of variables, our algebraic expressions use terms from our
-calculus for their leaves. The $\eta$ constructor can thus take an ordinary
-term from our calculus and make it a leaf node in an algebraic
-expression. The operation symbols $\op{op}$ are then the operations of the
-algebra.
+usually formed by operation symbols and then variables as atoms. Instead of
+variables, our algebraic expressions use terms from our calculus for
+atoms. The $\eta$ constructor can thus take an ordinary term from our
+calculus and make it an atomic algebraic expression. The operation symbols
+$\op{op}$ are then the operations of the algebra.
 
 The other three expression types correspond to functions over algebraic
 expressions.
@@ -255,7 +254,7 @@ expressions.
 We now give a syntax for the types of our calculus alongside with a typing
 relation. In the grammar below, $\alpha$, $\beta$, $\gamma$\ldots range
 over types, $\nu$ ranges over atomic types from some set $\TT$ and $E$,
-$E'$\ldots ranges over effect signatures (introduced below).
+$E'$\ldots range over effect signatures (introduced below).
 
 The types of our language consist of:
 
@@ -268,11 +267,11 @@ The types of our language consist of:
 \end{align*}
 
 The only novelty here is the $\FF_E(\alpha)$ computation type. This is the
-type of algebraic expressions whose leaves are terms of type $\alpha$ and
+type of algebraic expressions whose atoms are terms of type $\alpha$ and
 whose operation symbols come from the effect signature $E$. We call them
 \emph{computation types} and we call terms of these types
 \emph{computations} because our algebraic expressions will always represent
-some kind of effectful program.
+some kind of program with effects.
 
 \emph{Effect signatures} are similar to typing contexts. They are partial
 mappings from the set of operation symbols $\EE$ to pairs of types. We will
@@ -444,7 +443,7 @@ The banana brackets describe iterators/catamorphisms\footnote{These are
   higher-order function \emph{fold} found in functional programming
   languages is actually the iterator/catamorphism for lists.}. In the
 typing rule, $E$ is the input's signature, $E'$ is the output's signature,
-$\gamma$ is the input's leaf type and $\delta$ is the output's leaf
+$\gamma$ is the input's atom type and $\delta$ is the output's atom
 type. $E$ is decomposed into the operations that our iterator will actually
 interpret, the other operations form a residual signature
 $E_{\mathrm{f}}$. The output signature will then still contain the
@@ -527,8 +526,8 @@ variable.
 
 When showing off the calculus in the next section, the following
 combinators will be helpful. First, we define a sequencing operator. The
-operator $\hsbind$, called bind, replaces all the $\alpha$-typed leaves of
-a $\FF_E(\alpha)$-typed expression with $\FF_E(\beta)$-typed
+operator $\hsbind$, called bind, replaces all the $\alpha$-typed atoms of a
+$\FF_E(\alpha)$-typed expression with $\FF_E(\beta)$-typed
 expressions. More intuitively, $M \hsbind N$ is the program that first runs
 $M$ to get its result $x$ and then continues as the program $\ap{N}{x}$.
 
