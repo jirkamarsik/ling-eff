@@ -134,16 +134,19 @@ functor $T(\alpha) = (\alpha \to o) \to o$ together with combinators such
 as the type raising $\eta(x) = \lam{P}{\ap{P}{x}}$ as a monad of
 quantification.
 
-The usefulness of monads in natural language semantics has been discovered
-by Shan in 2002~\cite{shan2002monads}\footnote{Side effects are to
-  programming languages what pragmatics are to natural languages: they both
-  study how expressions interact with the worlds of their users. It might
-  then come as no surprise that phenomena such as anaphora, presupposition,
-  deixis and conventional implicature yield a monadic description.}. Since
-then, the problem that remained was how to compose several different monads
-in a single solution. Charlow used the popular method of monad
-morphisms\footnote{Also known as monad transformers in functional
-  programming.} to combine several monads in his
+The relationship between side effects in functional programming and
+computational semantics has been developed in several works
+\cite{shan2005linguistic,van2010computational},\footnote{Side effects are
+  to programming languages what pragmatics are to natural languages: they
+  both study how expressions interact with the worlds of their users. It
+  might then come as no surprise that phenomena such as anaphora,
+  presupposition, deixis and conventional implicature yield a monadic
+  description.} stretching as far back as 1977~\cite{hobbs1977making}. The
+usefulness of monads in particular has been discovered by Shan in
+2002~\cite{shan2002monads}. Since then, the problem that remained was how
+to compose several different monads in a single solution. Charlow used the
+popular method of monad morphisms\footnote{Also known as monad transformers
+  in functional programming.} to combine several monads in his
 dissertation~\cite{charlow2014semantics}. Giorgolo and Asudeh have used
 distributive laws to combine monads~\cite{giorgolo2015natural}, while
 Kiselyov has eschewed monads altogether in favor of applicative functors
@@ -155,12 +158,12 @@ encode effectful programs in pure functional programming
 languages~\cite{kiselyov2013extensible,brady2013programming}.
 
 The idea is that we can represent each of the relevant monads using an
-algebra. We can then combine the algebras by summing up their
-signatures. The resulting algebra will serve as a universal representation
-format for the set of all terms built from any of the source algebras and
-closed on substitution. Then, we will build modular interpreters that will
-give meanings to the operators of the algebras in terms of individuals,
-truth-values and functions.
+algebra. We can then combine the signatures of the algebras by summing them
+up. The free algebra of the resulting signature will serve as a universal
+representation format for the set of all terms built from any of the source
+algebras and closed on substitution. Then, we will build modular
+interpreters that will give meanings to the operators of the algebras in
+terms of individuals, truth-values and functions.
 
 In Sect.~\ref{sec:definition}, we will introduce a formal calculus for
 working with the algebraic terms that we will use in our linguistic
@@ -174,9 +177,20 @@ Sect.~\ref{sec:properties}.
 \section{Definition of the Calculus}
 \label{sec:definition}
 
-Having sketched the general idea behind our calculus in the introduction,
-we will now turn our attention to the specifics. We start by defining the
-syntactic constructions used to build the terms of our language.
+Our calculus is an extension of the simply-typed lambda calculus (STLC). We
+add terms of a free algebra into our language and a notation for writing
+handlers, composable interpreters of these terms. An operator of the free
+algebra corresponds to a particular interaction that a piece of natural
+language can have with its context (e.g.\ a deictic expression might
+request the speaker's identity using some operator $\op{speaker}$ in order
+to find its denotation). A handler gives an interpretation to every
+occurrence of an operator within a term (e.g.\ direct speech introduces a
+handler for the operator $\op{speaker}$ that essentially rebinds the
+current speaker to some other entity).
+
+Having sketched the general idea behind our calculus, we will now turn our
+attention to the specifics. We start by defining the syntactic
+constructions used to build the terms of our language.
 
 \subsection{Terms}
 \label{ssec:terms}
@@ -202,8 +216,7 @@ The terms of our language are comprised of the following:
 \end{align*}
 
 The first four constructions --- abstraction, application, variables and
-constants --- come directly from the simply-typed lambda calculus (STLC)
-with constants.
+constants --- come directly from STLC with constants.
 
 The next four deal with the algebraic expressions used to encode
 computations. Let us sketch the behaviors of these four kinds of
