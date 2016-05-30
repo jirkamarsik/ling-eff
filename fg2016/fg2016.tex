@@ -64,10 +64,10 @@ solutions. First, we have those that relax the condition of
 compositionality. Notably, the denotation of a complex phrase is no longer
 a \emph{function per se} of the denotations of its immediate
 subconstituents. Rather, it is some other formally defined
-process\footnote{This kind of distinction is the same distinction between a
-  mathematical function and a function in a programming language, which
-  might have all kinds of side effects and therefore not be an actual
-  function.}. Examples of this approach include:
+process.\footnote{This kind of distinction is the same distinction as the
+  one between a mathematical function and a function in a programming
+  language, which might have all kinds of side effects and therefore not be
+  an actual function.} Examples of this approach include:
 
 \begin{itemize}
 \item the incremental algorithm used to build discourse representation
@@ -198,10 +198,10 @@ constructions used to build the terms of our language.
 First off, let $\XX$ be a set of variables, $\Sigma$ a typed signature and
 $\EE$ a set of operation symbols. In the definition below, we will let $M$,
 $N$\ldots range over terms,\, $x$, $y$, $z$\ldots range over variables from
-$\XX$,\, $c$, $d$\ldots range over the names constants from $\Sigma$ and
+$\XX$,\, $c$, $d$\ldots range over the names of constants from $\Sigma$ and
 $\op{op}$, $\op{op}_i$\ldots range over the operation symbols in $\EE$.
 
-The terms of our language are comprised of the following:
+The terms of our language are composed of the following:
 
 \begin{align*}
   M, N ::= &\ \lam{x}{M} & \mbox{[abstraction]} \\
@@ -233,9 +233,9 @@ $\op{op}$ are then the operations of the algebra.
 The other three expression types correspond to functions over algebraic
 expressions.
 \begin{itemize}
-\item The most useful is the handler $\banana{}$\footnote{Pronounced
+\item The most useful is the handler $\banana{}$.\footnote{Pronounced
   ``banana''. See~\cite{meijer1991functional} for the introduction of
-  banana brackets.}. It acts as an iterator for the type of algebraic
+  banana brackets.} It is an iterator for the type of algebraic
   expressions. The terms $M_1$,\ldots,$M_n$ and $M_\eta$ in $\cdbanana$ are
   the clauses for the constructors $\op{op}_1$,\ldots,$\op{op}_n$ and
   $\eta$, respectively. We will use handlers to define interpretations of
@@ -277,9 +277,9 @@ some kind of program with effects.
 mappings from the set of operation symbols $\EE$ to pairs of types. We will
 write the elements of effect signatures the following way ---
 $\typedop{op}{\alpha}{\beta} \in E$ means that $E$ maps $\op{op}$ to the
-pair of types $\alpha$ and $\beta$\footnote{The two types $\alpha$ and
+pair of types $\alpha$ and $\beta$.\footnote{The two types $\alpha$ and
   $\beta$ are to be seen as the operation's \emph{input} and \emph{output}
-  types, respectively.}. When dealing with effect signatures, we will often
+  types, respectively.} When dealing with effect signatures, we will often
 make use of the disjoint union operator $\uplus$. The term $E_1 \uplus E_2$
 serves as a constraint demanding that the domains of $E_1$ and $E_2$ be
 disjoint and at the same time it denotes the effect signature that is the
@@ -437,12 +437,12 @@ of a program that:
 
 \subsubsection*{[$\banana{}$]}
 
-The banana brackets describe iterators/catamorphisms\footnote{These are
+The banana brackets describe iterators/catamorphisms.\footnote{These are
   similar to recursors/paramorphisms. See~\cite{meijer1991functional} for
   the difference. Catamorphisms are also known as folds and the common
   higher-order function \emph{fold} found in functional programming
-  languages is actually the iterator/catamorphism for lists.}. In the
-typing rule, $E$ is the input's signature, $E'$ is the output's signature,
+  languages is actually the iterator/catamorphism for lists.} In the typing
+rule, $E$ is the input's signature, $E'$ is the output's signature,
 $\gamma$ is the input's atom type and $\delta$ is the output's atom
 type. $E$ is decomposed into the operations that our iterator will actually
 interpret, the other operations form a residual signature
@@ -506,25 +506,25 @@ We have the $\beta$ and $\eta$ rules. By no coincidence, they are the same
 rules as the ones found in STLC.\@ The rest are function definitions for
 $\banana{}$, $\cherry$ and $\CC$.
 
-By looking at the definition of $\banana{}$, we see that it as a standard
+By looking at the definition of $\banana{}$, we see that it is a standard
 iterator. It recursively replaces every occurrence of the constructors
 $\op{op}_j$ and $\eta$ with $M_j$ and $M_\eta$, respectively.
 
-The $\CC$ function recursively swaps [$\ap{\CC}{(\lam{x}{}}$] with
-[$\app{\op{op}}{M_{\mathrm{p}}}{(\lam{y}{}}$] using the $\CC_{\op{op}}$
+The $\CC$ function recursively swaps $\ap{\CC}{(\lam{x}{\_})}$ with
+$\app{\op{op}}{M_{\mathrm{p}}}{(\lam{y}{\_})}$ using the $\CC_{\op{op}}$
 rule. When $\CC$ finally meets the $\eta$ constructor, it swaps
-[$(\lam{x}$] with [$\eta$] and terminates. Note that the constraint $x
-\notin \FV(M_{\mathrm{p}})$ in rule $\CC_{\op{op}}$ cannot be dismissed by
-renaming of bound variables. If the parameter $M_{\mathrm{p}}$ contains a
-free occurrence of $x$, the evaluation of $\CC$ will get stuck. $\CC$ is
-thus a partial function: it is only applicable when none of the operations
-being commuted with the $\lambda$-binder actually depend on the bound
-variable.
+$(\lam{x}{\_})$ with $\ap{\eta}{\_}$ and terminates. Note that the
+constraint $x \notin \FV(M_{\mathrm{p}})$ in rule $\CC_{\op{op}}$ cannot be
+dismissed by renaming of bound variables. If the parameter $M_{\mathrm{p}}$
+contains a free occurrence of $x$, the evaluation of $\CC$ will get
+stuck. $\CC$ is thus a partial function: it is only applicable when none of
+the operations being commuted with the $\lambda$-binder actually depend on
+the bound variable.
 
 \subsection{Common Combinators}
 \label{ssec:common-combinators}
 
-When showing off the calculus in the next section, the following
+When demonstrating the calculus in the next section, the following
 combinators will be helpful. First, we define a sequencing operator. The
 operator $\hsbind$, called bind, replaces all the $\alpha$-typed atoms of a
 $\FF_E(\alpha)$-typed expression with $\FF_E(\beta)$-typed
@@ -534,8 +534,8 @@ $M$ to get its result $x$ and then continues as the program $\ap{N}{x}$.
 \negSpaceBeforeAlign
 
 \begin{align*}
-  \_ \hsbind \_ &: \FF_E(\alpha) \to (\alpha \to \FF_E(\beta)) \to \FF_E(\beta) \\
-  M \hsbind N &= \ap{\banana{\onto{\eta}{N}}}{M}
+  & \_ \hsbind \_ : \FF_E(\alpha) \to (\alpha \to \FF_E(\beta)) \to \FF_E(\beta) \\
+  & M \hsbind N = \ap{\banana{\onto{\eta}{N}}}{M}
 \end{align*}
 
 The type constructor $\FF_E$ along with the operators $\eta$ and $\hsbind$
@@ -546,12 +546,12 @@ will make heavy use of in Section~\ref{sec:phenomena}.
 \negSpaceBeforeAlign
 
 \begin{align*}
-  \_ \apl \_ &: \FF_E(\alpha \to \beta) \to \alpha \to \FF_E(\beta) \\
-  F \apl x &= F \hsbind (\lam{f}{\ap{\eta}{(\ap{f}{x})}}) \\
-  \_ \apr \_ &: (\alpha \to \beta) \to \FF_E(\alpha) \to \FF_E(\beta) \\
-  f \apr X &= X \hsbind (\lam{x}{\ap{\eta}{(\ap{f}{x})}}) \\
-  \_ \aplr \_ &: \FF_E(\alpha \to \beta) \to \FF_E(\alpha) \to \FF_E(\beta) \\
-  F \aplr X &= F \hsbind (\lam{f}{X \hsbind (\lam{x}{\ap{\eta}{(\ap{f}{x})}})})
+  & \_ \apl \_ : \FF_E(\alpha \to \beta) \to \alpha \to \FF_E(\beta) \\
+  & F \apl x = F \hsbind (\lam{f}{\ap{\eta}{(\ap{f}{x})}}) \\[0.8ex]
+  & \_ \apr \_ : (\alpha \to \beta) \to \FF_E(\alpha) \to \FF_E(\beta) \\
+  & f \apr X = X \hsbind (\lam{x}{\ap{\eta}{(\ap{f}{x})}}) \\[0.8ex]
+  & \_ \aplr \_ : \FF_E(\alpha \to \beta) \to \FF_E(\alpha) \to \FF_E(\beta) \\
+  & F \aplr X = F \hsbind (\lam{f}{X \hsbind (\lam{x}{\ap{\eta}{(\ap{f}{x})}})})
 \end{align*}
 
 All of these operators associate to the left, so $f \apr X \aplr Y$ should
@@ -564,8 +564,8 @@ propositions.
 \negSpaceBeforeAlign
 
 \begin{align*}
-  \_ \mathop{\overline{\circ}} \_ &: \FF_E(o) \to \FF_E(o) \to \FF_E(o) \\
-  M \mathop{\overline{\circ}} N &= (\lam{m n}{m \circ n}) \apr M \aplr N
+  & \_ \mathop{\overline{\circ}} \_ : \FF_E(o) \to \FF_E(o) \to \FF_E(o) \\
+  & M \mathop{\overline{\circ}} N = (\lam{m n}{m \circ n}) \apr M \aplr N
 \end{align*}
 
 
@@ -599,8 +599,8 @@ And here is our semantics.
 
 In the semantics for $\sem{\abs{me}}$, we use the $\op{speaker}$ operation
 to retrieve the current speaker and make it available as the value of the
-variable $x$. The star $\star$ passed to $\op{speaker}$ is a dummy value of
-the unit type $1$.
+variable $x$. The star~($\star$) passed to $\op{speaker}$ is a dummy value
+of the unit type $1$.
 
 This, and all the semantics we will see in this paper, satisfies a
 homomorphism condition that whenever $M : \tau$, then $\sem{M} :
@@ -608,8 +608,8 @@ homomorphism condition that whenever $M : \tau$, then $\sem{M} :
 \FF_E(o)$, where $\iota$ and $o$ are the types of individuals and
 propositions, respectively. Of $E$, we assume that
 $\typedop{speaker}{1}{\iota} \in E$, since that is the type of
-$\op{speaker}$ used in our semantics\footnote{$1$ is the unit type whose
-  only element is written as $\star$.}.
+$\op{speaker}$ used in our semantics.\footnote{$1$ is the unit type whose
+  only element is written as $\star$.}
 
 With this fragment, we can give meanings to trivial sentences like:
 
@@ -626,7 +626,7 @@ whose meanings we can calculate as:
   \sem{\app{\abs{loves}}{\abs{Mary}}{\abs{John}}} & \tto 
   \etaE{(\app{\obj{love}}{\obj{j}}{\obj{m}})} \\
   \sem{\app{\abs{loves}}{\abs{me}}{\abs{Mary}}} & \tto
-  \app{\op{speaker}}{\star}{(\lam{x}{\app{\obj{love}}{\obj{m}}{x}})}
+  \app{\op{speaker}}{\star}{(\lam{x}{\etaE{(\app{\obj{love}}{\obj{m}}{x})}})}
 \end{align}
 
 The meaning of~\eqref{ex:trivial} is a proposition of type $o$ wrapped in
@@ -743,10 +743,10 @@ effects of $E$ correspond to the process of interpretation, the process of
 arriving at some logical form of the sentence. They should thus be
 independent of the particular individual that we use as a witness for $x$
 when we try to model-check the resulting logical form. This independence
-lets us use the $\CC$ operator without fear of getting stuck. Once we
+allows us use the $\CC$ operator without fear of getting stuck. Once we
 arrive at the type $\FF_E(\iota \to o)$, it is a simple case of using
 $\exists \apr \_$ to apply the quantifier within the computation
-type\footnote{Other solutions to this problem include separating the
+type.\footnote{Other solutions to this problem include separating the
   language of logical forms and the metalanguage used in the semantic
   lexical entries to manipulate logical forms as
   objects~[Anon]\cite{kiselyov2015applicative}.}\footnote{Our $\CC$ has
@@ -755,7 +755,7 @@ type\footnote{Other solutions to this problem include separating the
   specializes applicative functors in a similar direction as monads by
   introducing the $\CC$ operator and equipping it with certain laws; our
   $\CC$ operator makes the $\FF_E$ type constructor an instance of this
-  structure.}.
+  structure.}
 
 While the terms that use the $\op{scope}$ operator might be complex, the
 handler that interprets them is as simple as can be.
@@ -848,10 +848,10 @@ referent of the entire noun phrase.
 
 The point of the $\op{implicate}$ operation is to smuggle non-at-issue
 content outside the scope of any logical operators. The contribution of an
-appositive should survive, e.g., logical negation\footnote{In our limited
-  fragment, we will only see it sneak out of a quantifier.}. The place
-where we will accommodate the implicated truth-conditions will be
-determined by the use of the following handler:
+appositive should survive, e.g., logical negation.\footnote{In our limited
+  fragment, we will only see it sneak out of a quantifier.} The place where
+we will accommodate the implicated truth-conditions will be determined by
+the use of the following handler:
 
 \negSpaceBeforeAlign
 
@@ -1005,26 +1005,26 @@ So now we have a CRS which defines the same reduction relation as the rules
 we have shown in~\ref{ssec:reductions}. Next, we verify the two
 conditions. Left-linearity states that no left-hand side of any rule
 contains multiple occurrences of the same metavariable. By examining our
-rules, we find that this is indeed the case\footnote{Multiple occurrences
-  of the same $\op{op}_i$ are alright, since those are not metavariables.}.
+rules, we find that this is indeed the case.\footnote{Multiple occurrences
+  of the same $\op{op}_i$ are alright, since those are not metavariables.}
 
 Non-ambiguity demands that there is no non-trivial overlap between any of
-the left-hand sides\footnote{The definition of (non-trivial) overlap is the
-  same one as the one used when defining critical
-  pairs. See~\cite{klop1993combinatory} for the precise definition.}. In
-our CRS, we have overlaps between the $\beta$ and the $\eta$ rules. We
-split our CRS into one with just the $\eta$ rule ($\to_\eta$) and one with
-all the other rules ($\to_{\banana{\lambda}}$). Now, there is no overlap in
+the left-hand sides.\footnote{The definition of (non-trivial) overlap is
+  the same one as the one used when defining critical
+  pairs. See~\cite{klop1993combinatory} for the precise definition.} In our
+CRS, we have overlaps between the $\beta$ and the $\eta$ rules. We split
+our CRS into one with just the $\eta$ rule ($\to_\eta$) and one with all
+the other rules ($\to_{\banana{\lambda}}$). Now, there is no overlap in
 either of these CRSs, so they are both orthogonal and therefore confluent.
 
-We then use the Lemma of Hindley-Rosen~\cite{klop1992term} to show that the
-union of $\to_{\banana{\lambda}}$ and $\to_\eta$ is confluent when
+We then use the Lemma of Hindley-Rosen~\cite[p. 7]{klop1992term} to show
+that the union of $\to_{\banana{\lambda}}$ and $\to_\eta$ is confluent when
 $\to_{\banana{\lambda}}$ and $\to_\eta$ are both confluent and commute
 together. For that, all that is left to prove is that
 $\to_{\banana{\lambda}}$ and $\to_\eta$ commute. Thanks to another result
-due to Hindley~\cite{klop1992term}, it is enough to prove that for all $a$,
-$b$ and $c$ such that $a \to_{\banana{\lambda}} b$ and $a \to_\eta c$, we
-have a $d$ such that $b \tto_\eta d$ and $c \to^=_{\banana{\lambda}}
+due to Hindley~\cite[p. 8]{klop1992term}, it is enough to prove that for
+all $a$, $b$ and $c$ such that $a \to_{\banana{\lambda}} b$ and $a \to_\eta
+c$, we have a $d$ such that $b \tto_\eta d$ and $c \to^=_{\banana{\lambda}}
 d$. The proof of this is a straightforward induction on the structure of
 $a$.
 
