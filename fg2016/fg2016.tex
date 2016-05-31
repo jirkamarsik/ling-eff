@@ -79,15 +79,15 @@ process.\footnote{This kind of distinction is the same distinction as the
 \item the incremental algorithm used to build discourse representation
   structures in DRT, as presented in~\cite{kamp1993discourse}
 \item the $\lambda\mu$ calculus, used in~\cite{de2001type} to analyze
-  quantification, since, due to the lack of confluence, function terms no
-  longer denote functions over simple denotations
+  quantification, since, due to the lack of confluence, function terms do
+  not denote functions over simple denotations
 \item the use of exceptions and exception handlers
   in~\cite{lebedeva2012expression} to model presuppositions in an otherwise
   compositional framework
 \item the parsetree interpretation step in the logic of conventional
   implicatures of~\cite{potts2005logic} that builds the denotation of a
-  sentence by extracting implicatures from the denotations of all of its
-  subparts (including the non-immediate ones)
+  sentence by extracting implicatures from the denotations of its subparts
+  (including the non-immediate ones)
 \end{itemize}
 
 The other approach is to enrich the denotations so that they are
@@ -129,7 +129,7 @@ exceptions) and the one where we use a pure calculus to manipulate terms
 (denotations) that encode some interaction (e.g.\ dynamicity, continuations
 or event predication).
 
-Monad is a term from category-theory. Its meaning is relative to some
+Monad is a term from category-theory. Its meaning is relative to a
 category. For us, this will always be the category whose objects are types
 and whose arrows are functions between different types. A monad is formed
 by a functor and a pair of natural transformations that satisfy certain
@@ -142,7 +142,7 @@ quantification.
 
 The relationship between side effects in functional programming and
 computational semantics has been developed in several works
-\cite{shan2005linguistic,van2010computational},\footnote{Side effects are
+\cite{shan2005thesis,van2010computational},\footnote{Side effects are
   to programming languages what pragmatics are to natural languages: they
   both study how expressions interact with the worlds of their users. It
   might then come as no surprise that phenomena such as anaphora,
@@ -257,9 +257,9 @@ expressions.
 \subsection{Types}
 \label{ssec:types}
 
-We now give a syntax for the types of our calculus alongside with a typing
-relation. In the grammar below, $\alpha$, $\beta$, $\gamma$\ldots range
-over types, $\nu$ ranges over atomic types from some set $\TT$ and $E$,
+We now give a syntax for the types of our calculus along with a typing
+relation. In the grammar below,\, $\alpha$, $\beta$, $\gamma$\ldots range
+over types,\, $\nu$ ranges over atomic types from some set $\TT$ and $E$,
 $E'$\ldots range over effect signatures (introduced below).
 
 The types of our language consist of:
@@ -512,9 +512,9 @@ We have the $\beta$ and $\eta$ rules. By no coincidence, they are the same
 rules as the ones found in STLC.\@ The rest are function definitions for
 $\banana{}$, $\cherry$ and $\CC$.
 
-By looking at the definition of $\banana{}$, we see that it is a standard
-iterator. It recursively replaces every occurrence of the constructors
-$\op{op}_j$ and $\eta$ with $M_j$ and $M_\eta$, respectively.
+By looking at the definition of $\banana{}$, we see that it is an
+iterator. It replaces every occurrence of the constructors $\op{op}_j$ and
+$\eta$ with $M_j$ and $M_\eta$, respectively.
 
 The $\CC$ function recursively swaps $\ap{\CC}{(\lam{x}{\_})}$ with
 $\app{\op{op}}{M_{\mathrm{p}}}{(\lam{y}{\_})}$ using the $\CC_{\op{op}}$
@@ -546,8 +546,8 @@ $M$ to get its result $x$ and then continues as the program $\ap{N}{x}$.
 
 The type constructor $\FF_E$ along with the operators $\eta$ and $\hsbind$
 form a free monad. Using this monadic structure, we can define the
-following combinators (variations on the application operator) which we
-will make heavy use of in Section~\ref{sec:phenomena}.
+following combinators (variations on application) which we will make heavy
+use of in Section~\ref{sec:phenomena}.
 
 \negSpaceBeforeAlign
 
@@ -844,16 +844,16 @@ will focus on nominal appositives.
 In the denotation of the nominal appositive construction, $\abs{appos}$, we
 first evaluate the head noun phrase $X : \sem{NP}$ to find its referent $x
 : \iota$. We then want to implicate that $x$ is equal to the referent of
-$Y$, the term $\etaE{x} \mathbin{\overline{=}} Y$ (note the line over $=$)
+$Y$. The term $\etaE{x} \mathbin{\overline{=}} Y$ (note the line over $=$)
 is the term that computes that referent and gives us the proposition we
 want. We also want to state that no quantifier from within the appositive
 $Y$ should escape into the matrix clause and so we wrap this computation in
 the $\SI$ handler to establish a scope island. Finally, we pass this
 proposition as an argument to $\op{implicate}$ and we return $x$ as the
-referent of the entire noun phrase.
+referent of the noun phrase.
 
 The point of the $\op{implicate}$ operation is to smuggle non-at-issue
-content outside the scope of any logical operators. The contribution of an
+content outside the scope of logical operators. The contribution of an
 appositive should survive, e.g., logical negation.\footnote{In our limited
   fragment, we will only see it sneak out of a quantifier.} The place where
 we will accommodate the implicated truth-conditions will be determined by
@@ -870,8 +870,8 @@ the use of the following handler:
 We want conventional implicatures to project out of the common logical
 operators. However, when we consider direct quotes, we would not like to
 attribute the implicature made by the quotee to the quoter. We can
-implement this desideratum by inserting the $\accommodate$ handler into the
-lexical entry for direct speech.
+implement this by inserting the $\accommodate$ handler into the lexical
+entry for direct speech.
 
 \negSpaceBeforeAlign
 
@@ -887,11 +887,10 @@ Consider the following three examples.
   \ex A man said, ``My best friend, Mary, loves me''. \label{ex:ci-in-quotes}
 \end{exe}
 
-In~\eqref{ex:ci-from-quant}, the
-conventional implicature that John is the speaker's best friend projects
-from the scope of the universal quantifier. On the other hand,
-in~\eqref{ex:ci-in-quotes}, the implicature does not project from the
-quoted clause and so it is not misattributed.
+In~\eqref{ex:ci-from-quant}, the conventional implicature that John is the
+speaker's best friend projects from the scope of the quantifier. On the
+other hand, in~\eqref{ex:ci-in-quotes}, the implicature does not project
+from the quoted clause and so it is not misattributed.
 
 \negSpaceBeforeAlign
 
@@ -934,10 +933,10 @@ have to modify any existing denotations to enable us to collect
 conventional implicatures from different subconstituents.
 
 Furthermore, all of the modifications we have performed to existing
-denotations are just additions of handlers for new effects. This gives us a
+denotations are additions of handlers for new effects. This gives us a
 strong guarantee that all of the old results are conserved, since applying
 a handler to a computation which does not use the operations being handled
-is the same as doing nothing.
+changes nothing.
 
 The goal of our calculus is to enable the creation of semantic lexicons
 with a high degree of separation of concerns. In this section, we have seen
@@ -955,11 +954,10 @@ reduction). The reduction relation itself is confluent and, for well-typed
 terms, it is also terminating. This means that typed $\banana{\lambda}$ is
 strongly normalizing.
 
-The proof of subject reduction is a mechanical proof by induction for each
-of the reduction rules. For confluence and termination, we employ very
-similar strategies: we make use of general results and show how they apply
-to our calculus. Due to space limitations, we will pursue in detail only
-the proof of confluence.
+The proof of subject reduction is a mechanical proof by induction. For
+confluence and termination, we employ very similar strategies: we make use
+of general results and show how they apply to our calculus. Due to space
+limitations, we will pursue in detail only the proof of confluence.
 
 Our reduction relation is given as a set of rules which map redexes
 matching some pattern into contracta built up out of the redexes' free
