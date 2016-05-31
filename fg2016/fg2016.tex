@@ -1,5 +1,6 @@
 \documentclass{llncs}
 
+\usepackage[utf8]{inputenc}
 \usepackage{amssymb}
 \usepackage{mathtools}
 \usepackage{bussproofs}
@@ -21,9 +22,14 @@
 %
 \title{Introducing a Calculus of Effects and Handlers \\ for Natural Language Semantics}
 %
-\author{Anonymous Copy}
-%
-\institute{Anonymous Copy}
+\author{Jirka Maršík \and Maxime Amblard}
+
+\institute{LORIA, UMR 7503, Université de Lorraine, CNRS, Inria, Campus Scientifique, \\
+F-54506 Vand\oe uvre-lès-Nancy, France \\
+\email{\{jirka.marsik, maxime.amblard\}@loria.fr}}
+
+\titlerunning{Calculus of Effects and Handlers}
+\authorrunning{Maršík and Amblard}
 
 \maketitle              % typeset the title of the contribution
 
@@ -749,8 +755,8 @@ $\exists \apr \_$ to apply the quantifier within the computation
 type.\footnote{Other solutions to this problem include separating the
   language of logical forms and the metalanguage used in the semantic
   lexical entries to manipulate logical forms as
-  objects~[Anon]\cite{kiselyov2015applicative}.}\footnote{Our $\CC$ has
-  been inspired by an operator of the same name proposed
+  objects~\cite{kiselyov2015applicative}.}\footnote{Our $\CC$ has been
+  inspired by an operator of the same name proposed
   in~\cite{de2015conservativity}: de Groote introduces a structure that
   specializes applicative functors in a similar direction as monads by
   introducing the $\CC$ operator and equipping it with certain laws; our
@@ -1037,8 +1043,8 @@ modelling detailed semantics and inspired by current work in programming
 language theory. Our calculus is an extension of the simply-typed lambda
 calculus which is the de facto lingua franca of semanticists. Its purpose
 is to facilitate the communication of semantic ideas without depending on
-complex programming languages~[Anon]\cite{kiselyov2010lambda} and to do so
-with a well-defined formal semantics.
+complex programming languages~\cite{marsik2014algebraic,kiselyov2010lambda}
+and to do so with a well-defined formal semantics.
 
 We have demonstrated the features of our calculus on several examples
 exhibiting phenomena such as deixis, quantification and conventional
@@ -1057,10 +1063,10 @@ In future work, it would be useful to automate some of the routine plumbing
 that we have to do in our terms. It will also be important to test the
 methodology on larger and more diverse fragments (besides this fragment, we
 have also created one combining anaphora, quantification and
-presupposition~[Anon]). Last but not least, it would be interesting to
-delve deeper into the foundational differences between the approach used
-here, the monad transformers used by Charlow~\cite{charlow2014semantics}
-and the applicative functors used by
+presupposition~\cite{marsik2014algebraic}). Last but not least, it would be
+interesting to delve deeper into the foundational differences between the
+approach used here, the monad transformers used by
+Charlow~\cite{charlow2014semantics} and the applicative functors used by
 Kiselyov~\cite{kiselyov2015applicative}.
 
 
