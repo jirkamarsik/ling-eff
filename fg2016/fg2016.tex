@@ -508,9 +508,9 @@ Fig.~\ref{fig:reductions}.
   \caption{\label{fig:reductions} The reduction rules of our calculus.}
 \end{figure}
 
-We have the $\beta$ and $\eta$ rules. By no coincidence, they are the same
-rules as the ones found in STLC.\@ The rest are function definitions for
-$\banana{}$, $\cherry$ and $\CC$.
+We have the $\beta$ and $\eta$ rules, which, by no coincidence, are the
+same rules as the ones found in STLC.\@ The rest are function definitions
+for $\banana{}$, $\cherry$ and $\CC$.
 
 By looking at the definition of $\banana{}$, we see that it is an
 iterator. It replaces every occurrence of the constructors $\op{op}_j$ and
@@ -654,8 +654,9 @@ interpreting handler.
   \withSpeaker &= \lam{s M}{\ap{\banana{\onto{\op{speaker}}{(\lam{x k}{\ap{k}{s}})}}}{M}}
 \end{align*}
 
-NB: We omitted the $\eta$ clause in the banana brackets above. In such
-cases, we say there is a default clause $\onto{\eta}{(\lam{x}{\etaE{x}})}$.
+Note that we omitted the $\eta$ clause in the banana brackets above. In
+such cases, we say there is a default clause
+$\onto{\eta}{(\lam{x}{\etaE{x}})}$.
 
 $$
   \app{\withSpeaker}{s}{\sem{\app{\abs{loves}}{\abs{me}}{\abs{Mary}}}} \tto
@@ -787,8 +788,9 @@ constructors (in our case, the verbs).
   \sem{\abs{said}_{\abs{ds}}} &:= \lam{C S}{\ap{\SI}{(\app{\sem{\abs{said}_{\abs{ds}}}}{C}{S})}}
 \end{align*}
 
-NB: The semantic brackets used on the right-hand side of these revised
-definitions stand for the previous denotations.
+Whenever we use the semantic brackets on the right-hand side of these
+revised definitions, they stand for the denotations we have assigned
+previously.
 
 \begin{exe}
   \ex Every man loves a woman.
