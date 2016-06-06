@@ -10,6 +10,7 @@
 
 
 \section{Confluence}
+\label{sec:confluence}
 
 The object of our study during this section will be the proof of the
 \emph{confluence property} of $\banana{\lambda}$.
@@ -747,8 +748,7 @@ handled by the $[\_]\_$ binder construct already found in IDTSs:
   \FF_E(\gamma)}$ for any operation symbol $\op{op}$ from $\EE$ and any $E$
   such that $\typedop{op}{\alpha}{\beta} \in E$
 \item $\cherry_\alpha \in F_{\FF_\emptyset(\alpha), \alpha}$
-\item $\banana{}_{\op{op}_1, \ldots, \op{op}_n, \FF_E(\gamma),
-  \FF_{E'}(\delta)} \in F_{\alpha_1 \to (\beta_1 \to \FF_{E'}(\delta)), \ldots,
+\item $\banana{}_{\op{op}_1, \ldots, \op{op}_n, \gamma, \delta, E, E'} \in F_{\alpha_1 \to (\beta_1 \to \FF_{E'}(\delta)), \ldots,
   \alpha_n \to (\beta_n \to \FF_{E'}(\delta)), \gamma \to \FF_{E'}(\delta),
   \FF_E(\gamma), \FF_{E'}(\delta)}$ where:
   \begin{itemize}
@@ -761,19 +761,85 @@ handled by the $[\_]\_$ binder construct already found in IDTSs:
 \end{itemize}
 
 The list above is based on the typing rules of our calculus found on
-Figure~\ref{fig:types}. The idea behind the conversion from our typing
-rules to this list of typed symbols is to index every symbol by the type
-and effect signature metavariables that appear in the conclusion of the
-symbol's typing rule. A specifically-typed symbol in
-$\banana{\lambda}_\tau$ then corresponds to an instantiation of the type
-metavariables in a $\banana{\lambda}$ typing rule.
+Figure~\ref{fig:types}. We convert the typing rules of $\banana{\lambda}$
+into the typed function symbols of $\banana{\lambda}_\tau$ with the
+following process:
 
-Our alphabet now has types and function symbols. For variables and
-metavariables, we will take some arbitrary sets containing\ldots \TODO{Put
-  the variables and metavariables used in the rules below in here.}.
+\begin{itemize}
+\item We take a typing rule of $\banana{\lambda}$, other than [abs] or
+  [var] (since abstractions and variables are already present in the
+  language of IDTS terms).
+\item We identify all the type-level metavariables. That is, metavariables
+  $\alpha$, $\beta$, $\gamma$ \ldots ranging over types, metavariables $E$,
+  $E'$ \ldots ranging over effect signatures and metavariables ranging over
+  operation symbols $\op{op}$.
+\item We strip these metavariables down to a minimal non-redundant set
+  (e.g.\ in the $[\op{op}]$ rule, we have that
+  $\typedop{op}{\alpha}{\beta} \in E$, therefore $E$ and $\op{op}$
+  determine $\alpha$ and $\beta$ and therefore $\alpha$ and $\beta$
+  redundant)
+\item We introduce a family of symbols: for every possible instantiation of
+  the metavariables mentioned above, we will have a different symbol. The
+  arity of the symbol will correspond to the number of typing judgments
+  that serve as hypotheses to the typing rule. The types of the arguments
+  and of the result will be derived from the types of the judgments of the
+  hypotheses and the conclusion, respectively.
+  \begin{itemize}
+  \item Example: In the $[\eta]$ rule, we have two metavariables: $\alpha$
+    standing in for a type and $E$ standing in for an effect signature. The
+    rule has one typing judgment hypothesis. For every type $\alpha$ and
+    every effect signature $E$, we will therefore have a unary symbol
+    $\eta_{\alpha, E}$ of type $\alpha \to \FF_E(\alpha)$ (i.e.\ belonging
+    to $F_{\alpha, \FF_E(\alpha)}$).
+  \end{itemize}
+\end{itemize}
+
+A specifically-typed symbol in
+$\banana{\lambda}_\tau$ then corresponds to an instantiation of the type
+metavariables in a
+$\banana{\lambda}$ typing rule. We can follow this correspondence further
+and see that
+$\banana{\lambda}_\tau$ IDTS terms, written using the above function
+symbols, correspond to typing derivations in $\banana{\lambda}$.
+
+Our alphabet now has types and function symbols. We also need to specify
+the sets of variables and metavariables and so we will take some arbitrary
+sets with $x_\tau$, $y_\tau$, \ldots $\in X_\tau$ and
+$M_{\alpha_1,\ldots,\alpha_n,\beta}$, $N_{\alpha_1,\ldots,\alpha_n,\beta}$,
+\ldots $\in Z_{\alpha_1,\ldots,\alpha_n,\beta}$.
 
 To complete our IDTS, we have to give the rewrite rules. The rules for
-$\banana{\lambda}_\tau$ are given in Figure~\ref{fig:tau-types}.
+$\banana{\lambda}_\tau$ are given in Figure~\ref{fig:tau-types}. An
+important property of an IDTS rewrite rule is that both its left-hand and
+right-hand side are well-typed and that they have the same type. In order
+to facilitate the reader's verification that this is indeed the case, we
+have used a different labelling scheme for function symbols. When we write
+$f_{\alpha_1,\ldots,\alpha_n,\beta}$, we are referring to the instance of
+symbol $f$ which has the type $\alpha_1 \to \ldots \to \alpha_n \to \beta$
+(i.e.\ belongs to $F_{\alpha_1,\ldots,\alpha_n,\beta}$). This way, instead
+of using a symbol name like $\eta_{\alpha,E}$, forcing you to look up its
+type $\alpha \to \FF_E(\alpha)$, we will refer to this symbol directly as
+$\eta_{\alpha,\FF_E(\alpha)}$.
+
+In Figure~\ref{fig:tau-types}, you will also find the rewrite rules with
+all the subscripts removed. This allows you to get a high-level look at the
+term without any of the type annotation noise. You might notice that the
+reduction rules without type annotations are very similar to the CRS rules
+we have used in~\ref{sec:confluence}. There is only a small divergence in
+the way the two systems encode $\lambda$ abstractions. In
+Section~\ref{sec:confluence}, we followed Klop's work on
+CRS~\cite{klop1993combinatory} wherein $\lam{x}{M}$ is encoded as
+$\lambda([x] M)$. In this section, we follow Blanqui's work on
+IDTS~\cite{blanqui2000termination}, where $\lam{x}{M}$ is encoded as
+$[x] M$.
+
+When describing the rewrite rules for handlers, the $\banana{}$ symbol
+applied to all of its clauses and annotated with all of the intervening
+types ends up taking lots of space. Since this expression stays the same
+from redex to contractum, from rule to rule, we introduce a shortcut
+$\banana{}^{(\op{op}_i)_{i \in
+    I}}_{\typehint{\FF_E(\gamma),\FF_{E'}(\delta)}}(N_{\typehint{\FF_E(\gamma)}})$
+that we use throughout all of the handler rules.
 
 \begin{sidewaysfigure}
   \centering
@@ -787,22 +853,23 @@ $\banana{\lambda}_\tau$ are given in Figure~\ref{fig:tau-types}.
     I}}_{\typehint{\FF_E(\gamma),\FF_{E'}(\delta)}}(N_{\typehint{\FF_E(\gamma)}})$ & \\
   \multicolumn{2}{l}{$ = \banana{}^{(\op{op}_i)_{i \in I}}_{\typehint{(\alpha_i \to (\beta_i \to \FF_{E'}(\delta)) \to
   \FF_{E'}(\delta))_{i \in I}, \gamma \to \FF_{E'}(\delta), \FF_E(\gamma),
-  \FF_{E'}(\delta)}} (([x^i_{\typehint{\alpha_i}} k^i_{\typehint{\beta_i \to
-    \FF_{E'}(\delta)}}]M^i_{\typehint{\alpha_i, \beta_i \to \FF_{E'}(\delta),
-    \FF_{E'}(\delta)}}(x^i_{\typehint{\alpha_i}}, k^i_{\typehint{\beta_i \to
-    \FF_{E'}(\delta)}}))_{i \in I},
-    [x_{\typehint{\gamma}}]M^\eta_{\typehint{\gamma, \FF_{E'}(\delta)}}
-    (x_{\typehint{\gamma}}), N_{\typehint{\FF_E(\gamma)}})$} \\
+  \FF_{E'}(\delta)}} ((M^i_{\typehint{\alpha_i \to (\beta_i \to
+    \FF_{E'}(\delta)) \to \FF_{E'}(\delta)}})_{i \in I},
+    M^\eta_{\typehint{\gamma \to \FF_{E'}(\delta)}}, N_{\typehint{\FF_E(\gamma)}})$} \\
   \\
   $\banana{}^{(\op{op}_i)_{i \in I}} (\eta (N)) \to$ & rules $\banana{\eta}^{(\op{op}_i)_{i \in I}}_{\FF_E(\gamma),\FF_{E'}(\delta)}$ \\
-  $M^\eta (N)$ & \\
+  $@(M^\eta, N)$ & \\
   \multicolumn{2}{l}{$\banana{}^{(\op{op}_i)_{i \in I}}_{\typehint{\FF_E(\gamma), \FF_{E'}(\delta)}} (\eta_{\typehint{\gamma, \FF_E(\gamma)}} (N_{\typehint{\gamma}})) \to$} \\
-  \multicolumn{2}{l}{$M^\eta_{\typehint{\gamma, \FF_{E'}(\delta)}} (N_{\typehint{\gamma}})$} \\
+  \multicolumn{2}{l}{$@_{\typehint{\gamma \to \FF_{E'}(\delta), \gamma,
+  \FF_{E'}(\delta)}} (M^\eta_{\typehint{\gamma \to \FF_{E'}(\delta)}}, N_{\typehint{\gamma}})$} \\
   \\
   $\banana{}^{(\op{op}_i)_{i \in I}} (\op{op}_j (N^{\mathrm{p}}, [y] N^{\mathrm{c}}(y))) \to$ & rules $\banana{\op{op}}^{(\op{op}_i)_{i \in I}}_{\FF_E(\gamma),\FF_{E'}(\delta)}$ \\
-  $M^j (N^{\mathrm{p}}, [y] \banana{}^{(\op{op}_i)_{i \in I}} (N^{\mathrm{c}}(y)))$ & where $j \in I$ \\
+  $@(@(M^j, N^{\mathrm{p}}), [y] \banana{}^{(\op{op}_i)_{i \in I}} (N^{\mathrm{c}}(y)))$ & where $j \in I$ \\
   \multicolumn{2}{l}{$\banana{}^{(\op{op}_i)_{i \in I}}_{\typehint{\FF_E(\gamma), \FF_{E'}(\delta)}} (\op{op}_{j \typehint{\alpha, \beta \to \FF_E(\gamma), \FF_E(\gamma)}} (N^{\mathrm{p}}_{\typehint{\alpha}}, [y_{\typehint{\beta}}] N^{\mathrm{c}}_{\typehint{\beta, \FF_E(\gamma)}}(y_{\typehint{\beta}}))) \to$} \\
-  \multicolumn{2}{l}{$M^j_{\typehint{\alpha, \beta \to \FF_{E'}(\delta), \FF_{E'}(\delta)}} (N^{\mathrm{p}}_{\typehint{\alpha}}, [y_{\typehint{\beta}}] \banana{}^{(\op{op}_i)_{i \in I}}_{\typehint{\FF_E(\gamma), \FF_{E'}(\delta)}} (N^{\mathrm{c}}_{\typehint{\beta, \FF_E(\gamma)}}(y_{\typehint{\beta}})))$} \\
+  \multicolumn{2}{l}{$@_{\typehint{(\beta \to  \FF_{E'}(\delta)) \to \FF_{E'}(\delta), \beta \to \FF_{E'}(\delta), \FF_{E'}(\delta)}} (@_{\typehint{\alpha \to (\beta \to
+    \FF_{E'}(\delta)) \to \FF_{E'}(\delta), \alpha, (\beta \to
+    \FF_{E'}(\delta)) \to \FF_{E'}(\delta)}} (M^j_{\typehint{\alpha \to (\beta \to
+    \FF_{E'}(\delta)) \to \FF_{E'}(\delta)}}, N^{\mathrm{p}}_{\typehint{\alpha}}), [y_{\typehint{\beta}}] \banana{}^{(\op{op}_i)_{i \in I}}_{\typehint{\FF_E(\gamma), \FF_{E'}(\delta)}} (N^{\mathrm{c}}_{\typehint{\beta, \FF_E(\gamma)}}(y_{\typehint{\beta}})))$} \\
   \\
   $\banana{}^{(\op{op}_i)_{i \in I}} (\op{op}_j (N^{\mathrm{p}}, [y] N^{\mathrm{c}}(y))) \to$ & rules $\banana{\op{op}'}^{(\op{op}_i)_{i \in I}}_{\FF_E(\gamma),\FF_{E'}(\delta)}$ \\
   $\op{op}_j (N^{\mathrm{p}}, [y] \banana{}^{(\op{op}_i)_{i \in I}} (N^{\mathrm{c}}(y)))$ & where $j \notin I$ \\
@@ -826,6 +893,33 @@ $\banana{\lambda}_\tau$ are given in Figure~\ref{fig:tau-types}.
   \end{tabular}
   
   \caption{\label{fig:tau-types} IDTS rewrite rules for
-    $\banana{\lambda}_\tau$.}
+    $\banana{\lambda}_\tau$, shown in parallel with the CRS rules for
+    $\banana{\lambda}$.}
   
 \end{sidewaysfigure}
+
+We have given a complete formal definition of $\banana{\lambda}_\tau$. This
+will let us find a proof of termination for $\banana{\lambda}_\tau$ using
+the theory of IDTSs. However, in order to carry over this result to our
+calculus $\banana{\lambda}$, we will need to formalize relationship between
+the two.
+
+\begin{definition}
+  \demph{Term} is a (partial) function from $\banana{\lambda}_\tau$ terms
+  to $\banana{\lambda}$ terms which removes any type annotations (the
+  subscripts on function symbols, variables and metavariables) and
+  translates $\banana{\lambda}_\tau$ syntax to $\banana{\lambda}$ syntax
+  using the following equations:
+  
+  \begin{align*}
+    & \Term{x} &&= x \\
+    & \Term{[x] M} &&= \lam{x}{\Term{M}} \\
+    & \Term{@(M, N)} &&= \ap{(\Term{M})}{(\Term{N})} \\
+    & \Term{c} &&= c \\
+    & \Term{\eta(M)} &&= \etaE{(\Term{M})} \\
+    & \Term{\op{op}(M^{\mathrm{p}}, [x] M^{\mathrm{c}})} &&= \app{\op{op}}{(\Term{M^{\mathrm{p}}})}{(\lam{x}{\Term{M^{\mathrm{c}}}})} \\
+    & \Term{\cherry(M)} &&= \ap{\cherry}{(\Term{M})} \\
+    & \Term{\banana{}_{\op{op}_1, \ldots, \op{op}_n}(M_1, \ldots, M_n, M_\eta, N)} &&= \ap{\banana{\onto{\op{op}_1}{\Term{M_1}},\ \onto{\op{op}_n}{\Term{M_n}},\ \onto{\eta}{\Term{M_\eta}}}}{(\Term{N})} \\
+    & \Term{\CC(M)} &&= \ap{\CC}{(\Term{M})}
+  \end{align*}
+\end{definition}
