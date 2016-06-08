@@ -47,6 +47,9 @@
 \newcommand{\TT}{\mathcal{T}}
 \newcommand{\PP}{\mathcal{P}}
 \newcommand{\ZZ}{\mathcal{Z}}
+\newcommand{\II}{\mathcal{I}}
+\newcommand{\AAA}{\mathcal{A}}
+\newcommand{\RR}{\mathcal{R}}
 
 \newcommand{\FV}{\operatorname{FV}}
 
@@ -55,11 +58,11 @@
 \newcommand{\syntclos}[1]{\mathbin{[#1]}}
 
 \newtheorem*{definition}{Definition}
-\newtheorem*{observation}{Observation}
-\newtheorem{property}{Property}
-\newtheorem{corollary}[property]{Corollary}
-\newtheorem{lemma}[property]{Lemma}
 \newtheorem{theorem}{Theorem}
+\newtheorem{property}[theorem]{Property}
+\newtheorem{observation}[theorem]{Observation}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
 
 \newcommand{\cibanana}{\banana{(\onto{\op{op}_i} M_i)_{i \in I},\ \onto{\eta} M_\eta}}
 \newcommand{\cdbanana}{\banana{\onto{\op{op}_1} M_1,\ \dots,\ \onto{\op{op}_n} M_n,\ \onto{\eta} M_\eta}}
@@ -165,4 +168,8 @@
 
 \newcommand{\typehint}[1]{\textcolor{gray}{#1}}
 
-\newcommand{\Term}[1]{\operatorname{Term}(#1)}
+\newcommand{\Term}{\operatorname{Term}}
+\newcommand{\Types}{\operatorname{Types}}
+
+\newcommand{\Pos}{\operatorname{Pos}}
+\newcommand{\Neg}{\operatorname{Neg}}

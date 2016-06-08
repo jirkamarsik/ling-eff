@@ -588,14 +588,20 @@ Theorem~\ref{thm:confluence}, the confluence of $\banana{\lambda}$.
 \section{Termination}
 \label{sec:termination}
 
-We will prove termination with a similar strategy. $\banana{\lambda}$ is an
-extension of the $\lambda$-calculus with computation types and some
-operations on computations. Our computations can be thought of as algebraic
-expressions, i.e.\ they have a tree-like inductive structure. The reason
-that all computations in our calculus terminate is that the operations
-defined on computations rely on well-founded recursion. However, it is
-quite tricky to go from this intuition to a formal proof of
-termination. Fortunately, we can rely on existing results.
+\begin{definition}
+  A reduction relation is \demph{terminating} if there is no infinite chain
+  $M_1 \to M_2 \to \ldots$.
+\end{definition}
+
+In this section, we will prove termination with a similar strategy as the
+one we employed for confluence. $\banana{\lambda}$ is an extension of the
+$\lambda$-calculus with computation types and some operations on
+computations. Our computations can be thought of as algebraic expressions,
+i.e.\ they have a tree-like inductive structure. The reason that all
+computations in our calculus terminate is that the operations defined on
+computations rely on well-founded recursion. However, it is quite tricky to
+go from this intuition to a formal proof of termination. Fortunately, we
+can rely on existing results.
 
 Blanqui, Jounnaud and Okada have introduced Inductive Data Type Systems
 (IDTSs)~\cite{blanqui2002inductive,blanqui2000termination}. Similar to the
@@ -729,9 +735,16 @@ from $\banana{\lambda}_\tau$ to $\banana{\lambda}$.
 $\banana{\lambda}_\tau$ will be defined as an IDTS. This means we need to
 first identify the alphabet. The base types $\BB$ of
 $\banana{\lambda}_\tau$ will be all the atomic types and computation types
-of $\banana{\lambda}$ (i.e.\ all types except for function types). This
-means that the set of types $T(\BB)$ of $\banana{\lambda}_\tau$ will be
-exactly the set of types of $\banana{\lambda}$.
+of $\banana{\lambda}$ (i.e.\ all types except for function
+types).\footnote{Note that throughout this section, we will make a
+  distinction between \emph{base} types and \emph{atomic} types. Base types
+  are a notion from IDTS and they correspond to everything which is not a
+  function type (in our case, these will be computation types and atomic
+  types). Atomic types is a notion from $\banana{\lambda}$, where it
+  essentially means a ``base type'' like truth values, individuals, natural
+  numbers\ldots.} This means that the set of types $T(\BB)$ of
+$\banana{\lambda}_\tau$ will be exactly the set of types of
+$\banana{\lambda}$.
 
 Next, we will introduce function symbols for all the syntactic
 constructions of $\banana{\lambda}$, except for abstraction, which is
@@ -808,39 +821,6 @@ sets with $x_\tau$, $y_\tau$, \ldots $\in X_\tau$ and
 $M_{\alpha_1,\ldots,\alpha_n,\beta}$, $N_{\alpha_1,\ldots,\alpha_n,\beta}$,
 \ldots $\in Z_{\alpha_1,\ldots,\alpha_n,\beta}$.
 
-To complete our IDTS, we have to give the rewrite rules. The rules for
-$\banana{\lambda}_\tau$ are given in Figure~\ref{fig:tau-types}. An
-important property of an IDTS rewrite rule is that both its left-hand and
-right-hand side are well-typed and that they have the same type. In order
-to facilitate the reader's verification that this is indeed the case, we
-have used a different labelling scheme for function symbols. When we write
-$f_{\alpha_1,\ldots,\alpha_n,\beta}$, we are referring to the instance of
-symbol $f$ which has the type $\alpha_1 \to \ldots \to \alpha_n \to \beta$
-(i.e.\ belongs to $F_{\alpha_1,\ldots,\alpha_n,\beta}$). This way, instead
-of using a symbol name like $\eta_{\alpha,E}$, forcing you to look up its
-type $\alpha \to \FF_E(\alpha)$, we will refer to this symbol directly as
-$\eta_{\alpha,\FF_E(\alpha)}$.
-
-In Figure~\ref{fig:tau-types}, you will also find the rewrite rules with
-all the subscripts removed. This allows you to get a high-level look at the
-term without any of the type annotation noise. You might notice that the
-reduction rules without type annotations are very similar to the CRS rules
-we have used in~\ref{sec:confluence}. There is only a small divergence in
-the way the two systems encode $\lambda$ abstractions. In
-Section~\ref{sec:confluence}, we followed Klop's work on
-CRS~\cite{klop1993combinatory} wherein $\lam{x}{M}$ is encoded as
-$\lambda([x] M)$. In this section, we follow Blanqui's work on
-IDTS~\cite{blanqui2000termination}, where $\lam{x}{M}$ is encoded as
-$[x] M$.
-
-When describing the rewrite rules for handlers, the $\banana{}$ symbol
-applied to all of its clauses and annotated with all of the intervening
-types ends up taking lots of space. Since this expression stays the same
-from redex to contractum, from rule to rule, we introduce a shortcut
-$\banana{}^{(\op{op}_i)_{i \in
-    I}}_{\typehint{\FF_E(\gamma),\FF_{E'}(\delta)}}(N_{\typehint{\FF_E(\gamma)}})$
-that we use throughout all of the handler rules.
-
 \begin{sidewaysfigure}
   \centering
   \begin{tabular}{lr}
@@ -898,6 +878,39 @@ that we use throughout all of the handler rules.
   
 \end{sidewaysfigure}
 
+To complete our IDTS, we have to give the rewrite rules. The rules for
+$\banana{\lambda}_\tau$ are given in Figure~\ref{fig:tau-types}. An
+important property of an IDTS rewrite rule is that both its left-hand and
+right-hand side are well-typed and that they have the same type. In order
+to facilitate the reader's verification that this is indeed the case, we
+have used a different labelling scheme for function symbols. When we write
+$f_{\alpha_1,\ldots,\alpha_n,\beta}$, we are referring to the instance of
+symbol $f$ which has the type $\alpha_1 \to \ldots \to \alpha_n \to \beta$
+(i.e.\ belongs to $F_{\alpha_1,\ldots,\alpha_n,\beta}$). This way, instead
+of using a symbol name like $\eta_{\alpha,E}$, forcing you to look up its
+type $\alpha \to \FF_E(\alpha)$, we will refer to this symbol directly as
+$\eta_{\alpha,\FF_E(\alpha)}$.
+
+In Figure~\ref{fig:tau-types}, you will also find the rewrite rules with
+all the subscripts removed. This allows you to get a high-level look at the
+term without any of the type annotation noise. You might notice that the
+reduction rules without type annotations are very similar to the CRS rules
+we have used in~\ref{sec:confluence}. There is only a small divergence in
+the way the two systems encode $\lambda$ abstractions. In
+Section~\ref{sec:confluence}, we followed Klop's work on
+CRS~\cite{klop1993combinatory} wherein $\lam{x}{M}$ is encoded as
+$\lambda([x] M)$. In this section, we follow Blanqui's work on
+IDTS~\cite{blanqui2000termination}, where $\lam{x}{M}$ is encoded as
+$[x] M$.
+
+When describing the rewrite rules for handlers, the $\banana{}$ symbol
+applied to all of its clauses and annotated with all of the intervening
+types ends up taking lots of space. Since this expression stays the same
+from redex to contractum, from rule to rule, we introduce a shortcut
+$\banana{}^{(\op{op}_i)_{i \in
+    I}}_{\typehint{\FF_E(\gamma),\FF_{E'}(\delta)}}(N_{\typehint{\FF_E(\gamma)}})$
+that we use throughout all of the handler rules.
+
 We have given a complete formal definition of $\banana{\lambda}_\tau$. This
 will let us find a proof of termination for $\banana{\lambda}_\tau$ using
 the theory of IDTSs. However, in order to carry over this result to our
@@ -912,14 +925,302 @@ the two.
   using the following equations:
   
   \begin{align*}
-    & \Term{x} &&= x \\
-    & \Term{[x] M} &&= \lam{x}{\Term{M}} \\
-    & \Term{@(M, N)} &&= \ap{(\Term{M})}{(\Term{N})} \\
-    & \Term{c} &&= c \\
-    & \Term{\eta(M)} &&= \etaE{(\Term{M})} \\
-    & \Term{\op{op}(M^{\mathrm{p}}, [x] M^{\mathrm{c}})} &&= \app{\op{op}}{(\Term{M^{\mathrm{p}}})}{(\lam{x}{\Term{M^{\mathrm{c}}}})} \\
-    & \Term{\cherry(M)} &&= \ap{\cherry}{(\Term{M})} \\
-    & \Term{\banana{}_{\op{op}_1, \ldots, \op{op}_n}(M_1, \ldots, M_n, M_\eta, N)} &&= \ap{\banana{\onto{\op{op}_1}{\Term{M_1}},\ \onto{\op{op}_n}{\Term{M_n}},\ \onto{\eta}{\Term{M_\eta}}}}{(\Term{N})} \\
-    & \Term{\CC(M)} &&= \ap{\CC}{(\Term{M})}
+    & \Term(x) &&= x \\
+    & \Term([x] M) &&= \lam{x}{\Term(M)} \\
+    & \Term(@(M, N)) &&= \ap{(\Term(M))}{(\Term(N))} \\
+    & \Term(c) &&= c \\
+    & \Term(\eta(M)) &&= \etaE{(\Term(M))} \\
+    & \Term(\op{op}(M^{\mathrm{p}}, [x] M^{\mathrm{c}})) &&= \app{\op{op}}{(\Term(M^{\mathrm{p}}))}{(\lam{x}{\Term(M^{\mathrm{c}})})} \\
+    & \Term(\cherry(M)) &&= \ap{\cherry}{(\Term(M))} \\
+    & \Term(\banana{}_{\op{op}_1, \ldots, \op{op}_n}(M_1, \ldots, M_n, M_\eta, N)) &&= \ap{\banana{\onto{\op{op}_1}{\Term(M_1)},\ \onto{\op{op}_n}{\Term(M_n)},\ \onto{\eta}{\Term(M_\eta)}}}{(\Term(N))} \\
+    & \Term(\CC(M)) &&= \ap{\CC}{(\Term(M))}
   \end{align*}
 \end{definition}
+
+\begin{definition}
+  \demph{Types} is a function from $\banana{\lambda}$ terms to sets of
+  $\banana{\lambda}_\tau$ terms, defined by the equation below.
+  
+  $$
+  \Types(M) = \{ m \mid \Term(m) = M \}
+  $$
+\end{definition}
+
+\begin{lemma}
+  \label{lem:infinite-chains}
+  Let $M$ and $N$ be $\banana{\lambda}$ terms. Then,
+
+  $$
+  M \to N \quad \Rightarrow \quad
+  \forall m \in \Types(M).\ \exists n \in \Types(N).\ m \to n
+  $$
+  
+  In the above, upper-case letters stand for $\banana{\lambda}$ terms,
+  while lower-case letters stand for $\banana{\lambda}_\tau$ terms.
+\end{lemma}
+
+\begin{proof}
+  This property is essentially a stronger kind of subject reduction for
+  $\banana{\lambda}$. In proofs of subject reduction, we examine every
+  reduction rule and we show how a typing derivation of the redex can be
+  transformed into a typing derivation of the contractum. We can think of
+  $\banana{\lambda}_\tau$ terms as $\banana{\lambda}$ typing
+  derivations. The reduction rules in Figure~\ref{fig:tau-types} are the
+  rules which tell us how to take a typing of the redex and transform it
+  into a typing of the contractum.
+  
+  In order to prove this property, we will need to check the following:
+  \begin{itemize}
+  \item The redexes and contracta in Figure~\ref{fig:tau-types} are
+    well-formed (i.e.\ well-typed). For that reason, we have included the
+    type of every variable, metavariable and function symbol as a
+    subscript.
+  \item Applying $\Term$ to the type-annotated $\banana{\lambda}_\tau$
+    redexes and contracta yields the redexes and contracta of
+    $\banana{\lambda}$ (and therefore the $\banana{\lambda}_\tau$ redexes
+    and contracta belong to the $\Types$ image of the $\banana{\lambda}$
+    redexes and contracta). Since in Figure~\ref{fig:tau-types}, we have
+    included the terms with their type annotations removed, we can see at a
+    glance that the stripped rules align with the CRS formulation of
+    $\banana{\lambda}$.
+  \item Finally, we have to check whether the rewriting rules in
+    Figure~\ref{fig:tau-types} actually apply to \emph{all} the
+    $m \in \Types(M)$. In other words, we need to check whether the type
+    annotation scheme used for the redexes is the most general and covers
+    all possible typings of the redex. In our case, we have followed the
+    typing rule constraints and given the most general type annotations.
+  \end{itemize}
+  
+  Given a reduction in $\banana{\lambda}$ from $M$ to $N$, we can find the
+  untyped reduction rule used in Figure~\ref{fig:tau-types}. We know that
+  if $m \in \Types(M)$, then $m$ then matches the redex of the
+  corresponding typed rule. We also know that the contractum of the typed
+  rule belongs to $\Types(N)$ and therefore, the property
+  holds. Furthermore, if we were to formalize the correspondence between
+  $\banana{\lambda}$ typing derivations and $\banana{\lambda}_\tau$ terms,
+  we would get another proof of subject reduction for $\banana{\lambda}$.
+\end{proof}
+
+\begin{corollary}
+  If the reduction relation of $\banana{\lambda}_\tau$ is terminating, then
+  so is the $\banana{\lambda}$ reduction relation on well-typed terms.
+\end{corollary}
+
+\begin{proof}
+  Consider the contrapositive: if there exists an infinite chain of
+  well-typed $\banana{\lambda}$ terms, then there must also be an infinite
+  chain of $\banana{\lambda}_\tau$ terms. Using
+  Lemma~\ref{lem:infinite-chains}, we can take the $\banana{\lambda}$ chain
+  and translate it, link by link, to a $\banana{\lambda}_\tau$ chain.
+\end{proof}
+
+
+\subsection{Termination for IDTS}
+
+So far, we have introduced an IDTS and have shown that if this IDTS is
+terminating, then so is our calculus. We will now look at a general result
+for IDTSs that we will make use of.
+
+\begin{theorem}
+  \label{thm:idts-normalization}
+  \demph{(Strong normalization)}~\cite{blanqui2000termination} Let
+  $\II = (\AAA, \RR)$ be a $\beta$-IDTS satisfying the assumptions (A). If
+  all the rules of $\RR$ satisfy the General Schema, then $\to_\II$ is
+  strongly normalizing.
+\end{theorem}
+
+Strong normalization is confluence and termination and so by showing
+$\banana{\lambda}_\tau$ strongly normalizing, we also prove it
+terminating. The theorem was lifted verbatim
+from~\cite{blanqui2000termination} and parts of it deserve explaining:
+
+\begin{itemize}
+\item What is a $\beta$-IDTS?
+\item What are the assumptions (A)?
+\item What is the General Schema?
+\end{itemize}
+
+We will deal with these in order.
+
+A $\beta$-IDTS is just an IDTS which for every two types $\alpha$ and
+$\beta$ has a function symbol
+$@_{\alpha,\beta} \in F_{\alpha \to \beta,\alpha,\beta}$ and a rule
+$@_{\alpha,\beta}([x_\alpha] M_{\alpha, \beta}(x_\alpha), N_\alpha) \to
+M_{\alpha,\beta}(N_\alpha)$. Furthermore, there must be no other rules
+whose left-hand side is headed by $@$. The IDTS we have defined
+in~\ref{ssec:banana-idts} is a $\beta$-IDTS.
+
+\subsubsection{Checking Off the Assumptions}
+
+Next, we will deal with the assumptions (A).
+
+\begin{definition}
+  The \demph{Assumptions (A)} are defined as the following four conditions:
+  \begin{enumerate}
+  \item every constructor is positive
+  \item no left-hand side of rule is headed by a constructor
+  \item both $>_\BB$ and $>_\FF$ are well-founded
+  \item $stat_f = stat_g$ whenever $f =_\FF g$
+  \end{enumerate}
+\end{definition}
+
+For these to make sense to us, we will need to build some more structure on
+top of our IDTS: the notion of a constructor and the $>_\BB$ and $>_\FF$
+relations.
+
+We will need to designate for every base type $\gamma$ a set
+$C_\gamma \subseteq \cup_{p \ge 0, \alpha_1, \ldots, \alpha_p \in T(\BB)}
+F_{\alpha_1, \ldots, \alpha_p, \gamma}$ (i.e.\ a set of function symbols
+with result type $\gamma$). We will then call the elements of these sets
+\emph{constructors} of $\gamma$.
+
+The base types of our IDTS consist of atomic types and computation
+types. We will have no constructors for atomic types. On the other hand,
+every computation type $\FF_E(\gamma)$ will have constructors
+$\eta_{\gamma,E}$ ($\in F_{\gamma,\FF_E(\gamma)}$) and $\op{op}_{\gamma,E}$
+($\in F_{\alpha,\beta \to \FF_E(\gamma),\FF_E(\gamma)}$) for every
+$\typedop{op}{\alpha}{\beta} \in E$.
+
+We can now check assumption (A.2). Since the only constructors in our IDTS
+are $\eta$ and $\op{op}$, we validate this assumption.
+
+Our choice of constructors induces a binary relation on the base types.
+
+\begin{definition}
+  $\beta$ \emph{depends on} $\alpha$ if there is a constructor
+  $c \in C_\beta$ such that $\alpha$ occurs in the type of one of the
+  arguments of $c$.
+  
+  We will give the reflexive-transitive closure of this relation between
+  $\alpha$ and $\beta$ the name $\ge_\BB$. Furthermore, we will use $=_\BB$
+  and $>_\BB$ to mean the associated equivalence and strict ordering,
+  respectively.
+\end{definition}
+
+\begin{observation}
+  If $\tau_1 \le_\BB \tau_2$, then $\tau_1$ is a subterm of $\tau_2$.
+\end{observation}
+\begin{proof}
+  We will prove this by induction on the structure of the base type
+  $\tau_2$.
+
+  If $\tau_2$ is an atomic type, then $\tau_2$ has no constructors, so it
+  does not depend on any other type. If we look at the reflexive-transitive
+  closure of that, $\ge_\BB$, then the only type $\alpha$ such that
+  $\alpha \le_\BB \tau_2$ is $\tau_2$ itself, which is a subterm of
+  $\tau_2$.
+  
+  If $\tau_2$ is the computation type $\FF_E(\gamma)$, then we will have
+  several constructors. We have $\eta_{\gamma,E}$ with a single argument of
+  type $\gamma$. We thus know that $\FF_E(\gamma)$ depends
+  $\gamma$.\footnote{This is a slight abuse of notation. The dependency
+    relation is a relation on base types. However, $\gamma$ might be a
+    complex (function) type. By saying that $\FF_E(\gamma)$ depends on
+    $\gamma$, we mean to say that for every base type $\gamma'$ occurring
+    in $\gamma$, we have that $\FF_E(\gamma)$ depends on $\gamma'$.} For
+  every $\typedop{op}{\alpha}{\beta} \in E$, we have a constructor
+  $\op{op}_{\gamma,E}$ with arguments of types $\alpha$ and
+  $\beta \to \FF_E(\gamma)$. This tells us that $\FF_E(\gamma)$ also
+  depends on $\alpha$, $\beta$ and $\FF_E(\gamma)$. $\FF_E(\gamma)$ does
+  not have any more constructors, so those are all the types it depends on.
+
+  The $\ge_\BB$ relation that is the subject of this observation is the
+  reflexive-transitive closure of the dependency relation between base
+  types. This means that $\tau_1 \le_\BB \tau_2$ if either
+  $\tau_1 = \tau_2$ or $\tau_2$ depends on some $\tau_2' \neq \tau_2$ such
+  that $\tau_1 \le_\BB \tau_2'$.
+  \begin{itemize}
+  \item If $\tau_1 = \tau_2$, the trivially $\tau_1$ is a subterm of
+    $\tau_2$ and we are done.
+  \item If $\tau_2$ depends on some $\tau_2' \neq \tau_2$, then $\tau_2'$
+    must be either $\gamma$ or one of the $\alpha$ or $\beta$ from $E$
+    since $\tau_2 = \FF_E(\gamma)$. In all these cases, we can apply the
+    induction hypothesis for $\tau_2'$. We know that
+    $\tau_1 \le_\BB \tau_2'$ and by the induction hypothesis, we now know
+    that $\tau_1$ is a subterm of $\tau_2'$. Since $\tau_2'$ is a subterm
+    of $\tau_2$, we have that $\tau_1$ is a subterm of $\tau_2$.
+  \end{itemize}
+\end{proof}
+
+\begin{corollary}
+  If $\tau_1 =_\BB \tau_2$, then $\tau_1 = \tau_2$.
+\end{corollary}
+
+\begin{corollary}
+  If $\tau_1 <_\BB \tau_2$, then $\tau_1$ is a proper subterm of $\tau_2$.
+\end{corollary}
+
+We can now check the first half of assumption (A.3). Since the proper
+superterm/subterm relation is well-founded (i.e.\ has no infinite
+descending chains) and $>_\BB$ is a subset of the proper superterm/subterm
+relation, then $>_\BB$ must be well-founded as well.
+
+We can also check assumption (A.1) once we explain what is a positive
+constructor.
+
+\begin{definition}
+  A constructor $c \in C_\beta$ is \demph{positive} if every base type
+  $\alpha =_\BB \beta$ occurs only at positive positions in the types of
+  the arguments of $c$.
+\end{definition}
+
+\begin{definition}
+  The base types occurring in \demph{positive positions} $(\Pos)$ and the
+  base types occurring in \demph{negative positions} $(\Neg)$ within a type
+  are defined by the following mutually recursive equations:
+
+  \begin{align*}
+    \Pos(\alpha \to \beta) &= \Neg(\alpha) \cup \Pos(\beta) \\
+    \Neg(\alpha \to \beta) &= \Pos(\alpha) \cup \Neg(\beta) \\
+    \Pos(\nu) &= \{ \nu \} \text{\quad with $\nu$ an atomic type} \\
+    \Neg(\nu) &= \emptyset \text{\quad with $\nu$ an atomic type}
+  \end{align*}
+\end{definition}
+
+In our IDTS, $\alpha =_\BB \beta$ is true only when $\alpha = \beta$. The
+only time a type occurs in the type of one of his constructor's arguments
+is in the case of the $\op{op}$ constructors. Given
+$\typedop{op}{\alpha}{\beta} \in E$, $\op{op}_{\gamma,E}$ is a constructor
+of $\FF_E(\gamma)$; the type of its second argument is
+$\beta \to \FF_E(\gamma)$. This occurrence is positive and so we validate
+assumption (A.1).
+
+To validate the rest of (A.3), we will need to introduce the $>_\FF$
+relation. As $>_\BB$ was induced by the structure of constructors, $>_\FF$
+will be induced by the structure of the rewriting rules $\RR$ of our
+IDTS.
+
+\begin{definition}
+  A function symbol $g$ \demph{depends on} a function symbol $f$ if there
+  is a rule defining $g$ (i.e.\ whose left-hand side is headed by $g$) and
+  in the right-hand side of which $f$ occurs.
+
+  We will use $\le_\FF$ as the name for the reflexive-transitive closure of
+  this relation between $f$ and $g$. We will also write $=_\FF$ and $>_\FF$
+  for the associated equivalence and strict ordering, respectively.
+\end{definition}
+
+If we scan the rules of our calculus, we will see that the $\banana{}$
+symbols depend on $\op{op}$ (for when there is no handler and the $\op{op}$
+is copied), $@$ (for applying the handler clauses to their arguments) and
+on $\banana{}$ symbols (for recursion). The $\CC$ symbols depend on
+$\op{op}$ (when passing the $\lambda$ through an $\op{op}$), $\eta$ (when
+switching the $\lambda$ with the $\eta$) and $\CC$ symbols (for
+recursion). There is no other dependency in our IDTS.\@ This means we can
+check off the second part of assumption (A.3) since $>_\FF$ is well-founded
+(it contains only $\banana{} >_\FF \op{op}$, $\banana{} >_\FF @$,
+$\CC >_\FF \op{op}$ and $\CC >_\FF \eta$).
+
+Assumption (A.4) is trivial in our case, since within our IDTS $f =_\FF g$
+only when $f = g$. This assumption only comes into play in the general
+theory of IDTSs when one exploits mutual recursion with functions of
+multiple arguments. The $stat_f$ values mentioned in the assumption (A.4)
+describe the way in which a function's arguments should be ordered to
+guarantee that recursive calls are always made to smaller arguments. In the
+case of mutual recursion, both functions must agree on the order according
+to which they will decrease their arguments. Since we do not deal with
+mutual recursion in our calculus, we will not go into any more detail into
+this.
+
+
+\subsubsection{General Schema}
