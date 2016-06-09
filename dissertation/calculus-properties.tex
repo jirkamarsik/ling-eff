@@ -1224,3 +1224,43 @@ this.
 
 
 \subsubsection{General Schema}
+
+There is one last obstacle in our way towards proving termination of
+$\banana{\lambda}_\tau$. We will need to verify that the rewrite rules that
+we given in Figure~\ref{fig:tau-types} satisfy the General Schema.
+
+\begin{definition}
+  A rewrite rule $f(l_1, \ldots, l_n) \to r$ follows the \demph{General
+    Schema} if $r \in \CC\CC_f(l_1, \ldots, l_n)$.
+\end{definition}
+
+$\CC\CC_f(l_1, \ldots, l_n)$ refers to the so-called \emph{computable
+  closure} of the left-hand side $f(l_1, \ldots, l_n)$. The idea behind
+computable closure is that the left-hand side of a rewrite rule can tell us
+what are all the possible right-hand sides that still lead to a correct
+proof of termination\footnote{Theorem~\ref{thm:idts-normalization} is
+  proven using Tait's method of computability predicates
+  \cite{tait1967intensional}. The term computable closure comes from the
+  fact that the admissible right-hand sides are the metavariables of the
+  left-hand side closed on operations that preserve computability.}. A
+formal definition of computable closure is given
+in~\cite[p. 8]{blanqui2000termination}.
+
+Informally, $r \in \CC\CC_f(l_1, \ldots, l_n)$ if:
+\begin{itemize}
+\item Every metavariable used in $r$ must be accessible in one of $l_1$,
+  \ldots, $l_n$.
+\item Recursive function calls (i.e.\ uses of function symbols $g =_\FF f$)
+  must be made to arguments smaller than the arguments $l_1$, \ldots,
+  $l_n$.
+\end{itemize}
+
+A metavariable is \demph{accessible} in a term if it appears at the top of
+the term or under abstractions or constructors. If a metavariable occurs
+inside an argument of a function symbol which is not a constructor, then
+there are some technical constraints on whether it is accessible. However,
+in every rewrite rule of our IDTS, the only function symbol which is not a
+constructor and which occurs within is the one at the top level: none of
+the arguments contain a non-constructor function symbol.
+
+
