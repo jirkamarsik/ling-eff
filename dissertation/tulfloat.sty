@@ -1,0 +1,31 @@
+% `tulfloat' package
+%
+% This package should be used instead of float.sty, when used
+% with the thesul class.
+%
+% D. Roegel
+%
+\NeedsTeXFormat{LaTeX2e}[1995/12/01]
+\ProvidesPackage{tulfloat}
+         [1999/06/01 float package for thesul (DR)]
+\RequirePackage{float}
+\renewcommand\listof[2]{%
+  \@ifundefined{ext@#1}{\float@error{#1}}{%
+    \if@twocolumn
+      \@restonecoltrue\onecolumn
+    \else
+      \@restonecolfalse
+    \fi
+       \if@classic@section
+         \global\@classic@sectionfalse
+         \chapter*{#2}
+       \else
+         \SpecialSection{#2}
+       \fi
+    \generic@mark{#2}%
+    \@namedef{l@#1}{\@dottedtocline{1}{1.5em}{2.3em}}%
+    \@starttoc{\@nameuse{ext@#1}}%
+    \if@restonecol\twocolumn\fi
+    }%
+  }
+\endinput

@@ -3,7 +3,11 @@
 *.bbl
 *.blg
 *.dia~
+*.dvi
+*.flg
 *.log
+*.maf
+*.mtc*
 *.nav
 *.out
 *.pdf

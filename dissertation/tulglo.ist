@@ -1,0 +1,8 @@
+% Exemple de style de glossaire pour thesul
+% D. Roegel 11/03/2013
+
+preamble "\n \\begin{TheGlossary} \n"
+postamble "\n\n \\end{TheGlossary}\n"
+keyword "\\glossaryentry"
+% pour qu'il n'y ait pas de virgule apres une entree
+delim_0 ""

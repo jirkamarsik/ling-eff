@@ -1,8 +1,8 @@
 dissertation.pdf: *.tex references.bib
-	lualatex dissertation
+	pdflatex dissertation
 	bibtex dissertation
-	lualatex dissertation
-	lualatex dissertation
+	pdflatex dissertation
+	pdflatex dissertation
 
 clean:
 	rm -f *.aux *.bbl *.blg *.log *.out *.toc

@@ -1,17 +1,52 @@
-\documentclass{report}
+\documentclass[11pt,nofrench]{thesul}
 
 \input{packages}
 
 \input{definitions}
 
-\title{Effects and Handlers in Natural Language}
-\author{Jirka Maršík}
-
 \begin{document}
 
-\maketitle
+
+\ThesisDraft
+
+\dominitoc
+
+\ThesisTitle{Effects and Handlers \\ in Natural Language}
+\ThesisDate{31 octobre 2016}
+\ThesisAuthor{Jirka Maršík}
+
+\ThesisUL
+
+\President    = {Le président}
+\Rapporteurs  = {Le rapporteur 1 & de loin\\
+                 Le rapporteur 2 & blablabla\\
+                 Le rapporteur 3}
+\Examinateurs = {L'examinateur 1 & d'ici\\
+                 L'examinateur 2}
+%\Invites=       {}
+
+\MakeThesisTitlePage
+
+
+\begin{ThesisAcknowledgments}
+Les remerciements.
+\end{ThesisAcknowledgments}
+
+
+\begin{ThesisDedication}
+Je dédie cette thèse\\
+à \TODO{\ldots}
+\end{ThesisDedication}
+
 
 \tableofcontents
+
+\NoChapterHead
+
+\NoNewPageAfterParts
+
+\mainmatter
+
 
 \input{introduction}
 
@@ -26,6 +61,8 @@
 \input{calculus-continuations}
 
 \part{Effects and Handlers in Natural Language}
+Introducing Part II\ldots
+\EmptyNewPage
 
 \chapter{Introduction to Formal Semantics}
 \label{chap:intro-fs}
@@ -45,5 +82,6 @@
 \bibliographystyle{plain}
 
 \input{appendix}
+\input{abstract}
 
 \end{document}
