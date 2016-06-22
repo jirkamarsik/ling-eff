@@ -9,6 +9,17 @@ deterministic, it must have a fixed evaluation order. So in order to set up
 the stage for our study of delimited control, we will start by simulating
 the call-by-value $\lambda$-calculus in $\banana{\lambda}$.
 
+\TODO{
+  \begin{itemize}
+  \item Diagram
+  \end{itemize}
+}
+
+\begin{tikzpicture}
+  \GraphInit[vstyle=Normal]
+  \Vertex[L=$\CC$]{C}
+\end{tikzpicture}
+
 %% \begin{figure}
 %%   \includegraphics[width=\textwidth]{diagrams/continuations.pdf}
 %%   \caption{\label{fig:cont-diagram} The different calculi we will study in
@@ -1316,9 +1327,57 @@ have to define a translation of the types.
 
 \section{Other Control Operators}
 
+As we have seen in this chapter, there is more than one set of control
+operators with which we can endow a $\lambda$-calculus. One of the earliest
+variants is Felleisen's
+\texttt{control}/\texttt{prompt}~\cite{felleisen1988abstract}. Its
+semantics is similar to the one of $\shift$/$\reset$.
 
-\TODO{
-  \begin{itemize}
-  \item Diagram
-  \end{itemize}
-}
+\vspace{4mm}
+\begin{tabular}{>{$}r<{$} >{$}c<{$} >{$}l<{$}}
+  C[\ap{\mathtt{prompt}}{V}] & \to_{\mathtt{prompt}} & C[V] \\
+  C[\ap{\mathtt{prompt}}{(F[\ap{\mathtt{control}}{V}])}] & \to_{\mathtt{control}} & C[\ap{\mathtt{prompt}}{(\ap{V}{(\lam{x}F[x])})}]
+\end{tabular}
+\vspace{4mm}
+
+We have also explored $\shift0$/$\reset0$ and $\shift$/$\reset$. The former
+was interesting because of how closely its semantics matched the ones of
+$\banana{\lambda}$.\footnote{$\shift0$/$\reset0$ are also the control
+  operators that one reaches for when implementing effect handlers using
+  delimited continuations~\cite{kammar2013handlers}. This means that not
+  only can we use effect handlers to implement delimited continuations, we
+  can also do the converse. The relationship between effect handlers and
+  delimited continuations has been likened to the one between while loops
+  and conditional jumps (i.e.\ same formal expressivity, different levels
+  of abstraction).} We also focused on the latter since it allowed us to
+show how a type system for continuations translates to the type system of
+$\banana{\lambda}$. We did not study \texttt{control}/\texttt{prompt}, or
+their variants \texttt{control0}/\texttt{prompt0}. These operators have
+already been shown to be mutually expressible with $\shift$/$\reset$ and
+$\shift0$/$\reset0$~\cite{shan2007static}.
+
+When discussing control operators similar to effect handlers, we should
+mention the \texttt{fcontrol}/\texttt{\%} operators of
+Sitaram~\cite{sitaram1993handling}.
+
+\vspace{4mm}
+\begin{tabular}{>{$}r<{$} >{$}c<{$} >{$}l<{$}}
+  C[(\app{\mathtt{\%}}{V}{M})] & \to_{\mathtt{\%}} & C[V] \\
+  C[(\app{\mathtt{\%}}{(F[\ap{\mathtt{fcontrol}}{V}])}{M})] & \to_{\mathtt{fcontrol}} & C[\app{M}{V}{(\lam{x}F[x])}]
+\end{tabular}
+\vspace{4mm}
+
+This is very close to effect handlers. The delimiting operator \texttt{\%}
+is packaged with a function $M$. This is like having a handler whose clause
+for treating \texttt{fcontrol} operations is $M$. Then, whenever
+\texttt{fcontrol} is invoked in its scope, $M$ is applied to the parameter
+of \texttt{fcontrol} and to its continuation. The rule is identical to our
+$\banana{\op{op}}$ rule, \footnote{Modulo presentation of contexts and
+  evaluation order.} the only difference being the \texttt{fcontrol} rule
+does not reinstate the handler in the body of the continuation. This means
+that the handler will only treat the first occurrence of the
+\texttt{fcontrol} effect: a notion known as \emph{shallow
+  handlers}~\cite{kammar2013handlers}.
+
+For a comprehensive overview of control operators and their operational
+semantics, we recommend~\cite{racket-continuations}.

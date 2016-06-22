@@ -81,8 +81,8 @@ at the confluence of several research programs. This fact will allow us to
 present the theory from two different perspectives so you can be equipped
 with two different intuitive models.
 
-%% Mention Lewis' ``What should meanings do instead of what should meanings
-%% be.'' somewhere?
+\TODO{Mention Lewis' ``What should meanings do instead of what should
+  meanings be.'' somewhere?}
 
 \subsubsection*{Algebraic Effects and Handlers}
 
@@ -201,13 +201,11 @@ The expressions of our language are comprised of the following:
   \item[application] $\ap{M}{N}$, where $M$ and $N$ are expressions
   \item[variable] $x$, where $x$ is a variable from $\XX$
   \item[constant] $c$, where $c$ is a constant from $\Sigma$
-  \item[operation] $\app{\op{op}}{M_p}{(\lam{x}{M_c})}$, where $\op{op}$ is
-    an operator from $\EE$, $x$ is a variable from $\XX$ and $M_p$ and
-    $M_c$ are expressions
+  \item[operation]
+    $\app{\op{op}}{M_{\mathrm{p}}}{(\lam{x}{M_{\mathrm{c}}})}$, where
+    $\op{op}$ is an operator from $\EE$, $x$ is a variable from $\XX$ and
+    $M_{\mathrm{p}}$ and $M_{\mathrm{c}}$ are expressions
   \item[injection] $\ap{\eta}{M}$, where $M$ is an expression
-    \\ \TODO{Propagate the changes (mandatory $\lambda$ in the second
-      argument of $\op{op}$, $\eta$ and $\op{op}$ no longer being
-      functions) to the surrounding text.}
   \item[handler] $\cdbanana$
     where $\op{op}_i$ are operators from $\EE$ and $M_i$ and $M_\eta$ are
     expressions
@@ -371,9 +369,11 @@ higher-order signature giving types to constants.
     \FF_{E'}(\delta)) \to \FF_{E'}(\delta)]_{i \in I}$}
   \noLine
   \UnaryInfC{$\Gamma \vdash M_\eta : \gamma \to \FF_{E'}(\delta)$}
+  \noLine
+  \UnaryInfC{$\Gamma \vdash N : \FF_{E}(\gamma)$}
   \def\extraVskip{2pt}
   \RightLabel{[$\banana{}$]}
-  \UnaryInfC{$\Gamma \vdash \cibanana : \FF_{E}(\gamma) \to \FF_{E'}(\delta)$}
+  \UnaryInfC{$\Gamma \vdash \ap{\cibanana}{N} : \FF_{E'}(\delta)$}
  \end{prooftree}}
 
 \begin{figure}
@@ -429,7 +429,7 @@ higher-order signature giving types to constants.
     \noLine
     \BinaryInfC{$\typedop{op}{\alpha}{\beta} \in E$}
     \def\extraVskip{2pt}
-    \RightLabel{[op]}
+    \RightLabel{[$\op{op}$]}
     \UnaryInfC{$\Gamma \vdash \app{\op{op}}{M_p}{(\lam{x}{M_c})} : \FF_E(\gamma)$}
    \end{prooftree}
   \end{subfigure}
@@ -439,8 +439,9 @@ higher-order signature giving types to constants.
   \hspace{-1.5cm}
   \begin{subfigure}{.5\textwidth}
    \begin{prooftree}
-    \AxiomC{$\Gamma \vdash \cherry : \FF_\emptyset(\alpha) \to \alpha$
-    \hskip 4pt [$\cherry$]}
+    \AxiomC{$\Gamma \vdash M : \FF_\emptyset(\alpha)$}
+    \RightLabel{[$\cherry$]}
+    \UnaryInfC{$\Gamma \vdash \ap{\cherry}{M} : \alpha$}
    \end{prooftree}
   \end{subfigure}
   \hspace{1cm}
@@ -452,15 +453,13 @@ higher-order signature giving types to constants.
 
   \begin{subfigure}{\textwidth}
    \begin{prooftree}
-    \AxiomC{$\Gamma \vdash \CC : (\alpha \to \FF_E(\beta)) \to
-      \FF_E(\alpha \to \beta)$
-    \hskip 4pt [$\CC$]}
+    \AxiomC{$\Gamma \vdash M : \alpha \to \FF_E(\beta)$}
+    \RightLabel{[$\CC$]}
+    \UnaryInfC{$\Gamma \vdash \ap{\CC}{M} : \FF_E(\alpha \to \beta)$}
    \end{prooftree}
   \end{subfigure}
 
-  \caption{\label{fig:types}Typing rules for our calculus. \TODO{Propagate
-      the changes (mandatory $\lambda$ in the second argument of $\op{op}$,
-      $\eta$ and $\op{op}$ no longer functions) to the surrounding text.}}
+  \caption{\label{fig:types}Typing rules for our calculus.}
 \end{figure}
 
 
@@ -485,7 +484,7 @@ of the generator set are valid algebraic expressions independent of the
 choice of signature. Computationally, returning a value is always an
 option, independently of the available permissions.
 
-\subsection*{[op]}
+\subsection*{[$\op{op}$]}
 
 More complicated computations can be built up by extending existing
 computations using the \textbf{operation} construction. Let us have an
@@ -503,24 +502,26 @@ same input and output types\footnote{In general, the same operation symbol
   can be used in different computations whose types are indexed by
   different effect signatures.}.
 
-Notice also how the [op] rule is similar to the [var] rule in that it lets
-use a symbol with a certain type given that it exists in some kind of
-signature/context. The crucial difference is that contexts are components
-of judgments whereas effect signatures are components of types. The meaning
-of a variable is determined by inspecting the expression in which it occurs
-and finding the $\lambda$ that binds it (this is known as \emph{lexical} or
-\emph{static binding}). On the other hand, the meaning of an operation in a
-computation is determined by evaluating the term in which the computation
-appears until the computation becomes the argument of a handler. This
-handler will then give meaning to the operation symbol by effectively
-substituting it with a suitable interpretation (this kind of \emph{late}
-binding is known as \emph{dynamic binding}).
+There is a parallel between the [var] rule and the [$\op{op}$] rule. The
+[var] rule lets use a symbol $x$ with type $\alpha$ provided
+$x : \alpha \in \Gamma$. The [$\op{op}$] rule lets use a symbol $\op{op}$
+with type $\alpha \to (\beta \to \FF_E(\gamma)) \to \FF_E(\gamma)$ provided
+$\typedop{op}{\alpha}{\beta} \in E$. The crucial difference is that
+contexts ($\Gamma$) are components of judgments whereas effect signatures
+($E$) are components of types. The meaning of a variable is determined by
+inspecting the expression in which it occurs and finding the $\lambda$ that
+binds it (this is known as \emph{lexical} or \emph{static binding}). On the
+other hand, the meaning of an operation in a computation is determined by
+evaluating the term in which the computation appears until the computation
+becomes the argument of a handler. This handler will then give meaning to
+the operation symbol by substituting it with a suitable interpretation
+(this kind of \emph{late} binding is known as \emph{dynamic binding}).
 
 We have now seen how to construct pure computations using $\eta$ and extend
 them by adding operations. However, before we go on and start talking about
-handlers, we would like to give the algebraic intuition behind [op], as the
-algebraic point of view makes explaining the handler rule [$\banana{}$]
-easier.
+handlers, we would like to give the algebraic intuition behind [$\op{op}$],
+as the algebraic point of view makes explaining the handler rule
+[$\banana{}$] easier.
 
 We can see the effect signature as an algebraic signature. Whenever we have
 $\typedop{op}{\alpha}{\beta} \in E$, we have an $\alpha$-indexed family of
@@ -584,7 +585,7 @@ operand cluster of type $\beta \to \FF_E(\gamma)$ to get a new expression
 of type $\FF_E(\gamma)$.
 
 We suggest visualizing these algebraic expressions as trees (see Section~2
-of \cite{lindley2014algebraic} for the original idea). Trees of type
+of~\cite{lindley2014algebraic} for the original idea). Trees of type
 $\FF_E(\alpha)$ consist of leafs containing values of type $\alpha$ and
 internal nodes labelled with operations and their parameters. Every
 internal node is labelled with some $\typedop{op}{\alpha}{\beta} \in E$ and
@@ -593,11 +594,8 @@ by $\beta$.
 
 \subsection*{[$\banana{}$]}
 
-Now we are ready to explain the handler rule. Let us have some computation
-$N : \FF_E(\gamma)$ (which we can now think of as an algebraic expression
-or a tree). By applying the handler $\cibanana$ to $N$, we get a new
-computation $N' : \FF_{E'}(\delta)$. The typing rule for $\banana{}$ is
-repeated in Figure~\ref{fig:handler-rule}.
+Now we are ready to explain the handler rule. The typing rule for
+$\banana{}$ is repeated in Figure~\ref{fig:handler-rule}.
 
 \begin{figure}
   \handlerrule
@@ -607,39 +605,39 @@ repeated in Figure~\ref{fig:handler-rule}.
 
 To illustrate the constraints on the types of the components, $M_i$ and
 $M_\eta$, of a handler, we will examine its semantics. The handler
-processes the tree $N$ by recursive induction. Depending on the shape of
-the tree, one of the following will happen:
+processes the algebraic expression $N$ by recursive induction. Depending on
+the shape of the expression, one of the following will happen:
 
 \begin{itemize}
-\item If $N$ is a leaf, then the value stored in the leaf is of type
-  $\gamma$. This is where the $M_\eta$ function comes in. It must take a
-  value of type $\gamma$ and produce a new tree of type $\FF_{E'}(\delta)$,
-  hence the fourth hypothesis of the $\banana{}$ rule.
+\item If $N = \etaE{N'}$, then $N'$ is of type $\gamma$. This is where the
+  $M_\eta$ function comes in. It must take a value of type $\gamma$ and
+  produce a new tree of type $\FF_{E'}(\delta)$, hence the fourth
+  hypothesis of the $\banana{}$ rule.
 
-\item If $N$ is an internal node labelled with the operation symbol
-  $\op{op}_i$ for some $i \in I$ and some parameter, then that parameter
-  must be of type $\alpha_i$. Furthermore, this node will have a
-  $\beta_i$-indexed cluster of children. We know this since $N$ is of type
+\item If $N = \app{\op{op}_i}{N_{\mathrm{c}}}{(\lam{x}{N_{\mathrm{c}}})}$
+  for some $i \in I$, then $N_{\mathrm{p}}$ must be of type
+  $\alpha_i$. Furthermore, for every $x : \beta_i$, we have a operand
+  $N_{\mathrm{c}} : \FF_E(\gamma)$. We know this since $N$ is of type
   $\FF_E(\gamma)$ and the first hypothesis tells us that
   $\typedopg{\op{op}_i}{\alpha_i}{\beta_i} \in E$.
 
-  We will recursively apply our handler to the cluster of children,
+  We will recursively apply our handler to the cluster of operands,
   changing their type from $\FF_E(\gamma)$ to $\FF_{E'}(\delta)$. We now
-  need something which takes the parameter in the node, type $\alpha_i$,
-  and the family of the processed subtrees, type $\beta_i \to
-  \FF_{E'}(\delta)$, which is exactly the function $M_i$ in the third
-  hypothesis of the $\banana{}$ rule.
+  need something which takes $N_{\mathrm{p}}$, whose type is $\alpha_i$,
+  and the cluster of processed operands, type
+  $\beta_i \to \FF_{E'}(\delta)$, which is exactly the function $M_i$ in
+  the third hypothesis of the $\banana{}$ rule.
 
-\item If $N$ is an internal node labelled with some operation symbol
-  $\op{op}$ such that $\typedop{op}{\alpha}{\beta} \in E_f$ for some
-  $\alpha$ and $\beta$, then we will ignore the node and process only its
-  children. This means that the resulting tree will contain the operation
-  $\op{op}$ and any other symbols defined in $E_f$\footnote{The $f$ in
-    $E_f$ stands for \emph{forwarded effects}, since it refers to effects
-    that the handler will not interpret but instead forward to some other
-    interpreter.}. In order for such a tree to be of the desired type
-  $\FF_{E'}(\delta)$, $E_f$ must be a subset of $E'$, which is what the
-  second hypothesis of the $\banana{}$ rule guarantees.
+\item If $N = \app{\op{op}}{N_{\mathrm{p}}}{(\lam{x}{N_{\mathrm{c}}})}$ and
+  $\typedop{op}{\alpha}{\beta} \in E_f$ for some $\alpha$ and $\beta$, then
+  we will ignore the node and process only its children. This means that
+  the resulting expression will contain the operation symbol $\op{op}$ from
+  $E_f$\footnote{The $f$ in $E_f$ stands for \emph{forwarded effects},
+    since it refers to effects that the handler will not interpret but
+    instead forward to some other interpreter.}. In order for such a
+  expression to be of the desired type $\FF_{E'}(\delta)$, $E_f$ must be a
+  subset of $E'$, which is what the second hypothesis of the $\banana{}$
+  rule guarantees.
 \end{itemize}
 
 We have covered the whole $\banana{}$ rule, except for the presence of the
@@ -651,11 +649,12 @@ effect signature $E''$. It serves two roles.
   type $\FF_{E'}(\delta)$ of the resulting computation $N'$ as long as $E'$
   contains $E_f$ ($E''$ represents the relative complement of $E_f$ in
   $E'$). This is in analogy to the free effect variable $E$ in the [$\eta$]
-  and [op] rules. This freedom of effect variables is a way of implementing
-  the idea that a computation of type $\FF_{E_1}(\alpha)$ can be used
-  anywhere that a computation of type $\FF_{E_2}(\alpha)$ given that $E_1
-  \subseteq E_2$\footnote{This relation is an instance of subtyping and a
-    more robust treatment will be outlined in Section~\ref{sec:subtyping}.}.
+  and [$\op{op}$] rules. This freedom of effect variables is a way of
+  implementing the idea that a computation of type $\FF_{E_1}(\alpha)$ can
+  be used anywhere that a computation of type $\FF_{E_2}(\alpha)$ given
+  that $E_1 \subseteq E_2$\footnote{This relation is an instance of
+    subtyping and a more robust treatment will be outlined in
+    Section~\ref{sec:subtyping}.}.
 
 \item In the previous paragraph, why did we put the word ``free'' in
   quotation marks?  Because the effect variable $E''$ is not actually
@@ -793,12 +792,13 @@ notion.
 
 \begin{definition}
   Let $M$ and $N$ be terms and $x$ a variable. We define the
-  \textbf{capture-avoiding substitution}\footnote{\TODO{Maybe add a small
-      note for readers not aware of the capture problem? I do not expect
-      people to be unfamiliar with it, but I do spend a few pages talking
-      about the trouble with substitutions and variables so it might be
-      worth it to have a small intro.}} of $N$ for $x$ in $M$, written as
-  $\subst{M}{x}{N}$, using the following equations:
+  \textbf{capture-avoiding substitution}
+  % \footnote{\TODO{Maybe add a small note for readers not aware of the
+  %     capture problem? I do not expect people to be unfamiliar with it, but
+  %     I do spend a few pages talking about the trouble with substitutions
+  %     and variables so it might be worth it to have a small intro.}}
+  of $N$ for $x$ in $M$, written as $\subst{M}{x}{N}$, using the following
+  equations:
 
   \begin{align*}
     \subst{(\lam{x}{M})}{x}{N} &= \lam{x}{M} \\
@@ -843,9 +843,11 @@ notion.
 \begin{definition}
   Let $\sim$ be a binary relation on the terms of our calculus. We define
   the relation $\syntclos{\sim}$, called the \textbf{syntactic closure} of
-  $\sim$, as the smallest relation\footnote{\TODO{Should I prove that such
-    a relation is uniquely determined?}} that contains $\sim$ and satisfies
-  the following closure property for any context $C$:
+  $\sim$, as the smallest relation
+  % \footnote{\TODO{Should I prove that such a relation is uniquely
+  %     determined?}}
+  that contains $\sim$ and satisfies the following closure property for any
+  context $C$:
 
   \begin{itemize}
     \item if $M \syntclos{\sim} M'$, then $C[M] \syntclos{\sim} C[M']$
@@ -874,7 +876,6 @@ can be transformed by transforming any of its parts.
   \begin{itemize}
   \item $\lam{x}{M} \swap \lam{y}{(\subst{M}{x}{y})}$ given that $y \notin
     \FV(M)$ and that $\subst{M}{x}{y}$ exists
-
     %% \footnote{Also under the condition that $\subst{M}{x}{y}$
     %%   exists. We will not mention this proviso in further definitions.
 
@@ -890,7 +891,6 @@ can be transformed by transforming any of its parts.
     %%   ``if $f(X)$ and $g(X)$ both exist''. This handler will be specific to
     %%   the way we define relations. Dangling presuppositions in other parts
     %%   of the math should be seen as mistakes or omissions.}
-    
   \end{itemize}
 \end{definition}
 
@@ -1001,74 +1001,71 @@ Figure~\ref{fig:reductions}, one by one.
 \begin{figure}
   \centering
   \begin{tabular}{lr}
-  $\ap{(\lam{x}{M})}{N} \to$ & rule $\beta.\to$ \\
+  $\ap{(\lam{x}{M})}{N} \to$ & rule $\beta$ \\
   $\subst{M}{x}{N}$ & \\
   \\
-  $\lam{x}{\ap{M}{x}} \to$ & rule $\eta.\to$ \\
-  $M$ & where $x$ is fresh for $M$ \\
+  $\lam{x}{\ap{M}{x}} \to$ & rule $\eta$ \\
+  $M$ & where $x \notin \FV(M)$ \\
   \\
   $\ap{\cibanana}{(\ap{\eta}{N})} \to$ & rule $\banana{\eta}$ \\
   $\ap{M_\eta}{N}$ & \\
   \\
-  $\ap{\cibanana}{(\ap{\ap{\op{op}_i}{N_p}}{(\lam{x}{N_c})})} \to$ & rule $\banana{\op{op}}$ \\
-  $\ap{M_i}{\ap{N_p}{(\lam{x}{\ap{\cibanana}{N_c}})}}$
-  & where $x$ is fresh for $M_\eta$ \\ & and $M_i$ for all $i \in I$ \\
+  $\ap{\cibanana}{(\ap{\ap{\op{op}_j}{N_{\mathrm{p}}}}{(\lam{x}{N_{\mathrm{c}}})})} \to$ & rule $\banana{\op{op}}$ \\
+  $\ap{M_j}{\ap{N_{\mathrm{p}}}{(\lam{x}{\ap{\cibanana}{N_{\mathrm{c}}}})}}$
+  & where $j \in I$ \\
+  & and $x \notin \FV((M_i)_{i \in I}, M_\eta)$ \\
   \\
-  $\ap{\cibanana}{(\ap{\ap{\op{op}'}{N_p}}{(\lam{x}{N_c})})} \to$ & rule $\banana{\op{op}'}$ \\
-  $\ap{\op{op}'}{\ap{N_p}{(\lam{x}{\ap{\cibanana}{N_c}})}}$
-  & where $\op{op}' \notin \{\op{op}_i\}_{i \in I}$ \\
-  & and $x$ is fresh for $M_\eta$ \\ & and $M_i$ for all $i \in I$ \\
+  $\ap{\cibanana}{(\ap{\ap{\op{op}_j}{N_{\mathrm{p}}}}{(\lam{x}{N_{\mathrm{c}}})})} \to$ & rule $\banana{\op{op}'}$ \\
+  $\ap{\op{op}_j}{\ap{N_{\mathrm{p}}}{(\lam{x}{\ap{\cibanana}{N_{\mathrm{c}}}})}}$
+  & where $j \notin I$ \\
+  & and $x \notin \FV((M_i)_{i \in I}, M_\eta)$ \\
   \\
-  $\ap{\cherry}{(\ap{\eta}{N})} \to$ & rule $\cherry$ \\
-  $N$ & \\
+  $\ap{\cherry}{(\ap{\eta}{M})} \to$ & rule $\cherry$ \\
+  $M$ & \\
   \\
   $\ap{\CC}{(\lam{x}{\ap{\eta}{M}})} \to$ & rule $\CC_\eta$ \\
   $\ap{\eta}{(\lam{x}{M})}$ & \\
   \\
-  $\ap{\CC}{(\lam{x}{\ap{\ap{\op{op}}{M_p}}{(\lam{y}{M_c})}})} \to$ & rule $\CC_\op{op}$ \\
-  $\ap{\ap{\op{op}}{M_p}}{(\lam{y}{\ap{\CC}{(\lam{x}{M_c})}})}$
-  & where $x$ is fresh for $M_p$
+  $\ap{\CC}{(\lam{x}{\ap{\ap{\op{op}}{M_{\mathrm{p}}}}{(\lam{y}{M_{\mathrm{c}}})}})} \to$ & rule $\CC_\op{op}$ \\
+  $\ap{\ap{\op{op}}{M_{\mathrm{p}}}}{(\lam{y}{\ap{\CC}{(\lam{x}{M_{\mathrm{c}}})}})}$
+  & where $x \notin \FV(M_{\mathrm{p}})$
   \end{tabular}
   
-  \caption{\label{fig:reductions} The reduction rules of our
-    calculus. \TODO{Propagate the changes (mandatory $\lambda$ in the
-      second argument of $\op{op}$) to the surrounding text.}}
+  \caption{\label{fig:reductions} The reduction rules of our calculus.}
 \end{figure}
 
 
-First off, we have the $\beta.\to$ and $\eta.\to$ rules. By no coincidence,
-they are the same rules as the ones found in STLC\footnote{We call the
-  $\beta$ rule $\beta.\to$ since in~\ref{sec:sums-and-products}, we will
-  introduce $\beta$ rules for those types as well. However, since
-  $\beta.\to$ is by far the most commonly used one, we will often use just
-  $\beta$ to mean $\beta.\to$.}.
+First off, we have the $\beta$ and $\eta$ rules. By no coincidence, they
+are the same rules as the ones found in STLC.
 
 Next we have the three rules that govern the behavior of handlers. We
 recognize the three different rules as the three different cases in the
 informal denotational semantics given in Section~\ref{sec:types}.
 
 \begin{itemize}
-\item When the tree is just a leaf (i.e. $\ap{\eta}{N}$), rule
+\item When the expression is just an atom (i.e. $\ap{\eta}{N}$), rule
   $\banana{\eta}$ applies the clause $M_\eta$ to the value $N$ contained
   within.
-\item When the tree is an internal node labelled with $\op{op}_i$
-  (i.e. $\ap{\ap{\op{op}_i}{N_p}}{N_c}$), we first recursively apply the
-  handler to every child $\ap{N_c}{x}$. We then pass the parameter $N_p$
+\item When the expression is an operation
+  $\app{\op{op}_j}{N_{\mathrm{p}}}{N_{\mathrm{c}}}$ with $j \in I$, we
+  first recursively apply the handler to every child
+  $\ap{N_{\mathrm{c}}}{x}$. We then pass the parameter $N_{\mathrm{p}}$
   stored in the node along with the cluster of the processed children to
-  the clause $M_i$.
-\item When the tree is an internal node labelled with $\op{op}'$ not
-  accounted for by the handler, we leave the node as it is and just recurse
-  down on to the children (effectively using $\op{op}'$ as the handler
-  clause for $\op{op}'$).
+  the clause $M_j$.
+\item When the expression is an operation
+  $\app{\op{op}_j}{N_{\mathrm{p}}}{N_{\mathrm{c}}}$ but where $j \notin I$,
+  we leave the node as it is and just recurse down on to the subexpressions
+  (effectively using $\op{op}_j$ as the handler clause for $\op{op}_j$).
 \end{itemize}
 
 By looking at these rules, we also notice that all they do is just traverse
-the continuations ($N_c$) and replace $\eta$ with $M_\eta$ and $\op{op}_i$
-with $M_i$. This justifies thinking of $\eta$ and the operation symbols as
-special variables which are bound to a value when being passed through a
-handler. This substitutability is already hinted at by the types of
-$M_\eta$ and $M_i$ in the $\banana{}$ typing rule and their correspondence
-with the typing rules [$\eta$] and [$\op{op}$], respectively.
+the continuations ($N_{\mathrm{c}}$) and replace $\eta$ with $M_\eta$ and
+$\op{op}_i$ with $M_i$. This justifies thinking of $\eta$ and the operation
+symbols as special variables which are bound to a value when being passed
+through a handler. This substitutability is already hinted at by the types
+of $M_\eta$ and $M_i$ in the $\banana{}$ typing rule and their
+correspondence with the typing rules [$\eta$] and [$\op{op}$],
+respectively.
 
 The next rule talks about the cherry operator. It does what we would expect
 it to do\footnote{Based on what we said about it in
@@ -1088,13 +1085,14 @@ commute by pushing $\lambda$ below operation symbols and $\eta$.
 \item Rule $\CC_\op{op}$ deals with the case of the $\lambda$ meeting an
   operation symbol. The solution is to just continue down on to the
   children. The operation $\ap{\CC}{(\lam{x}{\dots})}$ is applied
-  recursively to every child $\ap{M_c}{y}$. However, this strategy is sound
-  only when $M_p$ has no free occurrence of $x$ (which would have been
-  bound by the $\lambda$ in the redex but would become unbound in the
-  contractum). We therefore have a constraint saying that $x$ must not
-  occur free in $M_p$. Unlike the other freshness constraints, this one
-  cannot be fixed by a simple renaming of variables. If this constraint is
-  not met, the $\CC$ will not be able to reduce.
+  recursively to every child $\ap{M_{\mathrm{c}}}{y}$. However, this
+  strategy is sound only when $M_{\mathrm{p}}$ has no free occurrence of
+  $x$ (which would have been bound by the $\lambda$ in the redex but would
+  become unbound in the contractum). We therefore have a constraint saying
+  that $x$ must not occur free in $M_{\mathrm{p}}$. Unlike the other
+  freshness constraints, this one cannot be fixed by a simple renaming of
+  variables. If this constraint is not met, the $\CC$ will not be able to
+  reduce.
 
   When talking about the $\CC$ operator in Section~\ref{sec:types}, we
   talked about how it applies only to families of computations that share
@@ -1104,11 +1102,12 @@ commute by pushing $\lambda$ below operation symbols and $\eta$.
   \begin{itemize}
   \item Firstly, in order for $\CC_\op{op}$ to kick in, the body of the
     function must have already reduced to something of the form
-    $\ap{\ap{\op{op}}{M_p}}{M_c}$. This means that the next operation to be
-    performed has already been determined to be $\op{op}$ without needing
-    to wait for the value of $x$.
-  \item Secondly, the reduction can only proceed if $M_p$ does not contain
-    a free occurrence of $x$. This means that $M_p$ is independent of $x$.
+    $\ap{\ap{\op{op}}{M_{\mathrm{p}}}}{M_{\mathrm{c}}}$. This means that
+    the next operation to be performed has already been determined to be
+    $\op{op}$ without needing to wait for the value of $x$.
+  \item Secondly, the reduction can only proceed if $M_{\mathrm{p}}$ does
+    not contain a free occurrence of $x$. This means that $M_{\mathrm{p}}$
+    is independent of $x$.
   \end{itemize}
 \end{itemize}
 
@@ -1132,7 +1131,8 @@ First, we add new expressions into our language:
   \item[second projection] $\pi_2$
   \item[left injection] $\inl$
   \item[right injection] $\inr$
-  \item[case analysis] \hspace{1mm} $\case{M}{x}{N_l}{y}{N_r}$ where $M$, $N_l$ and
+  \item[case analysis] \hspace{1mm}
+    $\case{M}{x}{N_{\mathrm{l}}}{y}{N_{\mathrm{r}}}$ where $M$, $N_l$ and
     $N_r$ are expressions and $x$ and $y$ are variables from $\XX$
   \item[absurdity] \hspace{1mm} $\absurd{M}$ where $M$ is an expression
 \end{description}
@@ -1234,7 +1234,7 @@ unit type and an elimination for the empty type.
     \AxiomC{$\Gamma, x : \alpha \vdash N_l : \gamma$}
     \AxiomC{$\Gamma, y : \beta \vdash N_r : \gamma$}
     \RightLabel{[\textbf{case}]}
-    \TrinaryInfC{$\Gamma \vdash \case{M}{x}{N_l}{y}{N_r} : \gamma$}
+    \TrinaryInfC{$\Gamma \vdash \case{M}{x}{N_{\mathrm{l}}}{y}{N_{\mathrm{r}}} : \gamma$}
   \end{prooftree}
   \begin{prooftree}
     \AxiomC{$\Gamma \vdash M : 0$}
@@ -1266,11 +1266,11 @@ semantics $\tto$.
   $\ap{\pi_2}{\pair{M}{N}} \to$ & rule $\beta.\times_2$ \\
   $N$ & \\
   \\
-  $\case{(\ap{\inl}{M})}{x}{N_l}{y}{N_r}$ & rule $\beta.+_1$ \\
-  $\subst{N_l}{x}{M}$ & \\
+  $\case{(\ap{\inl}{M})}{x}{N_{\mathrm{l}}}{y}{N_{\mathrm{r}}}$ & rule $\beta.+_1$ \\
+  $\subst{N_{\mathrm{l}}}{x}{M}$ & \\
   \\
-  $\case{(\ap{\inr}{M})}{x}{N_l}{y}{N_r}$ & rule $\beta.+_2$ \\
-  $\subst{N_r}{y}{M}$ & \\
+  $\case{(\ap{\inr}{M})}{x}{N_{\mathrm{l}}}{y}{N_{\mathrm{r}}}$ & rule $\beta.+_2$ \\
+  $\subst{N_{\mathrm{r}}}{y}{M}$ & \\
   \end{tabular}
   
   \caption{\label{fig:reductions-of-sums-and-products} Reduction rules for
@@ -1316,10 +1316,8 @@ combinators for our calculus.
 \label{ssec:composing-functions}
 
 First of all, to save some space and write functions in a terse
-``point-free'' style\footnote{\TODO{When actually using $\circ$ later on,
-    make sure that I am not relying on extensionality ($\eta$-reduction)
-    without properly introducing it.}}, we introduce the composition
-operator (known as the $\textbf{B}$ combinator in combinatory logic).
+``point-free'' style, we introduce the composition operator (known as the
+$\textbf{B}$ combinator in combinatory logic).
 
 \begin{align*}
   \_ \circ \_ &: (\beta \to \gamma) \to (\alpha \to \beta) \to (\alpha \to \gamma) \\
@@ -1430,7 +1428,7 @@ the $\eta$ clause is presumed to be just $\eta$\footnote{This is not a part
 the following way:
 
 $$
-\banana{(\onto{\op{op}_i} M_i)_{i \in I}} = \banana{(\onto{\op{op}_i} M_i)_{i \in I},\ \onto{\eta} \eta}
+\banana{(\onto{\op{op}_i} M_i)_{i \in I}} = \banana{(\onto{\op{op}_i}{M_i})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{x}})}}
 $$
 
 Finally, we will introduce a special syntax for \emph{closed
@@ -1446,7 +1444,7 @@ handler. We introduce syntax for closed handlers which takes care of this
 problem.
 
 $$
-\cibbanana = \cherry \circ \banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\ \onto{\eta}{(\eta \circ M_\eta)}}
+\cibbanana = \cherry \circ \banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{(\ap{M_\eta}{x})}})}}
 $$
 
 As we can see, the only material added by the closed handler brackets are
@@ -1490,19 +1488,19 @@ clause.
 
 \begin{align*}
 \bbanana{(\onto{\op{op}_i}{M_i})_{i \in I}} &= \cherry \circ \banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I}} \\
- &= \cherry \circ \banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\ \onto{\eta}{\eta}} \\
- &= \cherry \circ \banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\ \onto{\eta}{(\eta \circ (\lam{x}{x}))}} \\
+ &= \cherry \circ \banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{x}})}} \\
+ &= \cherry \circ \banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{(\ap{(\lam{x}{x})}{x})}})}} \\
  &= \bbanana{(\onto{\op{op}_i}{M_i})_{i \in I},\ \onto{\eta}{(\lam{x}{x})}}
 \end{align*}
 
 
 
-\TODO{Maybe introduce do-notation here? It ought to be useful later.}
+% \TODO{Maybe introduce do-notation here? It ought to be useful later.}
 
 
-\section{Subtyping}
-\label{sec:subtyping}
+% \section{Subtyping}
+% \label{sec:subtyping}
 
-\section{Unrestricted Effect Types}
-\subsection{Simulating Recursive Types}
+% \section{Unrestricted Effect Types}
+% \subsection{Simulating Recursive Types}
 

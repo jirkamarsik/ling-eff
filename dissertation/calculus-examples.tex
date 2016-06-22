@@ -172,7 +172,7 @@ With these in our hands, we can now straighten out our interpretation.
   \dive &= \lam{X Y}{X \hsbind_\bot (\lam{x}{Y \hsbind_\bot (\lam{y}{x / y})})} \\
   \sume &= \lam{X Y}{X \hsbind_\bot (\lam{x}{Y \hsbind_\bot (\lam{y}{\ap{\eta_\bot}{(x + y)}})})} \\
   \prode &= \lam{X Y}{X \hsbind_\bot (\lam{x}{Y \hsbind_\bot (\lam{y}{\ap{\eta_\bot}{(x \times y)}})})} \\
-  \lite &= \eta_\bot
+  \lite &= \lam{x}{\ap{\eta_\bot}{x}}
 \end{align*}
 
 This pattern that we uncovered in the type $\NN + 1$ and the terms defining
@@ -216,7 +216,7 @@ something of type $\FF_E(\alpha)$.
   \dive &= \lam{X Y}{X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\case{(x / y)}{z}{\ap{\eta}{z}}{\_}{\dbze}})})} \\
   \sume &= \lam{X Y}{X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\ap{\eta}{(x + y)}})})} \\
   \prode &= \lam{X Y}{X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\ap{\eta}{(x \times y)}})})} \\
-  \lite &= \eta
+  \lite &= \lam{x}{\etaE{x}}
 \end{align*}
 
 Let us compare this with the last set of definitions:
@@ -827,7 +827,7 @@ $v$ is bound to $x$, the value of $X$.
   \trye &= \lam{X Y}{\ap{\banana{\onto{\op{error}}{(\lam{e k}{X})}}}{Y}} \\
   \sume &= \lam{X Y}{X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\ap{\eta}{(x + y)}})})} \\
   \prode &= \lam{X Y}{X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\ap{\eta}{(x \times y)}})})} \\
-  \lite &= \eta
+  \lite &= \lam{x}{\etaE{x}}
 \end{align*}
 
 We notice that $\op{get}$ is used in $\lete$ and $\vare$ but it is not
