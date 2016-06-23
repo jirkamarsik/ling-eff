@@ -301,6 +301,133 @@ cases for uninterpreted operations).
 \section{Algebraic Properties}
 \label{sec:algebraic-properties}
 
+In this section, we will clarify what we mean when we say that the
+$\FF_E(\alpha)$ computation types form a functor/applicative functor/monad
+and we will prove that the constructions in our calculus conform to the
+laws of these algebraic structures. All these terms are defined w.r.t.\
+some category and so we will start by introducing the category underlying
+$\banana{\lambda}$.
+
+\subsection{Category}
+\label{ssec:category}
+
+\begin{definition}
+ A \demph{category} consists of:
+\begin{itemize}
+\item a set of objects
+\item for every two objects $A$ and $B$, a set of arrows from $A$ to $B$
+  (an arrow $f$ from $A$ to $B$ is written as $f : A \to B$)
+\item for any two arrows $f : B \to C$ and $g : A \to B$, there exists the
+  composition of the two arrows $f \circ g : A \to C$
+\item for any object $A$, there exists a special arrow $\id_A : A \to A$
+\item the following equations hold for any $f : C \to D$, $g : B \to C$ and
+  $h : A \to B$:
+  \begin{align}
+    \label{eq:cat-associativity}(f \circ g) \circ h &= f \circ (g \circ h) \\
+    \label{eq:cat-left-identity}\id_D \circ f &= f \\
+    \label{eq:cat-right-identity}f \circ \id_C &= f
+  \end{align}
+\end{itemize}
+\end{definition}
+
+We will be working with a particular category, which we will call
+$\banana{\lambda}$. The $\banana{\lambda}$ category consists of:
+\begin{description}
+\item[objects:] the types of the $\banana{\lambda}$ calculus
+\item[arrows:] for any two types $\alpha$ and $\beta$, the arrows from
+  $\alpha$ to $\beta$ are the (equivalence classes of) closed
+  $\banana{\lambda}$ terms of type $\alpha \to \beta$\footnote{We treat the
+    reduction rules of our calculus as undirected equations. Two terms are
+    then equal if we get from one to the other by a sequence of reductions
+    and expansions. The equivalence in question is the
+    reflexive-symmetric-transitive closure of the reduction relation.}
+\item[composition:] for any two terms $M : \beta \to \gamma$ and $N :
+  \alpha \to \beta$, we define their composition as the term $M \circ N :
+  \alpha \to \gamma$
+\item[identities:] for every type $\alpha$, we take $\lam{x}{x} : \alpha
+  \to \alpha$ as the identity $\id_\alpha$
+\end{description}
+
+Next, we need to prove that this structure satisfies the equations given
+above.
+
+Associativity~\eqref{eq:cat-associativity}:
+\begin{align*}
+  (M \circ N) \circ O
+  &= (\lam{x}{\ap{M}{(\ap{N}{x})}}) \circ O \\
+  &= \lam{y}{\ap{(\lam{x}{\ap{M}{(\ap{N}{x})}})}{(\ap{O}{y})}} \\
+  &\to_\beta \lam{y}{\ap{M}{(\ap{N}{(\ap{O}{y})})}} \\
+  &\from_\beta \lam{y}{\ap{M}{(\ap{(\lam{z}{\ap{N}{(\ap{O}{z})}})}{y})}} \\
+  &= \lam{y}{\ap{M}{(\ap{(N \circ O)}{y})}} \\
+  &= M \circ (N \circ O)
+\end{align*}
+
+Left identity~\eqref{eq:cat-left-identity}:
+\begin{align*}
+  \id_\beta \circ M
+  &= (\lam{x}{x}) \circ M \\
+  &= \lam{y}{\ap{(\lam{x}{x})}{(\ap{M}{y})}} \\
+  &\to_\beta \lam{y}{\ap{M}{y}} \\
+  &\to_\eta M
+\end{align*}
+
+Right identity~\eqref{eq:cat-right-identity}:
+\begin{align*}
+  M \circ \id_\alpha
+  &= M \circ (\lam{x}{x}) \\
+  &= \lam{y}{\ap{M}{(\ap{(\lam{x}{x})}{y})}} \\
+  &\to_\beta \lam{y}{\ap{M}{y}} \\
+  &\to_\eta M
+\end{align*}
+
+
+\subsection{Functor}
+\label{ssec:functor}
+
+\begin{definition}
+A \demph{functor} is a homomorphic mapping from one category to
+another. A functor $F$ from a category a $\CC$ to a category $\DD$
+consists of:
+\begin{itemize}
+\item for every object $A$ in $\CC$, an object $F(A)$ in $\DD$
+\item for every arrow $f : A \to B$ in $\CC$, an arrow $F(f) : F(A) \to
+  F(B)$ in $\DD$
+\item the following equations hold:
+  \begin{align}
+    \label{eq:functor-composition}F(f \circ g) &= F(f) \circ F(g) \\
+    \label{eq:functor-identity}F(\id_A) &= \id_{F(A)}
+  \end{align}
+\end{itemize}
+\end{definition}
+
+\begin{definition}
+  An \demph{endofunctor} is a functor from some category $\CC$ to the same
+  category.
+\end{definition}
+
+For every effect signature $E$, we will show that $\FF_E$ is an endofunctor
+on the $\banana{\lambda}$ category.
+\begin{description}
+\item[objects:] for every type $\alpha$, we have a type $\FF_E(\alpha)$
+\item[arrows:] for every function $f : \alpha \to \beta$, \\ we have a
+  function $\FF_E(f) = \lam{X}{f \apr X} = \lam{X}{X \hsbind
+  (\lam{x}{\etaE{(\ap{f}{x})}})} : \FF_E(\alpha) \to \FF_E(\beta)$
+\end{description}
+
+We also need to prove that $\FF_E$ satisfies the necesary equations.
+
+Composition~\eqref{eq:functor-composition}:
+\begin{align*}
+  \FF_E(f \circ g)
+  &= \lam{X}{X \hsbind (\lam{x}{\etaE{(\ap{(f \circ g)}{x})}})} \\
+  &\to_\circ \lam{X}{X \hsbind (\lam{x}{\etaE{(\ap{f}{(\ap{g}{x})})}})} \\
+  &? \lam{X}{(X \hsbind (\lam{x}{\etaE{(\ap{g}{x})}})) \hsbind (\lam{y}{\etaE{(\ap{f}{y})}})} \\
+  &\from_\beta \lam{X}{\ap{(\lam{Y}{Y \hsbind (\lam{y}{\etaE{(\ap{f}{y})}})})}{(X \hsbind (\lam{x}{\etaE{(\ap{g}{x})}}))}} \\
+  &= \lam{X}{\ap{\FF_E(f)}{(X \hsbind (\lam{x}{\etaE{(\ap{g}{x})}}))}} \\
+  &\from_\beta \lam{X}{\ap{\FF_E(f)}{(\ap{(\lam{Y}{Y \hsbind (\lam{y}{\etaE{(\ap{g}{y})}})})}{X})}} \\
+  &= \lam{X}{\ap{\FF_E(f)}{(\ap{\FF_E(g)}{X})}} \\
+  &= \FF_E(f) \circ \FF_E(g)
+\end{align*}
 
 \section{Subject Reduction}
 \label{sec:subject-reduction}
