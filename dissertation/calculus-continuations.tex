@@ -469,7 +469,7 @@ with the base case, $F = []$.
   &\to_{\eta.\hsbind,\beta} \ap{\op{shift0}!}{v} \\
   &= \ap{(\lam{x}{\app{\op{shift0}}{x}{\eta}})}{v} \\
   &\to_\beta \app{\op{shift0}}{v}{\eta} \\
-  &\from_{\eta.\to} \app{\op{shift0}}{v}{(\lam{x}{\ap{\eta}{x}})} \\
+  &\from_{\eta} \app{\op{shift0}}{v}{(\lam{x}{\ap{\eta}{x}})} \\
   &= \app{\op{shift0}}{v}{(\lam{x}{\sem{x}})} \\
   &= \app{\op{shift0}}{v}{(\lam{x}{\sem{F[x]}})}
 \end{align}
@@ -580,7 +580,7 @@ We will do so by first translating $\lambda_\shift$ to $\lambda_\shifto$.
 
   \begin{align*}
     \semo{\ap{\reset}{M}} &= \ap{\reseto}{\semo{M}} \\
-    \semo{\ap{\shift}{M}} &= \ap{\shifto}{(\ap{(\lam{m}{\lam{x}{\ap{\reseto}{(\ap{m}{x})}}})}{\semo{M}})} \\
+    \semo{\ap{\shift}{M}} &= \ap{\shifto}{(\ap{(\lam{m}{\lam{k}{\ap{\reseto}{(\ap{m}{k})}}})}{\semo{M}})} \\
     \semo{\ap{M}{N}} &= \ap{\semo{M}}{\semo{N}} \\
     \semo{\lam{x}{M}} &= \lam{x}{\semo{M}} \\
     \semo{x} &= x
@@ -589,10 +589,10 @@ We will do so by first translating $\lambda_\shift$ to $\lambda_\shifto$.
 \end{definition}
 
 NB: We cannot use
-$(\ap{\shifto}{(\lam{x}{\ap{\reseto}{(\ap{\semo{M}}{x})}})})$ for the
+$(\ap{\shifto}{(\lam{k}{\ap{\reseto}{(\ap{\semo{M}}{k})}})})$ for the
 interpretation of $(\ap{\shift}{M})$. That would result in
 $\semo{(\ap{\shift}{[]})}$ being equal to
-$(\ap{\shifto}{(\lam{x}{\ap{\reseto}{(\ap{[]}{x})}})})$. The problem here
+$(\ap{\shifto}{(\lam{k}{\ap{\reseto}{(\ap{[]}{k})}})})$. The problem here
 is that $(\ap{\shift}{[]})$ is an evaluation frame in $\lambda_\shift$, but
 its interpretation is not even an evaluation context in $\lambda_\shifto$
 since the $[]$ is buried under a $\lambda$-abstraction.
@@ -627,9 +627,9 @@ following.
 
   \begin{align}
     \semo{M} &= \semo{C[\ap{\reset}{(F[\ap{\shift}{V}])}]} \\
-             &= C'[\ap{\reseto}{(F'[\ap{\shifto}(\ap{(\lam{m}{\lam{x}{\ap{\reseto}{(\ap{m}{x})}}})}{V'})])}] \\
-             &\to_\beta C'[\ap{\reseto}{(F'[\ap{\shifto}(\lam{x}{\ap{\reseto}{(\ap{V'}{x})}})])}] \\
-             &\to_\shifto C'[\ap{(\lam{x}{\ap{\reseto}{(\ap{V'}{x})}})}{(\lam{y}{\ap{\reseto}{(F'[y])}})}] \\
+             &= C'[\ap{\reseto}{(F'[\ap{\shifto}(\ap{(\lam{m}{\lam{k}{\ap{\reseto}{(\ap{m}{k})}}})}{V'})])}] \\
+             &\to_\beta C'[\ap{\reseto}{(F'[\ap{\shifto}(\lam{k}{\ap{\reseto}{(\ap{V'}{k})}})])}] \\
+             &\to_\shifto C'[\ap{(\lam{k}{\ap{\reseto}{(\ap{V'}{k})}})}{(\lam{y}{\ap{\reseto}{(F'[y])}})}] \\
              &\to_\beta C'[\ap{\reseto}{(\ap{V'}{(\lam{y}{\ap{\reseto}{(F'[y])}})})}] \\
              &= \semo{C[\ap{\reset}{(\ap{V}{(\lam{x}{\ap{\reset}{(F[x])}})})}]} \\
              &= \semo{N}
@@ -658,7 +658,7 @@ $\banana{\lambda}$ and transitively apply their simulation properties
 This lets us extend our interpretation $\sem{.}$ to $\lambda_\shift$.
 
 \begin{align*}
-  \sem{\ap{\shift}{M}} &= \sem{M} \hsbind (\lam{m}{\ap{\op{shift0}!}{(\lam{x}{\ap{\resetobanana}{(\ap{m}{x})}})}}) \\
+  \sem{\ap{\shift}{M}} &= \sem{M} \hsbind (\lam{m}{\ap{\op{shift0}!}{(\lam{k}{\ap{\resetobanana}{(\ap{m}{k})}})}}) \\
   \sem{\ap{\reset}{M}} &= \sem{\ap{\reseto}{M}} \\
                        &= \ap{\resetobanana}{\sem{M}}
 \end{align*}
@@ -679,17 +679,17 @@ interpretations.
 \begin{align}
 \sem{\semo{M}}
 &= \sem{\semo{\ap{\shift}{M'}}} \\
-&= \sem{\ap{\shifto}{(\ap{(\lam{m}{\lam{x}{\ap{\reseto}{(\ap{m}{x})}}})}{\semo{M'}})}} \\
-&= \sem{\ap{(\lam{m}{\lam{x}{\ap{\reseto}{(\ap{m}{x})}}})}{\semo{M'}}} \hsbind (\lam{n}{\ap{\op{shift0}!}{n}}) \\
-&= ((\ap{\eta}{(\lam{m}{\sem{\lam{x}{\ap{\reseto}{(\ap{m}{x})}}}})}) \hsbind (\lam{f}{\sem{\semo{M'}} \hsbind (\lam{a}{\ap{f}{a}})})) \hsbind (\lam{n}{\ap{\op{shift0}!}{n}}) \\
-&\to_{\eta.\hsbind,\beta,\beta} (\sem{\semo{M'}} \hsbind (\lam{a}{\sem{\lam{x}{\ap{\reseto}{(\ap{a}{x})}}}})) \hsbind (\lam{n}{\ap{\op{shift0}!}{n}}) \\
-&\to_{\hsbind.\hsbind} \sem{\semo{M'}} \hsbind (\lam{a}{\sem{\lam{x}{\ap{\reseto}{(\ap{a}{x})}}} \hsbind (\lam{n}{\ap{\op{shift0}!}{n}})}) \\
-&= \sem{\semo{M'}} \hsbind (\lam{a}{(\ap{\eta}{(\lam{x}{\sem{\ap{\reseto}{(\ap{a}{x})}}})}) \hsbind (\lam{n}{\ap{\op{shift0}!}{n}})}) \\
-&\to_{\eta.\hsbind,\beta} \sem{\semo{M'}} \hsbind (\lam{a}{\ap{\op{shift0}!}{(\lam{x}{\sem{\ap{\reseto}{(\ap{a}{x})}}})}}) \\
-&= \sem{\semo{M'}} \hsbind (\lam{a}{\ap{\op{shift0}!}{(\lam{x}{\ap{\resetobanana}{\sem{\ap{a}{x}}}})}}) \\
-&\tto \sem{\semo{M'}} \hsbind (\lam{a}{\ap{\op{shift0}!}{(\lam{x}{\ap{\resetobanana}{(\ap{a}{x})}})}}) \\
-&= \sem{\semo{M'}} \hsbind (\lam{m}{\ap{\op{shift0}!}{(\lam{x}{\ap{\resetobanana}{(\ap{m}{x})}})}}) \\
-&= \sem{M'} \hsbind (\lam{m}{\ap{\op{shift0}!}{(\lam{x}{\ap{\resetobanana}{(\ap{m}{x})}})}}) \\
+&= \sem{\ap{\shifto}{(\ap{(\lam{m}{\lam{k}{\ap{\reseto}{(\ap{m}{k})}}})}{\semo{M'}})}} \\
+&= \sem{\ap{(\lam{m}{\lam{k}{\ap{\reseto}{(\ap{m}{k})}}})}{\semo{M'}}} \hsbind (\lam{n}{\ap{\op{shift0}!}{n}}) \\
+&= ((\ap{\eta}{(\lam{m}{\sem{\lam{k}{\ap{\reseto}{(\ap{m}{k})}}}})}) \hsbind (\lam{f}{\sem{\semo{M'}} \hsbind (\lam{a}{\ap{f}{a}})})) \hsbind (\lam{n}{\ap{\op{shift0}!}{n}}) \\
+&\to_{\eta.\hsbind,\beta,\beta} (\sem{\semo{M'}} \hsbind (\lam{a}{\sem{\lam{k}{\ap{\reseto}{(\ap{a}{k})}}}})) \hsbind (\lam{n}{\ap{\op{shift0}!}{n}}) \\
+&\to_{\hsbind.\hsbind} \sem{\semo{M'}} \hsbind (\lam{a}{\sem{\lam{k}{\ap{\reseto}{(\ap{a}{k})}}} \hsbind (\lam{n}{\ap{\op{shift0}!}{n}})}) \\
+&= \sem{\semo{M'}} \hsbind (\lam{a}{(\ap{\eta}{(\lam{k}{\sem{\ap{\reseto}{(\ap{a}{k})}}})}) \hsbind (\lam{n}{\ap{\op{shift0}!}{n}})}) \\
+&\to_{\eta.\hsbind,\beta} \sem{\semo{M'}} \hsbind (\lam{a}{\ap{\op{shift0}!}{(\lam{k}{\sem{\ap{\reseto}{(\ap{a}{k})}}})}}) \\
+&= \sem{\semo{M'}} \hsbind (\lam{a}{\ap{\op{shift0}!}{(\lam{k}{\ap{\resetobanana}{\sem{\ap{a}{k}}}})}}) \\
+&\tto \sem{\semo{M'}} \hsbind (\lam{a}{\ap{\op{shift0}!}{(\lam{k}{\ap{\resetobanana}{(\ap{a}{k})}})}}) \\
+&= \sem{\semo{M'}} \hsbind (\lam{m}{\ap{\op{shift0}!}{(\lam{k}{\ap{\resetobanana}{(\ap{m}{k})}})}}) \\
+&= \sem{M'} \hsbind (\lam{m}{\ap{\op{shift0}!}{(\lam{k}{\ap{\resetobanana}{(\ap{m}{k})}})}}) \\
 &= \sem{\ap{\shift}{M'}} \\
 &= \sem{M}
 \end{align}
@@ -1132,7 +1132,7 @@ have to define a translation of the types.
 \end{definition}
 
 \newcommand{\cstype}{\FF_{E_{\sem{\gamma}}}}
-\begin{property}
+\begin{property}\label{prop:simulate-types}
   \demph{Simulating $\lambda_\shift$ types in $\banana{\lambda}$}
 
   $$
@@ -1218,26 +1218,7 @@ have to define a translation of the types.
     $\sem{\ap{M_1}{M_2}} = \sem{M_1} \hsbind (\lam{m}{\sem{M_2} \hsbind
       (\lam{n}{\ap{m}{n}})})$.
 
-    \vspace{2mm}
-    \makebox[\textwidth][c]{
-    \resizebox{1.75\linewidth}{!}{
-        \AxiomC{$\sem{\Gamma} \vdash \sem{M_1} : \cstype(\sem{\tau'} \to \cstype(\sem{\tau}))$}
-        \AxiomC{$\sem{\Gamma}, m : \sem{\tau'} \to \cstype(\sem{\tau}) \vdash \sem{M_2} : \cstype(\sem{\tau'})$}
-        \AxiomC{$\sem{\Gamma}, m : \sem{\tau'} \to \cstype(\sem{\tau}), n : \sem{\tau'} \vdash m : \sem{\tau'} \to \cstype(\sem{\tau})$}
-        \AxiomC{$\sem{\Gamma}, m : \sem{\tau'} \to \cstype(\sem{\tau}), n : \sem{\tau'} \vdash n : \sem{\tau'}$}
-        \RightLabel{[app]}
-        \BinaryInfC{$\sem{\Gamma}, m : \sem{\tau'} \to \cstype(\sem{\tau}), n : \sem{\tau'} \vdash \ap{m}{n} : \cstype(\sem{\tau})$}
-        \RightLabel{[abs]}
-        \UnaryInfC{$\sem{\Gamma}, m : \sem{\tau'} \to \cstype(\sem{\tau}) \vdash \lam{n}{\ap{m}{n}} : \sem{\tau'} \to \cstype(\sem{\tau})$}
-        \RightLabel{[$\hsbind$]}
-        \BinaryInfC{$\sem{\Gamma}, m : \sem{\tau'} \to \cstype(\sem{\tau}) \vdash \sem{M_2} \hsbind (\lam{n}{\ap{m}{n}}) : \cstype(\sem{\tau})$}
-        \RightLabel{[abs]}
-        \UnaryInfC{$\sem{\Gamma} \vdash \lam{m}{\sem{M_2} \hsbind (\lam{n}{\ap{m}{n}})} : (\sem{\tau'} \to \cstype(\sem{\tau})) \to \cstype(\sem{\tau})$}
-        \RightLabel{[$\hsbind$]}
-        \BinaryInfC{$\sem{\Gamma} \vdash \sem{M_1} \hsbind (\lam{m}{\sem{M_2} \hsbind (\lam{n}{\ap{m}{n}})}) : \cstype(\sem{\tau})$}
-        \DisplayProof
-    }}
-    \vspace{2mm}
+    Proof tree given in~\ref{fig:big-proof-tree-app}.
 
     NB: $m$ is assumed to be fresh in $M_2$ (and therefore $\sem{M_2}$),
     allowing us to get $\sem{\Gamma}, m : \sem{\tau'} \to
@@ -1259,8 +1240,55 @@ have to define a translation of the types.
     (\TODO{Actually change the definition of $\sem{\ap{\reset}{M'}}$ to be
       like this!}).
 
-    \vspace{2mm}
+    Proof tree given in~\ref{fig:big-proof-tree-reset}.
+   
+  \item $M = \ap{\shift}{M'}$
+
+    \begin{prooftree}
+      \AxiomC{$\Gamma \pipe \gamma \vdash M' : (\tau \xto{\delta} \gamma) \xto{\gamma} \gamma$}
+      \RightLabel{[$\shift$]}
+      \UnaryInfC{$\Gamma \pipe \gamma \vdash \ap{\shift}{M'} : \tau$}
+    \end{prooftree}
+  \end{enumerate}
+
+  The induction hypothesis gives us $\sem{\Gamma} \vdash \sem{M'} :
+  \cstype((\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to
+  \cstype(\sem{\gamma}))$. We also have $\sem{\ap{\shift}{M'}} = \sem{M'}
+  \hsbind
+  (\lam{m}{\ap{\op{\shift}!}{(\lam{k}{\ap{\resetbanana}{(\ap{m}{(\eta \circ
+            k)})}})}})$.
+  
+  Proof tree given in~\ref{fig:big-proof-tree-shift}.
+
+\end{proof}
+
+\begin{sidewaysfigure}
+  \vspace{1cm}
+  \begin{subfigure}{\textwidth}
     \makebox[\textwidth][c]{
+    \resizebox{1\textwidth}{!}{
+        \AxiomC{$\sem{\Gamma} \vdash \sem{M_1} : \cstype(\sem{\tau'} \to \cstype(\sem{\tau}))$}
+        \AxiomC{$\sem{\Gamma}, m : \sem{\tau'} \to \cstype(\sem{\tau}) \vdash \sem{M_2} : \cstype(\sem{\tau'})$}
+        \AxiomC{$\sem{\Gamma}, m : \sem{\tau'} \to \cstype(\sem{\tau}), n : \sem{\tau'} \vdash m : \sem{\tau'} \to \cstype(\sem{\tau})$}
+        \AxiomC{$\sem{\Gamma}, m : \sem{\tau'} \to \cstype(\sem{\tau}), n : \sem{\tau'} \vdash n : \sem{\tau'}$}
+        \RightLabel{[app]}
+        \BinaryInfC{$\sem{\Gamma}, m : \sem{\tau'} \to \cstype(\sem{\tau}), n : \sem{\tau'} \vdash \ap{m}{n} : \cstype(\sem{\tau})$}
+        \RightLabel{[abs]}
+        \UnaryInfC{$\sem{\Gamma}, m : \sem{\tau'} \to \cstype(\sem{\tau}) \vdash \lam{n}{\ap{m}{n}} : \sem{\tau'} \to \cstype(\sem{\tau})$}
+        \RightLabel{[$\hsbind$]}
+        \BinaryInfC{$\sem{\Gamma}, m : \sem{\tau'} \to \cstype(\sem{\tau}) \vdash \sem{M_2} \hsbind (\lam{n}{\ap{m}{n}}) : \cstype(\sem{\tau})$}
+        \RightLabel{[abs]}
+        \UnaryInfC{$\sem{\Gamma} \vdash \lam{m}{\sem{M_2} \hsbind (\lam{n}{\ap{m}{n}})} : (\sem{\tau'} \to \cstype(\sem{\tau})) \to \cstype(\sem{\tau})$}
+        \RightLabel{[$\hsbind$]}
+        \BinaryInfC{$\sem{\Gamma} \vdash \sem{M_1} \hsbind (\lam{m}{\sem{M_2} \hsbind (\lam{n}{\ap{m}{n}})}) : \cstype(\sem{\tau})$}
+        \DisplayProof
+    }}
+    \caption{\label{fig:big-proof-tree-app} The case for $M = \ap{M_1}{M_2}$.}
+  \end{subfigure}
+
+  \vspace{2cm}
+
+  \begin{subfigure}{\textwidth}
       \AxiomC{}
       \RightLabel{[$\eta$]}
       \UnaryInfC{$\sem{\Gamma} \vdash \eta : \sem{\tau} \to \cstype(\sem{\tau})$}
@@ -1277,52 +1305,42 @@ have to define a translation of the types.
       \RightLabel{[app]}
       \BinaryInfC{$\sem{\Gamma} \vdash \ap{\eta}{(\ap{\resetbanana}{\sem{M'}})} : \cstype(\sem{\tau})$}
       \DisplayProof
-    }
-    \vspace{2mm}
+      \caption{\label{fig:big-proof-tree-reset} The case for $M = \ap{\reset}{M'}$.}
+  \end{subfigure}
 
-   
-  \item $M = \ap{\shift}{M'}$
+  \vspace{2cm}
 
-    \begin{prooftree}
-      \AxiomC{$\Gamma \pipe \gamma \vdash M' : (\tau \xto{\delta} \gamma) \xto{\gamma} \gamma$}
-      \RightLabel{[$\shift$]}
-      \UnaryInfC{$\Gamma \pipe \gamma \vdash \ap{\shift}{M'} : \tau$}
-    \end{prooftree}
-  \end{enumerate}
-
-  The induction hypothesis gives us $\sem{\Gamma} \vdash \sem{M'} :
-  \cstype((\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to
-  \cstype(\sem{\gamma}))$. We also have $\sem{\ap{\shift}{M'}} = \sem{M'}
-  \hsbind
-  (\lam{m}{\ap{\op{\shift}!}{(\lam{x}{\ap{\resetbanana}{(\ap{m}{(\eta \circ
-            x)})}})}})$.
-
-  \vspace{2mm}
+  \begin{subfigure}{\textwidth}
   \makebox[\textwidth][c]{
-  \resizebox{1.7\linewidth}{!}{
+  \resizebox{1.1\textwidth}{!}{
     \AxiomC{$\sem{\Gamma} \vdash \sem{M'} : \cstype((\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}))$}
     \AxiomC{$\sem{\Gamma} \vdash \resetbanana : \cstype(\sem{\gamma}) \to \sem{\gamma}$}
     \AxiomC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}) \vdash m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma})$}
     \AxiomC{$\sem{\Gamma} \vdash \eta : \sem{\gamma} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})$}
-    \AxiomC{$\sem{\Gamma}, x : \sem{\tau} \to \sem{\gamma} \vdash x : \sem{\tau} \to \sem{\gamma}$}
+    \AxiomC{$\sem{\Gamma}, k : \sem{\tau} \to \sem{\gamma} \vdash k : \sem{\tau} \to \sem{\gamma}$}
     \RightLabel{[$\circ$]}
-    \BinaryInfC{$\sem{\Gamma}, x : \sem{\tau} \to \sem{\gamma} \vdash \eta \circ x : \sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})$}
+    \BinaryInfC{$\sem{\Gamma}, k : \sem{\tau} \to \sem{\gamma} \vdash \eta \circ k : \sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})$}
     \RightLabel{[app]}
-    \BinaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}), x : \sem{\tau} \to \sem{\gamma} \vdash \ap{m}{(\eta \circ x)} : \cstype(\sem{\gamma})$}
+    \BinaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}), k : \sem{\tau} \to \sem{\gamma} \vdash \ap{m}{(\eta \circ k)} : \cstype(\sem{\gamma})$}
     \RightLabel{[app]}
-    \BinaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}), x : \sem{\tau} \to \sem{\gamma} \vdash \ap{\resetbanana}{(\ap{m}{(\eta \circ x)})} : \sem{\gamma}$}
+    \BinaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}), k : \sem{\tau} \to \sem{\gamma} \vdash \ap{\resetbanana}{(\ap{m}{(\eta \circ k)})} : \sem{\gamma}$}
     \RightLabel{[abs]}
-    \UnaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}) \vdash \lam{x}{\ap{\resetbanana}{(\ap{m}{(\eta \circ x)})}} : (\sem{\tau} \to \sem{\gamma}) \to \sem{\gamma}$}
+    \UnaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}) \vdash \lam{k}{\ap{\resetbanana}{(\ap{m}{(\eta \circ k)})}} : (\sem{\tau} \to \sem{\gamma}) \to \sem{\gamma}$}
     \RightLabel{[$\op{op}!$]}
-    \UnaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}) \vdash \ap{\op{\shift}!}{(\lam{x}{\ap{\resetbanana}{(\ap{m}{(\eta \circ x)})}})} : \cstype(\sem{\tau})$}
+    \UnaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}) \vdash \ap{\op{\shift}!}{(\lam{k}{\ap{\resetbanana}{(\ap{m}{(\eta \circ k)})}})} : \cstype(\sem{\tau})$}
     \RightLabel{[abs]}
-    \UnaryInfC{$\sem{\Gamma} \vdash \lam{m}{\ap{\op{\shift}!}{(\lam{x}{\ap{\resetbanana}{(\ap{m}{(\eta \circ x)})}})}} : ((\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma})) \to \cstype(\sem{\tau})$}
+    \UnaryInfC{$\sem{\Gamma} \vdash \lam{m}{\ap{\op{\shift}!}{(\lam{k}{\ap{\resetbanana}{(\ap{m}{(\eta \circ k)})}})}} : ((\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma})) \to \cstype(\sem{\tau})$}
     \RightLabel{[$\hsbind$]}
-    \BinaryInfC{$\sem{\Gamma} \vdash \sem{M'} \hsbind (\lam{m}{\ap{\op{\shift}!}{(\lam{x}{\ap{\resetbanana}{(\ap{m}{(\eta \circ x)})}})}}) : \cstype(\sem{\tau})$}
+    \BinaryInfC{$\sem{\Gamma} \vdash \sem{M'} \hsbind (\lam{m}{\ap{\op{\shift}!}{(\lam{k}{\ap{\resetbanana}{(\ap{m}{(\eta \circ k)})}})}}) : \cstype(\sem{\tau})$}
     \DisplayProof
   }}
-  \vspace{2mm}
-\end{proof}
+  \caption{\label{fig:big-proof-tree-shift} The case for
+  $M = \ap{\shift}{M'}$.}
+  \end{subfigure}
+  \vspace{1cm}
+  \caption{\label{fig:big-proof-trees} Proof trees for the proof of
+    Property~\ref{prop:simulate-types}.}
+\end{sidewaysfigure}
 
 
 \section{Other Control Operators}

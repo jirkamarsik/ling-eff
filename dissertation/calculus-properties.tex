@@ -3,12 +3,305 @@
 
 \minitoc
 
+\section{Derived Rules}
+\label{sec:derived-rules}
+
+At the end of Chapter~\ref{chap:definitions},
+in~\ref{sec:common-combinators}, we have introduced some new syntax for
+$\banana{\lambda}$ terms and we have translated that syntax into terms of
+the core $\banana{\lambda}$ calculus. However, in
+Chapter~\ref{chap:examples}, we have then seen that expanding these
+syntactic extensions during the reduction of a term is a tedious process
+and we have introduced some shortcuts to allow us to proceed faster and at
+a higher level of abstraction (e.g.\ the $\eta.\hsbind$ rule). In this
+section, we will give typing rules and reduction rules to these new
+constructions and prove their correctness.
+
+
+\subsection{Function Composition ($\circ$)}
+\label{ssec:function-composition}
+
+The first piece of syntactic sugar we have introduced was an infix symbol
+for function composition.
+
+$$
+f \circ g = \lam{x}{\ap{f}{(\ap{g}{x})}}
+$$
+
+In order to type terms containing this symbol, it will be useful to have a
+typing rule.
+
+\begin{proposition}
+  The following typing rule is derivable in $\banana{\lambda}$:
+
+  \begin{prooftree}
+    \AxiomC{$\Gamma \vdash M : \beta \to \gamma$}
+    \AxiomC{$\Gamma \vdash N : \alpha \to \beta$}
+    \RightLabel{[$\circ$]}
+    \BinaryInfC{$\Gamma \vdash M \circ N : \alpha \to \gamma$}
+  \end{prooftree}
+\end{proposition}
+
+\begin{proof}
+  Since $M \circ N = \lam{x}{\ap{M}{(\ap{N}{x})}}$, we can prove the
+  validity of this rule with the typing rule below:
+  
+  \begin{prooftree}
+    \AxiomC{$\Gamma, x : \alpha \vdash M : \beta \to \gamma$}
+    \AxiomC{$\Gamma, x : \alpha \vdash N : \alpha \to \beta$}
+    \AxiomC{$\Gamma, x : \alpha \vdash x : \alpha$}
+    \RightLabel{[app]}
+    \BinaryInfC{$\Gamma, x : \alpha \vdash \ap{N}{x} : \beta$}
+    \RightLabel{[app]}
+    \BinaryInfC{$\Gamma, x : \alpha \vdash \ap{M}{(\ap{N}{x})} : \gamma$}
+    \RightLabel{[abs]}
+    \UnaryInfC{$\Gamma \vdash \lam{x}{\ap{M}{(\ap{N}{x})}} : \alpha \to \gamma$}
+  \end{prooftree}
+
+  $x$ is presumed to be fresh for $M$ and $N$ and so we can equate
+  $\Gamma, x : \alpha \vdash M : \beta \to \gamma$ with
+  $\Gamma \vdash M : \beta \to \gamma$ and the same for $N$.
+\end{proof}
+
+The result of function composition is another function and functions can be
+applied to arguments. The following reduction rule will this come in handy.
+
+\begin{proposition}
+  The following reduction is derivable in $\banana{\lambda}$:
+
+  \vspace{2mm}
+  \begin{tabular}{>{$}r<{$} >{$}c<{$} >{$}l<{$}}
+    \ap{(M_1 \circ M_2)}{N} & \to_\circ & \ap{M_1}{(\ap{M_2}{N})} \\
+  \end{tabular}
+  \vspace{2mm}
+\end{proposition}
+
+\begin{proof}
+  \begin{align*}
+    \ap{(M_1 \circ M_2)}{N}
+    &= \ap{(\lam{x}{\ap{M_1}{(\ap{M_2}{x})}})}{N} \\
+    &\to_\beta \ap{M_1}{(\ap{M_2}{N})}
+  \end{align*}
+\end{proof}
+
+
+\subsection{Monadic Bind ($\hsbind$)}
+\label{ssec:bind}
+
+As a reminder, we give the definition of $\hsbind$
+from~\ref{ssec:composing-functions}.
+
+\begin{align*}
+  M \hsbind N &= \ap{N^*}{M} \\
+              &= \ap{\banana{\onto{\eta}{N}}}{M}
+\end{align*}
+
+First, we will prove the correct typing for $\hsbind$.
+
+\begin{proposition}
+  The following typing rule is derivable in $\banana{\lambda}$:
+
+  \begin{prooftree}
+    \AxiomC{$\Gamma \vdash M : \FF_E(\alpha)$}
+    \AxiomC{$\Gamma \vdash N : \alpha \to \FF_E(\beta)$}
+    \RightLabel{[$\hsbind$]}
+    \BinaryInfC{$\Gamma \vdash M \hsbind N : \FF_E(\beta)$}
+  \end{prooftree}
+\end{proposition}
+
+\begin{proof}
+  We note that $M \hsbind N = \ap{\banana{\onto{\eta}{N}}}{M}$ and
+  construct the following typing derivation in $\banana{\lambda}$:
+  
+  \begin{prooftree}
+    \AxiomC{$\Gamma \vdash N : \alpha \to \FF_E(\beta)$}
+    \RightLabel{[$\banana{}$]}
+    \UnaryInfC{$\Gamma \vdash \banana{\onto{\eta}{N}} : \FF_E(\alpha) \to \FF_E(\beta)$}
+    \AxiomC{$\Gamma \vdash M : \FF_E(\alpha)$}
+    \RightLabel{[app]}
+    \BinaryInfC{$\Gamma \vdash \ap{\banana{\onto{\eta}{N}}}{M} : \FF_E(\beta)$}
+  \end{prooftree}
+\end{proof}
+
+Next, we will prove the validity of two reduction rules for $\hsbind$.
+
+\begin{proposition}
+  The following reductions are derivable in $\banana{\lambda}$:
+
+  \vspace{2mm}
+  \begin{tabular}{>{$}r<{$} >{$}c<{$} >{$}l<{$}}
+    \etaE{M} \hsbind N & \to_{\eta.\hsbind} & \ap{N}{M} \\
+    \app{\op{op}}{M_{\mathrm{p}}}{(\lam{x}{M_{\mathrm{c}}})} \hsbind N & \to_{\op{op}.\hsbind} & \app{\op{op}}{M_{\mathrm{p}}}{(\lam{x}{M_{\mathrm{c}} \hsbind N})}
+  \end{tabular}
+  \vspace{2mm}
+\end{proposition}
+
+\begin{proof}
+  \begin{align*}
+    \etaE{M} \hsbind N
+    &= \ap{\banana{\onto{\eta}{N}}}{(\etaE{M})} \\
+    &\to_{\banana{\eta}} \ap{N}{M}
+  \end{align*}
+  \begin{align*}
+    \app{\op{op}}{M_\petitp}{(\lam{x}{M_\petitc})} \hsbind N
+    &= \ap{\banana{\onto{\eta}{N}}}{(\app{\op{op}}{M_\petitp}{(\lam{x}{M_\petitc})})} \\
+    &\to_{\banana{\op{op}'}} \app{\op{op}}{M_\petitp}{(\lam{x}{\ap{\banana{\onto{\eta}{N}}}{M_\petitc}})} \\
+    &= \app{\op{op}}{M_\petitp}{(\lam{x}{M_\petitc \hsbind N})}
+  \end{align*}
+\end{proof}
+
+
+\subsection{Closed Handlers ($\bbanana{}$)}
+\label{ssec:closed-handlers}
+
+In~\ref{ssec:operations-and-handlers}, we have also a notation for closed
+handlers. Even though we define closed handlers in terms of (open)
+handlers, their typing and reduction rules are actually simpler, since they
+do not have to go out of their way to support openness (i.e.\ passing
+through uninterpreted operations).
+
+$$
+\ap{\cibbanana}{N} = \ap{\cherry}{(\ap{\banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{(\ap{M_\eta}{x})}})}}}{N})}
+$$
+
+We will first go through the typing rule.
+
+\begin{proposition}
+  The following typing rule is derivable in $\banana{\lambda}$:
+
+  \begin{prooftree}
+  \AxiomC{$E = \{\typedopg{\op{op}_i}{\alpha_i}{\beta_i}\}_{i \in I}$}
+  \def\extraVskip{0pt}
+  \noLine
+  \UnaryInfC{$[\Gamma \vdash M_i : \alpha_i \to (\beta_i \to \delta) \to \delta]_{i \in I}$}
+  \noLine
+  \UnaryInfC{$\Gamma \vdash M_\eta : \gamma \to \delta$}
+  \noLine
+  \UnaryInfC{$\Gamma \vdash N : \FF_E(\gamma)$}
+  \def\extraVskip{2pt}
+  \RightLabel{[$\bbanana{}$]}
+  \UnaryInfC{$\Gamma \vdash \ap{\cibbanana}{N} : \delta$}
+  \end{prooftree}
+\end{proposition}
+
+\begin{proof}
+  We have
+  $\ap{\cibbanana}{N} = \ap{\cherry}{(\ap{\banana{(\onto{\op{op}_i}{(\lam{x
+            k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in
+          I},\ \onto{\eta}{(\lam{x}{\etaE{(\ap{M_\eta}{x})}})}}}{N})}$ and
+  we will proceed by building a typing derivation for this term.
+
+  \begin{prooftree}
+    \AxiomC{$E = \{\typedopg{\op{op}_i}{\alpha_i}{\beta_i}\}_{i \in I}$}
+    \def\extraVskip{0pt}
+    \noLine
+    \UnaryInfC{$[\Gamma \vdash \lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}} : \alpha_i \to (\beta_i \to
+      \FF_\emptyset(\delta)) \to \FF_\emptyset(\delta)]_{i \in I}$}
+    \noLine
+    \UnaryInfC{$\Gamma \vdash \lam{x}{\etaE{(\ap{M_\eta}{x})}} : \gamma \to \FF_\emptyset(\delta)$}
+    \noLine
+    \UnaryInfC{$\Gamma \vdash N : \FF_E(\gamma)$}
+    \def\extraVskip{2pt}
+    \RightLabel{[$\banana{}$]}
+    \UnaryInfC{$\Gamma \vdash \ap{\banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{(\ap{M_\eta}{x})}})}}}{N} : \FF_\emptyset(\delta)$} 
+    \RightLabel{[$\cherry$]}
+    \UnaryInfC{$\Gamma \vdash \ap{\cherry}{(\ap{\banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{(\ap{M_\eta}{x})}})}}}{N})} : \delta$} 
+  \end{prooftree}
+
+  We still need to prove both
+  $\Gamma \vdash \lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ
+        k)})}} : \alpha_i \to (\beta_i \to \FF_\emptyset(\delta)) \to
+  \FF_\emptyset(\delta)$ for every $i \in I$ and
+  $\Gamma \vdash \lam{x}{\etaE{(\ap{M_\eta}{x})}} : \gamma \to
+  \FF_\emptyset(\delta)$.
+
+  \begin{prooftree}
+    \AxiomC{$\Gamma \vdash M_i : \alpha_i \to (\beta_i \to \delta) \to \delta$}
+    \AxiomC{$\Gamma, x : \alpha_i \vdash x : \alpha_i$}
+    \RightLabel{[app]}
+    \BinaryInfC{$\Gamma, x : \alpha_i \vdash \ap{M_i}{x} : (\beta_i \to \delta) \to \delta$}
+    \AxiomC{$\Gamma \vdash \cherry : \FF_\emptyset(\delta)$}
+    \AxiomC{$\Gamma, k : \beta_i \to \FF_\emptyset(\delta) \vdash k : \beta_i \to \FF_\emptyset(\delta)$}
+    \RightLabel{[$\circ$]}
+    \BinaryInfC{$\Gamma, k : \beta_i \to \FF_\emptyset(\delta) \vdash \cherry \circ k : \beta_i \to \delta$}
+    \RightLabel{[app]}
+    \BinaryInfC{$\Gamma, x : \alpha_i, k : \beta_i \to \FF_\emptyset(\delta) \vdash \ap{\ap{M_i}{x}}{(\cherry \circ k)} : \delta$}
+    \RightLabel{[$\eta$]}
+    \UnaryInfC{$\Gamma, x : \alpha_i, k : \beta_i \to \FF_\emptyset(\delta) \vdash \ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})} : \FF_\emptyset(\delta)$}
+    \RightLabel{[abs]}
+    \UnaryInfC{$\Gamma, x : \alpha_i \vdash \lam{k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}} : (\beta_i \to \FF_\emptyset(\delta)) \to \FF_\emptyset(\delta)$}
+    \RightLabel{[abs]}
+    \UnaryInfC{$\Gamma \vdash \lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}} : \alpha_i \to (\beta_i \to \FF_\emptyset(\delta)) \to \FF_\emptyset(\delta)$}
+  \end{prooftree}
+
+  $x$ and $k$ are assumed to be fresh for $M_i$.
+
+  \begin{prooftree}
+    \AxiomC{$\Gamma, x : \gamma \vdash M_\eta : \gamma \to \delta$}
+    \AxiomC{$\Gamma, x : \gamma \vdash x : \gamma$}
+    \RightLabel{[app]}
+    \BinaryInfC{$\Gamma, x : \gamma \vdash \ap{M_\eta}{x} : \delta$}
+    \RightLabel{[$\eta$]}
+    \UnaryInfC{$\Gamma, x : \gamma \vdash \etaE{(\ap{M_\eta}{x})} : \FF_\emptyset(\delta)$}
+    \RightLabel{[abs]}
+    \UnaryInfC{$\Gamma \vdash \lam{x}{\etaE{(\ap{M_\eta}{x})}} : \gamma \to \FF_\emptyset(\delta)$}
+  \end{prooftree}
+
+  $x$ is assumed to be fresh for $M_\eta$.
+\end{proof}
+
+We can also have reduction rules for closed handlers, which work exactly
+the same way as the open handler reduction rules (only they do not include
+cases for uninterpreted operations).
+
+\begin{proposition}
+  The following reductions are derivable in $\banana{\lambda}$:
+
+  \vspace{2mm}
+  \begin{tabular}{>{$}r<{$} >{$}c<{$} >{$}l<{$}}
+    \ap{\cibbanana}{(\etaE{N})} & \to_{\bbanana{\eta}} & \ap{M_\eta}{N} \\
+    \ap{\cibbanana}{(\app{\op{op}_i}{N_\petitp}{(\lam{x}{N_\petitc})})}
+    & \to_{\bbanana{\op{op}}}
+    & \app{M_i}{N_\petitp}{(\lam{x}{\ap{\cibbanana}{N_\petitc}})}
+  \end{tabular}
+  \vspace{2mm}
+\end{proposition}
+
+\begin{proof}
+  \begin{align*}
+    \ap{\cibbanana}{(\etaE{N})}
+    &= \ap{\cherry}{(\ap{\banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{(\ap{M_\eta}{x})}})}}}{(\etaE{N})})} \\
+    &\to_{\banana{\eta}} \ap{\cherry}{(\ap{(\lam{x}{\etaE{(\ap{M_\eta}{x})}})}{N})} \\
+    &\to_\beta \ap{\cherry}{({\etaE{(\ap{M_\eta}{N})}})} \\
+    &\to_\cherry \ap{M_\eta}{N}
+  \end{align*}
+
+  \begin{align*}
+    \ap{\cibbanana}{(\app{\op{op}_i}{N_\petitp}{(\lam{x}{N_\petitc})})}
+    &= \ap{\cherry}{(\ap{\banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{(\ap{M_\eta}{x})}})}}}{(\app{\op{op}_i}{N_\petitp}{(\lam{x}{N_\petitc})})})} \\
+    &\to_{\banana{\op{op}}} \ap{\cherry}{(\app{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})}{N_\petitp}{(\lam{x}{\ap{\banana{\ldots}}{N_\petitc}})})} \\
+    &\to_\beta \ap{\cherry}{(\ap{(\lam{k}{\ap{\eta}{(\ap{\ap{M_i}{N_\petitp}}{(\cherry \circ k)})}})}{(\lam{x}{\ap{\banana{\ldots}}{N_\petitc}})})} \\
+    &\to_\beta \ap{\cherry}{(\etaE{(\ap{\ap{M_i}{N_\petitp}}{(\cherry \circ (\lam{x}{\ap{\banana{\ldots}}{N_\petitc}}))})})} \\
+    &\to_\cherry \ap{\ap{M_i}{N_\petitp}}{(\cherry \circ (\lam{x}{\ap{\banana{\ldots}}{N_\petitc}}))} \\
+    &= \ap{\ap{M_i}{N_\petitp}}{(\lam{x}{\ap{\cherry}{(\ap{(\lam{x}{\ap{\banana{\ldots}}{N_\petitc}})}{x})}})} \\
+    &\to_\beta \ap{\ap{M_i}{N_\petitp}}{(\lam{x}{\ap{\cherry}{(\ap{\banana{\ldots}}{N_\petitc})}})} \\
+    &= \ap{\ap{M_i}{N_\petitp}}{(\lam{x}{\ap{\cherry}{(\ap{\banana{\ldots}}{N_\petitc})}})} \\
+    &= \ap{\ap{M_i}{N_\petitp}}{(\lam{x}{\ap{\cibbanana}{N_\petitc}})}
+  \end{align*}
+
+  In the above, $\banana{\ldots}$ is taken to be a shortcut for
+  $\banana{(\onto{\op{op}_i}{(\lam{x
+        k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\
+    \onto{\eta}{(\lam{x}{\etaE{(\ap{M_\eta}{x})}})}}$.
+\end{proof}
+
 
 \section{Algebraic Properties}
 \label{sec:algebraic-properties}
 
 
 \section{Subject Reduction}
+\label{sec:subject-reduction}
 
 
 \section{Confluence}
@@ -171,7 +464,7 @@ were able to get rid of meta-level operations (substitution) and conditions
 
 We will now see how to rephrase the reduction rules of our calculus in
 order to fit in to the CRS framework. We have already seen how to translate
-the $\beta.\to$ and $\eta.\to$ rules in the previous subsection. The next
+the $\beta$ and $\eta$ rules in the previous subsection. The next
 rules to address are the rules defining the semantics of the $\banana{}$
 handlers.
 
@@ -250,7 +543,7 @@ $M_{\mathrm{p}}$ is now encoded directly in the reduction rule itself.
 
 In~\ref{ssec:crs}, we have said that a CRS is formed by a set of reduction
 rules and by an alphabet. We have already seen all of the rules of our CRS
-($\beta.\to$ and $\eta.\to$ were given at the end of~\ref{ssec:crs} and the
+($\beta$ and $\eta$ were given at the end of~\ref{ssec:crs} and the
 $\cherry$ rule is the same as the original one in~\ref{sec:reductions}). In
 order to have a clear definition, all that remains is to identify the
 alphabet.
@@ -372,20 +665,20 @@ verify this property in our calculus:
 \item The $\CC$ rules are both mutually exclusives, so there is no overlap
   between the two. However, their left-hand sides are built out of not only
   $\CC$, $\op{op}$ and $\eta$, but also $\lambda$, for which there is the
-  $\eta.\to$ reduction rule. Fortunately in this case, the $\CC$ rules only
+  $\eta$ reduction rule. Fortunately in this case, the $\CC$ rules only
   apply when the $\lambda$-abstraction's body is an $\eta$ expression or an
-  $\op{op}$ expression, whereas the $\eta.\to$ rule applies only when the
+  $\op{op}$ expression, whereas the $\eta$ rule applies only when the
   body is an application expression\footnote{This is not so much a
     fortunate conincidence but rather a deliberate choice in the design of
     the calculus.}. Therefore, there is no overlap.
 \end{itemize}
 
 We have established that all the reduction rules in our system are pairwise
-non-overlapping \emph{except} for $\beta.\to$ and $\eta.\to$. However,
+non-overlapping \emph{except} for $\beta$ and $\eta$. However,
 these two are notoriously overlapping.
 
 We can instantiate the metavariables in the left-hand side of the
-$\beta.\to$ rule to get a term which contains a $\eta$-redex which shares
+$\beta$ rule to get a term which contains a $\eta$-redex which shares
 the $\lambda$-abstraction with the $\beta$-redex.
 
 $$
@@ -393,7 +686,7 @@ $$
 $$
 
 We can also instantiate the metavariables in the left-hand side of the
-$\eta.\to$ rule to create a $\beta$-redex which shares the application with
+$\eta$ rule to create a $\beta$-redex which shares the application with
 the $\eta$-redex.
 
 $$
@@ -406,13 +699,13 @@ use of Theorem~\ref{thm:confluence-crs}.
 \begin{lemma}\label{lem:confluence-int}
   \demph{Confluence of intensional $\banana{\lambda}$}
 
-  The $\banana{\lambda}$ reduction systems without the $\eta.\to$ rule is
+  The $\banana{\lambda}$ reduction systems without the $\eta$ rule is
   confluent.
 \end{lemma}
 
 \begin{proof}
-  If we exclude the $\eta.\to$ rule, we have a CRS which is left-linear and
-  also non-overlapping\footnote{We know that $\beta.\to$ does not overlap
+  If we exclude the $\eta$ rule, we have a CRS which is left-linear and
+  also non-overlapping\footnote{We know that $\beta$ does not overlap
     any of the other rules. Neither does it overlap itself since its
     left-hand side does not have an application subexpression.}. Therefore,
   it is orthogonal and thanks to Theorem~\ref{thm:confluence-crs}, also
@@ -423,21 +716,21 @@ use of Theorem~\ref{thm:confluence-crs}.
   \demph{Confluence of $\eta$-reduction}
 
   The reduction system on $\banana{\lambda}$ terms containing only the
-  $\eta.\to$ reduction rule is confluent.
+  $\eta$ reduction rule is confluent.
 \end{lemma}
 
 \begin{proof}
-  We have seen that $\eta.\to$ is a valid left-linear CRS rule. It also
+  We have seen that $\eta$ is a valid left-linear CRS rule. It also
   does not overlap itself since its left-hand side does not contain any
-  $\lambda$ subexpression. The CRS consisting of just the $\eta.\to$ rule
+  $\lambda$ subexpression. The CRS consisting of just the $\eta$ rule
   is therefore orthogonal and confluent.
 \end{proof}
 
 
-\subsection{Adding $\eta.\to$ Back to $\banana{\lambda}$}
+\subsection{Adding $\eta$ Back to $\banana{\lambda}$}
 
-We have shown that both $\banana{\lambda}$ without $\eta.\to$ and
-$\eta.\to$ by itself are confluent. The reduction relation of the complete
+We have shown that both $\banana{\lambda}$ without $\eta$ and
+$\eta$ by itself are confluent. The reduction relation of the complete
 $\banana{\lambda}$ calculus is the union of these two reduction
 relations. Using the Lemma of Hindley-Rosen (Point~2 in Exercises~1.0.8
 in~\cite{klop1992term}), we can show that this union is confluent by
@@ -456,7 +749,7 @@ Exercises~1.0.8 in~\cite{klop1992term}).
 \end{lemma}
 
 We can use this to prove that $\banana{\lambda}$ commutes with the
-$\eta.\to$ reduction rule.
+$\eta$ reduction rule.
 
 \begin{lemma}\label{lem:eta-commutes}
   \demph{Commutativity of $\eta$ and $\banana{\lambda}_{-\eta}$}
@@ -468,7 +761,7 @@ $\eta.\to$ reduction rule.
 \begin{proof}
   We will prove this lemma by an appeal to
   Lemma~\ref{lem:commutativity}. Let $\to_\eta$ be the reduction relation
-  induced by the rule $\eta.\to$ and $\to_{\banana{\lambda}}$ the reduction
+  induced by the rule $\eta$ and $\to_{\banana{\lambda}}$ the reduction
   relation induced by all the other reduction rules in
   $\banana{\lambda}$. We need to prove that for all terms $a$, $b$ and $c$
   where $a \to_{\calc} b$ and $a \to_\eta c$, we have a term $d$ such that
@@ -498,13 +791,13 @@ $\eta.\to$ reduction rule.
     \begin{itemize}
     \item If $a$ is an application: Since $a$ is an application and also a
       $\banana{\lambda}$-redex, it must match the left-hand side of the
-      $\beta.\to$ rule, $\ap{(\lam{x}{M(x)})}{N}$, and $b$ must be $M(N)$.
+      $\beta$ rule, $\ap{(\lam{x}{M(x)})}{N}$, and $b$ must be $M(N)$.
       \begin{itemize}
       \item We will first deal with the case when the $\eta$-redex which
         lead to $c$ originated in $M(x)$. In that case
         $M(x) \to_\eta M'(x)$ and $c = \ap{(\lam{x}{M'(x)})}{N}$. Our
         sought-after $d$ is then $M'(N)$, since $c \to_{\calc}^= d$ via
-        $\beta.\to$ in one step and $b = M(N) \tto_\eta d = M'(N)$.
+        $\beta$ in one step and $b = M(N) \tto_\eta d = M'(N)$.
       \item Now we get to one of the two interesting cases which
         necessitated this whole lemma: the overlap between $\beta$ and
         $\eta$, with $\beta$ on the top. If the $\eta$-redex did not
@@ -515,9 +808,9 @@ $\eta.\to$ reduction rule.
         $\ap{T}{N}$ and so we can choose $\ap{T}{N}$ as our $d$.
       \end{itemize}
     \item If $a$ is any other kind of term: Let $l \to r$ be the rule used
-      in $a \to_{\calc} b$. Not counting $\beta.\to$, which only acts on
+      in $a \to_{\calc} b$. Not counting $\beta$, which only acts on
       applications and which we dealt with just above, the rules of
-      $\banana{\lambda}$ do not overlap with the $\eta.\to$ rule. This
+      $\banana{\lambda}$ do not overlap with the $\eta$ rule. This
       means the $\eta$-redex which led to $c$ must lie entirely inside a
       part the part of $l$ which corresponds to a metavariable. Let $M$ be
       that metavariable, then we will decompose $l$ into $L(M)$ and $r$
@@ -538,7 +831,7 @@ $\eta.\to$ reduction rule.
   \item If the redex in $a \to_\eta c$ is the entire term $a$, but the
     redex in $a \to_{\calc} b$ is a proper subterm of $a$: In this case,
     $a$ must be an abstraction that matches the left-hand side of the
-    $\eta.\to$ rule, i.e.\ $a = \lam{x}{\ap{N}{x}}$. Also, we have $c = N$.
+    $\eta$ rule, i.e.\ $a = \lam{x}{\ap{N}{x}}$. Also, we have $c = N$.
     \begin{itemize}
     \item As before, we will first deal with the case when the
       $\banana{\lambda}$-redex is contained completely within $N$. Then
@@ -549,7 +842,7 @@ $\eta.\to$ reduction rule.
       and $\eta$ in our reduction system, the one with $\eta$ on top. Let
       us assume that the $\banana{\lambda}$-redex in $a$ is actually
       $\ap{N}{x}$. Since this is an application, the only admissible
-      reduction is with $\beta.\to$. In that case, $N = \lam{y}{T(y)}$ and
+      reduction is with $\beta$. In that case, $N = \lam{y}{T(y)}$ and
       $a = \lam{x}{\ap{(\lam{y}{T(y)})}{x}}$. Performing the
       $\beta$-reduction gives us $b = \lam{x}{T(x)}$ which is however equal
       to $c = N = \lam{y}{T(y)}$. So we can choose $d = b$ and be done.
@@ -575,8 +868,8 @@ Theorem~\ref{thm:confluence}, the confluence of $\banana{\lambda}$.
 
 \begin{proof}
   From Lemma~\ref{lem:confluence-int}, we know that the $\banana{\lambda}$
-  system without $\eta.\to$ is confluent and from
-  Lemma~\ref{lem:confluence-eta}, we know that the $\eta.\to$ reduction
+  system without $\eta$ is confluent and from
+  Lemma~\ref{lem:confluence-eta}, we know that the $\eta$ reduction
   rule is confluent as well. Lemma~\ref{lem:eta-commutes} tells us that
   these two reduction systems commute and therefore, by the Lemma of
   Hindley-Rosen, their union, which is the $\banana{\lambda}$ reduction
@@ -611,8 +904,8 @@ definition. Then, we will verify that the IDTS version of our calculus
 satisfies the sufficient conditions for being a terminating IDTS and thus
 end up with a proof of termination for our calculus.
 
-\subsection{Defining Inductive Data Type Systems}
-\label{ssec:defining-idtss}
+\subsection{Inductive Data Type Systems}
+\label{ssec:idts}
 
 We will go by the revised definition of Inductive Data Type Systems that
 figures in~\cite{blanqui2000termination}. This formulation extends IDTSs to
@@ -701,7 +994,7 @@ rules. An IDTS induces a rewriting relation in exactly the same way as a
 CRS does, see~\cite{blanqui2000termination} for more details.
 
 
-\subsection{$\banana{\lambda}$ as an Inductive Data Type System}
+\subsection{$\banana{\lambda}$ as an IDTS}
 \label{ssec:banana-idts}
 
 Now we will try to link our calculus to the IDTS framework in order to

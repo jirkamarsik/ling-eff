@@ -8,7 +8,7 @@ process values of this type.
 \EmptyNewPage
 
 \chapter{Definitions}
-\label{ch:definitions}
+\label{chap:definitions}
 
 We are tempted to start by first giving the formal definitions of all the
 essential components of our calculus:
@@ -1308,6 +1308,7 @@ $$
 where $x$ is fresh for $N_\true$ and $y$ is fresh for $N_\false$.
 
 \section{Common Combinators}
+\label{sec:common-combinators}
 
 Here we will introduce a collection of useful syntactic shortcuts and
 combinators for our calculus.
@@ -1324,6 +1325,26 @@ $\textbf{B}$ combinator in combinatory logic).
   f \circ g &= \lam{x}{\ap{f}{(\ap{g}{x})}}
 \end{align*}
 
+We will also ``functionalize'' our term constructors (i.e.\ we will write
+$\eta$ as a shortcut for $(\lam{x}{\etaE{x}})$). Our motive in not defining
+our symbols directly as function constants in the core calculus is due to
+the proofs of confluence and termination. A complete list of functionalized
+symbols is given below\footnote{The types and effect signatures in the
+  types are bound by the typing constraints of the functionalized terms.}.
+
+\begin{align*}
+  &\eta : \alpha \to \FF_E(\alpha) \\
+  &\eta = \lam{x}{\etaE{x}} \\
+  &\op{op} : \alpha \to (\beta \to \FF_E(\gamma)) \to \FF_E(\gamma) \\
+  &\op{op} = \lam{p c}{\app{\op{op}}{p}{c}} \\
+  &\cibanana : \FF_E(\gamma) \to \FF_{E'}(\delta) \\
+  &\cibanana = \lam{x}{\ap{\cibanana}{x}} \\
+  &\cherry : \FF_\emptyset(\alpha) \to \alpha \\
+  &\cherry = \lam{x}{\ap{\cherry}{x}} \\
+  &\CC : (\alpha \to \FF_E(\beta)) \to \FF_E(\alpha \to \beta) \\
+  &\CC = \lam{f}{\ap{\CC}{f}}
+\end{align*}
+
 Later on, in Section~\ref{sec:algebraic-properties}, we will see that our
 $\FF_E$ is a functor which, combined with some other elements, forms a
 monad, or equivalently, a Kleisli triple. We use a star to denote the
@@ -1337,7 +1358,7 @@ a monad, as in Haskell.\footnote{In the types of the operators given below,
 
 \begin{align*}
   \_^* &: (\alpha \to \FF_E(\beta)) \to (\FF_E(\alpha) \to \FF_E(\beta)) \\
-  f^* &= \banana{\onto{\eta} f} \\
+  f^* &= \lam{x}{\banana{\onto{\eta}{f}}} \\
   \_ \hsbind \_ &: \FF_E(\alpha) \to (\alpha \to \FF_E(\beta)) \to \FF_E(\beta) \\
   M \hsbind N &= \ap{N^*}{M} \\
 \end{align*}
@@ -1381,12 +1402,12 @@ $\op{op}!$ using $\hsbind$:
 \begin{align*}
   \ap{\op{op}!}{x} \hsbind k
   &= \ap{(\lam{x}{\ap{\ap{\op{op}}{x}}{\eta}})}{x} \hsbind k \\
-  &\to_{\beta.\to} \ap{\ap{\op{op}}{x}}{\eta} \hsbind k \\
+  &\to_{\beta} \ap{\ap{\op{op}}{x}}{\eta} \hsbind k \\
   &= \ap{k^*}{(\ap{\ap{\op{op}}{x}}{\eta})} \\
   &= \ap{\banana{\onto{\eta}{k}}}{(\ap{\ap{\op{op}}{x}}{\eta})} \\
   &\to_{\banana{\op{op}'}} \ap{\ap{\op{op}}{x}}{(\lam{y}{\ap{\banana{\onto{\eta}{k}}}{(\ap{\eta}{y})}})} \\
   &\to_{\banana{\eta}} \ap{\ap{\op{op}}{x}}{(\lam{y}{\ap{k}{y}})} \\
-  &\to_{\eta.\to} \ap{\ap{\op{op}}{x}}{k}
+  &\to_{\eta} \ap{\ap{\op{op}}{x}}{k}
 \end{align*}
 
 The exclamation mark streamlines the typing rule for operations, as you can
@@ -1444,7 +1465,7 @@ handler. We introduce syntax for closed handlers which takes care of this
 problem.
 
 $$
-\cibbanana = \cherry \circ \banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{(\ap{M_\eta}{x})}})}}
+\ap{\cibbanana}{N} = \ap{\cherry}{(\ap{\banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{(\ap{M_\eta}{x})}})}}}{N})}
 $$
 
 As we can see, the only material added by the closed handler brackets are
@@ -1464,9 +1485,11 @@ proven sound in Chapter~\ref{chap:properties}:
   \UnaryInfC{$[\Gamma \vdash M_i : \alpha_i \to (\beta_i \to \delta) \to \delta]_{i \in I}$}
   \noLine
   \UnaryInfC{$\Gamma \vdash M_\eta : \gamma \to \delta$}
+  \noLine
+  \UnaryInfC{$\Gamma \vdash N : \FF_E(\gamma)$}
   \def\extraVskip{2pt}
   \RightLabel{[$\bbanana{}$]}
-  \UnaryInfC{$\Gamma \vdash \cibbanana : \FF_{E}(\gamma) \to \delta$}
+  \UnaryInfC{$\Gamma \vdash \ap{\cibbanana}{N} : \delta$}
 \end{prooftree}
 
 The lack of multiple effect signatures to implement effect forwarding makes
@@ -1487,10 +1510,11 @@ an $\eta$ clause is translated into an open handler without an $\eta$
 clause.
 
 \begin{align*}
-\bbanana{(\onto{\op{op}_i}{M_i})_{i \in I}} &= \cherry \circ \banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I}} \\
- &= \cherry \circ \banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{x}})}} \\
- &= \cherry \circ \banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{(\ap{(\lam{x}{x})}{x})}})}} \\
- &= \bbanana{(\onto{\op{op}_i}{M_i})_{i \in I},\ \onto{\eta}{(\lam{x}{x})}}
+\ap{\bbanana{(\onto{\op{op}_i}{M_i})_{i \in I}}}{N}
+&= \ap{\cherry}{(\ap{\banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I}}}{N})} \\
+ &= \ap{\cherry}{(\ap{\banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{x}})}}}{N})} \\
+ &= \ap{\cherry}{(\ap{\banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{(\ap{(\lam{x}{x})}{x})}})}}}{N})} \\
+ &= \ap{\bbanana{(\onto{\op{op}_i}{M_i})_{i \in I},\ \onto{\eta}{(\lam{x}{x})}}}{N}
 \end{align*}
 
 

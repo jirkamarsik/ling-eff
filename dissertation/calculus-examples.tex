@@ -1,4 +1,5 @@
 \chapter{Examples}
+\label{chap:examples}
 
 We have given a formal definition of our calculus but we have not shown how
 to use it to model side effects and what are the benefits. In this chapter,
@@ -136,7 +137,7 @@ $\prode$\footnote{As a convention, we use $\_$ as a variable name for
   \sume &= \lam{X Y}{\case{X}{x}{\case{Y}{y}{\ap{\inl}{(x + y)}}{\_}{\ap{\inr}{\star}}}{\_}{\ap{\inr}{\star}}} \\ 
   \prode &= \lam{X Y}{\case{X}{x}{\case{Y}{y}{\ap{\inl}{(x \times y)}}{\_}{\ap{\inr}{\star}}}{\_}{\ap{\inr}{\star}}} \\ 
   \lite &= \lam{x}{\ap{\inl}{x}} \\
-        &\to_{\eta.\to} \inl
+        &\to_{\eta} \inl
 \end{align*}
 
 
@@ -145,7 +146,7 @@ natural\footnote{If you are unfamiliar with the notation used in the terms
   above, consult Section~\ref{sec:sums-and-products} where we introduced
   sums and products into our calculus.}. In $\sume$, $\prode$ and $\lite$,
 we also have to wrap the result in $\inl$ in order to go from $\NN$ to $\NN
-+ 1$\footnote{We $\eta.\to$ reduce the definition of $\lite$ for
++ 1$\footnote{We $\eta$ reduce the definition of $\lite$ for
   convenience.}. In $\dive$, we do not wrap the result using $\inl$ since
 division already produces a value of type $\NN + 1$. All this seems a heavy
 price to pay just to include division.
@@ -540,7 +541,7 @@ of $\app{\lete}{\bar{y}}{\litec{2}}$.
 &\to_{\beta,\beta} \lam{Y}{(\ap{\eta}{2}) \hsbind (\lam{x}{\ap{\banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = \bar{y}}{(\ap{k}{x})}{(\app{\op{get}}{u}{k})}})}}}{Y}})} \\
 &\to_{\eta.\hsbind} \lam{Y}{\ap{(\lam{x}{\ap{\banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = \bar{y}}{(\ap{k}{x})}{(\app{\op{get}}{u}{k})}})}}}{Y}})}{2}} \\
 &\to_{\beta} \lam{Y}{\ap{\banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = \bar{y}}{(\ap{k}{2})}{(\app{\op{get}}{u}{k})}})}}}{Y}} \\
-&\to_{\eta.\to} \banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = \bar{y}}{(\ap{k}{2})}{(\app{\op{get}}{u}{k})}})}}
+&\to_{\eta} \banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = \bar{y}}{(\ap{k}{2})}{(\app{\op{get}}{u}{k})}})}}
 \end{align*}
 
 Lines 1 and 2 are our interpretations of $\lite$ and $\lete$ and the rest
@@ -861,7 +862,7 @@ In this chapter, we have hoped to convey two things:
 
   We have performed long reduction chains which illustrated a large part of
   the reduction rules and syntax introduced in
-  Chapter~\ref{ch:definitions}. The goal of that was to build up our
+  Chapter~\ref{chap:definitions}. The goal of that was to build up our
   intuition of how terms written in our calculus actually look like and how
   to use them to write computations.
 
