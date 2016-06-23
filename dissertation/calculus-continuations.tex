@@ -839,7 +839,7 @@ its soundess by way of demonstrating type preservation and progress.
 
 \begin{lemma}
   \label{lem:subst-shift}
-  \demph{Substitution and types}
+  \demph{Substitution and types in $\lambda_\shift$}
 
   Whenever we have $\Gamma, x : \alpha \pipe \gamma \vdash M : \tau$ and
   $\Gamma \pipe \gamma \vdash V : \alpha$, we also get $\Gamma \pipe \gamma
@@ -867,7 +867,7 @@ its soundess by way of demonstrating type preservation and progress.
 \end{proof}
 
 \begin{property}
-  \demph{Preservation for $\lambda_\shift$}
+  \demph{Subject reduction for $\lambda_\shift$}
 
   Let us have $\Gamma \pipe \gamma \vdash M : \tau$ and $M \to N$. Then
   also $\Gamma \pipe \gamma \vdash N : \tau$.
@@ -1083,7 +1083,7 @@ its soundess by way of demonstrating type preservation and progress.
   never reduce to a stuck term.
 \end{property}
 \begin{proof}
-  Thanks to type preservation, we know that all the terms $N$ that we can
+  Thanks to subject reduction, we know that all the terms $N$ that we can
   ever reduce $\ap{\reset}{M}$ to are all well-typed (and closed). Thanks
   to the progress property, we also know that any such $N$ must satisfy one
   of the following properties:

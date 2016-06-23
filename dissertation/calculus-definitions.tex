@@ -775,11 +775,13 @@ $\alpha$-equivalence.
     \FV(\ap{M}{N}) &= \FV(M) \cup \FV(N) \\
     \FV(x) &= \{x\} \\
     \FV(c) &= \emptyset \\
-    \FV(\op{op}) &= \emptyset \\
-    \FV(\eta) &= \emptyset \\
-    \FV(\cibanana) &= \bigcup_{i \in I} \FV(M_i) \cup \FV(M_\eta) \\
-    \FV(\cherry) &= \emptyset \\
-    \FV(\CC) &= \emptyset
+    \FV(\app{\op{op}}{M_\petitp}{(\lam{x}{M_\petitc})})
+    &= \FV(M_\petitp) \cup (\FV(M_\petitc) \setminus \{x\}) \\
+    \FV(\ap{\eta}{M}) &= \FV(M) \\
+    \FV(\ap{\cibanana}{N})
+    &= \bigcup_{i \in I} \FV(M_i) \cup \FV(M_\eta) \cup \FV(N) \\
+    \FV(\ap{\cherry}{M}) &= \FV(M) \\
+    \FV(\ap{\CC}{M}) &= \FV(M)
   \end{align*}
 \end{definition}
 
@@ -808,12 +810,17 @@ notion.
     \subst{x}{x}{N} &= N \\
     \subst{y}{x}{N} &= y \textrm{ given that } x \neq y \\
     \subst{c}{x}{N} &= c \\
-    \subst{\op{op}}{x}{N} &= \op{op} \\
-    \subst{\eta}{x}{N} &= \eta \\
-    \subst{\cibanana}{x}{N} &= \banana{(\onto{\op{op}_i}
-      (\subst{M_i}{x}{N}))_{i \in I},\ \onto{\eta} (\subst{M_\eta}{x}{N})} \\
-    \subst{\cherry}{x}{N} &= \cherry \\
-    \subst{\CC}{x}{N} &= \CC
+    \subst{(\app{\op{op}}{M_\petitp}{(\lam{x}{M_\petitc})})}{x}{N} &= \app{\op{op}}
+      {(\subst{M_\petitp}{x}{N})}{(\lam{x}{M_\petitc})} \\
+    \subst{(\app{\op{op}}{M_\petitp}{(\lam{y}{M_\petitc})})}{x}{N} &= \app{\op{op}}
+      {(\subst{M_\petitp}{x}{N})}{(\lam{y}{\subst{M_\petitc}{x}{N}})}
+      \textrm{ given that } y \neq x \textrm{ and $y$ is fresh for $N$} \\
+    \subst{(\ap{\eta}{M})}{x}{N} &= \ap{\eta}{(\subst{M}{x}{N})} \\
+    \subst{(\ap{\cibanana}{N'})}{x}{N} &= \ap{\banana{(\onto{\op{op}_i}
+      (\subst{M_i}{x}{N}))_{i \in I},\ \onto{\eta} (\subst{M_\eta}{x}{N})}}
+      {(\subst{N'}{x}{N})} \\
+    \subst{(\ap{\cherry}{M})}{x}{N} &= \ap{\cherry}{(\subst{M}{x}{N})} \\
+    \subst{(\ap{\CC}{M})}{x}{N} &= \ap{\CC}{(\subst{M}{x}{N})}
   \end{align*}
 
   Note that it is possible for $\subst{M}{x}{N}$ to not be defined by the
@@ -855,7 +862,7 @@ notion.
 \end{definition}
 
 Later on, we will define relations on the terms of our calculus that will
-correspond to different transformations (such $\swap$ and the reduction
+correspond to different transformations (such as $\swap$ and the reduction
 rules). The notion of syntactic closure will allow us to say that a term
 can be transformed by transforming any of its parts.
 
@@ -891,6 +898,10 @@ can be transformed by transforming any of its parts.
     %%   ``if $f(X)$ and $g(X)$ both exist''. This handler will be specific to
     %%   the way we define relations. Dangling presuppositions in other parts
     %%   of the math should be seen as mistakes or omissions.}
+    \item $\app{\op{op}}{M_\petitp}{(\lam{x}{M_\petitc})} \swap
+           \app{\op{op}}{M_\petitp}{(\lam{y}{\subst{M_\petitc}{x}{y}})}$
+           given that $y \notin \FV(M_\petitc)$ and that
+           $\subst{M_\petitc}{x}{y}$ exists
   \end{itemize}
 \end{definition}
 
@@ -965,12 +976,15 @@ term is fresh in some other term.
     \subst{x}{x}{N} &= N \\
     \subst{y}{x}{N} &= y \textrm{ given that } x \neq y \footnotemark \\
     \subst{c}{x}{N} &= c \\
-    \subst{\op{op}}{x}{N} &= \op{op} \\
-    \subst{\eta}{x}{N} &= \eta \\
-    \subst{\cibanana}{x}{N} &= \banana{(\onto{\op{op}_i}
-      (\subst{M_i}{x}{N}))_{i \in I},\ \onto{\eta} (\subst{M_\eta}{x}{N})} \\
-    \subst{\cherry}{x}{N} &= \cherry \\
-    \subst{\CC}{x}{N} &= \CC
+    \subst{(\app{\op{op}}{M_\petitp}{(\lam{y}{M_\petitc})})}{x}{N}
+    &= \app{\op{op}}{(\subst{M_\petitp}{x}{N})}{(\lam{y}{\subst{M_\petitc}{x}{N}})}
+    \textrm{ assuming that } y \neq x \textrm{ and $y$ is fresh for $N$} \footnotemark \\
+    \subst{(\ap{\eta}{M})}{x}{N} &= \ap{\eta}{(\subst{M}{x}{N})} \\
+    \subst{(\ap{\cibanana}{N'})}{x}{N} &= \ap{\banana{(\onto{\op{op}_i}
+      (\subst{M_i}{x}{N}))_{i \in I},\ \onto{\eta} (\subst{M_\eta}{x}{N})}}
+      {(\subst{N'}{x}{N})} \\
+    \subst{(\ap{\cherry}{M})}{x}{N} &= \ap{\cherry}{(\subst{M}{x}{N})} \\
+    \subst{(\ap{\CC}{M})}{x}{N} &= \ap{\CC}{(\subst{M}{x}{N})}
   \end{align*}
 \end{definition}
 
@@ -1026,7 +1040,7 @@ Figure~\ref{fig:reductions}, one by one.
   $\ap{\CC}{(\lam{x}{\ap{\eta}{M}})} \to$ & rule $\CC_\eta$ \\
   $\ap{\eta}{(\lam{x}{M})}$ & \\
   \\
-  $\ap{\CC}{(\lam{x}{\ap{\ap{\op{op}}{M_{\mathrm{p}}}}{(\lam{y}{M_{\mathrm{c}}})}})} \to$ & rule $\CC_\op{op}$ \\
+  $\ap{\CC}{(\lam{x}{\ap{\ap{\op{op}}{M_{\mathrm{p}}}}{(\lam{y}{M_{\mathrm{c}}})}})} \to$ & rule $\CC_{\op{op}}$ \\
   $\ap{\ap{\op{op}}{M_{\mathrm{p}}}}{(\lam{y}{\ap{\CC}{(\lam{x}{M_{\mathrm{c}}})}})}$
   & where $x \notin \FV(M_{\mathrm{p}})$
   \end{tabular}
@@ -1082,7 +1096,7 @@ commute by pushing $\lambda$ below operation symbols and $\eta$.
   try to push $\lambda$ through is a pure computation. In that case, we
   just reorder the $\lambda$ binder and the $\eta$ operator.
 
-\item Rule $\CC_\op{op}$ deals with the case of the $\lambda$ meeting an
+\item Rule $\CC_{\op{op}}$ deals with the case of the $\lambda$ meeting an
   operation symbol. The solution is to just continue down on to the
   children. The operation $\ap{\CC}{(\lam{x}{\dots})}$ is applied
   recursively to every child $\ap{M_{\mathrm{c}}}{y}$. However, this
@@ -1100,7 +1114,7 @@ commute by pushing $\lambda$ below operation symbols and $\eta$.
   structure does not depend on $x$). This is reflected in the reduction
   rules in two ways:
   \begin{itemize}
-  \item Firstly, in order for $\CC_\op{op}$ to kick in, the body of the
+  \item Firstly, in order for $\CC_{\op{op}}$ to kick in, the body of the
     function must have already reduced to something of the form
     $\ap{\ap{\op{op}}{M_{\mathrm{p}}}}{M_{\mathrm{c}}}$. This means that
     the next operation to be performed has already been determined to be
@@ -1127,10 +1141,10 @@ First, we add new expressions into our language:
 \begin{description}
   \item[pair] $\pair{M}{N}$ where $M$ and $N$ are expressions
   \item[unit] $\star$
-  \item[first projection] $\pi_1$
-  \item[second projection] $\pi_2$
-  \item[left injection] $\inl$
-  \item[right injection] $\inr$
+  \item[first projection] $\ap{\pi_1}$ where $M$ is an expression
+  \item[second projection] $\ap{\pi_2}$ where $M$ is an expression
+  \item[left injection] $\ap{\inl}{M}$ where $M$ is an expression
+  \item[right injection] $\ap{\inr}{M}$ where $M$ is an expression
   \item[case analysis] \hspace{1mm}
     $\case{M}{x}{N_{\mathrm{l}}}{y}{N_{\mathrm{r}}}$ where $M$, $N_l$ and
     $N_r$ are expressions and $x$ and $y$ are variables from $\XX$
@@ -1201,14 +1215,16 @@ unit type and an elimination for the empty type.
  
   \begin{subfigure}{.5\textwidth}
    \begin{prooftree}
-    \AxiomC{$\Gamma \vdash \pi_1 : (\alpha \times \beta) \to \alpha$
-    \hskip 4pt [$\pi_1$]}
+    \AxiomC{$\Gamma \vdash M : \alpha \times \beta$}
+    \RightLabel{[$\pi_1$]}
+    \UnaryInfC{$\Gamma \vdash \ap{\pi_1}{M} : \alpha$}
    \end{prooftree}
   \end{subfigure}
   \begin{subfigure}{.5\textwidth}
    \begin{prooftree}
-    \AxiomC{$\Gamma \vdash \pi_2 : (\alpha \times \beta) \to \beta$
-    \hskip 4pt [$\pi_2$]}
+    \AxiomC{$\Gamma \vdash M : \alpha \times \beta$}
+    \RightLabel{[$\pi_2$]}
+    \UnaryInfC{$\Gamma \vdash \ap{\pi_2}{M} : \beta$}
    \end{prooftree}
   \end{subfigure}
 
@@ -1216,14 +1232,16 @@ unit type and an elimination for the empty type.
 
   \begin{subfigure}{.5\textwidth}
    \begin{prooftree}
-    \AxiomC{$\Gamma \vdash \inl : \alpha \to (\alpha + \beta)$
-    \hskip 4pt [$\inl$]}
+    \AxiomC{$\Gamma \vdash M : \alpha$}
+    \RightLabel{[$\inl$]}
+    \UnaryInfC{$\Gamma \vdash \ap{\inl}{M} : \alpha + \beta$}
    \end{prooftree}
   \end{subfigure}
   \begin{subfigure}{.5\textwidth}
    \begin{prooftree}
-    \AxiomC{$\Gamma \vdash \inr : \beta \to (\alpha + \beta)$
-    \hskip 4pt [$\inr$]}
+    \AxiomC{$\Gamma \vdash M : \beta$}
+    \RightLabel{[$\inr$]}
+    \UnaryInfC{$\Gamma \vdash \ap{\inr}{M} : \alpha + \beta$}
    \end{prooftree}
   \end{subfigure}
 
@@ -1342,7 +1360,15 @@ symbols is given below\footnote{The types and effect signatures in the
   &\cherry : \FF_\emptyset(\alpha) \to \alpha \\
   &\cherry = \lam{x}{\ap{\cherry}{x}} \\
   &\CC : (\alpha \to \FF_E(\beta)) \to \FF_E(\alpha \to \beta) \\
-  &\CC = \lam{f}{\ap{\CC}{f}}
+  &\CC = \lam{f}{\ap{\CC}{f}} \\
+  &\pi_1 : (\alpha \times \beta) \to \alpha \\
+  &\pi_1 = \lam{P}{\ap{\pi_1}{P}} \\
+  &\pi_2 : (\alpha \times \beta) \to \beta \\
+  &\pi_2 = \lam{P}{\ap{\pi_2}{P}} \\
+  &\inl : \alpha \to (\alpha + \beta) \\
+  &\inl = \lam{x}{\ap{\inl}{x}} \\
+  &\inr : \beta \to (\alpha + \beta) \\
+  &\inr = \lam{x}{\ap{\inr}{x}}
 \end{align*}
 
 Later on, in Section~\ref{sec:algebraic-properties}, we will see that our

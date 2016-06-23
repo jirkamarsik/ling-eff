@@ -37,7 +37,7 @@ typing rule.
   \begin{prooftree}
     \AxiomC{$\Gamma \vdash M : \beta \to \gamma$}
     \AxiomC{$\Gamma \vdash N : \alpha \to \beta$}
-    \RightLabel{[$\circ$]}
+    \RightLabel{$[\circ]$}
     \BinaryInfC{$\Gamma \vdash M \circ N : \alpha \to \gamma$}
   \end{prooftree}
 \end{proposition}
@@ -104,7 +104,7 @@ First, we will prove the correct typing for $\hsbind$.
   \begin{prooftree}
     \AxiomC{$\Gamma \vdash M : \FF_E(\alpha)$}
     \AxiomC{$\Gamma \vdash N : \alpha \to \FF_E(\beta)$}
-    \RightLabel{[$\hsbind$]}
+    \RightLabel{$[\hsbind]$}
     \BinaryInfC{$\Gamma \vdash M \hsbind N : \FF_E(\beta)$}
   \end{prooftree}
 \end{proposition}
@@ -179,7 +179,7 @@ We will first go through the typing rule.
   \noLine
   \UnaryInfC{$\Gamma \vdash N : \FF_E(\gamma)$}
   \def\extraVskip{2pt}
-  \RightLabel{[$\bbanana{}$]}
+  \RightLabel{$[\bbanana{}]$}
   \UnaryInfC{$\Gamma \vdash \ap{\cibbanana}{N} : \delta$}
   \end{prooftree}
 \end{proposition}
@@ -215,12 +215,13 @@ We will first go through the typing rule.
   $\Gamma \vdash \lam{x}{\etaE{(\ap{M_\eta}{x})}} : \gamma \to
   \FF_\emptyset(\delta)$.
 
+\begin{adjustwidth}[]{-1cm}{-1cm}
   \begin{prooftree}
     \AxiomC{$\Gamma \vdash M_i : \alpha_i \to (\beta_i \to \delta) \to \delta$}
     \AxiomC{$\Gamma, x : \alpha_i \vdash x : \alpha_i$}
     \RightLabel{[app]}
     \BinaryInfC{$\Gamma, x : \alpha_i \vdash \ap{M_i}{x} : (\beta_i \to \delta) \to \delta$}
-    \AxiomC{$\Gamma \vdash \cherry : \FF_\emptyset(\delta)$}
+    \AxiomC{$\Gamma \vdash \cherry : \FF_\emptyset(\delta) \to \delta$}
     \AxiomC{$\Gamma, k : \beta_i \to \FF_\emptyset(\delta) \vdash k : \beta_i \to \FF_\emptyset(\delta)$}
     \RightLabel{[$\circ$]}
     \BinaryInfC{$\Gamma, k : \beta_i \to \FF_\emptyset(\delta) \vdash \cherry \circ k : \beta_i \to \delta$}
@@ -233,6 +234,7 @@ We will first go through the typing rule.
     \RightLabel{[abs]}
     \UnaryInfC{$\Gamma \vdash \lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}} : \alpha_i \to (\beta_i \to \FF_\emptyset(\delta)) \to \FF_\emptyset(\delta)$}
   \end{prooftree}
+  \end{adjustwidth}
 
   $x$ and $k$ are assumed to be fresh for $M_i$.
 
@@ -302,6 +304,287 @@ cases for uninterpreted operations).
 
 \section{Subject Reduction}
 \label{sec:subject-reduction}
+
+We now turn our attention to the subject reduction property. This is a very
+basic properties of typed calculi that guarantees a coherence between the
+type system and the reduction system. We can summarize it in the slogan
+``reduction preserves types''. The rest of this section will consider a
+formal proof of this property for $\banana{\lambda}$, but before we begin,
+we present a small lemma.
+
+\begin{lemma}\label{lem:substitution-types}
+  \demph{Substitution and types}
+  
+  Whenever we have $\Gamma, x : \alpha \vdash M : \tau$ and
+  $\Gamma \vdash N : \alpha$, we also have
+  $\Gamma \vdash \subst{M}{x}{N} : \tau$ (i.e.\ we can substitute in $M$
+  while preserving the type).
+\end{lemma}
+
+\begin{proof}
+  The proof is carried out by induction on the structure of $M$ (or rather
+  the structure of the type derivation $\Gamma \vdash M : \tau$).
+
+  \begin{itemize}
+  \item $M = y$
+    \begin{itemize}
+    \item If $y = x$, then $\subst{M}{x}{N} = N$ and $\alpha = \tau$. We
+      immediately have $\Gamma \vdash \subst{M}{x}{N} : \tau$ from the
+      assumption that $\Gamma \vdash N : \alpha$.
+    \item If $y \neq x$, then $\subst{M}{x}{N} = x$ and we get
+      $\Gamma \vdash \subst{M}{x}{N} : \tau$ from the assumption that
+      $\Gamma, x : \alpha \vdash M : \tau$ and the fact that
+      $x \notin \FV(M)$.
+    \end{itemize}
+  
+  \item All the other cases end up being trivial. We follow the definition
+    of substitution which just applies substitution to all of the
+    subterms. For every such subterm, we make appeal to the induction
+    hypothesis and construct the new typing derivation.
+  \end{itemize}
+\end{proof}
+
+\begin{property}\label{prop:subject-reduction}
+  (\demph{Subject reduction})
+  
+  If $\Gamma \vdash M : \tau$ and $M \to N$, then $\Gamma \vdash N : \tau$.
+\end{property}
+
+\begin{proof}
+  We will split the proof into different cases depending on the reduction
+  rule used in $M \to N$
+  
+  \begin{itemize}
+  \item \boxed{M \to_\beta N}
+
+    It must be the case that $M = \ap{(\lam{x}{M'})}{M''}$ and
+    $N = \subst{M'}{x}{M''}$. Since, $\Gamma \vdash M : \tau$, we must have the
+    following typing derivation:
+    
+    \begin{prooftree}
+      \AxiomC{$\Gamma, x : \alpha \vdash M' : \tau$}
+      \RightLabel{[abs]}
+      \UnaryInfC{$\Gamma \vdash \lam{x}{M'} : \alpha \to \tau$}
+      \AxiomC{$\Gamma \vdash M'' : \alpha$}
+      \RightLabel{[app]}
+      \BinaryInfC{$\Gamma \vdash \ap{(\lam{x}{M'})}{M''} : \tau$}
+    \end{prooftree}
+    
+    We apply Lemma~\ref{lem:substitution-types} to
+    $\Gamma, x : \alpha \vdash M' : \tau$ and $\Gamma \vdash M'' : \alpha$
+    to get a typing derivation for
+    $\Gamma \vdash \subst{M'}{x}{M''} : \tau$.
+    
+  \item \boxed{M \to_\eta N}
+
+    We have $M = \lam{x}{\ap{M'}{x}}$ with $x$ fresh for $M'$, $N = M'$ and
+    $\tau = \tau_1 \to \tau_2$. Since $\Gamma \vdash M : \tau$, we have
+    the following:
+
+    \begin{prooftree}
+      \AxiomC{$\Gamma, x : \tau_1 \vdash M' : \tau_1 \to \tau_2$}
+      \AxiomC{$\Gamma, x : \tau_1 \vdash x : \tau_1$}
+      \RightLabel{[app]}
+      \BinaryInfC{$\Gamma, x : \tau_1 \vdash \ap{M'}{x} : \tau_2$}
+      \RightLabel{[abs]}
+      \UnaryInfC{$\Gamma \vdash \lam{x}{\ap{M'}{x}} : \tau_1 \to \tau_2$}
+    \end{prooftree}
+    
+    From the above derivation, we can extract
+    $\Gamma, x : \tau_1 \vdash M' : \tau_1 \to \tau_2$. However, since $x$
+    is fresh for $M'$, we can strengthen this to
+    $\Gamma \vdash M' : \tau_1 \to \tau_2$, which is what we wanted to
+    prove.
+    
+  \item \boxed{M \to_{\banana{\eta}} N}
+    
+    We have $M = \ap{\cibanana}{(\etaE{M'})}$, $N = \ap{M_\eta}{M'}$,
+    $\tau = \FF_{E'}(\delta)$ and the following typing derivation for $M$:
+    
+    \begin{prooftree}
+      \AxiomC{$\Gamma \vdash M_\eta : \gamma \to \FF_{E'}(\delta)$}
+      \AxiomC{$\Gamma \vdash M' : \gamma$}
+      \UnaryInfC{$\Gamma \vdash \etaE{M'} : \FF_{E}(\gamma)$}
+      \AxiomC{\ldots}
+      \RightLabel{[$\banana{}$]}
+      \TrinaryInfC{$\Gamma \vdash \ap{\cibanana}{(\etaE{M'})} : \FF_{E'}(\delta)$}
+    \end{prooftree}
+    
+    From the inferred typing judgments for $M_\eta$ and $M'$, we can build
+    the typing derivation for $\ap{M_\eta}{M'}$.
+
+    \begin{prooftree}
+      \AxiomC{$\Gamma \vdash M_\eta : \gamma \to \FF_{E'}(\delta)$}
+      \AxiomC{$\Gamma \vdash M' : \gamma$}
+      \RightLabel{[app]}
+      \BinaryInfC{$\Gamma \vdash \ap{M_\eta}{M'} : \FF_{E'}(\delta)$}
+    \end{prooftree}
+    
+  \item \boxed{M \to_{\banana{\op{op}}} N}
+    
+    We have
+    $M = \ap{\cibanana}{(\app{\op{op}_j}{M_\petitp}{(\lam{x}{M_\petitc})})}$,
+    $N = \app{M_j}{M_\petitp}{(\lam{x}{\ap{\cibanana}{M_\petitc}})}$ and
+    $\tau = \FF_{E'}(\delta)$.
+    
+    \begin{prooftree}
+      \AxiomC{$\Gamma \vdash M_j : \alpha_j \to (\beta_j \to \FF_{E'}(\delta)) \to \FF_{E'}(\delta)$}
+      \AxiomC{$\Gamma \vdash M_\petitp : \alpha_j$}
+      \AxiomC{$\Gamma, x : \beta_j \vdash M_\petitc : \FF_{E}(\gamma)$}
+      \def\extraVskip{0pt}
+      \noLine
+      \BinaryInfC{$\typedopg{\op{op}_j}{\alpha_j}{\beta_j} \in E$}
+      \def\extraVskip{2pt}
+      \RightLabel{[$\op{op}$]}
+      \UnaryInfC{$\Gamma \vdash \app{\op{op}_j}{M_\petitp}{(\lam{x}{M_\petitc})} : \FF_{E}(\gamma)$}
+      \AxiomC{\ldots}
+      \RightLabel{[$\banana{}$]}
+      \TrinaryInfC{$\Gamma \vdash \ap{\cibanana}{(\app{\op{op}_j}{M_\petitp}{(\lam{x}{M_\petitc})})} : \FF_{E'}(\delta)$}
+    \end{prooftree}
+    
+    From the types of $M_\petitp$, $M_\petitc$ and $M_j$, we can calculate
+    the type of our redex,
+    $\app{M_j}{M_\petitp}{(\lam{x}{\ap{\cibanana}{M_\petitc}})}$.
+    
+    \begin{adjustwidth}[]{-1cm}{-1cm}
+    \begin{prooftree}
+      \AxiomC{$\Gamma \vdash M_j : \alpha_j \to (\beta_j \to \FF_{E'}(\delta)) \to \FF_{E'}(\delta)$}
+      \AxiomC{$\Gamma \vdash M_\petitp : \alpha_j$}
+      \RightLabel{[app]}
+      \BinaryInfC{$\Gamma \vdash \ap{M_j}{M_\petitp} : (\beta_j \to \FF_{E'}(\delta)) \to \FF_{E'}(\delta)$}
+      \AxiomC{$\Gamma, x : \beta_j \vdash M_\petitc : \FF_{E}(\gamma)$}
+      \AxiomC{\ldots}
+      \RightLabel{[$\banana{}$]}
+      \BinaryInfC{$\Gamma, x : \beta_j \vdash \ap{\cibanana}{M_\petitc} : \FF_{E'}(\delta)$}
+      \RightLabel{[abs]}
+      \UnaryInfC{$\Gamma \vdash \lam{x}{\ap{\cibanana}{M_\petitc}} : \beta_j \to \FF_{E'}(\delta)$}
+      \RightLabel{[app]}
+      \BinaryInfC{$\Gamma \vdash \app{M_j}{M_\petitp}{(\lam{x}{\ap{\cibanana}{M_\petitc}})} : \FF_{E'}(\delta)$}
+    \end{prooftree}
+    \end{adjustwidth}
+    
+
+  \item \boxed{M \to_{\banana{\op{op}'}} N}
+    
+    We have
+    $M = \ap{\cibanana}{(\app{\op{op}}{M_\petitp}{(\lam{x}{M_\petitc})})}$,
+    $N = \app{\op{op}}{M_\petitp}{(\lam{x}{\ap{\cibanana}{M_\petitc}})}$ and
+    $\tau = \FF_{E'}(\delta)$.
+    
+    \begin{prooftree}
+      \AxiomC{$\Gamma \vdash M_\petitp : \alpha$}
+      \AxiomC{$\Gamma, x : \beta \vdash M_\petitc : \FF_{E}(\gamma)$}
+      \def\extraVskip{0pt}
+      \noLine
+      \BinaryInfC{$\typedop{\op{op}}{\alpha}{\beta} \in E$}
+      \def\extraVskip{2pt}
+      \RightLabel{[$\op{op}$]}
+      \UnaryInfC{$\Gamma \vdash \app{\op{op}}{M_\petitp}{(\lam{x}{M_\petitc})} : \FF_{E}(\gamma)$}
+      \AxiomC{$\typedop{\op{op}}{\alpha}{\beta} \in E'$}
+      \AxiomC{\ldots}
+      \RightLabel{[$\banana{}$]}
+      \TrinaryInfC{$\Gamma \vdash \ap{\cibanana}{(\app{\op{op}}{M_\petitp}{(\lam{x}{M_\petitc})})} : \FF_{E'}(\delta)$}
+    \end{prooftree}
+    
+    From the inferred judgments, we can build a typing derivation for the
+    redex.
+
+    \begin{prooftree}
+      \AxiomC{$\Gamma \vdash M_\petitp : \alpha$}
+      \AxiomC{$\Gamma, x : \beta \vdash M_\petitc : \FF_{E}(\gamma)$}
+      \AxiomC{\ldots}
+      \RightLabel{[$\banana{}$]}
+      \BinaryInfC{$\Gamma, x : \beta \vdash \ap{\cibanana}{M_\petitc} : \FF_{E'}(\delta)$}
+      \AxiomC{$\typedop{\op{op}}{\alpha}{\beta} \in E'$}
+      \RightLabel{[$\op{op}$]}
+      \TrinaryInfC{$\Gamma \vdash \app{\op{op}}{M_\petitp}{(\lam{x}{\ap{\cibanana}{M_\petitc}})} : \FF_{E'}(\delta)$}
+    \end{prooftree}
+    
+  \item \boxed{M \to_\cherry N}
+    
+    In this case, $M = \ap{\cherry}{(\etaE{M'})}$ and $N = M'$.
+    
+    \begin{prooftree}
+      \AxiomC{$\Gamma \vdash M' : \tau$}
+      \RightLabel{[$\eta$]}
+      \UnaryInfC{$\Gamma \vdash \etaE{M'} : \FF_\emptyset(\tau)$}
+      \RightLabel{[$\cherry$]}
+      \UnaryInfC{$\Gamma \vdash \ap{\cherry}{(\etaE{M'})} : \tau$}
+    \end{prooftree}
+    
+    We immediately get $\Gamma \vdash M' : \tau$, which is the sought after
+    typing derivation of the redex.
+    
+  \item \boxed{M \to_{\CC_\eta} N}
+    
+    $M = \ap{\CC}{(\lam{x}{\etaE{M}})}$, $N = \etaE{(\lam{x}{M})}$ and
+    $\tau = \FF_E(\gamma \to \delta)$.
+    
+    \begin{prooftree}
+      \AxiomC{$\Gamma, x : \gamma \vdash M : \delta$}
+      \RightLabel{[$\eta$]}
+      \UnaryInfC{$\Gamma, x : \gamma \vdash \etaE{M} : \FF_E(\delta)$}
+      \RightLabel{[abs]}
+      \UnaryInfC{$\Gamma \vdash \lam{x}{\etaE{M}} : \gamma \to \FF_E(\delta)$}
+      \RightLabel{[$\CC$]}
+      \UnaryInfC{$\Gamma \vdash \ap{\CC}{(\lam{x}{\etaE{M}})} : \FF_E(\gamma \to \delta)$}
+    \end{prooftree}
+    
+    From these judgments, we build a type for the redex.
+
+    \begin{prooftree}
+      \AxiomC{$\Gamma, x : \gamma \vdash M : \delta$}
+      \RightLabel{[abs]}
+      \UnaryInfC{$\Gamma \vdash \lam{x}{M} : \gamma \to \delta$}
+      \RightLabel{[$\eta$]}
+      \UnaryInfC{$\Gamma \vdash \etaE{(\lam{x}{M})} : \FF_E(\gamma \to \delta)$}
+    \end{prooftree}
+    
+  \item \boxed{M \to_{\CC_{\op{op}}} N}
+    
+    $M = \ap{\CC}{(\lam{x}{\app{\op{op}}{M_\petitp}{(\lam{y}{M_\petitc})}})}$,
+    $N = \app{\op{op}}{M_\petitp}{(\lam{y}{\ap{\CC}{(\lam{x}{M_\petitc})}})}$
+    and $\tau = \FF_E(\gamma \to \delta)$.
+    
+    \begin{prooftree}
+      \AxiomC{$\Gamma, x : \gamma \vdash M_\petitp : \alpha$}
+      \AxiomC{$\Gamma, x : \gamma, y : \beta \vdash M_\petitc : \FF_{E}(\delta)$}
+      \def\extraVskip{0pt}
+      \noLine
+      \BinaryInfC{$\typedop{\op{op}}{\alpha}{\beta} \in E$}
+      \def\extraVskip{2pt}
+      \RightLabel{[$\op{op}$]}
+      \UnaryInfC{$\Gamma, x : \gamma \vdash \app{\op{op}}{M_\petitp}{(\lam{y}{M_\petitc})} : \FF_E(\delta)$}
+      \RightLabel{[abs]}
+      \UnaryInfC{$\Gamma \vdash \lam{x}{\app{\op{op}}{M_\petitp}{(\lam{y}{M_\petitc})}} : \gamma \to \FF_E(\delta)$}
+      \RightLabel{[$\CC$]}
+      \UnaryInfC{$\Gamma \vdash \ap{\CC}{(\lam{x}{\app{\op{op}}{M_\petitp}{(\lam{y}{M_\petitc})}})} : \FF_E(\gamma \to \delta)$}
+    \end{prooftree}
+    
+    With the judgments above, we build the derivation below.
+    
+    \begin{prooftree}
+      \AxiomC{$\Gamma \vdash M_\petitp : \alpha$}
+      \AxiomC{$\Gamma, y : \beta, x : \gamma \vdash M_\petitc : \FF_E(\delta)$}
+      \RightLabel{[abs]}
+      \UnaryInfC{$\Gamma, y : \beta \vdash \lam{x}{M_\petitc} : \gamma \to \FF_E(\delta)$}
+      \RightLabel{[$\CC$]}
+      \UnaryInfC{$\Gamma, y : \beta \vdash \ap{\CC}{(\lam{x}{M_\petitc})} : \FF_E(\gamma \to \delta)$}
+      \AxiomC{$\typedop{\op{op}}{\alpha}{\beta} \in E$}
+      \RightLabel{[$\op{op}$]}
+      \TrinaryInfC{$\Gamma \vdash \app{\op{op}}{M_\petitp}{(\lam{y}{\ap{\CC}{(\lam{x}{M_\petitc})}})} : \FF_E(\gamma \to \delta)$}
+    \end{prooftree}
+    
+    In the above we get $\Gamma \vdash M_\petitp : \alpha$ from
+    $\Gamma, x : \gamma \vdash M_\petitp : \alpha$ from the rule's
+    condition that $x \notin \FV(M_\petitp)$.
+  \end{itemize}
+\end{proof}
+
+We have proven subject reduction for core $\banana{\lambda}$. The syntax,
+semantics and types that we have introduced for sums and products are
+standard. Their proofs of subject reduction carry over into our setting as
+well.
 
 
 \section{Confluence}
