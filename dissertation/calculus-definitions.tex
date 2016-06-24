@@ -829,11 +829,12 @@ notion.
 \end{definition}
 
 \begin{definition}
-  \demph{Contexts} are terms with a hole (written as $[]$) inside. They are
-  formally defined by the following grammar.
+  \demph{Evaluation contexts} are terms with a hole (written as $[]$)
+  inside. They are formally defined by the following grammar.
 
   \begin{align*}
-  C ::= &\ \lam{x}{C} \\
+  C ::= &\ [] \\
+   | \, &\ \lam{x}{C}  \\
    | \, &\ \ap{C}{N}  \\
    | \, &\ \ap{M}{C}  \\
    | \, &\ \app{\op{op}}{C}{(\lam{x}{M_{\mathrm{c}}})} \\
@@ -848,13 +849,18 @@ notion.
 \end{definition}
 
 \begin{definition}
+  $N$ is a \demph{subterm} of $M$ if there exists an evaluation context $C$
+  such that $M = C[N]$.
+\end{definition}
+
+\begin{definition}
   Let $\sim$ be a binary relation on the terms of our calculus. We define
   the relation $\syntclos{\sim}$, called the \textbf{syntactic closure} of
   $\sim$, as the smallest relation
   % \footnote{\TODO{Should I prove that such a relation is uniquely
   %     determined?}}
   that contains $\sim$ and satisfies the following closure property for any
-  context $C$:
+  evaluation context $C$:
 
   \begin{itemize}
     \item if $M \syntclos{\sim} M'$, then $C[M] \syntclos{\sim} C[M']$
@@ -999,14 +1005,11 @@ We are now at a point where we can easily lay down the reduction rules for
 our calculus. A reduction rule $\xi$ will be a relation on terms. Most of
 the time, we will deal with their syntactic closures, $[\xi]$, for which we
 will also adopt the notation $\to_\xi$. We will also use the notation
-$\to_{\xi_1,\dots,\xi_n}$ for the composition $\to_{\xi_n} \circ \dots
-\circ \to_{\xi_1}$. The \emph{small-step semantics} of our calculus will be
-given by the union of the $\to_\xi$ relations for every reduction rule
-$\xi$ and we will represent it with the plain symbol $\to$. The
-\emph{big-step semantics} will be $\to^*$, the reflexive-transitive closure
-of $\to$, with its codomain restricted to normal forms and we will write it
-down using the symbol $\tto$. A \emph{normal form} is defined as a term $M$
-for which there exists no other term $N$ such that $M \to N$.
+$\to_{\xi_1,\dots,\xi_n}$ for the composition
+$\to_{\xi_n} \circ \dots \circ \to_{\xi_1}$. The \emph{reduction relation}
+$\to$ of $\banana{\lambda}$ is the union of the $\to_\xi$ relations for
+every reduction rule $\xi$. We will also use the symbol $\tto$ to stand for
+the reflexive-transitive closure $\to^*$ of $\to$.
 
 We will now go through the reduction rules of our calculus, presented in
 Figure~\ref{fig:reductions}, one by one.
