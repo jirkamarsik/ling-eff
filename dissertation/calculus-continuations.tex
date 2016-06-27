@@ -1,6 +1,8 @@
 \chapter{Continuations}
 \label{chap:continuations}
 
+\NoChapterPrefix
+
 We will try to show the connection between the operational semantics of
 operators for delimited control and the reduction semantics of our
 calculus. The nature of control operators is that their evaluation depends
@@ -467,18 +469,15 @@ with the base case, $F = []$.
   &= \sem{\ap{\shifto}{V}} \\
   &= \sem{V} \hsbind (\lam{m}{\ap{\op{shift0}!}{m}}) \\
   &\to_{\eta.\hsbind,\beta} \ap{\op{shift0}!}{v} \\
-  &= \ap{(\lam{x}{\app{\op{shift0}}{x}{\eta}})}{v} \\
-  &\to_\beta \app{\op{shift0}}{v}{\eta} \\
-  &\from_{\eta} \app{\op{shift0}}{v}{(\lam{x}{\ap{\eta}{x}})} \\
+  &= \ap{(\lam{p}{\app{\op{shift0}}{p}{(\lam{x}{\etaE{x}}}})}{v} \\
+  &\to_\beta \app{\op{shift0}}{v}{(\lam{x}{\etaE{x}})} \\
   &= \app{\op{shift0}}{v}{(\lam{x}{\sem{x}})} \\
   &= \app{\op{shift0}}{v}{(\lam{x}{\sem{F[x]}})}
 \end{align}
 \setcounter{equation}{0}
 
-The individual steps are pretty self-explanatory. The steps that might be
-unfamiliar occur on lines 4 and 6. On line 4, we expand the definition of
-the exclamation mark defined in~\ref{ssec:operations-and-handlers} and on
-line 6, we perform an $\eta$-expansion.
+The individual steps are pretty self-explanatory.On line 4, we expand the
+definition of the exclamation mark from~\ref{ssec:operations-and-handlers}.
 
 Next case, $F = (\ap{F'}{M})$:
 
@@ -659,55 +658,28 @@ This lets us extend our interpretation $\sem{.}$ to $\lambda_\shift$.
 
 \begin{align*}
   \sem{\ap{\shift}{M}} &= \sem{M} \hsbind (\lam{m}{\ap{\op{shift0}!}{(\lam{k}{\ap{\resetobanana}{(\ap{m}{k})}})}}) \\
-  \sem{\ap{\reset}{M}} &= \sem{\ap{\reseto}{M}} \\
-                       &= \ap{\resetobanana}{\sem{M}}
+  \sem{\ap{\reset}{M}} &= \ap{\resetobanana}{\sem{M}}
 \end{align*}
 
-We can prove that this interpretation is coherent with the existing
-interpretations.
+In the sequel, we will be translating a type system of $\lambda_\shift$ to
+the type system of $\banana{\lambda}$. For the types to work out in this
+translation, we will need to throw a few bananas into the mix. In what will
+follow, we will assume that $\shift$ and $\reset$ are translated to
+$\banana{\lambda}$ using the interpretations given below:
 
-\begin{property}
-  For any $\lambda_\shift$ term $M$, $\sem{\semo{M}} \ttoffrom \sem{M}$ in
-  $\banana{\lambda}$.
-\end{property}
+\begin{align*}
+  \sem{\ap{\shift}{M}} &= \sem{M} \hsbind (\lam{m}{\ap{\op{\shift0}!}{(\lam{k}{\ap{\resetobanana}{(\ap{m}{(\banana{} \circ k)})}})}}) \\
+  \sem{\ap{\reset}{M}} &= \ap{\banana{}}{(\ap{\resetobanana}{\sem{M}})}
+\end{align*}
 
-\begin{proof}
-  We proceed by induction. The only cases of $M$ when $\semo{M}$ changes
-  anything are the cases of $M = (\ap{\shift}{M'})$ and $M =
-  (\ap{\reset}{M'})$.
-
-\begin{align}
-\sem{\semo{M}}
-&= \sem{\semo{\ap{\shift}{M'}}} \\
-&= \sem{\ap{\shifto}{(\ap{(\lam{m}{\lam{k}{\ap{\reseto}{(\ap{m}{k})}}})}{\semo{M'}})}} \\
-&= \sem{\ap{(\lam{m}{\lam{k}{\ap{\reseto}{(\ap{m}{k})}}})}{\semo{M'}}} \hsbind (\lam{n}{\ap{\op{shift0}!}{n}}) \\
-&= ((\ap{\eta}{(\lam{m}{\sem{\lam{k}{\ap{\reseto}{(\ap{m}{k})}}}})}) \hsbind (\lam{f}{\sem{\semo{M'}} \hsbind (\lam{a}{\ap{f}{a}})})) \hsbind (\lam{n}{\ap{\op{shift0}!}{n}}) \\
-&\to_{\eta.\hsbind,\beta,\beta} (\sem{\semo{M'}} \hsbind (\lam{a}{\sem{\lam{k}{\ap{\reseto}{(\ap{a}{k})}}}})) \hsbind (\lam{n}{\ap{\op{shift0}!}{n}}) \\
-&\to_{\hsbind.\hsbind} \sem{\semo{M'}} \hsbind (\lam{a}{\sem{\lam{k}{\ap{\reseto}{(\ap{a}{k})}}} \hsbind (\lam{n}{\ap{\op{shift0}!}{n}})}) \\
-&= \sem{\semo{M'}} \hsbind (\lam{a}{(\ap{\eta}{(\lam{k}{\sem{\ap{\reseto}{(\ap{a}{k})}}})}) \hsbind (\lam{n}{\ap{\op{shift0}!}{n}})}) \\
-&\to_{\eta.\hsbind,\beta} \sem{\semo{M'}} \hsbind (\lam{a}{\ap{\op{shift0}!}{(\lam{k}{\sem{\ap{\reseto}{(\ap{a}{k})}}})}}) \\
-&= \sem{\semo{M'}} \hsbind (\lam{a}{\ap{\op{shift0}!}{(\lam{k}{\ap{\resetobanana}{\sem{\ap{a}{k}}}})}}) \\
-&\tto \sem{\semo{M'}} \hsbind (\lam{a}{\ap{\op{shift0}!}{(\lam{k}{\ap{\resetobanana}{(\ap{a}{k})}})}}) \\
-&= \sem{\semo{M'}} \hsbind (\lam{m}{\ap{\op{shift0}!}{(\lam{k}{\ap{\resetobanana}{(\ap{m}{k})}})}}) \\
-&= \sem{M'} \hsbind (\lam{m}{\ap{\op{shift0}!}{(\lam{k}{\ap{\resetobanana}{(\ap{m}{k})}})}}) \\
-&= \sem{\ap{\shift}{M'}} \\
-&= \sem{M}
-\end{align}
-\setcounter{equation}{0}
-
-\begin{align}
-\sem{\semo{M}}
-&= \sem{\semo{\ap{\reset}{M'}}} \\
-&= \sem{\ap{\reseto}{\semo{M'}}} \\
-&= \ap{\resetobanana}{\sem{\semo{M'}}} \\
-&= \ap{\resetobanana}{\sem{M'}} \\
-&= \sem{\ap{\reset}{M'}} \\
-&= \sem{M}
-\end{align}
-\setcounter{equation}{0}
-\end{proof}
-The translation of $\reset$ is the same as the one for $\reseto$ (we keep
-$\op{shift0}$ as the name of the operation). 
+$\banana{}$ is actually a valid handler. As any other handler without an
+explicit clause for $\eta$, it handles $\eta$ with $\eta$. It also handles
+all operations with the operations themselves (i.e.\ rule
+$\banana{\op{op}'}$). It is therefore an identity function on
+computations. However, the most general type that we can infer for
+$\banana{}$ is $\FF_E(\alpha) \to \FF_{E'}(\alpha)$ for any $E$ and $E'$
+such that $E \subseteq E'$. It can therefore be used as a kind of explicit
+weakening operator on computation types.
 
 
 \section{Considering Types}
@@ -1120,15 +1092,21 @@ have to define a translation of the types.
 
   \begin{itemize}
   \item $\sem{\nu} = \nu$ where $\nu$ is an atomic type
-  \item $\sem{\alpha \xto{\gamma} \beta} = \sem{\alpha} \to
-    \FF_{E_{\sem{\gamma}}}(\sem{\beta})$ where $E_\omega = \{
-    \typedop{shift0}{((\delta \to \omega) \to \omega)}{\delta}
-    \}_\delta$\footnote{The idea behind $E_\omega$ is that $\shift0$ should
-      be polymorphic in $\delta$. However, we do not have polymorphism in
-      $\banana{\lambda}$, so in this particular case, we will assume we
-      have sufficiently many distinct instances of $\shift0$ covering the
-      different types at which we want to $\shift$.}
+  \item
+    $\sem{\alpha \xto{\gamma} \beta} = \sem{\alpha} \to
+    \FF_{E_{\sem{\gamma}}}(\sem{\beta})$ where
+    $E_\omega = \{ \typedop{shift0}{((\delta \to \FF_E(\omega)) \to
+      \FF_E(\omega))}{\delta} \}_\delta \uplus E$\footnote{The idea behind
+      $E_\omega$ is that $\shift0$ should be polymorphic in
+      $\delta$. However, we do not have polymorphism in $\banana{\lambda}$,
+      so in this particular case, we will assume we have sufficiently many
+      distinct instances of $\shift0$ covering the different types at which
+      we want to $\shift$.}
   \end{itemize}
+
+  where $E$ is assumed to be some effect signature such that
+  $\shift0 \notin E$\footnote{The calculus can be further extended with
+    other effects whose effect signature would be E.}.
 \end{definition}
 
 \newcommand{\cstype}{\FF_{E_{\sem{\gamma}}}}
@@ -1218,13 +1196,8 @@ have to define a translation of the types.
     $\sem{\ap{M_1}{M_2}} = \sem{M_1} \hsbind (\lam{m}{\sem{M_2} \hsbind
       (\lam{n}{\ap{m}{n}})})$.
 
-    Proof tree given in~\ref{fig:big-proof-tree-app}.
-
-    NB: $m$ is assumed to be fresh in $M_2$ (and therefore $\sem{M_2}$),
-    allowing us to get $\sem{\Gamma}, m : \sem{\tau'} \to
-    \cstype(\sem{\tau}) \vdash \sem{M_2} : \cstype(\sem{\tau'})$ from
-    $\sem{\Gamma} \vdash \sem{M_2} : \cstype(\sem{\tau'})$.
-
+    We can then construct the type derivation
+    in~\ref{fig:big-proof-tree-app}.
 
   \item $M = \ap{\reset}{M'}$
 
@@ -1234,14 +1207,27 @@ have to define a translation of the types.
       \UnaryInfC{$\Gamma \pipe \gamma \vdash \ap{\reset}{M'} : \tau$}
     \end{prooftree}
 
-    By induction hypothesis, we get $\sem{\Gamma} \vdash \sem{M'} :
-    \FF_{E_{\sem{\tau}}}(\sem{\tau})$, and by definition we have
-    $\sem{\ap{\reset}{M'}} = \ap{\eta}{(\ap{\resetbanana}{\sem{M'}})}$
-    (\TODO{Actually change the definition of $\sem{\ap{\reset}{M'}}$ to be
-      like this!}).
+    By induction hypothesis, we get
+    $\sem{\Gamma} \vdash \sem{M'} : \FF_{E_{\sem{\tau}}}(\sem{\tau})$, and
+    by definition we have
+    $\sem{\ap{\reset}{M'}} =
+    \ap{\ap{\banana{}}}{(\ap{\resetobanana}{\sem{M'}})}$.
 
-    Proof tree given in~\ref{fig:big-proof-tree-reset}.
-   
+    \begin{prooftree}
+      \AxiomC{$E_{\sem{\tau}} = \{ \typedop{\shift0}{(\delta \to
+          \FF_E(\sem{\tau})) \to \FF_E(\sem{\tau})}{\delta} \}_\delta \uplus E$}
+      \def\extraVskip{0pt}
+      \noLine
+      \UnaryInfC{$\sem{\Gamma} \vdash \lam{c k}{\ap{c}{k}} : ((\delta \to \FF_E(\sem{\tau})) \to \FF_E(\sem{\tau})) \to (\delta \to \FF_E(\sem{\tau})) \to \FF_E(\sem{\tau})$}
+      \noLine
+      \UnaryInfC{$\sem{\Gamma} \vdash \sem{M'} : \FF_{E_{\sem{\tau}}}(\sem{\tau})$}
+      \def\extraVskip{2pt}
+      \RightLabel{[$\banana{}$]}
+      \UnaryInfC{$\sem{\Gamma} \vdash \ap{\resetobanana}{\sem{M'}} : \FF_E{\sem{\tau}}$}
+      \RightLabel{[$\banana{}$]}
+      \UnaryInfC{$\sem{\Gamma} \vdash \ap{\ap{\banana{}}}{(\ap{\resetobanana}{\sem{M'}})} : \cstype(\sem{\tau})$}
+    \end{prooftree}
+    
   \item $M = \ap{\shift}{M'}$
 
     \begin{prooftree}
@@ -1251,14 +1237,14 @@ have to define a translation of the types.
     \end{prooftree}
   \end{enumerate}
 
-  The induction hypothesis gives us $\sem{\Gamma} \vdash \sem{M'} :
-  \cstype((\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to
-  \cstype(\sem{\gamma}))$. We also have $\sem{\ap{\shift}{M'}} = \sem{M'}
-  \hsbind
-  (\lam{m}{\ap{\op{\shift}!}{(\lam{k}{\ap{\resetbanana}{(\ap{m}{(\eta \circ
-            k)})}})}})$.
-  
-  Proof tree given in~\ref{fig:big-proof-tree-shift}.
+  The induction hypothesis gives us
+  $\sem{\Gamma} \vdash \sem{M'} : \cstype((\sem{\tau} \to
+  \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}))$. We
+  also have
+  $\sem{\ap{\shift}{M'}} = \sem{M'} \hsbind
+  (\lam{m}{\ap{\op{\shift0}!}{(\lam{k}{\ap{\resetobanana}{(\ap{m}{(\banana{}
+            \circ k)})}})}})$. In Figure~\ref{fig:big-proof-tree-shift}, we
+  construct the appropriate typing derivation for this term.
 
 \end{proof}
 
@@ -1283,29 +1269,12 @@ have to define a translation of the types.
         \BinaryInfC{$\sem{\Gamma} \vdash \sem{M_1} \hsbind (\lam{m}{\sem{M_2} \hsbind (\lam{n}{\ap{m}{n}})}) : \cstype(\sem{\tau})$}
         \DisplayProof
     }}
-    \caption{\label{fig:big-proof-tree-app} The case for $M = \ap{M_1}{M_2}$.}
-  \end{subfigure}
-
-  \vspace{2cm}
-
-  \begin{subfigure}{\textwidth}
-      \AxiomC{}
-      \RightLabel{[$\eta$]}
-      \UnaryInfC{$\sem{\Gamma} \vdash \eta : \sem{\tau} \to \cstype(\sem{\tau})$}
-      \AxiomC{$\sem{\Gamma} \vdash \lam{c k}{\ap{c}{k}} : ((\delta \to \sem{\tau}) \to \sem{\tau}) \to (\delta \to \sem{\tau}) \to \sem{\tau}$}
-      \noLine
-      \def\extraVskip{0pt}
-      \UnaryInfC{$\sem{\Gamma} \vdash \lam{x}{x} : \sem{\tau} \to \sem{\tau}$}
-      \def\extraVskip{2pt}
-      \RightLabel{[$\banana{}$]}
-      \UnaryInfC{$\sem{\Gamma} \vdash \resetbanana : \FF_{E_{\sem{\tau}}}(\sem{\tau}) \to \sem{\tau}$}
-      \AxiomC{$\sem{\Gamma} \vdash \sem{M'} : \FF_{E_{\sem{\tau}}}(\sem{\tau})$}
-      \RightLabel{[app]}
-      \BinaryInfC{$\sem{\Gamma} \vdash \ap{\resetbanana}{\sem{M'}} : \sem{\tau}$}
-      \RightLabel{[app]}
-      \BinaryInfC{$\sem{\Gamma} \vdash \ap{\eta}{(\ap{\resetbanana}{\sem{M'}})} : \cstype(\sem{\tau})$}
-      \DisplayProof
-      \caption{\label{fig:big-proof-tree-reset} The case for $M = \ap{\reset}{M'}$.}
+  \caption{\label{fig:big-proof-tree-app} The case for $M =
+    \ap{M_1}{M_2}$. NB: $m$ is assumed to be fresh in $M_2$ (and therefore
+    $\sem{M_2}$), allowing us to get
+    $\sem{\Gamma}, m : \sem{\tau'} \to \cstype(\sem{\tau}) \vdash \sem{M_2}
+    : \cstype(\sem{\tau'})$ from
+    $\sem{\Gamma} \vdash \sem{M_2} : \cstype(\sem{\tau'})$.  }
   \end{subfigure}
 
   \vspace{2cm}
@@ -1314,24 +1283,24 @@ have to define a translation of the types.
   \makebox[\textwidth][c]{
   \resizebox{1.1\textwidth}{!}{
     \AxiomC{$\sem{\Gamma} \vdash \sem{M'} : \cstype((\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}))$}
-    \AxiomC{$\sem{\Gamma} \vdash \resetbanana : \cstype(\sem{\gamma}) \to \sem{\gamma}$}
+    \AxiomC{$\sem{\Gamma} \vdash \resetobanana : \cstype(\sem{\gamma}) \to \FF_E(\sem{\gamma})$}
     \AxiomC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}) \vdash m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma})$}
-    \AxiomC{$\sem{\Gamma} \vdash \eta : \sem{\gamma} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})$}
-    \AxiomC{$\sem{\Gamma}, k : \sem{\tau} \to \sem{\gamma} \vdash k : \sem{\tau} \to \sem{\gamma}$}
+    \AxiomC{$\sem{\Gamma} \vdash \banana{} : \FF_E(\sem{\gamma}) \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})$}
+    \AxiomC{$\sem{\Gamma}, k : \sem{\tau} \to \FF_E(\sem{\gamma}) \vdash k : \sem{\tau} \to \FF_E(\sem{\gamma})$}
     \RightLabel{[$\circ$]}
-    \BinaryInfC{$\sem{\Gamma}, k : \sem{\tau} \to \sem{\gamma} \vdash \eta \circ k : \sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})$}
+    \BinaryInfC{$\sem{\Gamma}, k : \sem{\tau} \to \FF_E(\sem{\gamma}) \vdash \banana{} \circ k : \sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})$}
     \RightLabel{[app]}
-    \BinaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}), k : \sem{\tau} \to \sem{\gamma} \vdash \ap{m}{(\eta \circ k)} : \cstype(\sem{\gamma})$}
+    \BinaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}), k : \sem{\tau} \to \FF_E(\sem{\gamma}) \vdash \ap{m}{(\banana{} \circ k)} : \cstype(\sem{\gamma})$}
     \RightLabel{[app]}
-    \BinaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}), k : \sem{\tau} \to \sem{\gamma} \vdash \ap{\resetbanana}{(\ap{m}{(\eta \circ k)})} : \sem{\gamma}$}
+    \BinaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}), k : \sem{\tau} \to \FF_E(\sem{\gamma}) \vdash \ap{\resetobanana}{(\ap{m}{(\banana{} \circ k)})} : \FF_E(\sem{\gamma})$}
     \RightLabel{[abs]}
-    \UnaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}) \vdash \lam{k}{\ap{\resetbanana}{(\ap{m}{(\eta \circ k)})}} : (\sem{\tau} \to \sem{\gamma}) \to \sem{\gamma}$}
+    \UnaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}) \vdash \lam{k}{\ap{\resetobanana}{(\ap{m}{(\banana{} \circ k)})}} : (\sem{\tau} \to \FF_E(\sem{\gamma})) \to \FF_E(\sem{\gamma})$}
     \RightLabel{[$\op{op}!$]}
-    \UnaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}) \vdash \ap{\op{\shift}!}{(\lam{k}{\ap{\resetbanana}{(\ap{m}{(\eta \circ k)})}})} : \cstype(\sem{\tau})$}
+    \UnaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}) \vdash \ap{\op{\shift0}!}{(\lam{k}{\ap{\resetobanana}{(\ap{m}{(\banana{} \circ k)})}})} : \cstype(\sem{\tau})$}
     \RightLabel{[abs]}
-    \UnaryInfC{$\sem{\Gamma} \vdash \lam{m}{\ap{\op{\shift}!}{(\lam{k}{\ap{\resetbanana}{(\ap{m}{(\eta \circ k)})}})}} : ((\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma})) \to \cstype(\sem{\tau})$}
+    \UnaryInfC{$\sem{\Gamma} \vdash \lam{m}{\ap{\op{\shift0}!}{(\lam{k}{\ap{\resetobanana}{(\ap{m}{(\banana{} \circ k)})}})}} : ((\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma})) \to \cstype(\sem{\tau})$}
     \RightLabel{[$\hsbind$]}
-    \BinaryInfC{$\sem{\Gamma} \vdash \sem{M'} \hsbind (\lam{m}{\ap{\op{\shift}!}{(\lam{k}{\ap{\resetbanana}{(\ap{m}{(\eta \circ k)})}})}}) : \cstype(\sem{\tau})$}
+    \BinaryInfC{$\sem{\Gamma} \vdash \sem{M'} \hsbind (\lam{m}{\ap{\op{\shift0}!}{(\lam{k}{\ap{\resetobanana}{(\ap{m}{(\banana{} \circ k)})}})}}) : \cstype(\sem{\tau})$}
     \DisplayProof
   }}
   \caption{\label{fig:big-proof-tree-shift} The case for
