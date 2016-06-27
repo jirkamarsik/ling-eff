@@ -9,17 +9,21 @@ deterministic, it must have a fixed evaluation order. So in order to set up
 the stage for our study of delimited control, we will start by simulating
 the call-by-value $\lambda$-calculus in $\banana{\lambda}$.
 
-\TODO{
-  \begin{itemize}
-  \item Diagram
-  \end{itemize}
-}
-
+\begin{center}
 \begin{forest}
- [VP,circle,draw
- [DP][V’[V][DP]]
+for tree={circle,draw,align=center}
+[,phantom
+ [$\lambda_v$ \\ (\ref{sec:introducing-cbv}),name=lambda
+   [$\lambda_\shift$ \\ (\ref{sec:turning-to-shift}),tier=bottom,name=shift]
+   [$\lambda_\shifto$ \\ (\ref{sec:introducing-control-operators}),tier=bottom,name=shift0]
  ]
+ [$\banana{\lambda}$ \\ (\ref{chap:definitions}),tier=bottom,name=banana]
+]
+\draw[->,dashed] (lambda) to node[above]{(\ref{sec:simulating-cbv})} (banana);
+\draw[->,dashed] (shift0) to node[above]{(\ref{sec:simulating-shift0})} (banana);
+\draw[->,dashed] (shift) to node[above]{(\ref{sec:turning-to-shift})}(shift0);
 \end{forest}
+\end{center}
 
 
 %% \begin{figure}
@@ -31,6 +35,7 @@ the call-by-value $\lambda$-calculus in $\banana{\lambda}$.
 \minitoc
 
 \section{Introducing Call-by-Value}
+\label{sec:introducing-cbv}
 
 First, we introduce some key notions of call-by-value and ordered
 evaluation in the call-by-value $\lambda$-calculus.
@@ -87,7 +92,7 @@ $\lambda$-abstraction.
 
 
 \section{Simulating Call-by-Value}
-\label{ssec:simulating-cbv}
+\label{sec:simulating-cbv}
 
 We first present the translation from $\lambda_v$ to $\banana{\lambda}$ and
 then we elaborate on it.
@@ -240,6 +245,7 @@ $\lambda_v$ in our typed $\banana{\lambda}$ and a way of simulating untyped
 $\lambda_v$ in an untyped version of $\banana{\lambda}$.
 
 \section{Introducing Control Operators}
+\label{sec:introducing-control-operators}
 
 Now that we have introduced how a $\lambda$-calculus with a notion of
 evaluation order is to be interpreted in $\banana{\lambda}$, we are ready
@@ -318,6 +324,7 @@ its argument\footnote{You may already start to see similarities with the
   and $\reseto$ in particular.}.
 
 \section{Simulating $\shifto$ and $\reseto$}
+\label{sec:simulating-shift0}
 
 To simulate $\lambda_{\shifto}$ in $\banana{\lambda}$, all we have to do is
 extend the simulation of $\lambda_v$ with interpretations of the two new
@@ -359,7 +366,7 @@ calculus' equational theory is preserved\footnote{Such a one-sided property
   is also satisfied by trivial interpretations so the property itself does
   not do the interpretation justice. In other words, this interpretation is
   complete but not sound (consider already the $\lambda_v$ example towards
-  the end of \ref{ssec:simulating-cbv}). \TODO{Is there some better
+  the end of \ref{sec:simulating-cbv}). \TODO{Is there some better
     characterization of this kind of simulation? Check out Plotkin's
     seminal paper on Call-by-value, call-by-name and the
     lambda-calculus.}}, i.e.\ $M = N$ in $\lambda_\shifto$ implies $\sem{M}
@@ -374,9 +381,9 @@ calculus' equational theory is preserved\footnote{Such a one-sided property
 \begin{proof}
 We have three reduction rules to tackle: $\to_\beta$, $\to_\reseto$ and
 $\to_\shifto$. We have proven the case of $\to_\beta$
-in~\ref{ssec:simulating-cbv} and that proof still holds in this extended
+in~\ref{sec:simulating-cbv} and that proof still holds in this extended
 interpretation. We also reuse our observation
-from~\ref{ssec:simulating-cbv} that in order to prove $\sem{C[M]} \tto
+from~\ref{sec:simulating-cbv} that in order to prove $\sem{C[M]} \tto
 \sem{C[N]}$, it is enough to prove $\sem{M} \tto \sem{N}$. The case of
 $\to_\reseto$ is a simple one so we will deal with that first:
 
@@ -560,7 +567,7 @@ $\sem{M} \ttoffrom \sem{N}$ in $\banana{\lambda}$.
 
 
 \section{Turning to $\shift$ and $\reset$}
-\label{sec:shift}
+\label{sec:turning-to-shift}
 
 There are other control operators, similar to $\shifto$ and $\reseto$. One
 example would be the more common $\shift$ and $\reset$. The difference
@@ -1099,8 +1106,8 @@ its soundess by way of demonstrating type preservation and progress.
 Having proven the type soundness of the above type system for
 $\lambda_\shift$, we now show that typed $\lambda_\shift$ translates to
 typed $\banana{\lambda}$. We already defined a translation from
-$\lambda_\shift$ terms to $\banana{\lambda}$ in~\ref{sec:shift}, now we
-have to define a translation of the types.
+$\lambda_\shift$ terms to $\banana{\lambda}$ in~\ref{sec:turning-to-shift},
+now we have to define a translation of the types.
 
 \begin{definition}
   We define the \demph{interpretation $\sem{\tau}$ of a $\lambda_\shift$
