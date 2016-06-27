@@ -1,8 +1,6 @@
 \chapter{Examples}
 \label{chap:examples}
 
-\NoChapterPrefix
-
 We have given a formal definition of our calculus but we have not shown how
 to use it to model side effects and what are the benefits. In this chapter,
 we will present an example problem and as we explore it deeper, we will see
@@ -290,6 +288,7 @@ $$
 
 Let's start with $\app{\dive}{\litec{2}}{\litec{0}}$.
 
+\NoChapterPrefix
 \begin{align}
   \app{\dive}{\litec{2}}{\litec{0}}
   &= \app{\dive}{(\ap{\eta}{2})}
@@ -313,6 +312,7 @@ Let's start with $\app{\dive}{\litec{2}}{\litec{0}}$.
   &\to_{\beta.+_2} \dbze
 \end{align}
 \setcounter{equation}{0}
+\ChapterPrefix
 
 The reductions state which rule was used to perform the step. The equality
 on line 2 is due to our interpretation of $\dive$. Those on lines 4 and 5
@@ -328,6 +328,7 @@ The result of this first elaboration was not surprising: dividing 2 by 0
 throws a $\dbzelong$ exception. We will now try to see what happens when
 this faulty expression appears within another expression.
 
+\NoChapterPrefix
 \begin{align}
   \app{\prode}{\litec{3}}{\dbze}
   &= \app{\prode}{(\ap{\eta}{3})}{\dbze} \\
@@ -346,6 +347,7 @@ this faulty expression appears within another expression.
   &\simeq \dbze
 \end{align}
 \setcounter{equation}{0}
+\ChapterPrefix
 
 Line 2 is due to our interpretation of $\prode$. Line 4 is due to the
 $\eta.\hsbind$ rule that we have demonstrated in the last example. Lines 6,
@@ -363,6 +365,7 @@ since the continuation can never be called\footnote{Technical aside: To be
 We have seen the $\dbzelong$ exception propagate. Now let's see what
 happens when it hits a $\trye$ construction.
 
+\NoChapterPrefix
 \begin{align}
   \app{\trye}{\litec{0}}{\dbze}
   &= \app{\trye}{(\ap{\eta}{0})}{\dbze} \\
@@ -373,6 +376,7 @@ happens when it hits a $\trye$ construction.
   &\to_{\beta,\beta} \ap{\eta}{0}
 \end{align}
 \setcounter{equation}{0}
+\ChapterPrefix
 
 Line 2 is our interpretation of $\trye$. Line 4 is the definition of
 $\dbze$.
@@ -381,6 +385,7 @@ We see that since the embedded expression failed to evaluate (its sense was
 $\dbze$), we have evaluated the literal 0 instead. We now have an actual
 number again and we can try feeding it into another operation.
 
+\NoChapterPrefix
 \begin{align}
   \app{\sume}{\litec{5}}{(\ap{\eta}{0})}
   &= \app{\sume}{(\ap{\eta}{5})}{(\ap{\eta}{0})} \\
@@ -393,6 +398,7 @@ number again and we can try feeding it into another operation.
   &\to_+ \ap{\eta}{5}
 \end{align}
 \setcounter{equation}{0}
+\ChapterPrefix
 
 Line 2 is our interpretation of $\sume$. The others are reductions of the
 kind we have seen before.
@@ -481,6 +487,7 @@ $$
 Let us start off with the innermost expression, the sum of $\bar{x}$ and
 $\bar{y}$.
 
+\ChapterPrefix
 \begin{align}
   \sumecn{\varec{x}}{\varec{y}}
   & = \sumecn{(\ap{\op{get}!}{\bar{x}})}
@@ -512,6 +519,7 @@ $\bar{y}$.
     {(\lam{x}{\app{\op{get}}{\bar{y}}{(\lam{y}{\ap{\eta}{(x + y)}})}})}
 \end{align}
 \setcounter{equation}{0}
+\NoChapterPrefix
 
 The first three lines are the usual. First, we expand the definitions of
 the operands (the $\vare$ operator). Then we do the same for the operation
@@ -539,6 +547,7 @@ We have our result, a computation that asks for the values of the variables
 $\bar{x}$ and $\bar{y}$ to compute their sum. Now we will compute the value
 of $\app{\lete}{\bar{y}}{\litec{2}}$.
 
+\ChapterPrefix
 \begin{align}
   \app{\lete}{\bar{y}}{\litec{2}}
 &= \app{\lete}{\bar{y}}{(\ap{\eta}{2})} \\
@@ -549,6 +558,7 @@ of $\app{\lete}{\bar{y}}{\litec{2}}$.
 &\to_{\eta} \banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = \bar{y}}{(\ap{k}{2})}{(\app{\op{get}}{u}{k})}})}}
 \end{align}
 \setcounter{equation}{0}
+\NoChapterPrefix
 
 Lines 1 and 2 are our interpretations of $\lite$ and $\lete$ and the rest
 are applications of rules we have seen before. We find out that the
@@ -561,6 +571,7 @@ We will now apply this handler to the meaning of
 $\sumecn{\varec{x}}{\varec{y}}$ to get the meaning of
 $\letecn{y}{\litec{2}}{\sumec{\varec{x}}{\varec{y}}}$.
 
+\ChapterPrefix
 \begin{align}
   & \letecn{y}{\litec{2}}{\sumec{\varec{x}}{\varec{y}}} \\
 = & \letecn{y}{\litec{2}}
@@ -630,6 +641,7 @@ $\letecn{y}{\litec{2}}{\sumec{\varec{x}}{\varec{y}}}$.
 \to_{\banana{\eta}} & \app{\op{get}}{\bar{x}} {(\lam{x}{\ap{\eta}{(x + 2)}})}
 \end{align}
 \setcounter{equation}{0}
+\NoChapterPrefix
 
 This one is a bit more complicated and so we will go through it line by
 line:

@@ -715,36 +715,59 @@ evaluate/handle the common operations without commiting to a specific value
 of type $\alpha$.
 
 \begin{figure}
-  \pstree{\Tcircle{a}}{\pstree{\Tf{b}}{\Toval{c}\pstree{\Tf{d}}{\Toval{e}}}\pstree{\Tf{f}}{\Toval{g}\pstree{\Tf{h}}{\Toval{i}}}}
-  \begin{tikzpicture}
-    \GraphInit[vstyle=Normal]
-    \SetGraphUnit{2}
-    \Vertex[L=$\lambda$]{preRoot}
-    \SOWE[L=$\op{op}_1(M_1)$](preRoot){Aop1}
-    \SOEA[L=$\op{op}_1(M_1)$](preRoot){Bop1}
-    \Edge(preRoot)(Aop1)
-    \Edge(preRoot)(Bop1)
-    \begin{scope}
-      \SetGraphUnit{1.5}
-      \SOWE[L=$A_1$](Aop1){A1}
-      \SOEA[L=$\op{op}_2(M_2)$](Aop1){Aop2}
-      \SO[L=$A_2$](Aop2){A2}
-      \SOWE[L=$B_1$](Bop1){B1}
-      \SOEA[L=$\op{op}_2(M_2)$](Bop1){Bop2}
-      \SO[L=$B_2$](Bop2){B2}
-      \Edge(Aop1)(A1)
-      \Edge(Aop1)(Aop2)
-      \Edge(Aop2)(A2)
-      \Edge(Bop1)(B1)
-      \Edge(Bop1)(Bop2)
-      \Edge(Bop2)(B2)
-    \end{scope}
+  \begin{tabular}{p{0.01\textwidth} p{0.5\textwidth} p{0.01\textwidth} p{0.48\textwidth}}
+  \vspace{0pt}
+  $M = $
+  &
+  \vspace{0pt}
+  \begin{tikzpicture}[level distance=1.5cm,sibling distance=1cm]
+  \Tree [.$\lambda$
+    [.\node[draw]{$\op{op}_1(M_1)$};
+      [.\node[draw,circle]{$A_1$}; ]
+      [.\node[draw]{$\op{op}_2(M_2)$};
+        [.\node[draw,circle]{$A_2$}; ] ] ]
+    [.\node[draw]{$\op{op}_1(M_1)$};
+      [.\node[draw,circle]{$B_1$}; ]
+      [.\node[draw]{$\op{op}_2(M_2)$};
+        [.\node[draw,circle]{$B_2$}; ] ] ] ]
   \end{tikzpicture}
-  \includegraphics[width=\textwidth]{doodles/c-illustration}
-  \caption{\label{fig:c-illustration} Example of applying the $\CC$
-    operator to a term. Functions/families are drawn as trees. In this
-    example, the $\lambda$ binds a variable of a binary type, the output of
-    $\op{op}_1$ is binary and the output of $\op{op}_2$ is unary.}
+  &
+  \vspace{0pt}
+  $\ap{\CC}{M} = $
+  &
+  \vspace{0pt}
+  \begin{tikzpicture}[level distance=2cm,sibling distance=1cm]
+  \Tree [.\node[draw]{$\op{op}_1(M_1)$};
+    [.\node[draw,circle,inner sep=0pt,anchor=center]{
+      \begin{tikzpicture}[level distance=1cm,sibling distance=1cm]
+        \node {$\lambda$}
+          child {node {$A_1$}}
+          child {node {$B_1$}};
+      \end{tikzpicture}}; ]
+    [.\node[draw]{$\op{op}_2(M_2)$};
+      [.\node[draw,circle,inner sep=0pt,anchor=center]{
+        \begin{tikzpicture}[level distance=1cm,sibling distance=1cm]
+          \node {$\lambda$}
+            child {node {$A_2$}}
+            child {node {$B_2$}};
+        \end{tikzpicture}}; ] ] ]
+  \end{tikzpicture}
+  \end{tabular}
+  \caption[Example of applying the $\CC$
+  operator.]{\label{fig:c-illustration}
+    Example of applying the $\CC$ operator to a term. Here, $M$ is a
+function of some two-value type. It maps one value to the left subtree of
+$\lambda$ (with leaves $A_i$) and the other value to the right subtree
+(leaves $B_i$). Both subtrees correspond to computations, in which a box is
+an operation and a circle is an atomic expression (i.e.\ a return
+value). Furthermore, $\op{op}_1$ has a two-value output type and
+$\op{op}_2$ has a one-value output type.
+
+    Since the operations $\op{op}_1$ and $\op{op}_2$ and their arguments
+    $M_1$ and $M_2$ are the same in both subtrees, and thus independent of
+    the value passed to the $\lambda$, we can apply the $\CC$ operator. The
+    $\CC$ pulls this common structure out of the $\lambda$ and gives us a
+    computation that produces a function.}
 \end{figure}
 
 We can also explain the action of $\CC$ in operational terms. As in

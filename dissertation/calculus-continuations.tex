@@ -1,8 +1,6 @@
 \chapter{Continuations}
 \label{chap:continuations}
 
-\NoChapterPrefix
-
 We will try to show the connection between the operational semantics of
 operators for delimited control and the reduction semantics of our
 calculus. The nature of control operators is that their evaluation depends
@@ -17,10 +15,12 @@ the call-by-value $\lambda$-calculus in $\banana{\lambda}$.
   \end{itemize}
 }
 
-\begin{tikzpicture}
-  \GraphInit[vstyle=Normal]
-  \Vertex[L=$\CC$]{C}
-\end{tikzpicture}
+\begin{forest}
+ [VP,circle,draw
+ [DP][V’[V][DP]]
+ ]
+\end{forest}
+
 
 %% \begin{figure}
 %%   \includegraphics[width=\textwidth]{diagrams/continuations.pdf}
@@ -166,6 +166,7 @@ proving $\sem{\ap{(\lam{x}{M})}{V}} \tto \sem{\subst{M}{x}{V}}$.
 
 \begin{proof}
 
+\NoChapterPrefix
 \begin{align}
   \sem{\ap{(\lam{x}{M})}{V}}
 &= \sem{\lam{x}{M}} \hsbind (\lam{m}{\sem{V} \hsbind (\lam{n}{\ap{m}{n}})}) \\
@@ -176,6 +177,7 @@ proving $\sem{\ap{(\lam{x}{M})}{V}} \tto \sem{\subst{M}{x}{V}}$.
 &= \sem{\subst{M}{x}{V}}
 \end{align}
 \setcounter{equation}{0}
+\ChapterPrefix
 
 where $\sem{V} = \ap{\eta}{v}$. We first expand the definition of $\sem{.}$
 for the application, the abstraction and the argument value (we note that
@@ -378,6 +380,7 @@ from~\ref{ssec:simulating-cbv} that in order to prove $\sem{C[M]} \tto
 \sem{C[N]}$, it is enough to prove $\sem{M} \tto \sem{N}$. The case of
 $\to_\reseto$ is a simple one so we will deal with that first:
 
+\NoChapterPrefix
 \begin{align}
   \sem{\ap{\reseto}{V}}
   &= \ap{\resetobanana}{\sem{V}} \\
@@ -386,6 +389,7 @@ $\to_\reseto$ is a simple one so we will deal with that first:
   &= \sem{V}
 \end{align}
 \setcounter{equation}{0}
+\ChapterPrefix
 
 where $\sem{V} = \ap{\eta}{v}$. As we have said
 in~\ref{ssec:operations-and-handlers}, an (open) handler without an
@@ -395,6 +399,7 @@ one $\banana{\eta}$ reduction in $\banana{\lambda}$.
 
 Now, let's deal with the last reduction rule, $\to_\shifto$.
 
+\NoChapterPrefix
 \begin{align}
   \sem{\ap{\reseto}{(F[\ap{\shifto}{V}])}}
   &= \ap{\resetobanana}{\sem{F[\ap{\shifto}{V}]}} \\
@@ -409,6 +414,7 @@ Now, let's deal with the last reduction rule, $\to_\shifto$.
   &= \sem{\ap{V}{(\lam{x}{\ap{\reseto}{(F[x])}})}}
 \end{align}
 \setcounter{equation}{0}
+\ChapterPrefix
 
 where $\sem{V} = \ap{\eta}{v}$. Lines 2 and 3 are the crucial lines. On
 line 2, we use the upcoming Lemma~\ref{lem:contexts-continuations} that
@@ -464,6 +470,7 @@ being used inside the computation.
 Our proof will proceed by induction on the structure of $F$. We will start
 with the base case, $F = []$.
 
+\NoChapterPrefix
 \begin{align}
   \sem{F[\ap{\shifto}{V}]}
   &= \sem{\ap{\shifto}{V}} \\
@@ -475,12 +482,14 @@ with the base case, $F = []$.
   &= \app{\op{shift0}}{v}{(\lam{x}{\sem{F[x]}})}
 \end{align}
 \setcounter{equation}{0}
+\ChapterPrefix
 
 The individual steps are pretty self-explanatory.On line 4, we expand the
 definition of the exclamation mark from~\ref{ssec:operations-and-handlers}.
 
 Next case, $F = (\ap{F'}{M})$:
 
+\NoChapterPrefix
 \begin{align}
   \sem{F[\ap{\shifto}{V}]}
   &= \sem{\ap{(F'[\ap{\shifto}{V}])}{M}} \\
@@ -491,6 +500,7 @@ Next case, $F = (\ap{F'}{M})$:
   &= \app{\op{shift0}}{v}{(\lam{x}{\sem{F[x]}})} \\
 \end{align}
 \setcounter{equation}{0}
+\ChapterPrefix
 
 Again, the steps are quite mechanical. Line 3 uses the induction hypothesis
 and on line 4, we see the derived $\op{op}.\hsbind$ rule introduced in
@@ -500,6 +510,7 @@ $\hsbind$ inside the continuation.
 
 Case $F = (\ap{V'}{F'})$:
 
+\NoChapterPrefix
 \begin{align}
   \sem{F[\ap{\shifto}{V}]}
   &= \sem{\ap{V'}{(F'[\ap{\shifto}{V}])}} \\
@@ -512,6 +523,7 @@ Case $F = (\ap{V'}{F'})$:
   &= \app{\op{shift0}}{v}{(\lam{x}{\sem{F[x]}})}
 \end{align}
 \setcounter{equation}{0}
+\ChapterPrefix
 
 where $\sem{V'} = \ap{\eta}{v'}$. This proof is very similar to the one for
 the case before. We have just two extra steps, on lines 3 and 6, where we
@@ -521,6 +533,7 @@ context by reversing the process.
 
 Finally, the last case, where $F = (\ap{\shifto}{F'})$:
 
+\NoChapterPrefix
 \begin{align}
   \sem{F[\ap{\shifto}{V}]}
   &= \sem{\ap{\shifto}{(F'[\ap{\shifto}{V}])}} \\
@@ -531,6 +544,7 @@ Finally, the last case, where $F = (\ap{\shifto}{F'})$:
   &= \app{\op{shift0}}{v}{(\lam{x}{\sem{F[x]}})}
 \end{align}
 \setcounter{equation}{0}
+\ChapterPrefix
 
 And this case is just as simple as the $F = (\ap{F'}{M})$ one. This
 concludes our proof of this lemma. Note that we did not include a case for
@@ -624,6 +638,7 @@ following.
   C[\ap{\reset}{(\ap{V}{(\lam{x}{\ap{\reset}{(F[x])}})})}]$ for some
   context $C$, frame $F$ and value $V$.
 
+  \NoChapterPrefix
   \begin{align}
     \semo{M} &= \semo{C[\ap{\reset}{(F[\ap{\shift}{V}])}]} \\
              &= C'[\ap{\reseto}{(F'[\ap{\shifto}(\ap{(\lam{m}{\lam{k}{\ap{\reseto}{(\ap{m}{k})}}})}{V'})])}] \\
@@ -634,6 +649,7 @@ following.
              &= \semo{N}
   \end{align}
   \setcounter{equation}{0}
+  \ChapterPrefix
 
   where $C' = \semo{C}$, $F' = \semo{F}$ and $V' = \semo{V}$.
 \end{proof}
