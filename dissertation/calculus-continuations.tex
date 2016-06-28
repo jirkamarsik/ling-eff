@@ -1,29 +1,40 @@
 \chapter{Continuations}
 \label{chap:continuations}
 
-We will try to show the connection between the operational semantics of
-operators for delimited control and the reduction semantics of our
-calculus. The nature of control operators is that their evaluation depends
-on their context. In order for a language with such control operators to be
-deterministic, it must have a fixed evaluation order. So in order to set up
-the stage for our study of delimited control, we will start by simulating
-the call-by-value $\lambda$-calculus in $\banana{\lambda}$.
+In this chapter, we will show the connection between calculi containing
+operators for delimited control and our $\banana{\lambda}$
+calculus. Throughout the chapter, we will introduce different calculi and
+map their terms and reduction relations onto the reduction relation of
+$\banana{\lambda}$. For one of the calculi with delimited control, we also
+introduce a type system which is a simplification of the one found
+in~\cite{danvy1989functional} and we map it onto the type system of
+$\banana{\lambda}$. See Figure~\ref{fig:continuation-plan} for a high-level
+look at the structure of the chapter.
 
-\begin{center}
+\begin{figure}[h]
+  \begin{center}
   \begin{tikzpicture}[align=center,thick]
-    \node[draw,circle](lambda) at (0,0){$\lambda_v$ \\ (\ref{sec:introducing-cbv})};
-    \node[draw,circle](shift) at +(-2,-2.5){$\lambda_\shift$ \\ (\ref{sec:turning-to-shift})};
-    \node[draw,circle](shift0) at +(2,-2.5){$\lambda_\shifto$ \\ (\ref{sec:introducing-control-operators})};
-    \node[draw,circle](banana) at +(6,-1){$\banana{\lambda}$ \\ (\ref{chap:definitions})};
+    \node[draw,circle](lambda) at (0,0){\shortstack{$\lambda_v$ \\ (\ref{sec:introducing-cbv})}};
+    \node[draw,circle](shift) at +(-2,-2.5){\shortstack{$\lambda_\shift$ \\ (\ref{sec:turning-to-shift})}};
+    \node[draw,circle](shift0) at +(2,-2.5){\shortstack{$\lambda_\shifto$ \\ (\ref{sec:introducing-control-operators})}};
+    \node[draw,circle](banana) at +(6,-1){\shortstack{$\banana{\lambda}$ \\ (\ref{chap:definitions})}};
     \coordinate(split) at +(0,-1.25);
-    \draw (lambda) -- (split);
-    \draw (split) -| (shift);
-    \draw (split) -| (shift0);
+    \draw[very thick] (lambda) -- (split);
+    \draw[->,very thick] (split) -| (shift);
+    \draw[->,very thick] (split) -| (shift0);
     \draw[->,dashed] (lambda) .. controls +(-30:2) and +(190:2) .. (banana) node[midway,above]{(\ref{sec:simulating-cbv})};
-    \draw[->,dashed] (shift0) .. controls +(-15:2.5) and +(250:1) .. (banana) node[midway,below]{(\ref{sec:simulating-shift0})};
+    \draw[->,dashed] (shift0) .. controls +(-15:2.5) and +(270:1.5) .. (banana) node[midway,below]{(\ref{sec:simulating-shift0})};
     \draw[->,dashed] (shift) .. controls +(-10:1.5) and +(190:1.5) .. (shift0) node[midway,below]{(\ref{sec:turning-to-shift})};
+    \draw[->,dotted] (shift) .. controls +(-40:5) and +(-50:3.5) .. (banana) node[midway,below]{(\ref{sec:considering-types})};
   \end{tikzpicture}
-\end{center}
+  \end{center}
+  \caption[The plan of
+  Chapter~\ref{chap:continuations}.]{\label{fig:continuation-plan} The plan
+    of Chapter~\ref{chap:continuations}. The nodes are calculi, solid edges
+    correspond to extensions of calculi, dashed edges correspond to
+    translations of rewriting relations and dotted edges correspond to
+    translations of type systems.}
+\end{figure}
 
 
 %% \begin{figure}
@@ -36,6 +47,12 @@ the call-by-value $\lambda$-calculus in $\banana{\lambda}$.
 
 \section{Introducing Call-by-Value}
 \label{sec:introducing-cbv}
+
+The nature of control operators is that their evaluation depends on their
+context. In order for a language with such control operators to be
+deterministic, it must have a fixed evaluation order. So in order to set up
+the stage for our study of delimited control, we will start by simulating
+the call-by-value $\lambda$-calculus in $\banana{\lambda}$.
 
 First, we introduce some key notions of call-by-value and ordered
 evaluation in the call-by-value $\lambda$-calculus.
@@ -362,14 +379,16 @@ $\sem{M}$ to $\sem{N}$ through a series of reductions and
 expansions\footnote{We will need the expansions when ``unevaluating'' some
   of the monadic binds that have been introduced by our translations.}. In
 this case, our simulation property will prove that equivalence given by the
-calculus' equational theory is preserved\footnote{Such a one-sided property
-  is also satisfied by trivial interpretations so the property itself does
-  not do the interpretation justice. In other words, this interpretation is
-  complete but not sound (consider already the $\lambda_v$ example towards
-  the end of \ref{sec:simulating-cbv}). \TODO{Is there some better
-    characterization of this kind of simulation? Check out Plotkin's
-    seminal paper on Call-by-value, call-by-name and the
-    lambda-calculus.}}, i.e.\ $M = N$ in $\lambda_\shifto$ implies $\sem{M}
+calculus' equational theory is preserved
+% \footnote{Such a one-sided property
+%   is also satisfied by trivial interpretations so the property itself does
+%   not do the interpretation justice. In other words, this interpretation is
+%   complete but not sound (consider already the $\lambda_v$ example towards
+%   the end of \ref{sec:simulating-cbv}). \TODO{Is there some better
+%     characterization of this kind of simulation? Check out Plotkin's
+%     seminal paper on Call-by-value, call-by-name and the
+%     lambda-calculus.}}
+, i.e.\ $M = N$ in $\lambda_\shifto$ implies $\sem{M}
 = \sem{N}$ in $\banana{\lambda}$ (where $X = Y$ is to be read as $X
 \ttoffrom Y$).
 
@@ -511,9 +530,7 @@ Next case, $F = (\ap{F'}{M})$:
 
 Again, the steps are quite mechanical. Line 3 uses the induction hypothesis
 and on line 4, we see the derived $\op{op}.\hsbind$ rule introduced in
-Chapter~\ref{chap:properties}\footnote{\TODO{Make this reference more
-    precise once the Properties chapter has been written.}} pushing the
-$\hsbind$ inside the continuation.
+~\ref{ssec:bind} pushing the $\hsbind$ inside the continuation.
 
 Case $F = (\ap{V'}{F'})$:
 
@@ -706,6 +723,7 @@ weakening operator on computation types.
 
 
 \section{Considering Types}
+\label{sec:considering-types}
 
 We have shown embeddings of $\lambda_\shifto$ and $\lambda_\shift$ into
 $\banana{\lambda}$. In both of these embeddings, we have seen that the

@@ -709,10 +709,24 @@ $\alpha$-indexed families. The operator applies only in the case when all
 the computations in the family share the same \emph{internal structure}. By
 sharing the same \emph{internal structure}, we mean that the trees can only
 differ in their leaves. What the $\CC$ operator then does is to push the
-$\lambda$-binder down this common internal structure into the leaves (see
-Figure~\ref{fig:c-illustration} for an example). This way, we can
-evaluate/handle the common operations without commiting to a specific value
-of type $\alpha$.
+$\lambda$-binder down this common internal structure into the leaves. This
+way, we can evaluate/handle the common operations without commiting to a
+specific value of type $\alpha$.
+
+The action of the $\CC$ operator is illustrated in
+Figure~\ref{fig:c-illustration}. Here, $M$ is a function of some two-value
+type. It maps one value to the left subtree of $\lambda$ (with leaves
+$A_i$) and the other value to the right subtree (leaves $B_i$). Both
+subtrees correspond to computations, in which a box is an operation and a
+circle is an atomic expression (i.e.\ a return value). Furthermore,
+$\op{op}_1$ has a two-value output type and $\op{op}_2$ has a one-value
+output type.
+
+Since the operations $\op{op}_1$ and $\op{op}_2$ and their arguments $M_1$
+and $M_2$ are the same in both subtrees, and thus independent of the value
+passed to the $\lambda$, we can apply the $\CC$ operator. The $\CC$ pulls
+this common structure out of the $\lambda$ and gives us a computation that
+produces a function.
 
 \begin{figure}
   \begin{tabular}{p{0.01\textwidth} p{0.5\textwidth} p{0.01\textwidth} p{0.48\textwidth}}
@@ -754,20 +768,8 @@ of type $\alpha$.
   \end{tikzpicture}
   \end{tabular}
   \caption[Example of applying the $\CC$
-  operator.]{\label{fig:c-illustration}
-    Example of applying the $\CC$ operator to a term. Here, $M$ is a
-function of some two-value type. It maps one value to the left subtree of
-$\lambda$ (with leaves $A_i$) and the other value to the right subtree
-(leaves $B_i$). Both subtrees correspond to computations, in which a box is
-an operation and a circle is an atomic expression (i.e.\ a return
-value). Furthermore, $\op{op}_1$ has a two-value output type and
-$\op{op}_2$ has a one-value output type.
-
-    Since the operations $\op{op}_1$ and $\op{op}_2$ and their arguments
-    $M_1$ and $M_2$ are the same in both subtrees, and thus independent of
-    the value passed to the $\lambda$, we can apply the $\CC$ operator. The
-    $\CC$ pulls this common structure out of the $\lambda$ and gives us a
-    computation that produces a function.}
+  operator.]{\label{fig:c-illustration} Example of applying the $\CC$
+    operator to a term. }
 \end{figure}
 
 We can also explain the action of $\CC$ in operational terms. As in
