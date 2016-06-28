@@ -10,19 +10,19 @@ the stage for our study of delimited control, we will start by simulating
 the call-by-value $\lambda$-calculus in $\banana{\lambda}$.
 
 \begin{center}
-\begin{forest}
-for tree={circle,draw,align=center}
-[,phantom
- [$\lambda_v$ \\ (\ref{sec:introducing-cbv}),name=lambda
-   [$\lambda_\shift$ \\ (\ref{sec:turning-to-shift}),tier=bottom,name=shift]
-   [$\lambda_\shifto$ \\ (\ref{sec:introducing-control-operators}),tier=bottom,name=shift0]
- ]
- [$\banana{\lambda}$ \\ (\ref{chap:definitions}),tier=bottom,name=banana]
-]
-\draw[->,dashed] (lambda) to node[above]{(\ref{sec:simulating-cbv})} (banana);
-\draw[->,dashed] (shift0) to node[above]{(\ref{sec:simulating-shift0})} (banana);
-\draw[->,dashed] (shift) to node[above]{(\ref{sec:turning-to-shift})}(shift0);
-\end{forest}
+  \begin{tikzpicture}[align=center,thick]
+    \node[draw,circle](lambda) at (0,0){$\lambda_v$ \\ (\ref{sec:introducing-cbv})};
+    \node[draw,circle](shift) at +(-2,-2.5){$\lambda_\shift$ \\ (\ref{sec:turning-to-shift})};
+    \node[draw,circle](shift0) at +(2,-2.5){$\lambda_\shifto$ \\ (\ref{sec:introducing-control-operators})};
+    \node[draw,circle](banana) at +(6,-1){$\banana{\lambda}$ \\ (\ref{chap:definitions})};
+    \coordinate(split) at +(0,-1.25);
+    \draw (lambda) -- (split);
+    \draw (split) -| (shift);
+    \draw (split) -| (shift0);
+    \draw[->,dashed] (lambda) .. controls +(-30:2) and +(190:2) .. (banana) node[midway,above]{(\ref{sec:simulating-cbv})};
+    \draw[->,dashed] (shift0) .. controls +(-15:2.5) and +(250:1) .. (banana) node[midway,below]{(\ref{sec:simulating-shift0})};
+    \draw[->,dashed] (shift) .. controls +(-10:1.5) and +(190:1.5) .. (shift0) node[midway,below]{(\ref{sec:turning-to-shift})};
+  \end{tikzpicture}
 \end{center}
 
 
