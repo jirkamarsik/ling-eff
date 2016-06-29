@@ -1468,10 +1468,158 @@ Interchange~\eqref{law:app-interchange}:
 We start with the law's right-hand side and normalize it on Line~5. Then we
 do some expansions (left identity on Line~7) to get the desired form.
 
-And there we are, we now have an applicative functor.
+And there we are, we now have an applicative functor. Applicative functors
+are very similar to monads, which we will cover in the next part. The
+trade-off between the two is in terms of expressivity vs
+composability. When we have two applicative functors, we can compose them
+and recover $\pure$ and $\circledast$ such that they both satisfy the
+necessary laws. However, the same is as not easy with monads and one has to
+go a level higher and compose monad transformers. On the other hand, when
+chaining two computations within a monad, we can use an operator which lets
+the effects of the second computation depend on the result of the first,
+whereas when chaining two computations within an applicative functor, the
+effects of both computations must be independent.
+
+Oleg Kiselyov explores the use of applicative functors for natural language
+semantics in his recent Applicative Abstract Categorial
+Grammars~\cite{kiselyov2015applicative,kiselyov2015swing}. The
+composability of applicative functors facilitates the combination, which is
+the objective of our method as well. However, partly in order to compensate
+for the limited expressivity of applicative functors, several
+interpretation passes are required until the logical form of a sentence is
+constructed.
+
+The two combinators that make up an applicative functor are accessible in
+our calculus. $\pure$ is of course the function $\eta$ and $\circledast$ is
+the combinator $\aplr$ introduced in~\ref{ssec:composing-functions}.
+
 
 \subsection{Monad}
 \label{ssec:monad}
+
+\begin{definition}
+  A \demph{monad} is a functor $F$ and two combinators,
+  $\eta : \alpha \to F(\alpha)$ and
+  $\hsbind : F(\alpha) \to (\alpha \to F(\beta)) \to F(\beta)$, polymorphic
+  in $\alpha$ and $\beta$. These objects must also satisfy the following
+  laws:
+
+  \begin{align}
+    (X \hsbind f) \hsbind g &= X \hsbind (\lam{x}{f(x) \hsbind g}) & \text{(Associativity)} \\
+    \eta(x) \hsbind f &= f(x) & \text{(Left identity)} \\
+    X \hsbind \eta &= X & \text{(Right identity)}
+  \end{align}
+\end{definition}
+
+To understand why the laws look the way they do, we will consider functions
+of type $\alpha \to F(\beta)$. These are the kinds of functions one might
+use to model call-by-value~\cite{moggi1991notions,moggi1990abstract}: we
+take a value $\alpha$ and then yield some computation $F(\beta)$. Now
+assume we would use this type of functions to model procedures of input
+type $\alpha$ and output type $\beta$ and we would want these procedures to
+form a category. For every type $\alpha$, we would an identity procedure
+with input type and output type $\alpha$, therefore a function of type
+$\alpha \to F(\alpha)$. The polymorphic $\eta$ combinator will be this
+identity procedure. We would also like to be able to compose a procedure
+from $\alpha$ to $\beta$ with a procedure from $\beta$ to $\gamma$, i.e.\
+compose functions of types $\alpha \to F(\beta)$ and $\beta \to
+F(\gamma)$. When composing $f : \alpha \to F(\beta)$ with
+$g : \beta \to F(\gamma)$, we run into the problem of having some
+$f(x) : F(\beta)$ and $g : \beta \to F(\gamma)$ that we cannot
+compose. This is where $\hsbind$ comes in and composes these two values for
+us. Let $f \kleisli g = \lam{x}{f(x) \hsbind g}$ be the resulting
+composition operator. In order for this structure to be a category, it
+needs to satisfy the following:
+
+\begin{align*}
+  (f \kleisli g) \kleisli h &= f \kleisli (g \kleisli h) \\
+  \eta \kleisli f &= f \\
+  f \kleisli \eta &= f
+\end{align*}
+
+By taking $f$ to be the constant function that returns $X$, we end up with
+the laws of the monad. Conversely, with the principle of extensionality, we
+can derive these laws from the monad laws. Therefore
+$\left<F, \eta, \hsbind\right>$ form a monad whenever the derived
+$\kleisli$ and $\eta$ form a category. This kind of category is called a
+\emph{Kleisli category} and the particular presentation of a monad that we
+have given here is known as a \emph{Kleisli triple}.
+
+To prove that $\FF_E$ is a monad will be trivial: we have already done so!
+The $\eta$ combinator is of course our $\eta$ and $\hsbind$ is our
+$\hsbind$. The three laws that we need to verify are three laws that we
+have introduced in~\ref{ssec:three-laws} and have been using throughout
+this section.
+
+Monads have been introduced to natural language semantics by Chung-chieh
+Shan in 2002~\cite{shan2002monads}. Since then, they have seen occasional
+use, mostly to handle dynamics without burdening the semantics with
+context/continuation passing~\cite{unger2011dynamic,champollion2015back},
+but also other phenomena such as conventional
+implicature/opacity\cite{giorgolo2011multidimensional,giorgolo2014monads,giorgolo2012missing}. The
+challenge to combining different phenomena which rely on different monads
+has been tackled from two angles: using distributive laws for
+monads~\cite{giorgolo2015natural} and using monad
+transformers~\cite{charlow2014semantics,barker2015monads}.
+
+In our calculus, the monadic operations $\eta$ and $\hsbind$ are available
+as the $\eta$ constructor and the $\hsbind$ combinator introduced
+in~\ref{ssec:composing-functions}.
+
+\subsection{Free Monad}
+\label{ssec:free-monad}
+
+A free monad is a construction of a monad such that the resulting monad
+satisfies the monad laws but does not satisfy anything more than that. This
+is similar to the idea of a free monoid generated by some set $A$. If we
+have two expressions from a monoid, we know that the operation is
+associative and so the grouping does not matter. The only thing that
+matters is which elements are multiplied and in which order. We can
+therefore thing of the elements of this monoid as lists of values from
+$A$. The free monad is a similar construction, but instead of building a
+monoid out of a set, it builds a monad out of a functor.
+
+Let $S$ be some functor, we define the monad
+$\left<F, \eta, \hsbind\right>$ where:
+
+\begin{itemize}
+\item $F(\gamma) = \gamma + S(F(\gamma))$\footnote{The plus is a coproduct,
+    which in the case of our category of sets corresponds to disjoint
+    union. We will work with coproducts using a similar syntax to the one
+    that we have given to sums in~\ref{sec:sums-and-products}.}
+\item $\eta(x) = \inl(x)$
+\item $X \hsbind f = \casemon{X}{x}{f(x)}{s}{\inr(S(\lam{X'}{X' \hsbind f})(s))}$
+\end{itemize}
+
+The functor $S$ correspond to our effect signature. For
+$\typedop{op}{\alpha}{\beta}$, we can define a functor
+$S_{\op{op}}(\gamma) = \alpha \times \gamma^\beta$. This represents
+providing a value of type $\alpha$ and waiting for an answer of type
+$\beta$ before continuing with $\gamma$. By taking the free monad of this
+functor, we end up with a monad where after each operation, we continue
+with a new computation of the same kind until we yield a $\gamma$,
+$F(\gamma) = \gamma + \alpha \times F(\gamma)^\beta$.
+
+If we want to offer more operations with different input and output types,
+we can take the coproduct of several functors. For an effect signature $E$,
+$S_E(\gamma) = \sum_{\op{op} \in E} S_{\op{op}}(\gamma)$.  The resulting
+free monad then looks like
+$F(\gamma) = \gamma + \sum_{\typedop{op}{\alpha}{\beta} \in E} \alpha
+\times F(\gamma)^\beta$. If we replace sums with disjoint unions and types
+with their interpretations, you almost get the kind of set in which we
+interpret our computations type
+in~\ref{ssec:denotational-semantics}. Importantly, the $\eta$ and $\hsbind$
+are the same as the ones of the free monad given above. The only difference
+between the free monad and the monad used in our interpretation are the
+occurrences of $\bot$. The monad that we used is actually a combination of
+the $F(X) = X_\bot$ partiality monad and a free monad.
+
+Free monads are another solution to the combination of different effects
+within a single calculus, hitherto unexplored in its application to natural
+language semantics. A very early appearance of this technique dates back to
+1994~\cite{cartwright1994extensible}. It has recently gained prominence
+with the work on extensible effects and effect
+handlers~\cite{kiselyov2013extensible,bauer2012programming,kammar2013handlers,brady2013programming,plotkin2013handling,pretnar2010logic}.
 
 
 \section{Confluence}

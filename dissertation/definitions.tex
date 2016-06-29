@@ -1,4 +1,5 @@
 \newcommand{\hsbind}{\mathbin{\gg\!=}}
+\newcommand{\kleisli}{\mathbin{>\!=\!\!>}}
 \newcommand{\apl}{\mathbin{\ll\!\!\cdot}}
 \newcommand{\apr}{\mathbin{\cdot\!\!\gg}}
 \newcommand{\aplr}{\mathbin{\ll\!\!\cdot\!\!\gg}}
@@ -89,6 +90,7 @@
 \newcommand{\inl}{\operatorname{inl}}
 \newcommand{\inr}{\operatorname{inr}}
 \newcommand{\case}[5]{\text{\textbf{case} $#1$ \textbf{of} $\{ \ap{\inl}{#2} \to #3;\ \ap{\inr}{#4} \to #5 \}$}}
+\newcommand{\casemon}[5]{\text{\textbf{case} $#1$ \textbf{of} $\{ \inl(#2) \to #3;\ \inr(#4) \to #5 \}$}}
 \newcommand{\absurd}[1]{\text{\textbf{case} $#1$ \textbf{of} \{\,\}}}
 
 \newcommand{\true}{\textbf{T}}
