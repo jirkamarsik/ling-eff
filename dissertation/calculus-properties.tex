@@ -1048,9 +1048,9 @@ underlying $\banana{\lambda}$.
 \item the following equations hold for any $f : C \to D$, $g : B \to C$ and
   $h : A \to B$:
   \begin{align}
-    \label{law:cat-associativity}(f \circ g) \circ h &= f \circ (g \circ h) \\
-    \label{law:cat-left-identity}\id_D \circ f &= f \\
-    \label{law:cat-right-identity}f \circ \id_C &= f
+    \label{law:cat-associativity}(f \circ g) \circ h &= f \circ (g \circ h) & \text{(Associativity)} \\
+    \label{law:cat-left-identity}\id_D \circ f &= f & \text{(Left identity)} \\
+    \label{law:cat-right-identity}f \circ \id_C &= f & \text{(Right identity)}
   \end{align}
 \end{itemize}
 \end{definition}
@@ -1090,7 +1090,7 @@ prove the three monad laws.
   inductively on the structure of $X$:
 
   \begin{align*}
-    \op{op}(p, c) \hsbind f &= \op{op}(p, \lam{x}{(c(x) \hsbind f)}) \\
+    \op{op}(p, c) \hsbind f &= \op{op}(p, \lam{x}{c(x) \hsbind f}) \\
     \eta(x) \hsbind f &= f(x) \\
     \bot \hsbind f &= \bot
   \end{align*}
@@ -1108,7 +1108,7 @@ prove the three monad laws.
   holds:
   
   $$
-  (X \hsbind f) \hsbind g = X \hsbind (\lam{x}{(f(x) \hsbind g)})
+  (X \hsbind f) \hsbind g = X \hsbind (\lam{x}{f(x) \hsbind g})
   $$
 \end{law}
 
@@ -1123,7 +1123,7 @@ prove the three monad laws.
       (\bot \hsbind f) \hsbind g
       &= \bot \hsbind g \\
       &= \bot \\
-      &= \bot \hsbind (\lam{x}{(f(x) \hsbind g)})
+      &= \bot \hsbind (\lam{x}{f(x) \hsbind g})
     \end{align*}
     
   \item $X = \eta(x)$
@@ -1132,8 +1132,8 @@ prove the three monad laws.
     \begin{align*}
       (\eta(x) \hsbind f) \hsbind g
       &= f(x) \hsbind g \\
-      &= (\lam{x}{(f(x) \hsbind g)})(x) \\
-      &= \eta(x) \hsbind (\lam{x}{(f(x) \hsbind g)})
+      &= (\lam{x}{f(x) \hsbind g})(x) \\
+      &= \eta(x) \hsbind (\lam{x}{f(x) \hsbind g})
     \end{align*}
     
   \item $X = \op{op}(p, c)$
@@ -1141,10 +1141,10 @@ prove the three monad laws.
     \vspace{-0.5cm}
     \begin{align*}
       (\op{op}(p, c) \hsbind f) \hsbind g
-      &= \op{op}(p, \lam{y}{(c(y) \hsbind f)}) \hsbind g \\
-      &= \op{op}(p, \lam{y}{((c(y) \hsbind f) \hsbind g)}) \\
-      &= \op{op}(p, \lam{y}{(c(y) \hsbind (\lam{x}{(f(x) \hsbind g)}))}) \\
-      &= \op{op}(p, c) \hsbind (\lam{x}{(f(x) \hsbind g)})
+      &= \op{op}(p, \lam{y}{c(y) \hsbind f}) \hsbind g \\
+      &= \op{op}(p, \lam{y}{(c(y) \hsbind f) \hsbind g}) \\
+      &= \op{op}(p, \lam{y}{c(y) \hsbind (\lam{x}{(f(x) \hsbind g}))}) \\
+      &= \op{op}(p, c) \hsbind (\lam{x}{f(x) \hsbind g})
     \end{align*}
   \end{itemize}
 \end{proof}
@@ -1200,7 +1200,7 @@ prove the three monad laws.
     \vspace{-0.5cm}
     \begin{align*}
       \op{op}(p, c) \hsbind (\lam{x}{\eta(x)})
-      &= \op{op}(p, \lam{y}{(c(y) \hsbind (\lam{x}{\eta(x)}))}) \\
+      &= \op{op}(p, \lam{y}{c(y) \hsbind (\lam{x}{\eta(x)})}) \\
       &= \op{op}(p, \lam{y}{c(y)}) \\
       &= \op{op}(p, c)
     \end{align*}
@@ -1224,8 +1224,8 @@ consists of:
   F(B)$ in $\DD$
 \item the following equations hold:
   \begin{align}
-    \label{law:functor-composition}F(f \circ g) &= F(f) \circ F(g) \\
-    \label{law:functor-identity}F(\id_A) &= \id_{F(A)}
+    \label{law:functor-composition}F(f \circ g) &= F(f) \circ F(g) & \text{(Composition)} \\
+    \label{law:functor-identity}F(\id_A) &= \id_{F(A)} & \text{(Identity)}
   \end{align}
 \end{itemize}
 \end{definition}
@@ -1258,8 +1258,8 @@ Composition~\eqref{law:functor-composition}:
   &= \lam{X}{\FF_E(f)((\lam{Z}{Z \hsbind (\lam{x}{\eta(g(x))})})(X))} \\
   &= \lam{X}{\FF_E(f)(X \hsbind (\lam{x}{\eta(g(x))}))} \\
   &= \lam{X}{(\lam{Z}{Z \hsbind (\lam{y}{\eta(f(y))})})(X \hsbind (\lam{x}{\eta(g(x))}))} \\
-  &= \lam{X}{((X \hsbind (\lam{x}{\eta(g(x))})) \hsbind (\lam{y}{\eta(f(y))}))} \\
-  &= \lam{X}{(X \hsbind (\lam{z}{(\lam{x}{\eta(g(x))})(z) \hsbind (\lam{y}{\eta(f(y))})}))} \\
+  &= \lam{X}{(X \hsbind (\lam{x}{\eta(g(x))})) \hsbind (\lam{y}{\eta(f(y))})} \\
+  &= \lam{X}{X \hsbind (\lam{z}{(\lam{x}{\eta(g(x))})(z) \hsbind (\lam{y}{\eta(f(y))})})} \\
   &= \lam{X}{X \hsbind (\lam{z}{\eta(g(z)) \hsbind (\lam{y}{\eta(f(y))})})} \\
   &= \lam{X}{X \hsbind (\lam{z}{(\lam{y}{\eta(f(y))})(g(z))})} \\
   &= \lam{X}{X \hsbind (\lam{z}{\eta(f(g(z)))})} \\
@@ -1295,6 +1295,183 @@ And so we have a functor $\FF_E$. Its laws let us think of computations of
 type $\FF_E(\alpha)$ as containing values of type $\alpha$ over which we
 can map functions the same way one would map a function over a list,
 satisfying the same basic laws.
+
+We also note that $\banana{\lambda}$ already has syntax for this kind of
+mapping: $\FF_E(f)(X) = \sem{x \apr y}([x \mapsto f, y \mapsto X])$ where
+$\apr$ is the operator introduced in~\ref{ssec:composing-functions}.
+
+
+\subsection{Applicative Functor}
+\label{ssec:applicative-functor}
+
+The two remaining structures, applicative functors and monads, both have
+two popular and slightly different presentations. One is in terms of
+natural transformations and is very common in category theory whereas the
+other is given in terms of combinators and is preferred in functional
+programming. Since we will not be using category theory in the rest of this
+thesis and we will work with lots of combinators, we will focus on the
+presentation favored in functional programming.
+
+\begin{definition}
+  An \emph{applicative functor}~\cite{mcbride2008applicative} is a functor
+  $F$ alongside with two combinators, $\pure : \alpha \to F(\alpha)$ and
+  $\circledast : F(\alpha \to \beta) \to F(\alpha) \to
+  F(\beta)$\footnote{$\circledast$ is an infix operator that associates to
+    the left, same as application (which it is based on).}  polymorphic in
+  $\alpha$ and $\beta$\footnote{This means that the combinators should not
+    have different definitions for different instances of the type
+    variables $\alpha$ and $\beta$.}. Furthermore, the following laws must
+  hold\footnote{$(\circ)$ is the function composition combinator.}:
+
+  \begin{align}
+    \label{law:app-identity}\pure(\id) \circledast u &= u & \text{(Identity)} \\
+    \label{law:app-composition}\pure(\circ) \circledast u \circledast v \circledast w &= u \circledast (v \circledast w) & \text{(Composition)} \\
+    \label{law:app-homomorphism}\pure(f) \circledast \pure(x) &= \pure(f(x)) & \text{(Homomorphism)} \\
+    \label{law:app-interchange}u \circledast \pure(x) &= \pure(\lam{f}{f(x)}) \circledast u & \text{(Interchange)}
+  \end{align}
+\end{definition}
+
+The idea is that the functor $F$ adds some notion of a computational
+effect. $F(\alpha)$ is then a type of computations having that effect and
+producing a value of type $\alpha$. The $\pure$ combinator injects a value
+into the domain of computations without doing anything on the effect
+level. The $(\circledast)$ operator is then meant as a sequencing of two
+computations: one yielding a function and the other yielding its argument.
+
+The identity law makes sure that $\pure$ is indeed pure and does not add
+any meaningful effect: the effect of $\pure$ must in no way tamper with the
+effect of $u$. The composition law tells us that the $\circledast$ operator
+must be associative: at the level of effects, there is some monoidal
+structure, where order matters, but parentheses do not. The homomorphism
+law makes sure that $\circledast$ does actually perform
+application. Finally, the interchange law guarantees that $\circledast$ is
+not one-sided: the effect of $u$ is respected, no matter if it occurs to
+the left or to the right of the $\circledast$.
+
+To show that $\FF_E$ is an applicative functor, we will need to define
+$\pure$ and $(\circledast)$ and prove the four applicative functor laws.
+
+\begin{align*}
+  \pure(x) &= \eta(x) \\
+  F \circledast X &= F \hsbind (\lam{f}{X \hsbind (\lam{x}{\eta(f(x))})})
+\end{align*}
+
+Now, we prove the laws.
+
+Identity~\eqref{law:app-identity}:
+
+\setcounter{TemporaryCounter}{\value{equation}}
+\setcounter{equation}{0}
+\NoChapterPrefix
+\begin{align}
+  \pure(\id) \circledast u
+  &= \eta(\id) \circledast u \\
+  &= \eta(\id) \hsbind (\lam{f}{u \hsbind (\lam{x}{\eta(f(x))})}) \\
+  &= (\lam{f}{u \hsbind (\lam{x}{\eta(f(x))})})(\id) \\
+  &= u \hsbind (\lam{x}{\eta(\id(x))}) \\
+  &= u \hsbind (\lam{x}{\eta(x)}) \\
+  &= u
+\end{align}
+\setcounter{equation}{\value{TemporaryCounter}}
+\ChapterPrefix
+
+We make use of the left and right identities of $\hsbind$ on Lines~3 and 6,
+respectively.
+
+Composition~\eqref{law:app-composition}:
+
+\setcounter{TemporaryCounter}{\value{equation}}
+\setcounter{equation}{0}
+\NoChapterPrefix
+\begin{align}
+  \pure(\circ) \circledast u \circledast v \circledast w
+  &= \pure(\lam{f g x}{f(g(x))}) \circledast u \circledast v \circledast w \\
+  &= \eta(\lam{f g x}{f(g(x))}) \circledast u \circledast v \circledast w \\
+  &= (\eta(\lam{f g x}{f(g(x))}) \hsbind (\lam{f}{u \hsbind (\lam{x}{\eta(f(x))})})) \circledast v \circledast w \\
+  &= ((\lam{f}{u \hsbind (\lam{u'}{\eta(f(u'))})})(\lam{f g x}{f(g(x))})) \circledast v \circledast w \\
+  &= (u \hsbind (\lam{u'}{\eta((\lam{f g x}{f(g(x))})(u'))})) \circledast v \circledast w \\
+  &= (u \hsbind (\lam{u'}{\eta(\lam{g x}{u'(g(x))})})) \circledast v \circledast w \\
+  &= ((u \hsbind (\lam{u'}{\eta(\lam{g x}{u'(g(x))})})) \hsbind (\lam{f}{v \hsbind (\lam{v'}{\eta(f(v'))})})) \circledast w \\
+  &= (u \hsbind (\lam{u'}{\eta(\lam{g x}{u'(g(x))}) \hsbind (\lam{f}{v \hsbind (\lam{v'}{\eta(f(v'))})})})) \circledast w \\
+  &= (u \hsbind (\lam{u'}{(\lam{f}{v \hsbind (\lam{v'}{\eta(f(v'))})})(\lam{g x}{u'(g(x))})})) \circledast w \\
+  &= (u \hsbind (\lam{u'}{v \hsbind (\lam{v'}{\eta((\lam{g x}{u'(g(x))})(v'))})})) \circledast w \\
+  &= (u \hsbind (\lam{u'}{v \hsbind (\lam{v'}{\eta(\lam{x}{u'(v'(x))})})})) \circledast w \\
+  &= (u \hsbind (\lam{u'}{v \hsbind (\lam{v'}{\eta(\lam{x}{u'(v'(x))})})})) \hsbind (\lam{f}{w \hsbind (\lam{w'}{\eta(f(w'))})}) \\
+  &= u \hsbind (\lam{u'}{v \hsbind (\lam{v'}{\eta(\lam{x}{u'(v'(x))})}) \hsbind (\lam{f}{w \hsbind (\lam{w'}{\eta(f(w'))})})}) \\
+  &= u \hsbind (\lam{u'}{v \hsbind (\lam{v'}{\eta(\lam{x}{u'(v'(x))}) \hsbind (\lam{f}{w \hsbind (\lam{w'}{\eta(f(w'))})})})}) \\
+  &= u \hsbind (\lam{u'}{v \hsbind (\lam{v'}{(\lam{f}{w \hsbind (\lam{w'}{\eta(f(w'))})})(\lam{x}{u'(v'(x))})})}) \\
+  &= u \hsbind (\lam{u'}{v \hsbind (\lam{v'}{w \hsbind (\lam{w'}{\eta((\lam{x}{u'(v'(x))})(w'))})})}) \\
+  &= u \hsbind (\lam{u'}{v \hsbind (\lam{v'}{w \hsbind (\lam{w'}{\eta(u'(v'(w')))})})}) \\
+  &= u \hsbind (\lam{u'}{v \hsbind (\lam{v'}{w \hsbind (\lam{w'}{(\lam{x}{\eta(u'(x))})(v'(w'))})})}) \\
+  &= u \hsbind (\lam{u'}{v \hsbind (\lam{v'}{w \hsbind (\lam{w'}{\eta(v'(w')) \hsbind (\lam{x}{\eta(u'(x))})})})}) \\
+  &= u \hsbind (\lam{u'}{v \hsbind (\lam{v'}{(w \hsbind (\lam{w'}{\eta(v'(w'))})) \hsbind (\lam{x}{\eta(u'(x))})})}) \\
+  &= u \hsbind (\lam{u'}{(v \hsbind (\lam{v'}{w \hsbind (\lam{w'}{\eta(v'(w'))})})) \hsbind (\lam{x}{\eta(u'(x))})}) \\
+  &= u \hsbind (\lam{u'}{(v \circledast w) \hsbind (\lam{x}{\eta(u'(x))})}) \\
+  &= u \circledast (v \circledast w)
+\end{align}
+\setcounter{equation}{\value{TemporaryCounter}}
+\ChapterPrefix
+
+This law relies heavily on the associativity of
+$\hsbind$~\eqref{law:associativity}. At the beginning, the expression is
+associated to the left:
+$((\pure(\circ) \circledast u) \circledast v) \circledast w$. And at the
+end, it associated to the right: $u \circledast (v \circledast w)$. In the
+first part of the proof, we use left identity (Lines~4, 9 and 15) and
+associativity (Lines~8 and 13). We reach a normal form on Line~17 and start
+expanding the term again. We expand using left identity on Line~19 and then
+we reassociate using associativity on Lines~20 and 21. The rest of the
+equalities is due to the definitions of $\pure$ and $\circledast$ and
+$\beta$ reduction.
+
+Homomorphism~\eqref{law:app-homomorphism}:
+
+\setcounter{TemporaryCounter}{\value{equation}}
+\setcounter{equation}{0}
+\NoChapterPrefix
+\begin{align}
+\pure(f) \circledast \pure(x)
+&= \eta(f) \circledast \eta(x) \\
+&= \eta(f) \hsbind (\lam{f'}{\eta(x) \hsbind (\lam{x'}{\eta(f'(x'))})}) \\
+&= (\lam{f'}{\eta(x) \hsbind (\lam{x'}{\eta(f'(x'))})})(f) \\
+&= \eta(x) \hsbind (\lam{x'}{\eta(f(x'))}) \\
+&= (\lam{x'}{\eta(f(x'))})(x) \\
+&= \eta(f(x)) \\
+&= \pure(f(x))
+\end{align}
+\setcounter{equation}{\value{TemporaryCounter}}
+\ChapterPrefix
+
+This proof is very direct. We just have to normalize the term using the
+left identity of $\hsbind$~\eqref{law:left-identity}.
+
+Interchange~\eqref{law:app-interchange}:
+
+\setcounter{TemporaryCounter}{\value{equation}}
+\setcounter{equation}{0}
+\NoChapterPrefix
+\begin{align}
+\pure(\lam{f}{f(x)}) \circledast u
+&= \eta(\lam{f}{f(x)}) \circledast u \\
+&= \eta(\lam{f}{f(x)}) \hsbind (\lam{f'}{u \hsbind (\lam{u'}{\eta(f'(u'))})}) \\
+&= (\lam{f'}{u \hsbind (\lam{u'}{\eta(f'(u'))})})(\lam{f}{f(x)}) \\
+&= u \hsbind (\lam{u'}{\eta((\lam{f}{f(x)})(u'))}) \\
+&= u \hsbind (\lam{u'}{\eta(u'(x))}) \\
+&= u \hsbind (\lam{u'}{(\lam{x'}{\eta(u'(x'))})(x)}) \\
+&= u \hsbind (\lam{u'}{\eta(x) \hsbind (\lam{x'}{\eta(u'(x'))})}) \\
+&= u \circledast \eta(x) \\
+&= u \circledast \pure(x)
+\end{align}
+\setcounter{equation}{\value{TemporaryCounter}}
+\ChapterPrefix
+
+We start with the law's right-hand side and normalize it on Line~5. Then we
+do some expansions (left identity on Line~7) to get the desired form.
+
+And there we are, we now have an applicative functor.
+
+\subsection{Monad}
+\label{ssec:monad}
 
 
 \section{Confluence}
