@@ -298,138 +298,6 @@ cases for uninterpreted operations).
 \end{proof}
 
 
-\section{Algebraic Properties}
-\label{sec:algebraic-properties}
-
-In this section, we will clarify what we mean when we say that the
-$\FF_E(\alpha)$ computation types form a functor/applicative functor/monad
-and we will prove that the constructions in our calculus conform to the
-laws of these algebraic structures. All these terms are defined w.r.t.\
-some category and so we will start by introducing the category underlying
-$\banana{\lambda}$.
-
-\subsection{Category}
-\label{ssec:category}
-
-\begin{definition}
- A \demph{category} consists of:
-\begin{itemize}
-\item a set of objects
-\item for every two objects $A$ and $B$, a set of arrows from $A$ to $B$
-  (an arrow $f$ from $A$ to $B$ is written as $f : A \to B$)
-\item for any two arrows $f : B \to C$ and $g : A \to B$, there exists the
-  composition of the two arrows $f \circ g : A \to C$
-\item for any object $A$, there exists a special arrow $\id_A : A \to A$
-\item the following equations hold for any $f : C \to D$, $g : B \to C$ and
-  $h : A \to B$:
-  \begin{align}
-    \label{eq:cat-associativity}(f \circ g) \circ h &= f \circ (g \circ h) \\
-    \label{eq:cat-left-identity}\id_D \circ f &= f \\
-    \label{eq:cat-right-identity}f \circ \id_C &= f
-  \end{align}
-\end{itemize}
-\end{definition}
-
-We will be working with a particular category, which we will call
-$\banana{\lambda}$. The $\banana{\lambda}$ category consists of:
-\begin{description}
-\item[objects:] the types of the $\banana{\lambda}$ calculus
-\item[arrows:] for any two types $\alpha$ and $\beta$, the arrows from
-  $\alpha$ to $\beta$ are the (equivalence classes of) closed
-  $\banana{\lambda}$ terms of type $\alpha \to \beta$\footnote{We treat the
-    reduction rules of our calculus as undirected equations. Two terms are
-    then equal if we get from one to the other by a sequence of reductions
-    and expansions. The equivalence in question is the
-    reflexive-symmetric-transitive closure of the reduction relation.}
-\item[composition:] for any two terms $M : \beta \to \gamma$ and $N :
-  \alpha \to \beta$, we define their composition as the term $M \circ N :
-  \alpha \to \gamma$
-\item[identities:] for every type $\alpha$, we take $\lam{x}{x} : \alpha
-  \to \alpha$ as the identity $\id_\alpha$
-\end{description}
-
-Next, we need to prove that this structure satisfies the equations given
-above.
-
-Associativity~\eqref{eq:cat-associativity}:
-\begin{align*}
-  (M \circ N) \circ O
-  &= (\lam{x}{\ap{M}{(\ap{N}{x})}}) \circ O \\
-  &= \lam{y}{\ap{(\lam{x}{\ap{M}{(\ap{N}{x})}})}{(\ap{O}{y})}} \\
-  &\to_\beta \lam{y}{\ap{M}{(\ap{N}{(\ap{O}{y})})}} \\
-  &\from_\beta \lam{y}{\ap{M}{(\ap{(\lam{z}{\ap{N}{(\ap{O}{z})}})}{y})}} \\
-  &= \lam{y}{\ap{M}{(\ap{(N \circ O)}{y})}} \\
-  &= M \circ (N \circ O)
-\end{align*}
-
-Left identity~\eqref{eq:cat-left-identity}:
-\begin{align*}
-  \id_\beta \circ M
-  &= (\lam{x}{x}) \circ M \\
-  &= \lam{y}{\ap{(\lam{x}{x})}{(\ap{M}{y})}} \\
-  &\to_\beta \lam{y}{\ap{M}{y}} \\
-  &\to_\eta M
-\end{align*}
-
-Right identity~\eqref{eq:cat-right-identity}:
-\begin{align*}
-  M \circ \id_\alpha
-  &= M \circ (\lam{x}{x}) \\
-  &= \lam{y}{\ap{M}{(\ap{(\lam{x}{x})}{y})}} \\
-  &\to_\beta \lam{y}{\ap{M}{y}} \\
-  &\to_\eta M
-\end{align*}
-
-
-\subsection{Functor}
-\label{ssec:functor}
-
-\begin{definition}
-A \demph{functor} is a homomorphic mapping from one category to
-another. A functor $F$ from a category a $\CC$ to a category $\DD$
-consists of:
-\begin{itemize}
-\item for every object $A$ in $\CC$, an object $F(A)$ in $\DD$
-\item for every arrow $f : A \to B$ in $\CC$, an arrow $F(f) : F(A) \to
-  F(B)$ in $\DD$
-\item the following equations hold:
-  \begin{align}
-    \label{eq:functor-composition}F(f \circ g) &= F(f) \circ F(g) \\
-    \label{eq:functor-identity}F(\id_A) &= \id_{F(A)}
-  \end{align}
-\end{itemize}
-\end{definition}
-
-\begin{definition}
-  An \demph{endofunctor} is a functor from some category $\CC$ to the same
-  category.
-\end{definition}
-
-For every effect signature $E$, we will show that $\FF_E$ is an endofunctor
-on the $\banana{\lambda}$ category.
-\begin{description}
-\item[objects:] for every type $\alpha$, we have a type $\FF_E(\alpha)$
-\item[arrows:] for every function $f : \alpha \to \beta$, \\ we have a
-  function $\FF_E(f) = \lam{X}{f \apr X} = \lam{X}{X \hsbind
-  (\lam{x}{\etaE{(\ap{f}{x})}})} : \FF_E(\alpha) \to \FF_E(\beta)$
-\end{description}
-
-We also need to prove that $\FF_E$ satisfies the necesary equations.
-
-Composition~\eqref{eq:functor-composition}:
-\begin{align*}
-  \FF_E(f \circ g)
-  &= \lam{X}{X \hsbind (\lam{x}{\etaE{(\ap{(f \circ g)}{x})}})} \\
-  &\to_\circ \lam{X}{X \hsbind (\lam{x}{\etaE{(\ap{f}{(\ap{g}{x})})}})} \\
-  &? \lam{X}{(X \hsbind (\lam{x}{\etaE{(\ap{g}{x})}})) \hsbind (\lam{y}{\etaE{(\ap{f}{y})}})} \\
-  &\from_\beta \lam{X}{\ap{(\lam{Y}{Y \hsbind (\lam{y}{\etaE{(\ap{f}{y})}})})}{(X \hsbind (\lam{x}{\etaE{(\ap{g}{x})}}))}} \\
-  &= \lam{X}{\ap{\FF_E(f)}{(X \hsbind (\lam{x}{\etaE{(\ap{g}{x})}}))}} \\
-  &\from_\beta \lam{X}{\ap{\FF_E(f)}{(\ap{(\lam{Y}{Y \hsbind (\lam{y}{\etaE{(\ap{g}{y})}})})}{X})}} \\
-  &= \lam{X}{\ap{\FF_E(f)}{(\ap{\FF_E(g)}{X})}} \\
-  &= \FF_E(f) \circ \FF_E(g)
-\end{align*}
-
-
 \section{Type Soundness}
 \label{sec:type-soundness}
 
@@ -906,6 +774,529 @@ and get us stuck quite easily.
   operator to this function is undefined and evaluation gets stuck.
 \end{proof}
 
+
+\section{Algebraic Properties}
+\label{sec:algebraic-properties}
+
+In this section, we will clarify what we mean when we say that the
+$\FF_E(\alpha)$ computation types form a functor/applicative functor/monad
+and we will prove that the constructions in our calculus conform to the
+laws of these algebraic structures.
+
+The object on which we will build these mathematical structures will be the
+meanings of $\banana{\lambda}$ terms. We will therefore start by building
+an interpretation for $\banana{\lambda}$, a denotational semantics. Then we
+will be in measure to define the algebraic structures mentioned above and
+verify that their laws are satisfied.
+
+
+\subsection{Denotational Semantics}
+\label{ssec:denotational-semantics}
+
+We start by identifying the domains of interpretation. For each type, we
+designate a set such that all terms having that type will be interpreted in
+that set. Before we do so, we introduce some notation on sets.
+
+\begin{notation}
+  Let $A$ and $B$ be sets. Then:
+
+  \begin{itemize}
+  \item $A^B$ is the set of functions from $B$ to $A$
+  \item $A \times B$ is the cartesian product of $A$ and $B$
+  \item $A \uplus B$ is the disjoint union of $A$ and $B$
+  \item $A_\bot$ is the disjoint union of $A$ and $\{\bot\}$
+  \end{itemize}
+\end{notation}
+
+\begin{definition}
+  Given a set $A_\nu$ for every atomic type $\nu$, the
+  \demph{interpretation of a type} $\tau$ is a set $\sem{\tau}$ defined
+  inductively by:
+  
+  \begin{align*}
+    \sem{\nu} &= (A_\nu)_\bot \\
+    \sem{\alpha \to \beta} &= (\sem{\alpha} \to \sem{\beta})_\bot \\
+    \sem{\FF_E(\gamma)} &=
+      (\sem{\gamma} \uplus \biguplus_{\typedop{op}{\alpha}{\beta} \in E} \sem{\alpha} \times \sem{\FF_E(\gamma)}^{\sem{\beta}})_\bot
+  \end{align*}
+  
+  Note that $\sem{\FF_E(\gamma)}$ is recursively defined not only by
+  induction on the type itself but also by its use of $\sem{\FF_E(\gamma)}$
+  on the right hand side. Formally, we take $\sem{\FF_E(\gamma)}$ to be the
+  least fixed point of the monotone functional
+  $F(X) = (\sem{\gamma} \uplus \biguplus_{\typedop{op}{\alpha}{\beta} \in
+    E} \sem{\alpha} \times X^{\sem{\beta}})_\bot$, whose existence is
+  guaranteed by the Knaster-Tarski theorem
+  \cite{knaster1928theoreme,tarski1955lattice}.
+\end{definition}
+
+\begin{notation}
+  We will use $\lambda$ notation to write down elements of
+  $\sem{\alpha \to \beta}$:
+  
+  \begin{itemize}
+  \item $\lam{x}{F[x]} \in \sem{\alpha \to \beta}$ when
+    $F[x] \in \sem{\beta}$ for every $x \in \sem{\alpha}$
+  \item $\bot \in \sem{\alpha \to \beta}$
+  \end{itemize}
+
+  We will use the following syntax to write down elements of
+  $\sem{\FF_E(\gamma)}$:
+  
+  \begin{itemize}
+  \item $\eta(x) \in \sem{\FF_E(\gamma)}$ with $x \in \sem{\gamma}$
+  \item $\op{op}(p,c) \in \sem{\FF_E(\gamma)}$ with
+    $\typedop{op}{\alpha}{\beta} \in E$, $p \in \sem{\alpha}$ and
+    $c \in \sem{\FF_E(\gamma)}^{\sem{\beta}}$
+  \item $\bot \in \sem{\FF_E(\gamma)}$
+  \end{itemize}
+\end{notation}
+
+The definition of $\sem{\tau}$ follows the definition of a value
+in~\ref{ssec:progress}: function types denote functions and computation
+types either denote atomic algebraic expressions ($\eta$) or applications
+of algebraic operations ($\op{op}$). In the denotational semantics, we also
+take care of the fact that terms can get stuck and fail to yield the
+expected value. We represent this by adding the element $\bot$ to the
+interpretation of every type.
+
+\begin{definition}
+  We define the \demph{interpretation of a typing context} $\Gamma$
+  as the set $\sem{\Gamma}$ of functions that map every
+  $x : \alpha \in \Gamma$ to an element of $\sem{\alpha}$.
+  
+  We will call these functions \demph{valuations}. We will use the notation
+  $\subst{e}{x}{f}$ to stand for the \demph{extension} of $e$ with
+  $x \mapsto f$. The domain of the extension is $\dom(e) \cup x$. The
+  extension maps $x$ to $f$ and every other variable in its domain to
+  $e(x)$.
+\end{definition}
+
+\begin{definition}
+  Assume given $\II(c) \in \sem{\alpha}$ for every constant
+  $c : \alpha \in \Sigma$. For a well-typed term $M$ with
+  $\Gamma \vdash M : \tau$, we define the \demph{interpretation of term}
+  $M$ as a function $\sem{M}$ from $\sem{\Gamma}$ to $\sem{\tau}$. The
+  definition proceeds by induction on $M$\footnote{In the definition, we
+    make use of $\sem{\cibanana}(e)$ and $\sem{\CC}$. This notation is
+    introduced right after this definition.}:
+  
+  \begin{align*}
+    \sem{\lam{x}{M}}(e) &= \lam{X}{(\sem{M}(\subst{e}{x}{X}))} \\
+    \sem{x}(e) &= e(x) \\
+    \sem{\ap{M}{N}}(e) &= \begin{cases}
+      \sem{M}(e)(\sem{N}(e)),& \text{if $\sem{M}(e)$ is a function} \\
+      \bot, & \text{if $\sem{M}(e)$ is $\bot$}
+    \end{cases} \\
+    \sem{c}(e) &= \II(c) \\
+    \sem{\app{\op{op}}{M_\petitp}{(\lam{x}{M_\petitc})}}(e) &=
+      \op{op}(\sem{M_\petitp}(e), \lam{X}{(\sem{M}({\subst{e}{x}{X}}))}) \\
+    \sem{\etaE{M}}(e) &= \eta(\sem{M}(e)) \\
+    \sem{\ap{\cibanana}{N}}(e) &= \sem{\cibanana}(e)(\sem{N}(e)) \\
+    \sem{\ap{\cherry}{M}}(e) &= \begin{cases}
+      x, & \text{if $\sem{M}(e) = \eta(x)$} \\
+      \bot, & \text{otherwise} \\
+    \end{cases} \\
+    \sem{\ap{\CC}{M}}(e) &= \sem{\CC}(\sem{M}(e))
+  \end{align*}
+\end{definition}
+
+\begin{definition}
+  The \demph{interpretation of a handler} $\cibanana$ within a valuation
+  $e$ (also written as $\sem{\cibanana}(e)$) is the function $h$ defined
+  inductively by:
+
+  \begin{align*}
+    h(\eta(x)) &= \begin{cases}
+      \sem{M_\eta}(e)(x), & \text{if $\sem{M_\eta}(e)$ is a function} \\
+      \bot, & \text{otherwise} \\
+    \end{cases} \\
+    h(\op{op}_j(p, c)) &= \begin{cases} 
+      \sem{M_j}(e)(p)(\lam{x}{h(c(x))}), & \text{if $j \in I$, and $\sem{M_j}(e)$ and $\sem{M_j}(e)(p)$ are both functions} \\
+      \op{op}_j(p, \lam{x}{h(c(x))}), & \text{if $j \notin I$} \\
+      \bot, & \text{otherwise} \\
+    \end{cases} \\
+    h(\bot) &= \bot
+  \end{align*}
+  
+  The equations defining $h$ use $h$ on the right-hand side. Nevertheless,
+  $h$ is well-defined since we can rely on induction. There is a
+  \demph{well-founded ordering on the elements of $\sem{\FF_E(\gamma)}$},
+  where $\forall x.\ \op{op}(p, c) > c(x)$.
+
+  The monotonic functional
+  $F(X) = (\sem{\gamma} \uplus \biguplus_{\typedop{op}{\alpha}{\beta} \in
+    E} \sem{\alpha} \times X^{\sem{\beta}})_\bot$ used in defining
+  $\sem{\FF_E(\gamma)}$ is also Scott-continuous (i.e.\ it is both
+  monotonic and it preserves suprema). By Kleene fixed-point
+  theorem~\cite{kleene1952introduction}, we have that the least fixed point
+  of $F$ is the supremum of the series
+  $\emptyset \subseteq F(\emptyset) \subseteq F(F(\emptyset)) \subseteq
+  \ldots$.
+
+  Let the \demph{rank} of $x$ be the smallest $n$ such that
+  $x \in F^n(\emptyset)$. The ordering $<_\petitr$, defined as
+  $x <_\petitr y$ whenever $\rank(x) < \rank(y)$, is a well-founded
+  ordering. It is also the inductive ordering that we were looking
+  for. Whenever $\rank(\op{op}(p, c)) = n$, then $c$ is a function whose
+  codomain is $F^{n-1}(\emptyset)$ and therefore
+  $\forall x.\ \op{op}(p, c) >_\petitr c(x)$.
+\end{definition}
+
+\begin{definition}
+  The \demph{interpretation of the $\CC$ operator} is a function $g$
+  defined inductively by:
+  
+  \begin{align*}
+    g(f) &= \begin{cases}
+      \eta(h), & \text{if $f$ is a function and $\exists h.\ \forall x.\ f(x) = \eta(h(x))$} \\
+      \op{op}(p, \lam{y}{g(\lam{x}{c(x)(y)})}), & \text{if $f$ is a function and $\exists \op{op},p,c.\ \forall x.\ f(x) = \op{op}(p, c(x))$} \\
+      \bot, & \text{otherwise} \\
+    \end{cases}
+  \end{align*}
+  
+  As with the previous definition, we have to show that this is actually a
+  valid definition since we are using $g$ on the right-hand side of an
+  equation defining $g$. This time around, the arguments to $g$ are
+  functions whose codomain is the interpretation of some computation type
+  $\FF_E(\gamma)$. We can extend a well-founded ordering on the set
+  $\sem{\FF_E(\gamma)}$ to a well-founded ordering on the set of functions
+  from $A$ to $\sem{\FF_E(\gamma)}$ by stating that $f < g$ whenever
+  $\forall x \in A.\ f(x) < g(x)$.
+  
+  We have to show that the recursive call to $g$ in the definition above is
+  performed on an argument which is smaller than the original function. Let
+  $f' = \lam{x}{c(x)(y)}$ be the function to which we recursively apply
+  $g$. We have that $f(x) = \op{op}(p, c(x))$ and $f'(x) = c(x)(y)$. We
+  know that $\forall y.\ \op{op}(p, c(x)) > c(x)(y)$, since that is the
+  property of the well-founded ordering on the elements of
+  $\sem{\FF_E(\gamma)}$ established above. Therefore, we have that
+  $\forall x.\ f(x) > f'(x)$ and so $f > f'$.
+\end{definition}
+
+This was the entire definition of our denotational semantics\footnote{We
+  could also extend this interpretation to sums and products. The types
+  would be interpreted by
+  $\sem{\alpha \times \beta} = (\sem{\alpha} \times \sem{\beta})_\bot$ and
+  $\sem{\alpha + \beta} = (\sem{\alpha} \uplus \sem{\beta})_\bot$. The term
+  level definitions would be the standard definitions one would expect for
+  pairs and variants (modulo the treatment of $\bot$).}. We will now
+compare it to the reduction semantics introduced in~\ref{sec:reductions}.
+
+\begin{observation}
+  (Soundness of reduction w.r.t.\ denotations)
+
+  Whenever $M \to N$ in $\banana{\lambda}$, then $\sem{M} = \sem{N}$.
+\end{observation}
+
+\begin{proof}
+  To prove so for the $\beta$ rule is a matter of proving a lemma stating
+  that $\sem{M}(\subst{e}{x}{\sem{N}(e)}) = \sem{\subst{M}{x}{N}}(e)$,
+  which follows from the compositionality of our interpretation. For all
+  the other rules, it suffices to use the definition of interpretation to
+  calculate the denotation of both the left-hand side and the right-hand
+  side and verify that they are the same object.
+\end{proof}
+
+We see that equalities from the reduction semantics are carried over to the
+denotational semantics. The converse, however, is not the case.
+
+\begin{observation}
+  (Incompleteness of reduction w.r.t.\ denotations)
+  
+  There exist terms $M$ and $N$ in $\banana{\lambda}$ such that
+  $\sem{M} = \sem{N}$ but $M$ and $N$ are not convertible.
+\end{observation}
+
+\begin{proof}
+  Consider a stuck term such as $M = \ap{\CC}{(\lam{x}{x})}$ and another
+  term $N = \ap{\banana{}}{M} =
+  \ap{\banana{}}{(\ap{\CC}{(\lam{x}{x})})}$. Neither of these two terms is
+  reducible and neither of them is a value. They are stuck and the
+  denotational semantics assigns the value $\bot$ to both of them,
+  therefore $\sem{M} = \sem{N}$. However, as a consequence of confluence
+  (coming up in~\ref{sec:confluence}), a pair of different normal terms is
+  never convertible, and therefore $M$ and $N$ are not convertible.
+\end{proof}
+
+And this concludes the definition of the denotational semantics of
+$\banana{\lambda}$. Throughout most of the manuscript, we will be using the
+reduction semantics introduced in~\ref{sec:reductions}, even though it is
+incomplete, since it allows us to simplify terms in a mechanical and
+transparent step-by-step manner. However, the denotational semantics will
+be useful to us in the rest of this section since it will let us access
+extra equalities needed to prove some general laws.
+
+
+\subsection{Category}
+\label{ssec:category}
+
+We aim to show that the computation types in $\banana{\lambda}$ form a
+functor, applicative functor and a monad. All these terms are defined
+w.r.t.\ some category and so we will start by introducing the category
+underlying $\banana{\lambda}$.
+
+\begin{definition}
+ A \demph{category} consists of:
+\begin{itemize}
+\item a set of objects
+\item for every two objects $A$ and $B$, a set of arrows from $A$ to $B$
+  (an arrow $f$ from $A$ to $B$ is written as $f : A \to B$)
+\item for any two arrows $f : B \to C$ and $g : A \to B$, there exists the
+  composition of the two arrows $f \circ g : A \to C$
+\item for any object $A$, there exists a special arrow $\id_A : A \to A$
+\item the following equations hold for any $f : C \to D$, $g : B \to C$ and
+  $h : A \to B$:
+  \begin{align}
+    \label{law:cat-associativity}(f \circ g) \circ h &= f \circ (g \circ h) \\
+    \label{law:cat-left-identity}\id_D \circ f &= f \\
+    \label{law:cat-right-identity}f \circ \id_C &= f
+  \end{align}
+\end{itemize}
+\end{definition}
+
+We will be working with a particular category, which we will call
+$\banana{\lambda}$. The $\banana{\lambda}$ category consists of:
+\begin{description}
+\item[objects:] the types of the $\banana{\lambda}$ calculus
+\item[arrows:] for any two types $\alpha$ and $\beta$, the arrows from
+  $\alpha$ to $\beta$ are the functions from $\sem{\alpha}$ o
+  $\sem{\beta}$
+\item[composition:] composition of arrows is defined as composition of functions
+\item[identities:] for every type $\alpha$, we define $\id_\alpha$ as the
+  identity function with domain $\sem{\alpha}$
+\end{description}
+
+Since the arrows in our category are functions, the three laws of a
+category (associativity (\ref{law:cat-associativity}), left identity
+(\ref{law:cat-left-identity}) and right identity
+(\ref{law:cat-right-identity})) fall out of the same properties for
+functions.
+
+
+\subsection{The Three Laws}
+\label{ssec:three-laws}
+
+Monads form a subset of applicative functors which in turn is a subset of
+functors. Instead of incrementally building up from a functor all the way
+to a monad, it will end up being more practical to first prove the monad
+laws and then just show how they let us verify the functor and applicative
+functor laws. Therefore, we first define our monadic bind operator and
+prove the three monad laws.
+
+\begin{definition}
+  Let $X$ be from $\sem{\FF_E(\alpha)}$ and $f$ be a function from
+  $\sem{\alpha}$ to $\sem{\FF_E(\beta)}$. We define $X \hsbind f$
+  inductively on the structure of $X$:
+
+  \begin{align*}
+    \op{op}(p, c) \hsbind f &= \op{op}(p, \lam{x}{(c(x) \hsbind f)}) \\
+    \eta(x) \hsbind f &= f(x) \\
+    \bot \hsbind f &= \bot
+  \end{align*}
+
+  Note that $X \hsbind f$ is equivalent to
+  $\sem{x \hsbind y}([x \mapsto X, y \mapsto f])$.
+\end{definition}
+
+\begin{law}\label{law:associativity}
+  (Associativity of $\hsbind$)
+  
+  Let $X$ be from $\sem{\FF_E(\alpha)}$, $f$ be a function from
+  $\sem{\alpha}$ to $\sem{\FF_E(\beta)}$ and $g$ be a function from
+  $\sem{\beta}$ to $\sem{\FF_E(\gamma)}$. Then the following equation
+  holds:
+  
+  $$
+  (X \hsbind f) \hsbind g = X \hsbind (\lam{x}{(f(x) \hsbind g)})
+  $$
+\end{law}
+
+\begin{proof}
+  Proof by induction on the well-founded structure of $X$:
+  
+  \begin{itemize}
+  \item $X = \bot$
+    
+    \vspace{-0.5cm}
+    \begin{align*}
+      (\bot \hsbind f) \hsbind g
+      &= \bot \hsbind g \\
+      &= \bot \\
+      &= \bot \hsbind (\lam{x}{(f(x) \hsbind g)})
+    \end{align*}
+    
+  \item $X = \eta(x)$
+
+    \vspace{-0.5cm}
+    \begin{align*}
+      (\eta(x) \hsbind f) \hsbind g
+      &= f(x) \hsbind g \\
+      &= (\lam{x}{(f(x) \hsbind g)})(x) \\
+      &= \eta(x) \hsbind (\lam{x}{(f(x) \hsbind g)})
+    \end{align*}
+    
+  \item $X = \op{op}(p, c)$
+    
+    \vspace{-0.5cm}
+    \begin{align*}
+      (\op{op}(p, c) \hsbind f) \hsbind g
+      &= \op{op}(p, \lam{y}{(c(y) \hsbind f)}) \hsbind g \\
+      &= \op{op}(p, \lam{y}{((c(y) \hsbind f) \hsbind g)}) \\
+      &= \op{op}(p, \lam{y}{(c(y) \hsbind (\lam{x}{(f(x) \hsbind g)}))}) \\
+      &= \op{op}(p, c) \hsbind (\lam{x}{(f(x) \hsbind g)})
+    \end{align*}
+  \end{itemize}
+\end{proof}
+
+\begin{law}\label{law:left-identity}
+  (Left identity for $\hsbind$)
+  
+  Let $\eta(x)$ be from $\sem{\FF_E(\alpha)}$ and $f$ be a function from
+  $\sem{\alpha}$ to $\sem{\FF_E(\beta)}$. Then the following holds:
+  
+  $$
+  \eta(x) \hsbind f = f(x)
+  $$
+\end{law}
+
+\begin{proof}
+  Follows immediately from the definition of $\hsbind$.
+\end{proof}
+
+\begin{law}\label{law:right-identity}
+  (Right identity for $\hsbind$)
+  
+  Let $X$ be from $\sem{\FF_E(\alpha)}$. Then the following holds:
+
+  $$
+  X \hsbind (\lam{x}{\eta(x)}) = X
+  $$
+\end{law}
+
+\begin{proof}
+  By induction on the structure of $X$:
+  
+  \begin{itemize}
+  \item $X = \bot$
+    
+    \vspace{-0.5cm}
+    \begin{align*}
+      \bot \hsbind (\lam{x}{\eta(x)})
+      &= \bot
+    \end{align*}
+   
+  \item $X = \eta(x)$
+    
+    \vspace{-0.5cm}
+    \begin{align*}
+      \eta(x) \hsbind (\lam{x}{\eta(x)})
+      &= (\lam{x}{\eta(x)})(x) \\
+      &= \eta(x)
+    \end{align*}
+    
+  \item $X = \op{op}(p, c)$
+
+    \vspace{-0.5cm}
+    \begin{align*}
+      \op{op}(p, c) \hsbind (\lam{x}{\eta(x)})
+      &= \op{op}(p, \lam{y}{(c(y) \hsbind (\lam{x}{\eta(x)}))}) \\
+      &= \op{op}(p, \lam{y}{c(y)}) \\
+      &= \op{op}(p, c)
+    \end{align*}
+  \end{itemize}
+\end{proof}
+
+
+\subsection{Functor}
+\label{ssec:functor}
+
+We will start by showing what is a functor and in what way do our
+computation types form one.
+
+\begin{definition}
+A \demph{functor} is a homomorphic mapping from one category to
+another. A functor $F$ from a category a $\CC$ to a category $\DD$
+consists of:
+\begin{itemize}
+\item for every object $A$ in $\CC$, an object $F(A)$ in $\DD$
+\item for every arrow $f : A \to B$ in $\CC$, an arrow $F(f) : F(A) \to
+  F(B)$ in $\DD$
+\item the following equations hold:
+  \begin{align}
+    \label{law:functor-composition}F(f \circ g) &= F(f) \circ F(g) \\
+    \label{law:functor-identity}F(\id_A) &= \id_{F(A)}
+  \end{align}
+\end{itemize}
+\end{definition}
+
+\begin{definition}
+  An \demph{endofunctor} is a functor from some category $\CC$ to the same
+  category.
+\end{definition}
+
+For every effect signature $E$, we will show that $\FF_E$ is an endofunctor
+on the $\banana{\lambda}$ category.
+\begin{description}
+\item[objects:] for every type $\alpha$, we have a type $\FF_E(\alpha)$
+\item[arrows:] for every function $f : \sem{\alpha} \to \sem{\beta}$, \\ we
+  have a function
+  $\FF_E(f) = \lam{X}{X \hsbind (\lam{x}{\eta(f(x))})} :
+  \sem{\FF_E(\alpha)} \to \sem{\FF_E(\beta)}$
+\end{description}
+
+We also need to prove that $\FF_E$ satisfies the necesary laws.
+
+Composition~\eqref{law:functor-composition}:
+
+\setcounter{TemporaryCounter}{\value{equation}}
+\setcounter{equation}{0}
+\NoChapterPrefix
+\begin{align}
+  \FF_E(f) \circ \FF_E(g)
+  &= \lam{X}{\FF_E(f)(\FF_E(g)(X))} \\
+  &= \lam{X}{\FF_E(f)((\lam{Z}{Z \hsbind (\lam{x}{\eta(g(x))})})(X))} \\
+  &= \lam{X}{\FF_E(f)(X \hsbind (\lam{x}{\eta(g(x))}))} \\
+  &= \lam{X}{(\lam{Z}{Z \hsbind (\lam{y}{\eta(f(y))})})(X \hsbind (\lam{x}{\eta(g(x))}))} \\
+  &= \lam{X}{((X \hsbind (\lam{x}{\eta(g(x))})) \hsbind (\lam{y}{\eta(f(y))}))} \\
+  &= \lam{X}{(X \hsbind (\lam{z}{(\lam{x}{\eta(g(x))})(z) \hsbind (\lam{y}{\eta(f(y))})}))} \\
+  &= \lam{X}{X \hsbind (\lam{z}{\eta(g(z)) \hsbind (\lam{y}{\eta(f(y))})})} \\
+  &= \lam{X}{X \hsbind (\lam{z}{(\lam{y}{\eta(f(y))})(g(z))})} \\
+  &= \lam{X}{X \hsbind (\lam{z}{\eta(f(g(z)))})} \\
+  &= \lam{X}{X \hsbind (\lam{z}{\eta((f \circ g)(z))})} \\
+  &= \FF_E(f \circ g)
+\end{align}
+\setcounter{equation}{\value{TemporaryCounter}}
+\ChapterPrefix
+
+Throughout most of the proof, we rely only on the definitions of function
+composition and the $\FF_E(f)$ function lifter. On Line~6 though, we make
+use of the associativity law of $\hsbind$~\eqref{law:associativity}.
+
+Identities~\eqref{law:functor-identity}:
+
+\setcounter{TemporaryCounter}{\value{equation}}
+\setcounter{equation}{0}
+\NoChapterPrefix
+\begin{align}
+  \FF_E(\id_\alpha)
+  &= \lam{X}{X \hsbind (\lam{x}{\eta(\id_\alpha(x))})} \\
+  &= \lam{X}{X \hsbind (\lam{x}{\eta(x)})} \\
+  &= \lam{X}{X} \\
+  &= \id_{\FF_E(\alpha)}
+\end{align}
+\setcounter{equation}{\value{TemporaryCounter}}
+\ChapterPrefix
+
+Here, we make use of the right identity law of
+$\hsbind$~\eqref{law:right-identity} on Line~3.
+
+And so we have a functor $\FF_E$. Its laws let us think of computations of
+type $\FF_E(\alpha)$ as containing values of type $\alpha$ over which we
+can map functions the same way one would map a function over a list,
+satisfying the same basic laws.
+
+
 \section{Confluence}
 \label{sec:confluence}
 
@@ -914,8 +1305,10 @@ The object of our study during this section will be the proof of the
 a single term cannot reduce to two or more different results. Together with
 the termination from~\ref{sec:termination}, this will give us the property
 that every term yields exactly one result and does so in a finite amount of
-steps (a property known as \emph{strong normalization}). Now back to
-confluence.
+steps (a property known as \emph{strong normalization}). Confluence also
+gives us a strong tool to prove an inequality on terms. If two terms reduce
+to different normal forms, confluence guarantees us that they are not
+convertible.
 
 \begin{definition}
   A reduction relution $\to$ on a set $A$ is said to be \demph{confluent}

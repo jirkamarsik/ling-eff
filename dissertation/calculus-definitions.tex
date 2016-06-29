@@ -1054,8 +1054,12 @@ will also adopt the notation $\to_\xi$. We will also use the notation
 $\to_{\xi_1,\dots,\xi_n}$ for the composition
 $\to_{\xi_n} \circ \dots \circ \to_{\xi_1}$. The \emph{reduction relation}
 $\to$ of $\banana{\lambda}$ is the union of the $\to_\xi$ relations for
-every reduction rule $\xi$. We will also use the symbol $\tto$ to stand for
-the reflexive-transitive closure $\to^*$ of $\to$.
+every reduction rule $\xi$. We will also use the symbols $\tto$ and
+$\ttoffrom$ to stand for the reflexive-transitive and
+reflexive-symmetric-transitive closures of $\to$, respectively. If
+$M \ttoffrom N$, we will also say that $M$ and $N$ are \emph{convertible}.
+A term which is not reducible to some other term is said to be in
+\emph{normal form}.
 
 We will now go through the reduction rules of our calculus, presented in
 Figure~\ref{fig:reductions}, one by one.

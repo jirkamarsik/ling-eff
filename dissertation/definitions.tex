@@ -61,12 +61,14 @@
 \newcommand{\syntclos}[1]{\mathbin{[#1]}}
 
 \newtheorem*{definition}{Definition}
+\newtheorem*{notation}{Notation}
 \newtheorem{theorem}{Theorem}
 \newtheorem{property}[theorem]{Property}
 \newtheorem{observation}[theorem]{Observation}
 \newtheorem{corollary}[theorem]{Corollary}
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{law}[theorem]{Law}
 
 \newcommand{\cibanana}{\banana{(\onto{\op{op}_i} M_i)_{i \in I},\ \onto{\eta} M_\eta}}
 \newcommand{\cdbanana}{\banana{\onto{\op{op}_1} M_1,\ \dots,\ \onto{\op{op}_n} M_n,\ \onto{\eta} M_\eta}}
@@ -181,5 +183,24 @@
 
 \newcommand{\petitp}{\mathrm{p}}
 \newcommand{\petitc}{\mathrm{c}}
+\newcommand{\petitr}{\mathrm{r}}
 
 \newcommand{\id}{\mathrm{id}}
+
+\newcommand{\dom}{\operatorname{dom}}
+\newcommand{\rank}{\operatorname{rank}}
+
+\newcounter{TemporaryCounter}
+
+\newenvironment{development}
+{
+\setcounter{TemporaryCounter}{\value{equation}}
+\setcounter{equation}{0}
+\NoChapterPrefix
+\begin{align}
+}
+{
+\end{align}
+\setcounter{equation}{\value{TemporaryCounter}}
+\ChapterPrefix
+}
