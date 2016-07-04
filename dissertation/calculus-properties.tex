@@ -601,11 +601,11 @@ lemma.
     
   \item \boxed{C[M'] \to C[N']}
     
-    The reduction relation of $\banana{\lambda}$ is defined as the
-    syntactic closure of the individual reduction rules. We have covered
-    the rules themselves, we now address the syntactic closure. By
-    induction hypothesis, we know that the reduction from $M' \to N'$
-    preserves types, i.e.\ for any $\Delta$ and $\alpha$ such that
+    The reduction relation of $\banana{\lambda}$ is defined as the context
+    closure of the individual reduction rules. We have covered the rules
+    themselves, we now address the context closure. By induction
+    hypothesis, we know that the reduction from $M' \to N'$ preserves
+    types, i.e.\ for any $\Delta$ and $\alpha$ such that
     $\Delta \vdash M' : \alpha$, we have $\Delta \vdash N' : \alpha$.
 
     We observe that the typing rules of $\banana{\lambda}$
@@ -1909,15 +1909,16 @@ of the two. We write:
 \item $\eta(t)$ as $\etaE{t}$
 \item $\op{op}(t_{\mathrm{p}},[x]t_{\mathrm{c}})$ as
   $\app{\op{op}}{t_{\mathrm{p}}}{(\lam{x}{t_{\mathrm{c}}})}$\footnote{Note
-  that with this translation,
-  $\app{\op{op}}{t_{\mathrm{p}}}{(\lam{x}{t_{\mathrm{c}}})}$ does not
-  contain $\lam{x}{t_{\mathrm{c}}}$ as a subterm. This is the same as in
-  $\banana{\lambda}$, where the syntactic closure (see~\ref{sec:reductions}) does
-  not identify $\lam{x}{t_{\mathrm{c}}}$, but rather $t_{\mathrm{c}}$, as a
-  subterm of
-  $\app{\op{op}}{t_{\mathrm{p}}}{(\lam{x}{t_{\mathrm{c}}})}$. This becomes
-  important in our discussion of confluence since it makes it impossible to
-  make the $\lambda$ disappear by something like $\eta$-reduction.}
+    that with this translation,
+    $\app{\op{op}}{t_{\mathrm{p}}}{(\lam{x}{t_{\mathrm{c}}})}$ does not
+    contain $\lam{x}{t_{\mathrm{c}}}$ as a subterm. This is the same as in
+    $\banana{\lambda}$, where the notion of evaluation context
+    (see~\ref{sec:reductions}) does not identify $\lam{x}{t_{\mathrm{c}}}$,
+    but rather $t_{\mathrm{c}}$, as a subterm of
+    $\app{\op{op}}{t_{\mathrm{p}}}{(\lam{x}{t_{\mathrm{c}}})}$. This
+    becomes important in our discussion of confluence since it makes it
+    impossible to make the $\lambda$ disappear by something like
+    $\eta$-reduction.}
 \item
   $(\ap{\banana{\onto{\op{op}_1}{\_},\ \ldots,\ \onto{\op{op}_n}{\_},\ \onto{\eta}{\_}}}{\_})(t_1,\ldots,t_n,t_\eta,u)$
   as $\ap{\banana{\onto{\op{op}_1}{t_1},\ \ldots,\ \onto{\op{op}_n}{t_n},\ \onto{\eta}{t_\eta}}}{u}$
@@ -1927,16 +1928,15 @@ of the two. We write:
 
 We have connected the terms of $\banana{\lambda}$ with CRS terms and we
 have also expressed all of our reduction rules in terms of CRS reduction
-rules. As in $\banana{\lambda}$, CRS then proceeds to take a syntactic closure of
-this redex-contractum relation. Our translation from $\banana{\lambda}$ to
-a CRS also preserves subterms\footnote{More precisely, if $a$ is a subterm
-  of $b$ in $\banana{\lambda}$ then the CRS version of $a$ is a subterm of
-  the CRS version of $b$. In the other direction, whenever $a$ is a
-  variable or a function-headed term which is a subterm of $b$ in the CRS
-  version of $\banana{\lambda}$, then the corresponding $a$ in
-  $\banana{\lambda}$ is a subterm of the corresponding $b$ (according to
-  the notion of subterm inherent in the definition of syntactic closure).}
-and so we end up constructing the same reduction relation.
+rules. As in $\banana{\lambda}$, CRS then proceeds to take a context
+closure of this redex-contractum relation. Our translation from
+$\banana{\lambda}$ to a CRS also preserves subterms\footnote{More
+  precisely, if $a$ is a subterm of $b$ in $\banana{\lambda}$ then the CRS
+  version of $a$ is a subterm of the CRS version of $b$. In the other
+  direction, whenever $a$ is a variable or a function-headed term which is
+  a subterm of $b$ in the CRS version of $\banana{\lambda}$, then the
+  corresponding $a$ in $\banana{\lambda}$ is a subterm of the corresponding
+  $b$.}  and so we end up constructing the same reduction relation.
 
 
 \subsection{Orthogonal CRSs}
@@ -3024,14 +3024,17 @@ presheaf that will come into play:
 
 \begin{itemize}
 \item The presheaf that we will care the most about will be the presheaf
-  $D$ of denotations,
-  $D_\tau(\Gamma) = \{ \sem{M} \mid \Gamma \vdash M : \tau \}$. Every
-  element of $D_\tau(\Gamma)$ is a function from $\sem{\Gamma}$ to
-  $\sem{\tau}$.
+  $T$ of $\banana{\lambda}$ terms,
+  $T_\tau(\Gamma) = \{ M \mid \Gamma \vdash M : \tau \}$. Every element of
+  $T_\tau(\Gamma)$ is a well-typed $\banana{\lambda}$ term.
 \item Another useful presheaf is the presheaf $V$ of variables where
   $V_\tau(\Gamma) = \{x \mid x : \tau \in \Gamma \}$.
+\item $Z$ is the presheaf of the IDTS metavariables from $\ZZ$,
+  $Z_\tau(x_1 : \alpha_1,\ldots,x_n : \alpha_n) = \{ M \mid M \in
+  Z_{\alpha_1,\ldots,\alpha_n,\tau} \}$.
 \item $T_\Sigma V$ is the presheaf of IDTS terms with signature $\Sigma$.
-\item $M_\Sigma Z$ is the presheaf of IDTS metaterms with signature
+\item $M_\Sigma
+  Z$ is the presheaf of IDTS metaterms with signature
   $\Sigma$ and typed metavariables $Z$.
 \end{itemize}
 
@@ -3045,7 +3048,14 @@ family to another.
   $\delta_\tau : \SetC^\ContextC \to \SetC^\ContextC$. For
   $A \in \SetC^\ContextC$, we define
   $(\delta_\tau A)(\Gamma) = A(\Gamma + \tau)$ where $\Gamma + \tau$ is the
-  extension of context $\Gamma$ by a variable of type $\tau$. The idea
+  extension of context $\Gamma$ by a variable of type $\tau$\footnote{When
+    we extend a context, we usually extend it with a pair of a variable
+    name and a type, e.g.\ $\Gamma, x : \tau$. However, in this section we
+    will be using de Bruijn levels~\cite{de1972lambda}, where the names of
+    variables in a context are always integers from 1 to some
+    $n$. Extending a context $x_1 : \alpha_1, \ldots, x_n : \alpha_n$ with
+    a type $\tau$ then yields a context
+    $x_1 : \alpha_1, \ldots, x_n : \alpha_n, x_{n+1} : \tau$.}. The idea
   behind this operation is to model binders, i.e.\ the arrow type $\To$ of
   IDTS.\@ If the presheaf $A_\beta \in \SetC^\ContextC$ models the type
   $\beta$, then the presheaf $\delta_\alpha A_\beta$ models the type
@@ -3083,37 +3093,44 @@ We are now ready to define the notion of a $\Sigma$-binding algebra.
   $\AAA$ of operation $f$.
 \end{definition}
 
-We will now show that our denotational semantics forms a
-$V+\Sigma$-algebra, where $(V+\Sigma)(A) = V + \Sigma(A)$. The carrier will
-be the presheaf $D$ of $\banana{\lambda}$ denotations. Now we need to give
-an interpretation to variables and to every function symbol defined in the
-signature $\Sigma$. This interpretation must be given as an
-$\alpha : V + \Sigma D \to D$, meaning that the interpretation of every
+We will need to construct a $(V+\Sigma)$-algebra in order to proceed, where
+$(V+\Sigma)(A) = V + \Sigma(A)$. Our algebra will be a term algebra, the
+carrier will be the presheaf $T$. Now we need to give an interpretation to
+variables and to every function symbol defined in the signature
+$\Sigma$. This interpretation must be given as an
+$\alpha : V + \Sigma T \to T$, meaning that the interpretation of every
 function symbol must be compositional. Every value from
-$(\Sigma D)_\gamma(\Gamma)$ is some function symbol of result type $\gamma$
-together with the denotations of all of the symbol's arguments. These
-denotations will be functions from $\sem{\Gamma}$ to $\sem{\beta_i}$ where
-$\beta_i$ is the type of the $i$-th argument of the function
-symbol. Furthermore, if the symbol binds some variable $x : \alpha_i$
-inside one of its arguments, the denotation will be expecting
-$\sem{\Gamma, x : \alpha_i}$ instead.
+$(\Sigma T)_\gamma(\Gamma)$ is some function symbol of result type $\gamma$
+together with the interpretation of all of the symbol's arguments. These
+interpretations will be $\banana{\lambda}$ terms typable with type
+$\beta_i$ under the context $\Gamma + \vec{\alpha_i}$ where $\beta_i$ is
+the type of the $i$-th argument of the function symbol and $\vec{\alpha_i}$
+are the types of variables that the function symbol binds in the $i$-th
+argument (the names of the bound variables will be
+$x_{n+1}$,\ldots,$x_{n+k_i}$ where $n = |\Gamma|$ and $k_i$ is the number
+of variables bound in the $i$-th argument by the function symbol).
 
-The interpretations that we have given in~\ref{ssec:denotational-semantics}
-are exactly of this form. For example, the line defining the denotation of
-the expression $\app{\op{op}}{M_\petitp}{(\lam{x}{M_\petitc})}$ can be
-transformed into an interpretation for the function symbol $\op{op}$ the
-following way:
+The translation $\Term$ from $\banana{\lambda}_\tau$ terms to
+$\banana{\lambda}$ terms that we have given in~\ref{ssec:banana-idts} is
+exactly of this form. For example, the line defining the translation of the
+expression $\op{op}(M^\petitp, [x] M^\petitc)$ can be transformed into an
+interpretation for the function symbol $\op{op}$ the following way:
 
 \begin{align*}
-  & \sem{\app{\op{op}}{M_\petitp}{(\lam{x}{M_\petitc})}}(e) =
-    \op{op}(\sem{M_\petitp}(e), \lam{X}{(\sem{M_\petitc}({\subst{e}{x}{X}}))}) \\
-  & \op{op}^\AAA(D_\petitp, D_\petitc)(e) =
-    \op{op}(D_\petitp(e), \lam{X}{D_\petitc({\subst{e}{x}{X}})})
+  & \Term(\op{op}(M^\petitp, [x] M^\petitc)) =
+    \app{\op{op}}{(\Term(M^\petitp))}{(\lam{x}{\Term(M^\petitc)})} \\
+  & \op{op}(\Gamma)(M^\petitp, M^\petitc) =
+    \app{\op{op}}{(\Term(M^\petitp))}{(\lam{x_{n+1}}{\Term(M^\petitc)})} \\
 \end{align*}
 
-Therefore, the compositional denotational semantics
-from~\ref{ssec:denotational-semantics} gives us a $V+\Sigma$-algebra $\DD$
-with carrier $D$.
+where $n = |\Gamma|$.
+
+Therefore, the $\Term$ translation function from~\ref{ssec:banana-idts}
+gives us a $(V+\Sigma)$-algebra $\TT$ with carrier $T$. Another example of
+a $(V+\Sigma)$-algebra is the algebra of denotations $\DD$ whose carrier is
+the presheaf of denotations $D$ and where the operations are interpreted
+with the compositional rules of $\banana{\lambda}$ denotational semantics
+given in~\ref{ssec:denotational-semantics}.
 
 
 \subsubsection{Building a Quasi-Model}
@@ -3143,9 +3160,105 @@ We will now deal with presheafs equipped with partial orders.
   that every operation of $\AAA$ is weakly monotonic.
 \end{definition}
 
-We will now take our $V+\Sigma$-algebra $\DD$ and equip its carrier $D$
-with a partial order $\ge_D$ such that $\DD$ is weakly
-monotonic. $\ge_{D_\tau(\Gamma)}$ needs to be a partial order on the set
-$D_\tau(\Gamma)$, the elements of which are functions from $\sem{\Gamma}$
-to $\sem{\tau}$. We will define $\ge_{D_\tau(\Gamma)}$ along with a partial
-order $\ge_{\sem{\tau}}$ by induction:
+We will equip our ($V+\Sigma$)-algebra $\TT$ with the partial order
+$\to^*$. Because the reduction relation $\to$ of $\banana{\lambda}$ is
+closed on contexts, the operations of $\TT$ are weakly monotonic: if we
+replace one of the arguments $M_i$ in $f(M_1,\ldots,M_n)$ with an $M'_i$
+such that $M_i \to^* M_i'$, then we will also have
+$f(M_1,\ldots,M_n) \to^* f(M_1,\ldots,M'_i,\ldots,M_n)$. Therefore, we have
+a weakly monotonic ($V+\Sigma$)-algebra $\TT$.
+
+\begin{definition}
+  For a given ($V+\Sigma$)-algebra $\AAA$, a \demph{term-generated
+    assignment} $\phi$ is an arrow in $(\SetC^\ContextC)^\BB$ from the
+  presheaf $Z$ to the presheaf $A$ such that $phi = ! \circ \theta$, where:
+
+  \begin{itemize}
+  \item $\theta$ is an IDTS valuation\footnote{Same as the CRS valuations
+      introduced in~\ref{ssec:crs}, but typed.}, i.e.\ an arrow from $Z$ to
+    $T_\Sigma V$.
+  \item $!$ is the unique homomorphism from the initial
+    ($V+\Sigma$)-algebra $T_\Sigma V$ to $A$\footnote{Homomorphisms between
+      $\Sigma$-algebras are defined in the same way as homomorphisms for
+      first-order algebras. The term algebra $T_\Sigma V$ is called an
+      initial algebra because we can find a (unique) homomorphism from
+      $T_\Sigma V$ to any other algebra $\AAA$ that works by interpreting
+      terms from $T_\Sigma V$ using the operations of $\AAA$.}.
+  \end{itemize}
+\end{definition}
+
+To clarify the nomenclature: valuations replace metavariables with terms,
+assignments replace metavariables with interpretations in some algebra and
+term-generated assignments are assignments that can only assign an
+interpretation $x$ if $x$ can be computed as the interpretation of some
+term.
+
+\begin{definition}
+  A weakly monotonic ($V+\Sigma$)-algebra $(\AAA, \ge_A)$ \demph{satisfies
+    an IDTS rewrite rule} $l \to r$, with $l$ and $r$ of type $\tau$, if
+  for all term-generated assignments $\phi$ of the free metavariables $Z$
+  in $l$ and $r$, we have:
+
+  $$
+  ! \theta^*_\tau(\Gamma)(l) \ge_{A_\tau(\Gamma)} ! \theta^*_\tau(\Gamma)(r)
+  $$
+
+  where $\phi = ! \circ \theta$, $\theta^*$ is the extension of the
+  valuation $\theta$ to meta-terms and $\Gamma$ is the context regrouping
+  all the free variables in the range of $\theta$.
+\end{definition}
+
+\begin{definition}
+  A weakly monotonic ($V+\Sigma$)-algebra $(\AAA, \ge_A)$ is a quasi-model
+  for the IDTS $(\Sigma, \RR)$ if $(\AAA, \ge_A)$ satisfies every rule in
+  $\RR$.
+\end{definition}
+
+Our weakly monotonic algebra $(\TT, \to^*)$ is a quasi-model for the IDTS
+$\banana{\lambda}_\tau$. It satisfies every rule, because if we substitute
+for the metavariables $M$, $N$, \ldots in a $\banana{\lambda}_\tau$ rule
+$l[M,N] \to r[M,N]$ and translate it to $\banana{\lambda}$ syntax, we still
+have a $\banana{\lambda}$ reduction $\Term(l[M',N']) \to \Term(r[M',N'])$.
+
+
+
+
+
+% \begin{definition}
+%   Let $>_B$ be a strict partial order on the set $B$. We define
+%   $>_{A \to B}$, the \demph{pointwise order on functions}, as the strict
+%   partial order on the set of functions $B^A$ where $f >_{A \to B} g$ if
+%   and only if for all $x \in A$, $f(x) >_B g(x)$.
+% \end{definition}
+
+% \begin{definition}
+%   For each $\banana{\lambda}$ type $\tau$, we define a strict partial order
+%   $>_{\sem{\tau}}$ by induction on $\tau$.
+
+%   \begin{itemize}
+%   \item $\tau$ is an atomic type
+
+%     Then $>_{\sem{\tau}}$ is the empty relation.
+
+%   \item $\tau = \alpha \to \beta$
+
+%     $f >_{\sem{\tau}} g$ if and only if $f$ and $g$ are both functions
+%     (i.e.\ not $\bot$) such that $f >_{\sem{\alpha} \to \sem{\beta}} g$.
+
+%   \item $\tau = \FF_E(\gamma)$
+
+%     Let $E = \{\typedopg{\op{op}_i}{\alpha_i}{\beta_i}\}_{i \in
+%       I}$. $>_{\sem{\tau}}$ is the smallest transitive relation satisfying
+%     the following:
+%     \begin{itemize}
+%     \item if $x_1 >_{\sem{\gamma}} x_2$, then
+%       $\eta(x_1) >_{\sem{\tau}} \eta(x_2)$
+%     \item if $p_1 >_{\sem{\alpha_i}} p_2$, then
+%       $\op{op}_i(p_1, c) >_{\sem{\tau}} \op{op}_i(p_2, c)$
+%     \item if $c_1 >_{\sem{\beta_i} \to \sem{\tau}} c_2$, then
+%       $\op{op}_i(p, c_1) >_{\sem{\tau}} \op{op}_i(p, c_2)$
+%     \item for all $x \in \sem{\beta_i}$,
+%       $\op{op}_i(p, c) >_{\sem{\tau}} c(x)$
+%     \end{itemize}
+%   \end{itemize}
+% \end{definition}

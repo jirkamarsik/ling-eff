@@ -223,15 +223,16 @@ $\ap{\eta}{v}$. In both cases, we get the same result.
 We have proven that our simulation preserves the reduction
 $\ap{(\lam{x}{M})}{V} \to \subst{M}{x}{V}$. However, it might seem that our
 work is not over since this is just a special case of the rule in
-$\lambda_v$, which licenses the reduction $C[\ap{(\lam{x}{M})}{V}] \to
-C[\subst{M}{x}{V}]$. Nevertheless, our calculus is pure and lets us perform
-reductions in any syntactic context (see the notion of syntactic closure
-from~\ref{sec:reductions}). This means that whenever we have $\sem{M} \to
-\sem{N}$, we also always have $\sem{C}[\sem{M}] \to
-\sem{C}[\sem{N}]$\footnote{We have not defined the $\sem{.}$ interpretation
-  operator for contexts. Contexts are simply terms with a $[]$ inside so we
-  just extend the $\sem{.}$ for terms with the clause $\sem{[]} = []$.},
-which is the same as $\sem{C[M]} \to \sem{C[N]}$.
+$\lambda_v$, which licenses the reduction
+$C[\ap{(\lam{x}{M})}{V}] \to C[\subst{M}{x}{V}]$. Nevertheless, our
+calculus is pure and lets us perform reductions in any syntactic context
+(see the notion of context closure from~\ref{sec:reductions}). This means
+that whenever we have $\sem{M} \to \sem{N}$, we also always have
+$\sem{C}[\sem{M}] \to \sem{C}[\sem{N}]$\footnote{We have not defined the
+  $\sem{.}$ interpretation operator for contexts. Contexts are simply terms
+  with a $[]$ inside so we just extend the $\sem{.}$ for terms with the
+  clause $\sem{[]} = []$.}, which is the same as
+$\sem{C[M]} \to \sem{C[N]}$.
 
 \begin{corollary}
   Let $M$ and $N$ be terms of $\lambda_v$ such that $M \tto N$. Then we

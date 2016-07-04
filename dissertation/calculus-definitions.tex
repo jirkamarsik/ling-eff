@@ -901,7 +901,7 @@ notion.
 
 \begin{definition}
   Let $\sim$ be a binary relation on the terms of our calculus. We define
-  the relation $\syntclos{\sim}$, called the \textbf{syntactic closure} of
+  the relation $\syntclos{\sim}$, called the \textbf{context closure} of
   $\sim$, as the smallest relation
   % \footnote{\TODO{Should I prove that such a relation is uniquely
   %     determined?}}
@@ -915,8 +915,8 @@ notion.
 
 Later on, we will define relations on the terms of our calculus that will
 correspond to different transformations (such as $\swap$ and the reduction
-rules). The notion of syntactic closure will allow us to say that a term
-can be transformed by transforming any of its parts.
+rules). The notion of context closure will allow us to say that a term can
+be transformed by transforming any of its parts.
 
 \begin{definition}
   Let $\sim$ be a relation. We define the relation $\sim^*$, called the
@@ -960,14 +960,14 @@ can be transformed by transforming any of its parts.
 \begin{definition}
   We define the relation of \textbf{$\alpha$-equivalence}, written as
   $=_\alpha$, to be $[\swap]^*$, i.e.\ the reflexive-transitive closure of
-  the syntactic closure of the $\swap$ relation.
+  the context closure of the $\swap$ relation.
 \end{definition}
 
 \begin{observation}
   $=_\alpha$ is an equivalence relation.
 \end{observation}
 \begin{proof}
-  $\swap$ is a symmetric relation and both syntactic closure and
+  $\swap$ is a symmetric relation and both context closure and
   reflexive-transitive closure preserve symmetricity. Reflexivity and
   transitivity are guaranteed by the reflexive-transitive closure.
 \end{proof}
@@ -990,8 +990,8 @@ have introduced in this section are congruent with $\alpha$-equivalence?
 $\FV$ is congruent: swapping names bound by $\lambda$ does not change the
 set of free variables in a term.
 
-The definition of syntactic closure works for $\alpha$-equivalence classes
-as well.
+The definition of context closure works for $\alpha$-equivalence classes as
+well.
 
 What about substitution? As we have already seen, capture-avoiding
 substitution is a partial operation: $\subst{(\lam{y}{x})}{x}{y}$ does not
@@ -1049,7 +1049,7 @@ term is fresh in some other term.
 
 We are now at a point where we can easily lay down the reduction rules for
 our calculus. A reduction rule $\xi$ will be a relation on terms. Most of
-the time, we will deal with their syntactic closures, $[\xi]$, for which we
+the time, we will deal with their context closures, $[\xi]$, for which we
 will also adopt the notation $\to_\xi$. We will also use the notation
 $\to_{\xi_1,\dots,\xi_n}$ for the composition
 $\to_{\xi_n} \circ \dots \circ \to_{\xi_1}$. The \emph{reduction relation}
@@ -1324,8 +1324,8 @@ having introduced the syntax and the typing rules, we will look at how to
 simplify and evaluate such terms. We will extend the set of reduction rules
 in our calculus with the ones in
 Figure~\ref{fig:reductions-of-sums-and-products}. As before, we take the
-syntactic closure of these rules $\xi$ to get relations $\to_\xi$ and then
-we include these relations into our small-step semantics $\to$ and big-step
+context closure of these rules $\xi$ to get relations $\to_\xi$ and then we
+include these relations into our small-step semantics $\to$ and big-step
 semantics $\tto$.
 
 \begin{figure}
