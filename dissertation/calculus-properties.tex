@@ -895,7 +895,7 @@ interpretation of every type.
     \end{cases} \\
     \sem{c}(e) &= \II(c) \\
     \sem{\app{\op{op}}{M_\petitp}{(\lam{x}{M_\petitc})}}(e) &=
-      \op{op}(\sem{M_\petitp}(e), \lam{X}{(\sem{M}({\subst{e}{x}{X}}))}) \\
+      \op{op}(\sem{M_\petitp}(e), \lam{X}{(\sem{M_\petitc}({\subst{e}{x}{X}}))}) \\
     \sem{\etaE{M}}(e) &= \eta(\sem{M}(e)) \\
     \sem{\ap{\cibanana}{N}}(e) &= \sem{\cibanana}(e)(\sem{N}(e)) \\
     \sem{\ap{\cherry}{M}}(e) &= \begin{cases}
@@ -2950,28 +2950,202 @@ to $\banana{}$ and $\CC$ are smaller than the original arguments and
 therefore the recursion is well-founded and terminating. However, the
 General Schema presented in~\cite{blanqui2000termination} uses a notion of
 ``smaller than'' which is not sufficient to capture the decrease of our
-arguments. However, when defining a denotational semantics for
-$\banana{\lambda}$, we had made a formal argument showing that the
-arguments to these operations are in fact decreasing. We will therefore
-make use of a technique which will allows us to incorporate this semantic
-insight into the IDTS so that the General Schema will be able to recognize
-the decreasing nature of the arguments.
+arguments. On the other hand, when we were defining a denotational
+semantics for $\banana{\lambda}$, we gave a well-founded ordering showing
+that the successive arguments to these operations are in fact
+decreasing. We will therefore make use of a technique which will allows us
+to incorporate this semantic insight into the IDTS so that the General
+Schema will be able to recognize the decreasing nature of the arguments.
 
 
 \subsection{Higher-Order Semantic Labelling}
 \label{ssec:semantic-labelling}
 
 We will make us of the higher-order semantic labelling technique presented
-by Makoto Hamana in~\cite{hamana2007higher}. In defining the denotational
-semantics of $\banana{\lambda}$ in~\ref{ssec:denotational-semantics}, we
-have given an ordering to the denotations in $\sem{\FF_E(\gamma)}$ that
-justified the correctness of the recursive definition of $\CC$ and
-$\banana{}$. Since that definition mimicked the one present in the
-reduction rules, we would like to transfer this result to a proof of
-termination for $\banana{\lambda}$.
+by Makoto Hamana in~\cite{hamana2007higher}. The idea behind the semantic
+labelling technique is to label function symbols with the denotations of
+their arguments. Whereas before a function symbol was rewritten to the same
+function symbol on a smaller argument, in the labelled IDTS, a labelled
+symbol will be rewritten to a different \emph{smaller} symbol (i.e.\ with a
+smaller label).
 
-The idea behind the semantic labelling technique is to label function
-symbols with the denotations of their arguments. Every rule will be
-replaced by all the possible labellings. Where before we had two 
+The theory in~\cite{hamana2007higher} is expressed in terms of category
+theory. This results in a very elegant and concise formulation of the
+theorems and their proofs. In our thesis, we only care about the
+applications of the theory and so we will be try to introduce the technique
+without presupposing the reader's familiarity with category theory.
 
 
+\subsubsection{Presheafs and Binding Algebras}
+\label{sssec:presheafs-binding-algebras}
+
+We will nevertheless introduce a few terms from category theory.
+
+When dealing with binding and types, it is usually not so useful to
+consider a mixed set of terms or denotations of different types. It is much
+more pertinent to speak of families of terms having the same type in the
+same typing context, i.e.\
+$T_\tau(\Gamma) = \{ t \mid \Gamma \vdash t : \tau \}$. In this example,
+$T$ is a family of sets, indexed first by type and second by context. We
+can therefore say that $T \in (\SetC^{\ContextC})^{\BB}$, where $\BB$ is
+the set of base types of our IDTS (i.e.\ the set of $\banana{\lambda}$
+types) and $\ContextC$ is the set of $\banana{\lambda}$ typing contexts
+(functions from finite sets to $\BB$).
+
+The category-theoretical presentation of abstract syntax and binding
+originating in~\cite{fiore2003abstract} relies on a similar notion known as
+\emph{presheaf}. Presheaf can be seen as a synonym for functor
+(see~\ref{ssec:functor}), usually going from some kind of ``index
+category'' to some other category. In the above example, $\BB$, $\ContextC$
+and $\SetC$ can be seen as categories:
+
+\begin{itemize}
+\item $\BB$ has base types as objects and no arrows besides the mandatory
+  identities
+\item $\ContextC$ has typing contexts as objects and renamings of contexts
+  (exchanges, weakenings, contractions) as arrows
+\item $\SetC$ is the standard category with sets as objects and functions
+  as arrows
+\end{itemize}
+
+$\SetC^\ContextC$ is the category of functors from $\ContextC$ to
+$\SetC$. The object component of such a functor maps contexts to sets
+(usually sets of objects having some type within the given context). The
+arrow component translates the renamings of contexts into renamings of
+variables in these objects. The functors in the category
+$(\SetC^\ContextC)^\BB$ map types to the object of $\SetC^\ContextC$; their
+arrow component is trivial since $\BB$ has only trivial arrows.
+
+We will call the object of $(\SetC^\ContextC)^\BB$ presheafs (sometimes, we
+will also call objects in $\SetC^\ContextC$ presheafs). In our
+presentation, we will care only about the object level, meaning we will
+identify a presheaf with a family of sets. We will now consider some
+presheaf that will come into play:
+
+\begin{itemize}
+\item The presheaf that we will care the most about will be the presheaf
+  $D$ of denotations,
+  $D_\tau(\Gamma) = \{ \sem{M} \mid \Gamma \vdash M : \tau \}$. Every
+  element of $D_\tau(\Gamma)$ is a function from $\sem{\Gamma}$ to
+  $\sem{\tau}$.
+\item Another useful presheaf is the presheaf $V$ of variables where
+  $V_\tau(\Gamma) = \{x \mid x : \tau \in \Gamma \}$.
+\item $T_\Sigma V$ is the presheaf of IDTS terms with signature $\Sigma$.
+\item $M_\Sigma Z$ is the presheaf of IDTS metaterms with signature
+  $\Sigma$ and typed metavariables $Z$.
+\end{itemize}
+
+Now we will define some endofunctors on the category of presheaves. As
+before, we will ignore the arrow component and give only a mapping from one
+family to another.
+
+\begin{itemize}
+\item First, we introduce an endofunctor on the category of presheafs in
+  $\SetC^\ContextC$. For every base type $\tau$, we have a functor
+  $\delta_\tau : \SetC^\ContextC \to \SetC^\ContextC$. For
+  $A \in \SetC^\ContextC$, we define
+  $(\delta_\tau A)(\Gamma) = A(\Gamma + \tau)$ where $\Gamma + \tau$ is the
+  extension of context $\Gamma$ by a variable of type $\tau$. The idea
+  behind this operation is to model binders, i.e.\ the arrow type $\To$ of
+  IDTS.\@ If the presheaf $A_\beta \in \SetC^\ContextC$ models the type
+  $\beta$, then the presheaf $\delta_\alpha A_\beta$ models the type
+  $\alpha \To \beta$.
+
+\item The signature of our IDTS, $\Sigma$, induces an endofunctor on the
+  category $(\SetC^\ContextC)^\BB$ mapping presheafs $A$ to presheafs
+  $\Sigma A$.
+
+  $$
+  (\Sigma A)_\gamma = \coprod_{f \in F_{\vec{\alpha_1} \to \beta_1, \ldots, \vec{\alpha_l} \to \beta_l, \gamma}} \prod_{1 \le i \le l} \delta_{\vec{\alpha_i}} A_{\beta_i}
+  $$
+
+  In the above, we use the vector notation $\vec{\alpha} \to \beta$ for
+  $\alpha_1 \to \ldots \to \alpha_n \to \beta$ and $\delta_{\vec{\alpha}}$
+  for $\delta_{\alpha_1} \circ \ldots \circ \delta_{\alpha_n}$. Note that
+  the above definition assumes that $\vec{\alpha_i}$, $\beta_i$ and
+  $\gamma$ are all base types. Since in our encoding of $\banana{\lambda}$,
+  we use a function constructor $\to$ on the level of base types, this is
+  the case.
+\end{itemize}
+
+We are now ready to define the notion of a $\Sigma$-binding algebra.
+
+\begin{definition}
+  A \demph{$\Sigma$-(binding) algebra} $\AAA$ is a pair of a presheaf $A$
+  and a natural transformation\footnote{Natural transformation is the name
+    for an arrow between two functors (presheafs). In our particular
+    setting, naturality boils down to $A_\gamma$ being a function of
+    $(\Sigma A)_\gamma$.} $\alpha : \Sigma A \to A$. The presheaf is the
+  \demph{carrier} and the natural transformation interprets the
+  \demph{operations}. Since $\Sigma A$ is a coproduct over all the
+  $f \in \FF$, we can also see $\alpha$ as the copair
+  $[f^\AAA]_{f \in \FF}$, where $f^\AAA$ is the interpretation in algebra
+  $\AAA$ of operation $f$.
+\end{definition}
+
+We will now show that our denotational semantics forms a
+$V+\Sigma$-algebra, where $(V+\Sigma)(A) = V + \Sigma(A)$. The carrier will
+be the presheaf $D$ of $\banana{\lambda}$ denotations. Now we need to give
+an interpretation to variables and to every function symbol defined in the
+signature $\Sigma$. This interpretation must be given as an
+$\alpha : V + \Sigma D \to D$, meaning that the interpretation of every
+function symbol must be compositional. Every value from
+$(\Sigma D)_\gamma(\Gamma)$ is some function symbol of result type $\gamma$
+together with the denotations of all of the symbol's arguments. These
+denotations will be functions from $\sem{\Gamma}$ to $\sem{\beta_i}$ where
+$\beta_i$ is the type of the $i$-th argument of the function
+symbol. Furthermore, if the symbol binds some variable $x : \alpha_i$
+inside one of its arguments, the denotation will be expecting
+$\sem{\Gamma, x : \alpha_i}$ instead.
+
+The interpretations that we have given in~\ref{ssec:denotational-semantics}
+are exactly of this form. For example, the line defining the denotation of
+the expression $\app{\op{op}}{M_\petitp}{(\lam{x}{M_\petitc})}$ can be
+transformed into an interpretation for the function symbol $\op{op}$ the
+following way:
+
+\begin{align*}
+  & \sem{\app{\op{op}}{M_\petitp}{(\lam{x}{M_\petitc})}}(e) =
+    \op{op}(\sem{M_\petitp}(e), \lam{X}{(\sem{M_\petitc}({\subst{e}{x}{X}}))}) \\
+  & \op{op}^\AAA(D_\petitp, D_\petitc)(e) =
+    \op{op}(D_\petitp(e), \lam{X}{D_\petitc({\subst{e}{x}{X}})})
+\end{align*}
+
+Therefore, the compositional denotational semantics
+from~\ref{ssec:denotational-semantics} gives us a $V+\Sigma$-algebra $\DD$
+with carrier $D$.
+
+
+\subsubsection{Building a Quasi-Model}
+\label{sssec:quasi-model}
+
+We will now deal with presheafs equipped with partial orders.
+
+\begin{definition}
+  A \demph{presheaf equipped with a partial order} is a pair of a presheaf
+  $A$ and a family of partial orders $\ge_A$ such that
+  $\ge_{A_\tau(\Gamma)}$ is a partial order on the set $A_\tau(\Gamma)$.
+\end{definition}
+
+\begin{definition}
+  An arrow $f : A_1 \times \ldots \times A_n \to B$ in $\SetC^\ContextC$ is
+  \demph{weakly monotonic} if for all $\Gamma$ and
+  $a_1, b_1 \in A_1(\Gamma)$, \ldots, $a_n, b_n \in A_n(\Gamma)$ with
+  $a_k \ge_{A_k(\Gamma)} b_k$ for some $k$ and $a_j = b_j$ for all
+  $j \neq k$, we have that
+  $f(\Gamma)(a_1, \ldots, a_n) \ge_{B(\Gamma)} f(\Gamma)(b_1, \ldots,
+  b_n)$.
+\end{definition}
+
+\begin{definition}
+  A \demph{weakly monotonic $V+\Sigma$-algebra} is a $V+\Sigma$-algebra
+  $\AAA$ whose carrier $A$ is equipped with a partial order $\ge_A$ such
+  that every operation of $\AAA$ is weakly monotonic.
+\end{definition}
+
+We will now take our $V+\Sigma$-algebra $\DD$ and equip its carrier $D$
+with a partial order $\ge_D$ such that $\DD$ is weakly
+monotonic. $\ge_{D_\tau(\Gamma)}$ needs to be a partial order on the set
+$D_\tau(\Gamma)$, the elements of which are functions from $\sem{\Gamma}$
+to $\sem{\tau}$. We will define $\ge_{D_\tau(\Gamma)}$ along with a partial
+order $\ge_{\sem{\tau}}$ by induction:
