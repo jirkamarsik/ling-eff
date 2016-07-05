@@ -964,10 +964,11 @@ interpretation of every type.
   valid definition since we are using $g$ on the right-hand side of an
   equation defining $g$. This time around, the arguments to $g$ are
   functions whose codomain is the interpretation of some computation type
-  $\FF_E(\gamma)$. We can extend a well-founded ordering on the set
-  $\sem{\FF_E(\gamma)}$ to a well-founded ordering on the set of functions
-  from $A$ to $\sem{\FF_E(\gamma)}$ by stating that $f < g$ whenever
-  $\forall x \in A.\ f(x) < g(x)$.
+  $\FF_E(\beta)$. We can extend a well-founded ordering on the set
+  $\sem{\FF_E(\beta)}$ to a \demph{well-founded ordering on
+    $\sem{\alpha \to \FF_E(\beta)}$} by stating that $f < g$ whenever $f$
+  and $g$ are both functions (not $\bot$) and
+  $\forall x \in \sem{\alpha}.\ f(x) < g(x)$.
   
   We have to show that the recursive call to $g$ in the definition above is
   performed on an argument which is smaller than the original function. Let
@@ -976,7 +977,7 @@ interpretation of every type.
   know that $\forall y.\ \op{op}(p, c(x)) > c(x)(y)$, since that is the
   property of the well-founded ordering on the elements of
   $\sem{\FF_E(\gamma)}$ established above. Therefore, we have that
-  $\forall x.\ f(x) > f'(x)$ and so $f > f'$.
+  $\forall x \in \sem{\alpha}.\ f(x) > f'(x)$ and so $f > f'$.
 \end{definition}
 
 This was the entire definition of our denotational semantics\footnote{We
@@ -988,7 +989,7 @@ This was the entire definition of our denotational semantics\footnote{We
   pairs and variants (modulo the treatment of $\bot$).}. We will now
 compare it to the reduction semantics introduced in~\ref{sec:reductions}.
 
-\begin{observation}
+\begin{observation}\label{obs:denotation-soundness}
   (Soundness of reduction w.r.t.\ denotations)
 
   Whenever $M \to N$ in $\banana{\lambda}$, then $\sem{M} = \sem{N}$.
@@ -3025,12 +3026,12 @@ presheaf that will come into play:
 \begin{itemize}
 \item The presheaf that we will care the most about will be the presheaf
   $T$ of $\banana{\lambda}$ terms,
-  $T_\tau(\Gamma) = \{ M \mid \Gamma \vdash M : \tau \}$. Every element of
-  $T_\tau(\Gamma)$ is a well-typed $\banana{\lambda}$ term.
+  $T_{\tau,\Gamma} = \{ M \mid \Gamma \vdash M : \tau \}$. Every element of
+  $T_{\tau,\Gamma}$ is a well-typed $\banana{\lambda}$ term.
 \item Another useful presheaf is the presheaf $V$ of variables where
-  $V_\tau(\Gamma) = \{x \mid x : \tau \in \Gamma \}$.
+  $V_{\tau,\Gamma} = \{x \mid x : \tau \in \Gamma \}$.
 \item $Z$ is the presheaf of the IDTS metavariables from $\ZZ$,
-  $Z_\tau(x_1 : \alpha_1,\ldots,x_n : \alpha_n) = \{ M \mid M \in
+  $Z_{\tau, (x_1 : \alpha_1,\ldots,x_n : \alpha_n)} = \{ M \mid M \in
   Z_{\alpha_1,\ldots,\alpha_n,\tau} \}$.
 \item $T_\Sigma V$ is the presheaf of IDTS terms with signature $\Sigma$.
 \item $M_\Sigma
@@ -3066,11 +3067,11 @@ family to another.
   $\Sigma A$.
 
   $$
-  (\Sigma A)_\gamma = \coprod_{f \in F_{\vec{\alpha_1} \to \beta_1, \ldots, \vec{\alpha_l} \to \beta_l, \gamma}} \prod_{1 \le i \le l} \delta_{\vec{\alpha_i}} A_{\beta_i}
+  (\Sigma A)_\gamma = \coprod_{f \in F_{\vec{\alpha_1} \To \beta_1, \ldots, \vec{\alpha_l} \To \beta_l, \gamma}} \prod_{1 \le i \le l} \delta_{\vec{\alpha_i}} A_{\beta_i}
   $$
 
-  In the above, we use the vector notation $\vec{\alpha} \to \beta$ for
-  $\alpha_1 \to \ldots \to \alpha_n \to \beta$ and $\delta_{\vec{\alpha}}$
+  In the above, we use the vector notation $\vec{\alpha} \To \beta$ for
+  $\alpha_1 \To \ldots \To \alpha_n \To \beta$ and $\delta_{\vec{\alpha}}$
   for $\delta_{\alpha_1} \circ \ldots \circ \delta_{\alpha_n}$. Note that
   the above definition assumes that $\vec{\alpha_i}$, $\beta_i$ and
   $\gamma$ are all base types. Since in our encoding of $\banana{\lambda}$,
@@ -3100,13 +3101,13 @@ variables and to every function symbol defined in the signature
 $\Sigma$. This interpretation must be given as an
 $\alpha : V + \Sigma T \to T$, meaning that the interpretation of every
 function symbol must be compositional. Every value from
-$(\Sigma T)_\gamma(\Gamma)$ is some function symbol of result type $\gamma$
-together with the interpretation of all of the symbol's arguments. These
-interpretations will be $\banana{\lambda}$ terms typable with type
-$\beta_i$ under the context $\Gamma + \vec{\alpha_i}$ where $\beta_i$ is
-the type of the $i$-th argument of the function symbol and $\vec{\alpha_i}$
-are the types of variables that the function symbol binds in the $i$-th
-argument (the names of the bound variables will be
+$(\Sigma T)_{\gamma,\Gamma}$ is some function symbol of result type
+$\gamma$ together with the interpretation of all of the symbol's
+arguments. These interpretations will be $\banana{\lambda}$ terms typable
+with type $\beta_i$ under the context $\Gamma + \vec{\alpha_i}$ where
+$\beta_i$ is the type of the $i$-th argument of the function symbol and
+$\vec{\alpha_i}$ are the types of variables that the function symbol binds
+in the $i$-th argument (the names of the bound variables will be
 $x_{n+1}$,\ldots,$x_{n+k_i}$ where $n = |\Gamma|$ and $k_i$ is the number
 of variables bound in the $i$-th argument by the function symbol).
 
@@ -3119,18 +3120,20 @@ interpretation for the function symbol $\op{op}$ the following way:
 \begin{align*}
   & \Term(\op{op}(M^\petitp, [x] M^\petitc)) =
     \app{\op{op}}{(\Term(M^\petitp))}{(\lam{x}{\Term(M^\petitc)})} \\
-  & \op{op}(\Gamma)(M^\petitp, M^\petitc) =
+  & \op{op}_\Gamma(M^\petitp, M^\petitc) =
     \app{\op{op}}{(\Term(M^\petitp))}{(\lam{x_{n+1}}{\Term(M^\petitc)})} \\
 \end{align*}
 
 where $n = |\Gamma|$.
 
 Therefore, the $\Term$ translation function from~\ref{ssec:banana-idts}
-gives us a $(V+\Sigma)$-algebra $\TT$ with carrier $T$. Another example of
-a $(V+\Sigma)$-algebra is the algebra of denotations $\DD$ whose carrier is
-the presheaf of denotations $D$ and where the operations are interpreted
-with the compositional rules of $\banana{\lambda}$ denotational semantics
-given in~\ref{ssec:denotational-semantics}.
+gives us a $(V+\Sigma)$-algebra $\TT$ with carrier $T$.
+
+% Another example of a $(V+\Sigma)$-algebra is the algebra of denotations
+% $\DD$ whose carrier is the presheaf of denotations $D$ and where the
+% operations are interpreted with the compositional rules of
+% $\banana{\lambda}$ denotational semantics given
+% in~\ref{ssec:denotational-semantics}.
 
 
 \subsubsection{Building a Quasi-Model}
@@ -3141,16 +3144,16 @@ We will now deal with presheafs equipped with partial orders.
 \begin{definition}
   A \demph{presheaf equipped with a partial order} is a pair of a presheaf
   $A$ and a family of partial orders $\ge_A$ such that
-  $\ge_{A_\tau(\Gamma)}$ is a partial order on the set $A_\tau(\Gamma)$.
+  $\ge_{A_{\tau,\Gamma}}$ is a partial order on the set $A_{\tau,\Gamma}$.
 \end{definition}
 
 \begin{definition}
-  An arrow $f : A_1 \times \ldots \times A_n \to B$ in $\SetC^\ContextC$ is
+  An arrow $f : A^1 \times \ldots \times A^n \to B$ in $\SetC^\ContextC$ is
   \demph{weakly monotonic} if for all $\Gamma$ and
-  $a_1, b_1 \in A_1(\Gamma)$, \ldots, $a_n, b_n \in A_n(\Gamma)$ with
-  $a_k \ge_{A_k(\Gamma)} b_k$ for some $k$ and $a_j = b_j$ for all
+  $a_1, b_1 \in A^1_\Gamma$, \ldots, $a_n, b_n \in A^n_\Gamma$ with
+  $a_k \ge_{A_{k,\Gamma}} b_k$ for some $k$ and $a_j = b_j$ for all
   $j \neq k$, we have that
-  $f(\Gamma)(a_1, \ldots, a_n) \ge_{B(\Gamma)} f(\Gamma)(b_1, \ldots,
+  $f(\Gamma)(a_1, \ldots, a_n) \ge_{B_\Gamma} f(\Gamma)(b_1, \ldots,
   b_n)$.
 \end{definition}
 
@@ -3200,7 +3203,7 @@ term.
   in $l$ and $r$, we have:
 
   $$
-  ! \theta^*_\tau(\Gamma)(l) \ge_{A_\tau(\Gamma)} ! \theta^*_\tau(\Gamma)(r)
+  ! \theta^*_{\tau,\Gamma}(l) \ge_{A_{\tau,\Gamma}} ! \theta^*_{\tau,\Gamma}(r)
   $$
 
   where $\phi = ! \circ \theta$, $\theta^*$ is the extension of the
@@ -3221,44 +3224,212 @@ $l[M,N] \to r[M,N]$ and translate it to $\banana{\lambda}$ syntax, we still
 have a $\banana{\lambda}$ reduction $\Term(l[M',N']) \to \Term(r[M',N'])$.
 
 
+\subsubsection{Labelling Our System}
 
+We will now decide how to label the $\banana{}$ and $\CC$ symbols. The
+labels we will choose will be the $\banana{\lambda}$ denotations introduced
+in~\ref{ssec:denotational-semantics}. We will build up some orders on the
+denotations that will come in hand later.
 
+\begin{definition}
+  For each $\banana{\lambda}$ type $\tau$, we define a well-founded strict
+  partial order $>_{\sem{\tau}}$ by induction on $\tau$.
 
-% \begin{definition}
-%   Let $>_B$ be a strict partial order on the set $B$. We define
-%   $>_{A \to B}$, the \demph{pointwise order on functions}, as the strict
-%   partial order on the set of functions $B^A$ where $f >_{A \to B} g$ if
-%   and only if for all $x \in A$, $f(x) >_B g(x)$.
-% \end{definition}
+  \begin{itemize}
+  \item $\tau$ is an atomic type
 
-% \begin{definition}
-%   For each $\banana{\lambda}$ type $\tau$, we define a strict partial order
-%   $>_{\sem{\tau}}$ by induction on $\tau$.
+    Then $>_{\sem{\tau}}$ is the empty relation.
 
-%   \begin{itemize}
-%   \item $\tau$ is an atomic type
+  \item $\tau = \alpha \to \beta$
 
-%     Then $>_{\sem{\tau}}$ is the empty relation.
+    $f >_{\sem{\tau}} g$ if and only if $f$ and $g$ are both functions
+    (i.e.\ not $\bot$) and
+    $\forall x \in \sem{\alpha}.\ f(x) >_{\sem{\beta}} g(x)$. The new order
+    is well-founded: any hypothetical descending chain $f_1$, $f_2$, \ldots
+    in $>_{\sem{\tau}}$ would be projected to a descending chain $f_1(x)$,
+    $f_2(x)$, \ldots in $>_{\sem{\beta}}$, which is well-founded by
+    induction hypothesis.
 
-%   \item $\tau = \alpha \to \beta$
+  \item $\tau = \FF_E(\gamma)$
 
-%     $f >_{\sem{\tau}} g$ if and only if $f$ and $g$ are both functions
-%     (i.e.\ not $\bot$) such that $f >_{\sem{\alpha} \to \sem{\beta}} g$.
+    Let $E = \{\typedopg{\op{op}_i}{\alpha_i}{\beta_i}\}_{i \in I}$. The
+    order $>_{\sem{\tau}}$ is the smallest transitive relation satisfying
+    the following:
+    \begin{itemize}
+    \item
+      $\forall i \in I,\ \forall p \in \sem{\alpha_i},\ \forall c \in
+      \sem{\FF_E(\gamma)}^{\sem{\beta_i}},\ \forall x \in \sem{\beta_i}.\
+      \op{op}_i(p, c) >_{\sem{\tau}} c(x)$
+    \end{itemize}
+    
+    The proof of the well-foundedness of this relation was given in the
+    definition of the interpretation of a handler
+    in~\ref{ssec:denotational-semantics}. It relies on the fact that
+    $\sem{\FF_E(\gamma)}$ is defined as a union of an increasing sequence
+    of sets where $c(x)$ always belongs to a set preceding the one in which
+    $\op{op}_i(p, c)$ appears for the first time.
+  \end{itemize}
+\end{definition}
 
-%   \item $\tau = \FF_E(\gamma)$
+As our labels, we will use denotations of (possibly open)
+$\banana{\lambda}$ terms. These objects are functions from $\sem{\Gamma}$
+to $\sem{\tau}$ for some typing context $\Gamma$ and type $\tau$. We will
+want to be able to compare denotations of two objects having the same type
+but not necessarily occurring in the same typing context. We introduce some
+notation to deal with context and valuation extensions.
 
-%     Let $E = \{\typedopg{\op{op}_i}{\alpha_i}{\beta_i}\}_{i \in
-%       I}$. $>_{\sem{\tau}}$ is the smallest transitive relation satisfying
-%     the following:
-%     \begin{itemize}
-%     \item if $x_1 >_{\sem{\gamma}} x_2$, then
-%       $\eta(x_1) >_{\sem{\tau}} \eta(x_2)$
-%     \item if $p_1 >_{\sem{\alpha_i}} p_2$, then
-%       $\op{op}_i(p_1, c) >_{\sem{\tau}} \op{op}_i(p_2, c)$
-%     \item if $c_1 >_{\sem{\beta_i} \to \sem{\tau}} c_2$, then
-%       $\op{op}_i(p, c_1) >_{\sem{\tau}} \op{op}_i(p, c_2)$
-%     \item for all $x \in \sem{\beta_i}$,
-%       $\op{op}_i(p, c) >_{\sem{\tau}} c(x)$
-%     \end{itemize}
-%   \end{itemize}
-% \end{definition}
+\begin{notation}
+  Let $\Gamma$ and $\Delta$ be typing contexts. The typing context $\Gamma,
+  \Delta$, the \demph{extension of $\Gamma$ with $\Delta$}, is defined by:
+
+  $$
+  (\Gamma,\Delta)(x) = \begin{cases}
+    \Delta(x), & \text{if $\Delta(x)$ is defined} \\
+    \Gamma(x), & \text{otherwise}
+  \end{cases}
+  $$
+\end{notation}
+
+\begin{notation}
+  Let $e$ and $d$ be valuations\footnote{Not IDTS valuations, but the
+    valuations used by the denotational semantics
+    in~\ref{ssec:denotational-semantics}.} for the typing contexts $\Gamma$
+  and $\Delta$, respectively. The valuation $e + d$ for the context
+  $\Gamma, \Delta$, called the \demph{extension of $e$ with $d$}, is
+  defined by:
+
+  $$
+  (e + d)(x) = \begin{cases}
+    d(x), & \text{if $x \in \dom(d)$} \\
+    e(x), & \text{otherwise}
+  \end{cases}
+  $$
+\end{notation}
+
+\begin{notation}
+  We will use the term $D(\tau)$ for the set
+  $\biguplus_\Gamma \sem{\tau}^{\sem{\Gamma}}$, the set of \demph{possible
+    denotations} of $\tau$-typed $\banana{\lambda}$ terms.
+\end{notation}
+
+\begin{definition}
+  Let $\tau$ be a $\banana{\lambda}$ type. The well-founded strict partial
+  order $>_{D(\tau)}$ on the set $D(\tau)$ is defined by:
+
+  \begin{itemize}
+  \item $f >_{D(\tau)} g$ if and only if:
+    \begin{itemize}
+    \item $f : \sem{\Gamma} \to \sem{\tau}$
+    \item $g : \sem{\Gamma,\Delta} \to \sem{\tau}$
+    \item $\forall e \in \sem{\Gamma},\ \forall d \in \sem{\Delta}.\ f(e)
+      >_{\sem{\tau}} g(e + d)$
+    \end{itemize}
+  \end{itemize}
+  
+  We will use the notation $\ge_{D(\tau)}$ for the associated well-founded
+  partial order (the reflexive closure of $>_{D(\tau)}$).
+\end{definition}
+
+For every symbol $f$ to label, we will now choose a non-empty well-founded
+poset $(S_f, \ge_{S_f})$, called the \emph{semantic label set}. In our
+application of the technique, we will always choose the set of possible
+denotations of the argument that is being recursively decreased by the
+function. For the symbols that we do care to label, we will assume that
+their semantic label set is the single-element set $1$.
+
+\begin{itemize}
+\item For
+  $\banana{}_{\op{op}_1, \ldots, \op{op}_n, \gamma, \delta, E, E'} \in
+  F_{\alpha_1 \to (\beta_1 \to \FF_{E'}(\delta)), \ldots, \alpha_n \to
+    (\beta_n \to \FF_{E'}(\delta)), \gamma \to \FF_{E'}(\delta),
+    \FF_E(\gamma), \FF_{E'}(\delta)}$, we take as the semantic label set
+  the poset $D(\FF_E(\gamma))$ ordered by $\ge_{D(\FF_E(\gamma))}$.
+\item For
+  $\CC_{\alpha,\beta,E} \in F_{\alpha \to \FF_E(\beta),\FF_E(\alpha \to
+    \beta)}$, we take as the semantic label set the poset
+  $D(\alpha \to \FF_E(\beta))$ ordered by
+  $\ge_{D(\alpha \to \FF_E(\beta))}$.
+\end{itemize}
+
+Having fixed the semantic label sets, we will now choose the \emph{semantic
+  label maps}. For each symbol
+$f \in F_{\vec{\alpha_1} \To \beta_1, \ldots, \vec{\alpha_n} \To \beta_n,
+  \gamma}$ to be labelled, we define a weakly monotonic arrow
+$\angles{-}^f$ in $\SetC^\ContextC$:
+
+$$
+\angles{-}^f : \delta_{\vec{\alpha_1}} T_{\beta_1} \times \cdots \times
+\delta_{\vec{\alpha_n}} T_{\beta_n} \longrightarrow K_{S_f}
+$$
+
+where $K_A$ is the constant presheaf $K_A(\Gamma) = A$. This semantic label
+map has access to the interpretations of all of the function symbol's
+arguments and needs to map them to an element of the semantic label set. In
+our model, the carrier containing the interpretations is the presheaf $T$.
+
+This means that for every
+$\banana{}_{\op{op}_1, \ldots, \op{op}_n, \gamma, \delta, E, E'} \in
+F_{\alpha_1 \to (\beta_1 \to \FF_{E'}(\delta)), \ldots, \alpha_n \to
+  (\beta_n \to \FF_{E'}(\delta)), \gamma \to \FF_{E'}(\delta),
+  \FF_E(\gamma), \FF_{E'}(\delta)}$, we need to give:
+
+$$
+\angles{-}^{\banana{}} : T_{\alpha_1 \to (\beta_1 \to
+  \FF_{E'}(\delta))} \times \cdots \times T_{\alpha_n \to (\beta_n \to
+  \FF_{E'}(\delta))} \times T_{\gamma \to \FF_{E'}(\delta)} \times
+T_{\FF_E(\gamma)} \longrightarrow K_{D(\FF_E(\gamma))}
+$$
+
+We do so by projecting the last argument, which is a $\banana{\lambda}$
+term of type $\FF_E(\gamma)$ in the context $\Gamma$, and finding its
+denotation using $\sem{-}$.
+
+$$
+\angles{M_1, \cdots, M_n, M_\eta, N}^{\banana{}}_\Gamma = \sem{N}
+$$
+
+We will do the same for the $\CC$ symbols. For every
+$\CC_{\alpha,\beta,E} \in F_{\alpha \to \FF_E(\beta),\FF_E(\alpha \to
+  \beta)}$, we give a:
+
+$$
+\angles{-}^\CC : T_{\alpha \to \FF_E(\beta)} \to K_{D(\alpha \to \FF_E(\beta))}
+$$
+
+by:
+
+$$
+\angles{M}^\CC_\Gamma = \sem{M}
+$$
+
+The semantic label maps must be weakly monotonic. That is a condition that
+our maps satisfy: whenever we have $M \to^* N$, then
+by~\ref{obs:denotation-soundness} the denotations $\sem{M}$ and $\sem{N}$
+will be equal, therefore $\sem{M} \ge \sem{N}$.
+
+We have now built up enough structure to correctly label our IDTS with
+denotations. The signature
+$\overline{\Sigma} = (\BB, \XX, \overline{\FF}, \ZZ)$ of the new IDTS will
+have the same sets of base types $\BB$, variables $\XX$ and metavariables
+$\ZZ$ as the signature $\Sigma = (\BB, \XX, \FF, \ZZ)$ of our original IDTS
+$\banana{\lambda}_\tau$. Only the set of function symbols will change. For
+every symbol $f \in \FF_{\alpha_1,\ldots,\alpha_n,\beta}$ and for every
+label $p$ in $S_f$, we will have
+$f^p \in \overline{\FF}_{\alpha_1,\ldots,\alpha_n,\beta}$.
+
+To complete our new IDTS, we will also have to transform the rules, so we
+will need a way to label metaterms.
+
+\begin{definition}
+  Let $\phi : Z \to T$ be a term-generated assignment with
+  $\phi = ! \circ \theta$. The \demph{labelling map}
+  $\phi^\Label : M_\Sigma Z \to M_{\overline{\Sigma}} Z$ is the arrow in
+  $(\SetC^\ContextC)^\BB$ defined by:
+  
+  \begin{align*}
+    \phi^\Label_{\tau,\Gamma}(x) &= x \\
+    \phi^\Label_{\tau,\Gamma}(Z_{\alpha_1,\ldots,\alpha_n,\beta}(t_1, \ldots, t_n))
+    &= Z(\phi^\Label_{\alpha_1,\Gamma}(t_1), \ldots, \phi^\Label_{\alpha_n,\Gamma}(t_n)) \\
+    \phi^\Label_{\tau,\Gamma}
+  \end{align*}
+\end{definition}
