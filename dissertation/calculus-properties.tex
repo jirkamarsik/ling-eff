@@ -2027,10 +2027,15 @@ $$
 Our CRS is therefore \emph{not} orthogonal. However, we can still make good
 use of Theorem~\ref{thm:confluence-crs}.
 
-\begin{lemma}\label{lem:confluence-int}
-  \demph{Confluence of intensional $\banana{\lambda}$}
+\begin{notation}
+  The \demph{intensional $\banana{\lambda}$ calculus $\intcalc$} is the
+  $\banana{\lambda}$ calculus without the $\eta$-reduction rule.
+\end{notation}
 
-  The $\banana{\lambda}$ reduction systems without the $\eta$ rule is
+\begin{lemma}\label{lem:confluence-int}
+  \demph{Confluence of $\intcalc$}
+
+  The $\banana{\lambda}$ reduction system without the $\eta$ rule is
   confluent.
 \end{lemma}
 
@@ -2079,7 +2084,7 @@ Exercises~1.0.8 in~\cite{klop1992term}).
   case, $\to_1$ commutes with $\to_2$.
 \end{lemma}
 
-We can use this to prove that $\banana{\lambda}$ commutes with the
+We can use this to prove that $\banana{\lambda}_{-\eta}$ commutes with the
 $\eta$ reduction rule.
 
 \begin{lemma}\label{lem:eta-commutes}
@@ -2092,42 +2097,42 @@ $\eta$ reduction rule.
 \begin{proof}
   We will prove this lemma by an appeal to
   Lemma~\ref{lem:commutativity}. Let $\to_\eta$ be the reduction relation
-  induced by the rule $\eta$ and $\to_{\banana{\lambda}}$ the reduction
+  induced by the rule $\eta$ and $\to_{\intcalc}$ the reduction
   relation induced by all the other reduction rules in
   $\banana{\lambda}$. We need to prove that for all terms $a$, $b$ and $c$
-  where $a \to_{\calc} b$ and $a \to_\eta c$, we have a term $d$ such that
-  $b \tto_\eta d$ and $c \to_{\calc}^= d$.
+  where $a \to_{\intcalc} b$ and $a \to_\eta c$, we have a term $d$ such that
+  $b \tto_\eta d$ and $c \to_{\intcalc}^= d$.
 
   This will turn out to be a routine proof by induction on the structure of
   the term $a$. The base cases are trivial since terms without any proper
   subterms happen to have no redexes in $\banana{\lambda}$ and therefore
   trivially satisfy the criterion. In the inductive step, we will proceed
   by analyzing the relative positions of the redexes which led to the
-  reductions $a \to_{\calc} b$ and $a \to_\eta c$.
+  reductions $a \to_{\intcalc} b$ and $a \to_\eta c$.
   \begin{itemize}
   \item If both reductions occurred within a common subterm of $a$, i.e.\
     $a = C[a']$, $b = C[b']$ and $c = C[c']$ while at the same time
-    $a' \to_{\calc} b'$ and $a' \to_\eta c'$: We can use the induction
+    $a' \to_{\intcalc} b'$ and $a' \to_\eta c'$: We can use the induction
     hypothesis for $a'$. This gives us a $d'$ such that $b' \tto_\eta d'$
-    and $c' \to_{\calc}^= d'$ and therefore we also have $d = C[d']$ with
-    $b \tto_\eta d$ and $c \to_{\calc}^= d$.
+    and $c' \to_{\intcalc}^= d'$ and therefore we also have $d = C[d']$ with
+    $b \tto_\eta d$ and $c \to_{\intcalc}^= d$.
   \item If both reductions occurred within non-overlapping subterms of $a$,
     i.e.\ $a = C[a_1, a_2]$, $b = C[b', a_2]$ and $c = C[a_1, c']$ with
-    $a \to_{\calc} b$ and $a \to_\eta c$: We can take $d = C[b', c']$ since
-    we have $b \tto_\eta d$ in one step and $c \to_{\calc}^= d$ in one step
+    $a \to_{\intcalc} b$ and $a \to_\eta c$: We can take $d = C[b', c']$ since
+    we have $b \tto_\eta d$ in one step and $c \to_{\intcalc}^= d$ in one step
     too.
-  \item If the redex in $a \to_{\calc} b$ is the entire term $a$, but the
+  \item If the redex in $a \to_{\intcalc} b$ is the entire term $a$, but the
     redex in $a \to_\eta c$ is a proper subterm of $a$: We will solve this
     by case analysis on the form of $a$:
     \begin{itemize}
     \item If $a$ is an application: Since $a$ is an application and also a
-      $\banana{\lambda}$-redex, it must match the left-hand side of the
-      $\beta$ rule, $\ap{(\lam{x}{M(x)})}{N}$, and $b$ must be $M(N)$.
+      $\intcalc$-redex, it must match the left-hand side of the $\beta$
+      rule, $\ap{(\lam{x}{M(x)})}{N}$, and $b$ must be $M(N)$.
       \begin{itemize}
       \item We will first deal with the case when the $\eta$-redex which
         lead to $c$ originated in $M(x)$. In that case
         $M(x) \to_\eta M'(x)$ and $c = \ap{(\lam{x}{M'(x)})}{N}$. Our
-        sought-after $d$ is then $M'(N)$, since $c \to_{\calc}^= d$ via
+        sought-after $d$ is then $M'(N)$, since $c \to_{\intcalc}^= d$ via
         $\beta$ in one step and $b = M(N) \tto_\eta d = M'(N)$.
       \item Now we get to one of the two interesting cases which
         necessitated this whole lemma: the overlap between $\beta$ and
@@ -2139,13 +2144,13 @@ $\eta$ reduction rule.
         $\ap{T}{N}$ and so we can choose $\ap{T}{N}$ as our $d$.
       \end{itemize}
     \item If $a$ is any other kind of term: Let $l \to r$ be the rule used
-      in $a \to_{\calc} b$. Not counting $\beta$, which only acts on
+      in $a \to_{\intcalc} b$. Not counting $\beta$, which only acts on
       applications and which we dealt with just above, the rules of
-      $\banana{\lambda}$ do not overlap with the $\eta$ rule. This
-      means the $\eta$-redex which led to $c$ must lie entirely inside a
-      part the part of $l$ which corresponds to a metavariable. Let $M$ be
-      that metavariable, then we will decompose $l$ into $L(M)$ and $r$
-      into $R(M)$. We have $a = L(a')$ for some $a'$, $b = R(a')$ and
+      $\intcalc$ do not overlap with the $\eta$ rule. This means the
+      $\eta$-redex which led to $c$ must lie entirely inside a part the
+      part of $l$ which corresponds to a metavariable. Let $M$ be that
+      metavariable, then we will decompose $l$ into $L(M)$ and $r$ into
+      $R(M)$. We have $a = L(a')$ for some $a'$, $b = R(a')$ and
       $c = L(a'')$\footnote{Since our rules are left-linear, $M$ is
         guaranteed to appear in $L(M)$ at most once. Therefore, if
         $a' \to_\eta a''$ in one step, then also $L(a') \to_\eta L(a'')$ in
@@ -2156,31 +2161,31 @@ $\eta$ reduction rule.
         rules). However, we are able to go from $R(a')$ to $R(a'')$ in
         multiple steps. NB: This is why we use
         Lemma~\ref{lem:commutativity} instead of trying to prove
-        commutativity directly.} and $c = L(a'') \to_{\calc}^= d = R(a'')$
-      in one step of $l \to r$.
+        commutativity directly.} and
+      $c = L(a'') \to_{\intcalc}^= d = R(a'')$ in one step of $l \to r$.
     \end{itemize}
   \item If the redex in $a \to_\eta c$ is the entire term $a$, but the
-    redex in $a \to_{\calc} b$ is a proper subterm of $a$: In this case,
+    redex in $a \to_{\intcalc} b$ is a proper subterm of $a$: In this case,
     $a$ must be an abstraction that matches the left-hand side of the
     $\eta$ rule, i.e.\ $a = \lam{x}{\ap{N}{x}}$. Also, we have $c = N$.
     \begin{itemize}
     \item As before, we will first deal with the case when the
-      $\banana{\lambda}$-redex is contained completely within $N$. Then
-      $N \to_{\calc} N'$ and $b = \lam{x}{\ap{N'}{x}}$. The common reduct
-      $d$ is $N'$ since $b \tto_\eta d$ in one step and
-      $c = N \to_{\calc}^= d = N'$ as established before.
+      $\intcalc$-redex is contained completely within $N$. Then
+      $N \to_{\intcalc} N'$ and $b = \lam{x}{\ap{N'}{x}}$. The common
+      reduct $d$ is $N'$ since $b \tto_\eta d$ in one step and
+      $c = N \to_{\intcalc}^= d = N'$ as established before.
     \item Now this is where we deal with the second overlap between $\beta$
       and $\eta$ in our reduction system, the one with $\eta$ on top. Let
-      us assume that the $\banana{\lambda}$-redex in $a$ is actually
+      us assume that the $\intcalc$-redex in $a$ is actually
       $\ap{N}{x}$. Since this is an application, the only admissible
       reduction is with $\beta$. In that case, $N = \lam{y}{T(y)}$ and
       $a = \lam{x}{\ap{(\lam{y}{T(y)})}{x}}$. Performing the
       $\beta$-reduction gives us $b = \lam{x}{T(x)}$ which is however equal
       to $c = N = \lam{y}{T(y)}$. So we can choose $d = b$ and be done.
     \end{itemize}
-  \item If $a$ is the redex for both reductions $a \to_{\calc} b$ and
+  \item If $a$ is the redex for both reductions $a \to_{\intcalc} b$ and
     $a \to_\eta c$, then $a$ must match the left-hand side of two reduction
-    rules. However, that is impossible in $\banana{\lambda}$ and so $a$ must have
+    rules. However, that is impossible in $\intcalc$ and so $a$ must have
     matched the same rule twice and therefore $b = c$. Then, we have a
     trivial $d = b$.
   \end{itemize}
@@ -2198,13 +2203,13 @@ Theorem~\ref{thm:confluence}, the confluence of $\banana{\lambda}$.
 \end{theorem}
 
 \begin{proof}
-  From Lemma~\ref{lem:confluence-int}, we know that the $\banana{\lambda}$
-  system without $\eta$ is confluent and from
-  Lemma~\ref{lem:confluence-eta}, we know that the $\eta$ reduction
-  rule is confluent as well. Lemma~\ref{lem:eta-commutes} tells us that
-  these two reduction systems commute and therefore, by the Lemma of
-  Hindley-Rosen, their union, which is the $\banana{\lambda}$ reduction
-  system, commutes as well.
+  From Lemma~\ref{lem:confluence-int}, we know that the
+  $\banana{\lambda}_{-\eta}$ system is confluent and from
+  Lemma~\ref{lem:confluence-eta}, we know that the $\eta$ reduction rule is
+  confluent as well. Lemma~\ref{lem:eta-commutes} tells us that these two
+  reduction systems commute and therefore, by the Lemma of Hindley-Rosen,
+  their union, which is the $\banana{\lambda}$ reduction system, commutes
+  as well.
 \end{proof}
 
 
@@ -2232,12 +2237,12 @@ CRSs, IDTSs are a class of rewriting systems for which we can prove certain
 interesting general results. In this section, we will start by examining
 the definition of an IDTS and fitting $\banana{\lambda}$ into that
 definition. The theory of IDTSs comes with a sufficient condition for
-termination known as the General Schema. $\banana{\lambda}$ will not satisfy this
-condition and so we will first transform it using Hamana's technique of
-higher-order semantic labelling~\cite{hamana2007higher}. As with our proof
-of confluence, we will first consider the case of $\banana{\lambda}$
-without $\eta$ reduction and then add $\eta$ manually while preserving
-termination.
+termination known as the General Schema. $\banana{\lambda}$ will not
+satisfy this condition and so we will first transform it using Hamana's
+technique of higher-order semantic labelling~\cite{hamana2007higher}. As
+with our proof of confluence, we will first consider the case of
+$\banana{\lambda}$ without $\eta$ reduction and then add $\eta$ manually
+while preserving termination.
 
 
 \subsection{Inductive Data Type Systems}
@@ -2589,7 +2594,7 @@ the two.
   Let $M$ and $N$ be $\banana{\lambda}$ terms. Then,
 
   $$
-  M \to N \quad \Rightarrow \quad
+  M \to_{\intcalc} N \quad \Rightarrow \quad
   \forall m \in \Types(M).\ \exists n \in \Types(N).\ m \to n
   $$
   
@@ -2599,10 +2604,10 @@ the two.
 
 \begin{proof}
   This property is essentially a stronger kind of subject reduction for
-  $\banana{\lambda}$. In proofs of subject reduction, we examine every
-  reduction rule and we show how a typing derivation of the redex can be
-  transformed into a typing derivation of the contractum. We can think of
-  $\banana{\lambda}_\tau$ terms as $\banana{\lambda}$ typing
+  $\intcalc$. In proofs of subject reduction, we examine
+  every reduction rule and we show how a typing derivation of the redex can
+  be transformed into a typing derivation of the contractum. We can think
+  of $\banana{\lambda}_\tau$ terms as $\banana{\lambda}$ typing
   derivations. The reduction rules in Figure~\ref{fig:tau-types} are the
   rules which tell us how to take a typing of the redex and transform it
   into a typing of the contractum.
@@ -2614,13 +2619,12 @@ the two.
     type of every variable, metavariable and function symbol as a
     subscript.
   \item Applying $\Term$ to the type-annotated $\banana{\lambda}_\tau$
-    redexes and contracta yields the redexes and contracta of
-    $\banana{\lambda}$ (and therefore the $\banana{\lambda}_\tau$ redexes
-    and contracta belong to the $\Types$ image of the $\banana{\lambda}$
-    redexes and contracta). Since in Figure~\ref{fig:tau-types}, we have
-    included the terms with their type annotations removed, we can see at a
-    glance that the stripped rules align with the CRS formulation of
-    $\banana{\lambda}$.
+    redexes and contracta yields the redexes and contracta of $\intcalc$
+    (and therefore the $\banana{\lambda}_\tau$ redexes and contracta belong
+    to the $\Types$ image of the $\intcalc$ redexes and contracta). Since
+    in Figure~\ref{fig:tau-types}, we have included the terms with their
+    type annotations removed, we can see at a glance that the stripped
+    rules align with the CRS formulation of $\banana{\lambda}$.
   \item Finally, we have to check whether the rewriting rules in
     Figure~\ref{fig:tau-types} actually apply to \emph{all} the
     $m \in \Types(M)$. In other words, we need to check whether the type
@@ -2629,19 +2633,19 @@ the two.
     typing rule constraints and given the most general type annotations.
   \end{itemize}
   
-  Given a reduction in $\banana{\lambda}$ from $M$ to $N$, we can find the
-  untyped reduction rule used in Figure~\ref{fig:tau-types}. We know that
-  if $m \in \Types(M)$, then $m$ then matches the redex of the
-  corresponding typed rule. We also know that the contractum of the typed
-  rule belongs to $\Types(N)$ and therefore, the property
-  holds. Furthermore, if we were to formalize the correspondence between
-  $\banana{\lambda}$ typing derivations and $\banana{\lambda}_\tau$ terms,
-  we would get another proof of subject reduction for $\banana{\lambda}$.
+  Given a reduction in $\intcalc$ from $M$ to $N$, we can find the untyped
+  reduction rule used in Figure~\ref{fig:tau-types}. We know that if
+  $m \in \Types(M)$, then $m$ then matches the redex of the corresponding
+  typed rule. We also know that the contractum of the typed rule belongs to
+  $\Types(N)$ and therefore, the property holds. Furthermore, if we were to
+  formalize the correspondence between $\banana{\lambda}$ typing
+  derivations and $\banana{\lambda}_\tau$ terms, we would get another proof
+  of subject reduction for $\intcalc$.
 \end{proof}
 
 \begin{corollary}\label{cor:banana-tau-termination}
   If the reduction relation of $\banana{\lambda}_\tau$ is terminating, then
-  so is the $\banana{\lambda}$ reduction relation on well-typed terms.
+  so is the $\intcalc$ reduction relation on well-typed terms.
 \end{corollary}
 
 \begin{proof}
@@ -3154,7 +3158,7 @@ We will now deal with presheafs equipped with partial orders.
 \end{definition}
 
 \begin{definition}
-  An arrow $f : A^1 \times \ldots \times A^n \to B$ in $\SetC^\ContextC$ is
+  An arrow $f : A^1 \times \cdots \times A^n \to B$ in $\SetC^\ContextC$ is
   \demph{weakly monotonic} if for all $\Gamma$ and
   $a_1, b_1 \in A^1_\Gamma$, \ldots, $a_n, b_n \in A^n_\Gamma$ with
   $a_k \ge_{A_{k,\Gamma}} b_k$ for some $k$ and $a_j = b_j$ for all
@@ -3180,14 +3184,14 @@ a weakly monotonic ($V+\Sigma$)-algebra $\TT$.
 \begin{definition}
   For a given ($V+\Sigma$)-algebra $\AAA$, a \demph{term-generated
     assignment} $\phi$ is an arrow in $(\SetC^\ContextC)^\BB$ from the
-  presheaf $Z$ to the presheaf $A$ such that $\phi = ! \circ \theta$,
+  presheaf $Z$ to the presheaf $A$ such that $\phi = \bangop \circ \theta$,
   where:
 
   \begin{itemize}
   \item $\theta$ is an IDTS valuation\footnote{Same as the CRS valuations
       introduced in~\ref{ssec:crs}, but typed.}, i.e.\ an arrow from $Z$ to
     $T_\Sigma V$.
-  \item $!$ is the unique homomorphism from the initial
+  \item $\bangop$ is the unique homomorphism from the initial
     ($V+\Sigma$)-algebra $T_\Sigma V$ to $A$\footnote{Homomorphisms between
       $\Sigma$-algebras are defined in the same way as homomorphisms for
       first-order algebras. The term algebra $T_\Sigma V$ is called an
@@ -3210,10 +3214,10 @@ term.
   in $l$ and $r$, we have:
 
   $$
-  ! \theta^*_{\tau,\Gamma}(l) \ge_{A_{\tau,\Gamma}} ! \theta^*_{\tau,\Gamma}(r)
+  \bangop \theta^*_{\tau,\Gamma}(l) \ge_{A_{\tau,\Gamma}} \bangop \theta^*_{\tau,\Gamma}(r)
   $$
 
-  where $\phi = ! \circ \theta$, $\theta^*$ is the extension of the
+  where $\phi = \bangop \circ \theta$, $\theta^*$ is the extension of the
   valuation $\theta$ to meta-terms and $\Gamma$ is the context regrouping
   all the free variables exposed by $\theta$.
 \end{definition}
@@ -3436,7 +3440,7 @@ will need a way to label metaterms.
 
 \begin{definition}
   Let $\phi : Z \to T$ be a term-generated assignment with
-  $\phi = ! \circ \theta$. The \demph{labelling map}
+  $\phi = \bangop \circ \theta$. The \demph{labelling map}
   $\phi^\Label : M_\Sigma Z \to M_{\overline{\Sigma}} Z$ is the arrow in
   $(\SetC^\ContextC)^\BB$ defined by:
   
@@ -3445,7 +3449,7 @@ will need a way to label metaterms.
     \phi^\Label_{\tau,\Gamma}(Z_{\alpha_1,\ldots,\alpha_n,\beta}(t_1, \ldots, t_n))
     &= Z(\phi^\Label_{\alpha_1,\Gamma}(t_1), \ldots, \phi^\Label_{\alpha_n,\Gamma}(t_n)) \\
     \phi^\Label_{\tau,\Gamma}(f([\vec{x_1}] t_1, \ldots, [\vec{x_n} t_n]))
-    &= f^{\angles{!\theta^*(t_1), \ldots, !\theta^*(t_n)}^f_\Gamma}([\vec{x_1}] \phi^\Label_{\beta_i,(\Gamma,\vec{x_1} :
+    &= f^{\angles{\bangop\theta^*(t_1), \ldots, \bangop\theta^*(t_n)}^f_\Gamma}([\vec{x_1}] \phi^\Label_{\beta_i,(\Gamma,\vec{x_1} :
       \vec{\alpha_1})}(t_1), \ldots,
       [\vec{x_n}] \phi^\Label_{\beta_n,(\Gamma,\vec{x_n} : \vec{\alpha_n})}(t_n))
   \end{align*}
@@ -3460,18 +3464,18 @@ function symbols from $\FF$ with labelled ones from $\overline{\FF}$.  Note
 that the term-generated assignment is not used to rewrite the
 metavariables: the assignment has values in the carrier presheaf of our
 ($V+\Sigma$)-algebra and it can therefore be something completely different
-than an IDTS term. The term-generated assignment $\phi = ! \circ \theta$ is
-only used when labelling a function symbol. The IDTS valuation $\theta$ is
-used to replace the metavariables in all of the arguments with some
-specific terms and the resulting IDTS terms are then interpreted in our
-algebra $\TT$ using $!$ (which simply turns them into $\banana{\lambda}$
-terms). These interpretations are then given as arguments to the semantic
-label map $\angles{-}^f$ which chooses a label from the label set. Note
-also that there is no case for bare abstraction ($[x] t$). In the theory of
-higher-order semantic labelling presented in~\cite{hamana2007higher}, the
-IDTS is assumed to not contain any bare abstractions: abstractions should
-always be arguments to function symbols. This is the case in our IDTS
-$\banana{\lambda}_\tau$.
+than an IDTS term. The term-generated assignment
+$\phi = \bangop \circ \theta$ is only used when labelling a function
+symbol. The IDTS valuation $\theta$ is used to replace the metavariables in
+all of the arguments with some specific terms and the resulting IDTS terms
+are then interpreted in our algebra $\TT$ using $\bangop$ (which simply
+turns them into $\banana{\lambda}$ terms). These interpretations are then
+given as arguments to the semantic label map $\angles{-}^f$ which chooses a
+label from the label set. Note also that there is no case for bare
+abstraction ($[x] t$). In the theory of higher-order semantic labelling
+presented in~\cite{hamana2007higher}, the IDTS is assumed to not contain
+any bare abstractions: abstractions should always be arguments to function
+symbols. This is the case in our IDTS $\banana{\lambda}_\tau$.
 
 Knowing how to label metaterms, we can now label the rules of an
 IDTS.
@@ -3695,8 +3699,212 @@ occurs in $r$. We have already paid the burden of proof for this in giving
 the semantic labelling and proving that the induced $>_\FF$ ordering is
 well-founded.
 
-Finally, we have managed to prove termination for $\labidts$, which in turn
-implies termination for $\idts$ by Theorem~\ref{thm:semantic-labelling},
-which in turn entails termination for $\banana{\lambda}_{-\eta}$ by
-Corollary~\ref{cor:banana-tau-termination}, our $\banana{\lambda}$ calculus
-without $\eta$-reduction.
+\begin{theorem}\label{thm:labidts-termination}
+  (\demph{Termination of $\labidts$})
+
+  The reduction relation induced by the labelled IDTS $\labidts$ is
+  terminating.
+\end{theorem}
+
+\begin{proof}
+  Proof given above by the application of the General Schema presented
+  in~\cite{blanqui2000termination}.
+\end{proof}
+
+\begin{corollary}\label{cor:idts-termination}
+  (\demph{Termination of $\idts$})
+
+  The reduction relation induced by the IDTS $\idts$ is terminating.
+\end{corollary}
+
+\begin{proof}
+  By~\ref{thm:labidts-termination} and~\ref{thm:semantic-labelling}.
+\end{proof}
+
+\begin{corollary}\label{cor:intcalculus-termination}
+  (\demph{Termination of $\intcalc$})
+  
+  The reduction relation of $\banana{\lambda}$ without $\eta$-reduction is
+  terminating.
+\end{corollary}
+
+\begin{proof}
+  By~\ref{cor:idts-termination} and~\ref{cor:banana-tau-termination}.
+\end{proof}
+
+
+\subsection{Adding $\eta$ Back to $\banana{\lambda}$}
+\label{ssec:termination-eta}
+
+We have shown termination for $\intcalc$. We know that the $\eta$-reduction
+on $\calc$ is terminating: it decreases the number of $\lambda$
+abstractions in the term by one in each step. We would now like to show
+that the combination of $\intcalc$ and $\eta$ is terminating as well.
+
+Note that we could not have used the General Schema to prove that $\calc$
+with $\eta$ is terminating. The General Schema does not admit
+$\eta$-reduction. The left-hand side of every rule needs to be headed by a
+function symbol which is not a contructor. If we tried declaring that
+$\lambda$ is not a constructor, we would run into problems with the notion
+of accessibility. When accessing the metavariables of the left-hand side of
+a rule, we can access all of the arguments of a constructor but we can only
+access the arguments of a non-constructor symbol that have a basic
+type. The type of the argument of $\lambda_{\alpha,\beta}$ is
+$\alpha \To \beta$ and so we could not access the arguments of $\lambda$ in
+our rules (which would break the $\beta$ rule, $\eta$ rule and the $\CC$
+rules).
+
+Termination is generally not a modular property of higher-order rewriting
+systems~\cite{appel2010higher}. Our plan will be to show that
+$\eta$-reduction does not interfere with the rewrite rules of
+$\intcalc$. Then we will be able to take any reduction chain in $\calc$ and
+pull out from it a chain which only uses rules from $\intcalc$. Since this
+chain must be finite due to the termination of $\intcalc$, we will have a
+proof of finiteness for the reduction chain in $\calc$.
+
+\begin{definition}
+  An \demph{n-ary evaluation context $C^n$} is a $\banana{\lambda}$ term
+  in which $n$ disjoint subterms have been replaced with the symbol
+  $[]$. We write $C^n[M]$ for the term in which all of the occurrences of
+  the symbol $[]$ have been replaced with $M$.
+\end{definition}
+
+\begin{lemma}\label{lem:eta-exchange}
+  (\demph{Exchanging $\eta$ with $\intcalc$})
+
+  For every well-typed reduction chain $s \to_\eta t \to_\intcalc u$, there
+  exists a well-typed reduction chain $s \to^+_\intcalc t' \to^*_\eta u$.
+\end{lemma}
+
+\begin{proof}
+  We will consider all the possible relative positions of the contractum of
+  the first reduction and the redex for the second reduction within $t$.
+  
+  \begin{itemize}
+  \item Assume the two are disjoint, i.e.\ $s = C[M,N]$, $t = C[M',N]$ with
+    $M \to_\eta M'$ and $u = C[M',N']$ with $N \to_\intcalc N'$. Then we
+    can easily reorder the two reductions, producing the chain
+    $C[M,N] \to_\intcalc C[M,N'] \to_\eta C[M',N']$.
+  \item Assume that the contractum of the first reduction contains the
+    redex for the second reduction, i.e.\ $s = C[M]$, $t = C[D[N]]$ with
+    $M \to_\eta D[N]$ and $u = C[D[N']]$ with $N \to_\intcalc N'$. Since
+    $M$ is an $\eta$-redex, $M = \lam{x}{\ap{D[N]}{x}}$. We can now build
+    the chain
+    $C[\lam{x}{\ap{D[N]}{x}}] \to_\intcalc C[\lam{x}{\ap{D[N']}{x}}]
+    \to_\eta C[D[N']]$.
+  \item Assume that the redex for the second reduction contains the
+    contractum of the first reduction, i.e.\ $s = C[D[M]]$, $t = C[D[M']]$
+    with $M \to_\eta M'$ and $u = C[N']$ with $D[M'] \to_\intcalc N'$. Let
+    $R$ be the rule used in $D[M'] \to_\intcalc N$. We will now distinguish
+    two scenarios:
+
+    \begin{itemize}
+    \item The occurrence of $M'$ in $D[M']$ is matched by a metavariable in
+      the left-hand side of rule $R$.
+      
+      The $R$-redex $N'$ of $D[M']$ will be a term $E^n[M',\ldots,M']$
+      where $E^n$ is an $n$-ary context for some $n$ which depends on the
+      rule $R$ and the metavariable that was matched\footnote{Rules like
+        $\banana{\eta}$ can delete metavariables ($n = 0$ for the
+        metavariable $M_\eta$), while others, like $\banana{\op}$, can copy
+        them ($n = 2$ for the variable $M_j$)}. Furthermore, we can replace
+      $M'$ with any other term of the same type and the reduction will
+      still go through, e.g.\ notably $D[M] \to_R E^n[M,\ldots,M]$. We can
+      now build our chain
+      $C[D[M]] \to_\intcalc C[E^n[M,\ldots,M]] \to^*_\eta
+      C[E^n[M',\ldots,M']] = C[N']$.
+      
+    \item The occurrence of $M'$ in $D[M']$ is not matched by a
+      metavariable.
+      
+      $M'$ is an $\eta$-contractum and must therefore have a function
+      type. If we investigate the left-hand sides of all the rewriting
+      rules in $\intcalc$ and search for terms that have a function type,
+      we end up with\footnote{The case of $D = []$ is not considered,
+        because it is covered by the case where the contractum of the first
+        reduction containts the redex of the second reduction.}:
+
+      \begin{itemize}
+      \item $D = \ap{[]}{N}$ and $R = \beta$
+      \item $D = \ap{\CC}{[]}$ and $R = \CC_{\op{op}}$ or $R = \CC_\eta$
+      \end{itemize}
+      
+      We note that in all of these rules, the symbol which replaces $[]$
+      must be a $\lambda$-abstraction. Therefore, if $D[M'] \to_R N$, then
+      $M' = \lam{x}{M''}$. From $M \to_\eta M'$, we also know that
+      $M = \lam{x}{\ap{M'}{x}}$. Since we were $\eta$-expanding a
+      $\lambda$-abstraction, we can replace this step by a
+      $\beta$-reduction:
+      $M = \lam{x}{\ap{(\lam{x}{M''})}{x}} \to_\beta \lam{x}{M''} =
+      M'$. The $\beta$ rule is a part of $\intcalc$ and so we can now build
+      the chain $C[D[M]] \to_\intcalc C[D[M']] \to_\intcalc C[N']$.
+    \end{itemize}
+  \end{itemize}
+\end{proof}
+
+\begin{lemma}\label{lem:pulling-links}
+  (\demph{Pulling an $\intcalc$ link from a $\calc$ chain})
+  
+  Let $t_1 \to t_2 \to \ldots$ be an infinite reduction chain in $\calc$
+  which uses rules from $\intcalc$ infinitely often. Then there exists
+  another infinite reduction chain $u_1 \to u_2 \to \ldots$ which also uses
+  rules from $\intcalc$ infinitely often and $t_1 \to_\intcalc u_1$.
+\end{lemma}
+
+\begin{proof}
+  Let $t_k \to t_{k+1}$ be the first link in the chain that uses a rule
+  from $\intcalc$. We will prove this by induction on $k$.
+  
+  If $k = 1$, then we give the chain $t_2 \to t_3 \to \ldots$ which also
+  uses rules from $\intcalc$ infinitely often and which satisfies
+  $t_1 \to_\intcalc t_2$.
+  
+  If $k > 1$, then we replace the segment
+  $t_{k-1} \to_\eta t_k \to_\intcalc t_{k+1}$ with the segment
+  $t_{k-1} \to^+_\intcalc t_k \to^*_\eta t_{k+1}$ using
+  Lemma~\ref{lem:eta-exchange}. By induction hypothesis, the chain
+  $t_1 \to \ldots \to t_{k-1} \to^+_\intcalc t_k \to^*_\eta t_{k+1} \to
+  t_{k+2} \to \ldots$ gives us the necessary chain $u_1 \to u_2 \to \ldots$
+  with $t_1 \to_\intcalc u_1$.
+\end{proof}
+
+\begin{theorem}\label{thm:termination}
+  (\demph{Termination of $\banana{\lambda}$})
+  
+  The reduction relation $\to$ on $\banana{\lambda}$ terms given by the
+  rules in Figure~\ref{fig:reductions} is terminating.
+\end{theorem}
+
+\begin{proof}
+  We will prove this theorem by contradiction. Let $t_1 \to t_2 \to \ldots$
+  be an infinite reduction chain in $\banana{\lambda}$.
+
+  First, we will show that this reduction chain must use rules from
+  $\intcalc$ infinitely often. If it would not be the case, then let
+  $t_n \to t_{n+1}$ be the last rule in the chain coming from
+  $\intcalc$. The remaining chain $t_{n+1} \to t_{n+2} \to \ldots$ would be
+  an infinite reduction chain using $\eta$ which is impossible since $\eta$
+  is terminating.
+  
+  Since we have a chain in $\calc$ that uses rules from $\intcalc$
+  infinitely often, we can iterate Lemma~\ref{lem:pulling-links} to get an
+  infinite sequence of chains such that the first element of every chain
+  reduces via $\intcalc$ to the first element of the next chain in the
+  sequence. The existence of such a chain is in contradiction with the
+  termination of $\intcalc$.
+\end{proof}
+
+\begin{theorem}\label{cor:strong-normalization}
+  (\demph{Strong normalization of $\calc$})
+  
+  There are no infinite reduction chains in $\calc$ and all maximal
+  reduction chains originating in a $\calc$ term $M$ terminate in the same
+  term, the normal form of $M$.
+\end{theorem}
+
+\begin{proof}
+  The lack of infinite reduction chains is due to termination of $\calc$
+  (Theorem~\ref{thm:termination}) and the fact that all maximal reduction
+  chains lead to the same term is entailed by confluence of $\calc$
+  (Theorem~\ref{thm:confluence}).
+\end{proof}
