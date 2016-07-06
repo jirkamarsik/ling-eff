@@ -2481,12 +2481,14 @@ $M_{\alpha_1,\ldots,\alpha_n,\beta}$, $N_{\alpha_1,\ldots,\alpha_n,\beta}$,
   \FF_{E'}(\delta)}} (M^\eta_{\typehint{\gamma \to \FF_{E'}(\delta)}}, N_{\typehint{\gamma}})$} \\
   \\
   $\banana{}^{(\op{op}_i)_{i \in I}} (\op{op}_j (N^{\mathrm{p}}, [y] N^{\mathrm{c}}(y))) \to$ & rules $\banana{\op{op}}^{(\op{op}_i)_{i \in I}}_{\FF_E(\gamma),\FF_{E'}(\delta)}$ \\
-  $\aps(\aps(M^j, N^{\mathrm{p}}), [y] \banana{}^{(\op{op}_i)_{i \in I}} (N^{\mathrm{c}}(y)))$ & where $j \in I$ \\
+  $\aps(\aps(M^j, N^{\mathrm{p}}), \lambda([y] \banana{}^{(\op{op}_i)_{i \in I}} (N^{\mathrm{c}}(y))))$ & where $j \in I$ \\
   \multicolumn{2}{l}{$\banana{}^{(\op{op}_i)_{i \in I}}_{\typehint{\FF_E(\gamma), \FF_{E'}(\delta)}} (\op{op}_{j \typehint{\alpha, \beta \To \FF_E(\gamma), \FF_E(\gamma)}} (N^{\mathrm{p}}_{\typehint{\alpha}}, [y_{\typehint{\beta}}] N^{\mathrm{c}}_{\typehint{\beta, \FF_E(\gamma)}}(y_{\typehint{\beta}}))) \to$} \\
   \multicolumn{2}{l}{$\aps_{\typehint{(\beta \to  \FF_{E'}(\delta)) \to \FF_{E'}(\delta), \beta \to \FF_{E'}(\delta), \FF_{E'}(\delta)}} (\aps_{\typehint{\alpha \to (\beta \to
     \FF_{E'}(\delta)) \to \FF_{E'}(\delta), \alpha, (\beta \to
     \FF_{E'}(\delta)) \to \FF_{E'}(\delta)}} (M^j_{\typehint{\alpha \to (\beta \to
-    \FF_{E'}(\delta)) \to \FF_{E'}(\delta)}}, N^{\mathrm{p}}_{\typehint{\alpha}}), [y_{\typehint{\beta}}] \banana{}^{(\op{op}_i)_{i \in I}}_{\typehint{\FF_E(\gamma), \FF_{E'}(\delta)}} (N^{\mathrm{c}}_{\typehint{\beta, \FF_E(\gamma)}}(y_{\typehint{\beta}})))$} \\
+    \FF_{E'}(\delta)) \to \FF_{E'}(\delta)}},
+    N^{\mathrm{p}}_{\typehint{\alpha}}), \lambda_{\typehint{\beta \To
+    \FF_{E'}(\delta), \beta \to \FF_{E'}(\delta)}}([y_{\typehint{\beta}}] \banana{}^{(\op{op}_i)_{i \in I}}_{\typehint{\FF_E(\gamma), \FF_{E'}(\delta)}} (N^{\mathrm{c}}_{\typehint{\beta, \FF_E(\gamma)}}(y_{\typehint{\beta}}))))$} \\
   \\
   $\banana{}^{(\op{op}_i)_{i \in I}} (\op{op}_j (N^{\mathrm{p}}, [y] N^{\mathrm{c}}(y))) \to$ & rules $\banana{\op{op}'}^{(\op{op}_i)_{i \in I}}_{\FF_E(\gamma),\FF_{E'}(\delta)}$ \\
   $\op{op}_j (N^{\mathrm{p}}, [y] \banana{}^{(\op{op}_i)_{i \in I}} (N^{\mathrm{c}}(y)))$ & where $j \notin I$ \\
@@ -2543,6 +2545,9 @@ from redex to contractum, from rule to rule, we introduce a shortcut
 $\banana{}^{(\op{op}_i)_{i \in
     I}}_{\typehint{\FF_E(\gamma),\FF_{E'}(\delta)}}(N_{\typehint{\FF_E(\gamma)}})$
 that we use throughout all of the handler rules.
+
+\subsubsection{Connecting $\banana{\lambda}_\tau$ to $\banana{\lambda}$}
+\label{sssec:connecting-bananas}
 
 We have given a complete formal definition of $\banana{\lambda}_\tau$. This
 will let us find a proof of termination for $\banana{\lambda}_\tau$ using
@@ -2634,7 +2639,7 @@ the two.
   we would get another proof of subject reduction for $\banana{\lambda}$.
 \end{proof}
 
-\begin{corollary}
+\begin{corollary}\label{cor:banana-tau-termination}
   If the reduction relation of $\banana{\lambda}_\tau$ is terminating, then
   so is the $\banana{\lambda}$ reduction relation on well-typed terms.
 \end{corollary}
@@ -2649,6 +2654,7 @@ the two.
 
 
 \subsection{Termination for IDTSs}
+\label{ssec:termination-for-idts}
 
 So far, we have introduced an IDTS and have shown that if this IDTS is
 terminating, then so is $\banana{\lambda}$. We will now look at a general result
@@ -3033,9 +3039,9 @@ presheaf that will come into play:
 \item $Z$ is the presheaf of the IDTS metavariables from $\ZZ$,
   $Z_{\tau, (x_1 : \alpha_1,\ldots,x_n : \alpha_n)} = \{ M \mid M \in
   Z_{\alpha_1,\ldots,\alpha_n,\tau} \}$.
-\item $T_\Sigma V$ is the presheaf of IDTS terms with signature $\Sigma$.
+\item $T_\Sigma V$ is the presheaf of IDTS terms with alphabet $\Sigma$.
 \item $M_\Sigma
-  Z$ is the presheaf of IDTS metaterms with signature
+  Z$ is the presheaf of IDTS metaterms with alphabet
   $\Sigma$ and typed metavariables $Z$.
 \end{itemize}
 
@@ -3062,7 +3068,7 @@ family to another.
   $\beta$, then the presheaf $\delta_\alpha A_\beta$ models the type
   $\alpha \To \beta$.
 
-\item The signature of our IDTS, $\Sigma$, induces an endofunctor on the
+\item The alphabet of our IDTS, $\Sigma$, induces an endofunctor on the
   category $(\SetC^\ContextC)^\BB$ mapping presheafs $A$ to presheafs
   $\Sigma A$.
 
@@ -3097,7 +3103,7 @@ We are now ready to define the notion of a $\Sigma$-binding algebra.
 We will need to construct a $(V+\Sigma)$-algebra in order to proceed, where
 $(V+\Sigma)(A) = V + \Sigma(A)$. Our algebra will be a term algebra, the
 carrier will be the presheaf $T$. Now we need to give an interpretation to
-variables and to every function symbol defined in the signature
+variables and to every function symbol defined in the alphabet
 $\Sigma$. This interpretation must be given as an
 $\alpha : V + \Sigma T \to T$, meaning that the interpretation of every
 function symbol must be compositional. Every value from
@@ -3174,7 +3180,8 @@ a weakly monotonic ($V+\Sigma$)-algebra $\TT$.
 \begin{definition}
   For a given ($V+\Sigma$)-algebra $\AAA$, a \demph{term-generated
     assignment} $\phi$ is an arrow in $(\SetC^\ContextC)^\BB$ from the
-  presheaf $Z$ to the presheaf $A$ such that $phi = ! \circ \theta$, where:
+  presheaf $Z$ to the presheaf $A$ such that $\phi = ! \circ \theta$,
+  where:
 
   \begin{itemize}
   \item $\theta$ is an IDTS valuation\footnote{Same as the CRS valuations
@@ -3208,7 +3215,7 @@ term.
 
   where $\phi = ! \circ \theta$, $\theta^*$ is the extension of the
   valuation $\theta$ to meta-terms and $\Gamma$ is the context regrouping
-  all the free variables in the range of $\theta$.
+  all the free variables exposed by $\theta$.
 \end{definition}
 
 \begin{definition}
@@ -3408,14 +3415,21 @@ by~\ref{obs:denotation-soundness} the denotations $\sem{M}$ and $\sem{N}$
 will be equal, therefore $\sem{M} \ge \sem{N}$.
 
 We have now built up enough structure to correctly label our IDTS with
-denotations. The signature
-$\overline{\Sigma} = (\BB, \XX, \overline{\FF}, \ZZ)$ of the new IDTS will
-have the same sets of base types $\BB$, variables $\XX$ and metavariables
-$\ZZ$ as the signature $\Sigma = (\BB, \XX, \FF, \ZZ)$ of our original IDTS
-$\banana{\lambda}_\tau$. Only the set of function symbols will change. For
-every symbol $f \in \FF_{\alpha_1,\ldots,\alpha_n,\beta}$ and for every
-label $p$ in $S_f$, we will have
-$f^p \in \overline{\FF}_{\alpha_1,\ldots,\alpha_n,\beta}$.
+denotations. Let us start with the alphabet.
+
+\begin{definition}
+  Let $\Sigma = (\BB, \XX, \FF, \ZZ)$ be the alphabet of an IDTS
+  $(\Sigma, \RR)$, $M$ a ($V+\Sigma$)-algebra and $S_f$ the chosen semantic
+  label sets. The \demph{alphabet of the labelled IDTS}
+  $(\overline{\Sigma}, \overline{\RR})$ is the IDTS alphabet
+  $\overline{\Sigma} = (\BB, \XX, \overline{\FF}, \ZZ)$ where:
+
+  \begin{itemize}
+  \item For every symbol $f \in \FF_{\alpha_1,\ldots,\alpha_n,\beta}$ and
+    for every label $p$ in $S_f$, we will have
+    $f^p \in \overline{\FF}_{\alpha_1,\ldots,\alpha_n,\beta}$.
+  \end{itemize}
+\end{definition}
 
 To complete our new IDTS, we will also have to transform the rules, so we
 will need a way to label metaterms.
@@ -3430,6 +3444,259 @@ will need a way to label metaterms.
     \phi^\Label_{\tau,\Gamma}(x) &= x \\
     \phi^\Label_{\tau,\Gamma}(Z_{\alpha_1,\ldots,\alpha_n,\beta}(t_1, \ldots, t_n))
     &= Z(\phi^\Label_{\alpha_1,\Gamma}(t_1), \ldots, \phi^\Label_{\alpha_n,\Gamma}(t_n)) \\
-    \phi^\Label_{\tau,\Gamma}
+    \phi^\Label_{\tau,\Gamma}(f([\vec{x_1}] t_1, \ldots, [\vec{x_n} t_n]))
+    &= f^{\angles{!\theta^*(t_1), \ldots, !\theta^*(t_n)}^f_\Gamma}([\vec{x_1}] \phi^\Label_{\beta_i,(\Gamma,\vec{x_1} :
+      \vec{\alpha_1})}(t_1), \ldots,
+      [\vec{x_n}] \phi^\Label_{\beta_n,(\Gamma,\vec{x_n} : \vec{\alpha_n})}(t_n))
   \end{align*}
+
+  where
+  $f \in F_{\vec{\alpha_1} \To \beta_1, \ldots, \vec{\alpha_n} \To \beta_n,
+    \tau}$.
 \end{definition}
+
+The labelling map traverses an IDTS metaterm and replaces unlabelled
+function symbols from $\FF$ with labelled ones from $\overline{\FF}$.  Note
+that the term-generated assignment is not used to rewrite the
+metavariables: the assignment has values in the carrier presheaf of our
+($V+\Sigma$)-algebra and it can therefore be something completely different
+than an IDTS term. The term-generated assignment $\phi = ! \circ \theta$ is
+only used when labelling a function symbol. The IDTS valuation $\theta$ is
+used to replace the metavariables in all of the arguments with some
+specific terms and the resulting IDTS terms are then interpreted in our
+algebra $\TT$ using $!$ (which simply turns them into $\banana{\lambda}$
+terms). These interpretations are then given as arguments to the semantic
+label map $\angles{-}^f$ which chooses a label from the label set. Note
+also that there is no case for bare abstraction ($[x] t$). In the theory of
+higher-order semantic labelling presented in~\cite{hamana2007higher}, the
+IDTS is assumed to not contain any bare abstractions: abstractions should
+always be arguments to function symbols. This is the case in our IDTS
+$\banana{\lambda}_\tau$.
+
+Knowing how to label metaterms, we can now label the rules of an
+IDTS.
+
+\begin{definition}
+  Given an IDTS $(\Sigma, \RR)$, a $(V+\Sigma)$-algebra $M$ and a choice of
+  semantic label sets $S_f$ and maps $\angles{-}^f$, we define the
+  \demph{rules of the labelled IDTS} $(\overline{\Sigma}, \overline{\RR})$
+  with:
+
+  \begin{itemize}
+  \item
+    $\overline{\RR} = \{ \phi^\Label_{\tau,\emptyset}(l) \to
+    \phi^\Label_{\tau,\emptyset}\mid l \to r : \tau \in \RR,
+    \text{term-generated assignment } \phi : Z \to M \}$
+  \end{itemize}
+\end{definition}
+
+The labelled IDTS will multiply the number of rules. For every possible
+IDTS valuation of the free metavariables of a rule, there will be a new
+rule in which the function symbols have been labelled using the
+interpretations of their arguments. As we have done
+in~\ref{ssec:banana-idts}, we will have to show that termination of this
+new labelled system gives us termination of the unlabelled one. This is the
+object of the principal result in~\cite{hamana2007higher} (Theorem~3.7):
+
+\begin{theorem}\label{thm:semantic-labelling}
+  (\demph{Higher-order semantic labelling})
+
+  Let $M$ be a quasi-model for an IDTS $(\Sigma, \RR)$ and
+  $(\overline{\Sigma}, \overline{\RR})$ the labelled IDTS with respect to
+  $M$. Then $(\Sigma, \RR)$ is terminating if and only if
+  $(\overline{\Sigma}, \overline{\RR} \cup \Decr)$ is terminating.
+\end{theorem}
+
+\begin{definition}
+  Given a labelled IDTS alphabet $\overline{\Sigma}$ with semantic label
+  sets $S_f$, the rules of the IDTS $(\overline{\Sigma}, \Decr)$ (called
+  \demph{decreasing rules}) consist of:
+
+  $$
+  f^p([\vec{x_1}] t_1, \ldots, [\vec{x_n}] t_n) \longrightarrow f^q([\vec{x_1}] t_1, \ldots, [\vec{x_n}] t_n)
+  $$
+
+  where
+  $f \in F_{\vec{\alpha_1} \To \beta_1, \ldots, \vec{\alpha_n} \To \beta_n,
+    \gamma}$ and $p >_{S_f} q$.
+\end{definition}
+
+The decreasing rules allow us to freely adjust the labels on function
+symbols to fit rewrite rules as long as we do not increase them.
+
+
+\subsubsection{Verifying the General Schema}
+\label{sssec:general-schema-2}
+
+Now we will retrace the steps we have carried out
+in~\ref{ssec:termination-for-idts}, this time with our semantically
+labelled system $\labidts$.
+
+\begin{enumerate}
+  \item every constructor is positive
+  \item no left-hand side of rule is headed by a constructor
+  \item both $>_\BB$ and $>_\FF$ are well-founded
+  \item $stat_f = stat_g$ whenever $f =_\FF g$
+\end{enumerate}
+
+First we have to check off the assumptions (A.1) through (A.4), repeated
+above. The constructors of $\labidts$ are the same as the ones in
+$\idts$. This means that the induced ordering $>_\BB$ is the same as before
+and it is therefore still well-founded, so we have the first half of (A.3).
+Since $>_\BB$ is still the same, then so is $=_\BB$, which is used in the
+definition of positive constructors. The constructors are therefore still
+positive as well and we get (A.1). The labelling of the function symbols
+never did not turn any non-constructor into a constructor and so (A.2)
+still holds as well.
+
+To verify the second half of (A.3) and (A.4), we will need to investigate
+the ordering on function symbols $>_\FF$ and it is here that we will reap
+the benefits of our labelling. We need to give a well-founded partial order
+$\ge_\FF$ on the function symbols such that whenever we have a rule
+$f(\vec{l}) \to r$, then $f \ge_\FF g$ for all function symbols $g$
+occurring in $r$. We propose the following relation:
+
+\begin{itemize}
+\item $\banana{}^p_{\op{op}_1, \ldots, \op{op}_n, \gamma, \delta, E, E'}
+  >_\FF \banana{}^q_{\op{op}_1, \ldots, \op{op}_n, \gamma, \delta, E, E'}$
+  if $p >_{S_{\banana{}}} q$
+\item $\banana{}_{\op{op}_1, \ldots, \op{op}_n} > \op{op}_i$
+\item $\banana{} > \aps$
+\item $\banana{} > \lambda$
+\item $\CC^p_{\alpha,\beta,E} >_\FF \CC^q_{\alpha,\beta,E}$ if
+  $p >_{S_\CC} q$
+\item $\CC > \op{op}$
+\item $\CC > \eta$
+\item $\CC > \lambda$
+\end{itemize}
+
+Whenever we elide indices in the above (for labels, types or the operations
+in a handler), we assume that they are universally quantified over. This
+relation is indeed a well-founded strict partial order: $\aps$, $\op{op}$,
+$\eta$ and $\cherry$ are minimal elements and decreasing chains of
+$\banana{}$ or $\CC$ symbols are all finite since the underlying semantic
+label set orderings $>_{S_f}$ are well-founded.
+
+As last time, we validate (A.4) because $f =_\FF g$ only if $f = g$. To
+show that our well-founded ordering is the actual ordering from (A.3), we
+need to check that for each rule $f(\vec{l}) \to r$, $f \ge_\FF g$ for all
+function symbols $g$ occurring in $r$. We will go a step further and prove
+that in our labelled IDTS, $f >_\FF g$.
+
+We first check the rules in $\Decr$. These work out because $>_\FF$
+contains the label ordering for both labelled function symbols, $\banana{}$
+and $\CC$. Then we check the rules that correspond to reductions in
+$\banana{\lambda}$, looking at either the original formulation on
+Figure~\ref{fig:reductions} or the CRS/IDTS versions on
+Figure~\ref{fig:tau-types}. For most of the rules, it is just a matter of
+checking that only certain symbols appear in the right-hand sides of
+certain rules. However, in rules $\banana{\op{op}}$, $\banana{\op{op}'}$
+and $C_{\op{op}}$, we have the same (unlabelled) symbol on both the
+left-hand side and the right-hand side of the rule. In all of these cases,
+we will need to prove that the label on the left-hand side occurrence is
+greater than the label on the right-hand side occurrence.
+
+We will start with the rules $\banana{\op{op}}$ and $\banana{\op{op}'}$.
+
+\begin{align*}
+  \ap{\cibanana^p}{(\ap{\ap{\op{op}_j}{N_{\mathrm{p}}}}{(\lam{x}{N_{\mathrm{c}}})})}
+  & \to \ap{M_j}{\ap{N_{\mathrm{p}}}{(\lam{x}{\ap{\cibanana^q}{N_{\mathrm{c}}}})}}
+  & \text{ where $j \in I$} \\
+  \ap{\cibanana^p}{(\ap{\ap{\op{op}_j}{N_{\mathrm{p}}}}{(\lam{x}{N_{\mathrm{c}}})})}
+  &\to \ap{\op{op}_j}{\ap{N_{\mathrm{p}}}{(\lam{x}{\ap{\cibanana^q}{N_{\mathrm{c}}}})}}
+  & \text{ where $j \notin I$}
+\end{align*}
+
+In both cases, the $\banana{}$ on the left-hand side is applied to
+$\Gamma \vdash \app{\op{op}_j}{N_\petitp}{(\lam{x}{N_\petitc})} :
+\FF_E(\gamma)$ whereas the $\banana{}$ on the right-hand side is applied to
+$\Gamma, x : \beta_j \vdash N_\petitc : \FF_E(\gamma)$ where
+$\typedopg{\op{op}_j}{\alpha_j}{\beta_j} \in E$. The label $p$ of the left
+$\banana{}$ will be the denotation
+$\sem{\app{\op{op}_j}{N_\petitp}{(\lam{x}{N_\petitc})}}$ whereas the label
+$q$ of the right $\banana{}$ will be the denotation $\sem{N_\petitc}$.
+
+The ordering on these labels is the $>_{D(\FF_E(\gamma))}$ ordering. For
+the first to be greater than the second, we will need to prove for all
+$e \in \sem{\Gamma}$ and all $d \in \sem{\beta_j}$ that
+$\sem{\app{\op{op}_j}{N_\petitp}{(\lam{x}{N_\petitc})}}(e)
+>_{\sem{\FF_E(\gamma)}} \sem{N_\petitc}(\subst{e}{x}{d})$.
+
+$$
+\sem{\app{\op{op}_j}{N_\petitp}{(\lam{x}{N_\petitc})}}(e) =
+\op{op}_j(\sem{N_\petitp}(e), \lam{X}({\sem{N_\petitc}}(\subst{e}{x}{X})))
+$$
+
+From the definition of $>_{\sem{\FF_E(\gamma)}}$, we know that for all
+$d \in \sem{\beta_j}$,
+$\op{op}_j(\sem{N_\petitp}(e), \lam{X}({\sem{N_\petitc}}(\subst{e}{x}{X})))
+>_{\sem{\FF_E(\gamma)}} \sem{N_\petitc}(\subst{e}{x}{d})$ which is exactly
+what we wanted to show.
+
+Now we look at the $C_{\op{op}}$ rule.
+
+$$
+\ap{\CC^p}{(\lam{x}{\app{\op{op}}{M_\petitp}{(\lam{y}{M_\petitc})}})}
+\to \app{\op{op}}{M_\petitp}{(\lam{y}{\ap{\CC^q}{(\lam{x}{M_\petitc})}})}
+$$
+
+On the left-hand side, $\CC$ is applied to
+$\Gamma \vdash \lam{x}{\app{\op{op}}{M_\petitp}{(\lam{y}{M_\petitc})}} :
+\gamma \to \FF_E(\delta)$, and on the right-hand side, it is applied to
+$\Gamma, y : \beta \vdash \lam{x}{M_\petitc} : \gamma \to \FF_E(\delta)$
+where $\typedop{op}{\alpha}{\beta} \in E$. The label $p$ of the left $\CC$
+is the denotation
+$\sem{\lam{x}{\app{\op{op}}{M_\petitp}{(\lam{y}{M_\petitc})}}}$ while the
+label $q$ of the right-hand side $\CC$ is $\sem{\lam{x}{M_\petitc}}$.
+
+These labels are ordered by the $>_{D(\gamma \to \FF_E(\delta))}$ ordering
+under which $p > q$ if for all $e \in \sem{\Gamma}$ and all
+$d \in \sem{\beta}$, we have
+$p(e) >_{\sem{\gamma \to \FF_E(\delta)}} q(\subst{e}{y}{d})$. Then to show
+that $p(e) >_{\sem{\gamma \to \FF_E(\delta)}} q(\subst{e}{y}{d})$, we will
+need to show that they are both functions and that for all
+$c \in \sem{\gamma}$, we have
+$p(e)(c) >_{\FF_E(\delta)} q(\subst{e}{y}{d})(c)$.
+
+\begin{align*}
+  \sem{\lam{x}{\app{\op{op}}{M_\petitp}{(\lam{y}{M_\petitc})}}}(e)(c)
+  &= (\lam{X}{(\sem{\app{\op{op}}{M_\petitp}{(\lam{y}{M_\petitc})}}(\subst{e}{x}{X}))})(c) \\
+  &= \sem{\app{\op{op}}{M_\petitp}{(\lam{y}{M_\petitc})}}(\subst{e}{x}{c}) \\
+  &= \op{op}(\sem{M_\petitp}(\subst{e}{x}{c}), \lam{Y}{(\sem{M_\petitc}(\substt{e}{x}{c}{y}{Y}))}) \\
+  \sem{\lam{x}{M_\petitc}}(\subst{e}{y}{d})(c)
+  &= (\lam{X}{(\sem{M_\petitc}(\substt{e}{y}{d}{x}{X}))})(c) \\
+  &= \sem{M_\petitc}(\substt{e}{y}{d}{x}{c}) \\
+  &= \sem{M_\petitc}(\substt{e}{x}{c}{y}{d})
+\end{align*}
+
+We elaborate both of the expressions. The last step in rewriting
+$\sem{\lam{x}{M_\petitc}}(\subst{e}{y}{d})(c)$ is due to
+$\substt{e}{x}{X}{y}{Y} = \substt{e}{y}{Y}{x}{X}$ for distinct variables
+$x$ and $y$. From the definition of $>_{\FF_E(\delta)}$, we get that for
+all $d \in \sem{\beta}$,
+$\op{op}(\sem{M_\petitp}(\subst{e}{x}{c}),
+\lam{Y}{(\sem{M_\petitc}(\substt{e}{x}{c}{y}{Y}))}) >
+(\sem{M_\petitc})(\substt{e}{x}{c}{y}{d})$, which is exactly what we need.
+
+With this, we have validated the second half of (A.3) and therefore checked
+all of the assumptions. We now need to check the schema itself, which
+demands that the right-hand side of any rule is included in the computable
+closure of the left-hand side. As we have remarked previously, this can be
+simplified into saying that the metavariables appearing in the right-hand
+side must be accessible in the left-hand side and that all recursive calls
+from a symbol $f$ to a symbol $g$ with $f =_\FF g$ must be made to smaller
+arguments. We have already verified the accessibility condition for the
+unlabelled system $\idts$ and the labelling does not affect it. When it
+comes to comparing the size of arguments in recursive calls, this was the
+critical point in~\ref{ssec:termination-for-idts} that forced us to use
+semantic labelling. However, now this step is trivial because in
+$\labidts$, there is no rule $f(\vec{l}) \to r$ such that some $g =_\FF f$
+occurs in $r$. We have already paid the burden of proof for this in giving
+the semantic labelling and proving that the induced $>_\FF$ ordering is
+well-founded.
+
+Finally, we have managed to prove termination for $\labidts$, which in turn
+implies termination for $\idts$ by Theorem~\ref{thm:semantic-labelling},
+which in turn entails termination for $\banana{\lambda}_{-\eta}$ by
+Corollary~\ref{cor:banana-tau-termination}, our $\banana{\lambda}$ calculus
+without $\eta$-reduction.
