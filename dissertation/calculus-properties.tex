@@ -1647,14 +1647,6 @@ convertible.
   is a $d \in A$ such that $b \tto d$ and $c \tto d$.
 \end{definition}
 
-\begin{theorem}\label{thm:confluence}
-  \demph{Confluence of $\banana{\lambda}$}
-  
-  The reduction relation $\to$, defined by the reduction rules
-  in~\ref{sec:reductions}, on the set of $\banana{\lambda}$ terms is
-  confluent.
-\end{theorem}
-
 Proofs of this property are often mechanical and follow the same
 pattern. Our strategy will be to reuse a general result which applies one
 such proof for a general class of rewriting systems. Our rewriting system
@@ -1669,15 +1661,37 @@ The main result about CRSs that we will make use of is the following
 \begin{theorem}\label{thm:confluence-crs}
   \demph{Confluence of orthogonal CRSs}
 
-  All orthogonal CRSs are confluent.
+  Every orthogonal CRS is confluent.
 \end{theorem}
 
+We will model $\calc$ as a CRS. However, $\eta$-reduction will deny us
+orthogonality. We will therefore first prove termination of $\calc$ without
+$\eta$-reduction and then we will manually show that confluence is
+preserved on adding $\eta$-reduction back.
+
+\begin{notation}
+  The \demph{intensional $\banana{\lambda}$ calculus $\intcalc$} is the
+  $\banana{\lambda}$ calculus without the $\eta$-reduction rule.
+\end{notation}
+
 The rest of this section will go like this:
+
 \begin{itemize}
-\item First, we define Combinatory Reduction Systems.
-\item Next, we show that our reduction relation can be coded as a CRS.
-\item Afterwards, we explain the orthogonality condition.
-\item Finally, we verify whether orthogonality holds for our CRS.
+\item CRS: a formalism for higher-order rewriting (\ref{ssec:crs})
+\item $\calc$ is a CRS (\ref{ssec:banana-as-crs})
+\item Klop et al [93]: Every orthogonal CRS is confluent
+  (\ref{ssec:orthogonal-crs})
+  \begin{itemize}
+  \item $\intcalc$ is an orthogonal CRS $\Rightarrow$ $\intcalc$ is confluent
+    (Lemma~\ref{lem:confluence-int})
+  \item $\eta$ is an orthogonal CRS $\Rightarrow$ $\eta$ is confluent
+    (Lemma~\ref{lem:confluence-eta})
+  \end{itemize}
+\item $\intcalc + \eta$ is confluent (\ref{ssec:confluence-eta},
+  Theorem~\ref{thm:confluence})
+  \begin{itemize}
+  \item because $\intcalc$ and $\eta$ commute (Lemma~\ref{lem:eta-commutes})
+  \end{itemize}
 \end{itemize}
 
 
@@ -2027,11 +2041,6 @@ $$
 Our CRS is therefore \emph{not} orthogonal. However, we can still make good
 use of Theorem~\ref{thm:confluence-crs}.
 
-\begin{notation}
-  The \demph{intensional $\banana{\lambda}$ calculus $\intcalc$} is the
-  $\banana{\lambda}$ calculus without the $\eta$-reduction rule.
-\end{notation}
-
 \begin{lemma}\label{lem:confluence-int}
   \demph{Confluence of $\intcalc$}
 
@@ -2052,7 +2061,9 @@ use of Theorem~\ref{thm:confluence-crs}.
   \demph{Confluence of $\eta$-reduction}
 
   The reduction system on $\banana{\lambda}$ terms containing only the
-  $\eta$ reduction rule is confluent.
+  $\eta$ reduction rule is confluent\footnote{This also holds for
+    $\banana{\lambda}$ with sums and products since their rules are
+    left-linear and do not overlap with the $\banana{\lambda}$ rules.}.
 \end{lemma}
 
 \begin{proof}
@@ -2063,7 +2074,8 @@ use of Theorem~\ref{thm:confluence-crs}.
 \end{proof}
 
 
-\subsection{Adding $\eta$ Back to $\banana{\lambda}$}
+\subsection{Putting $\eta$ Back in $\banana{\lambda}$}
+\label{ssec:confluence-eta}
 
 We have shown that both $\banana{\lambda}$ without $\eta$ and
 $\eta$ by itself are confluent. The reduction relation of the complete
@@ -2243,6 +2255,36 @@ technique of higher-order semantic labelling~\cite{hamana2007higher}. As
 with our proof of confluence, we will first consider the case of
 $\banana{\lambda}$ without $\eta$ reduction and then add $\eta$ manually
 while preserving termination.
+
+The plan will look like this:
+
+\begin{itemize}
+\item IDTS = Typed CRS (\ref{ssec:idts})
+\item The $\idts$ IDTS (\ref{ssec:banana-idts})
+  \begin{itemize}
+  \item if $\idts$ terminates, then $\intcalc$ terminates
+    (Lemma~\ref{lem:banana-tau-termination})
+  \end{itemize}
+\item Blanqui[00]: General Schema $\Rightarrow$ termination
+  (\ref{ssec:termination-for-idts})
+\item Hamana[07]: IDTS $R$ terminates iff the labelled IDTS $\overline{R}$
+  terminates (\ref{ssec:semantic-labelling})
+  \begin{itemize}
+  \item Theorem~\ref{thm:labidts-termination}: $\labidts$ terminates (via
+    Blanqui[00])
+  \item Corollary~\ref{cor:idts-termination}: $\idts$ terminates (via Hamana[07])
+  \item Corollary~\ref{cor:intcalc-termination}: $\intcalc$ terminates (via
+    Lemma~\ref{lem:banana-tau-termination})
+  \end{itemize}
+\item $\intcalc + \eta$ terminates (\ref{ssec:termination-eta},
+  Theorem~\ref{thm:termination})
+  \begin{itemize}
+  \item because $\intcalc$ and $\eta$ are exchangeable
+    (Lemma~\ref{lem:eta-exchange})
+  \item and therefore $\calc$ is strongly normalizing
+    (Theorem\ref{thm:strong-normalization})
+  \end{itemize}
+\end{itemize}
 
 
 \subsection{Inductive Data Type Systems}
@@ -2643,10 +2685,10 @@ the two.
   of subject reduction for $\intcalc$.
 \end{proof}
 
-\begin{corollary}\label{cor:banana-tau-termination}
+\begin{lemma}\label{lem:banana-tau-termination}
   If the reduction relation of $\banana{\lambda}_\tau$ is terminating, then
   so is the $\intcalc$ reduction relation on well-typed terms.
-\end{corollary}
+\end{lemma}
 
 \begin{proof}
   Consider the contrapositive: if there exists an infinite chain of
@@ -3703,7 +3745,14 @@ well-founded.
   (\demph{Termination of $\labidts$})
 
   The reduction relation induced by the labelled IDTS $\labidts$ is
-  terminating.
+  terminating\footnote{This result can be extended to $\banana{\lambda}$
+    with sums and products. The pair construction $\left<-,-\right>$ and
+    the injections $\inl$ and $\inr$ will be the constructors for
+    $\alpha \times \beta$ and $\alpha + \beta$, respectively, with
+    $\alpha <_\BB \alpha \times \beta$, $\beta <_\BB \alpha \times \beta$,
+    $\alpha <_\BB \alpha + \beta$ and $\beta <_\BB \alpha + \beta$. All of
+    the rules defining case analysis and projections $\pi_1$ and $\pi_2$
+    satisfy the General Schema.}.
 \end{theorem}
 
 \begin{proof}
@@ -3718,10 +3767,11 @@ well-founded.
 \end{corollary}
 
 \begin{proof}
-  By~\ref{thm:labidts-termination} and~\ref{thm:semantic-labelling}.
+  By Theorem~\ref{thm:labidts-termination} and
+  Theorem~\ref{thm:semantic-labelling}.
 \end{proof}
 
-\begin{corollary}\label{cor:intcalculus-termination}
+\begin{corollary}\label{cor:intcalc-termination}
   (\demph{Termination of $\intcalc$})
   
   The reduction relation of $\banana{\lambda}$ without $\eta$-reduction is
@@ -3729,11 +3779,12 @@ well-founded.
 \end{corollary}
 
 \begin{proof}
-  By~\ref{cor:idts-termination} and~\ref{cor:banana-tau-termination}.
+  By Corollary~\ref{cor:idts-termination} and
+  Lemma~\ref{lem:banana-tau-termination}.
 \end{proof}
 
 
-\subsection{Adding $\eta$ Back to $\banana{\lambda}$}
+\subsection{Putting $\eta$ Back in $\banana{\lambda}$}
 \label{ssec:termination-eta}
 
 We have shown termination for $\intcalc$. We know that the $\eta$-reduction
@@ -3845,15 +3896,21 @@ proof of finiteness for the reduction chain in $\calc$.
 \begin{lemma}\label{lem:pulling-links}
   (\demph{Pulling an $\intcalc$ link from a $\calc$ chain})
   
-  Let $t_1 \to t_2 \to \ldots$ be an infinite reduction chain in $\calc$
-  which uses rules from $\intcalc$ infinitely often. Then there exists
-  another infinite reduction chain $u_1 \to u_2 \to \ldots$ which also uses
-  rules from $\intcalc$ infinitely often and $t_1 \to_\intcalc u_1$.
+  Let $t_1 \to t_2 \to \ldots$ be an infinite reduction chain in
+  $\calc$. Then there exists another infinite reduction chain
+  $u_1 \to u_2 \to \ldots$ in $\calc$ and $t_1 \to_\intcalc u_1$.
 \end{lemma}
 
 \begin{proof}
+  The goal of this lemma is to show that we can find an $\intcalc$ link in
+  every infinite $\calc$ and move it to the beginning of the chain.
+
+  An infinite chain in $\calc$ must use a rule from $\intcalc$, otherwise
+  it would be an $\eta$ chain and those cannot be infinite since $\eta$ is
+  terminating.
+  
   Let $t_k \to t_{k+1}$ be the first link in the chain that uses a rule
-  from $\intcalc$. We will prove this by induction on $k$.
+  from $\intcalc$. We will prove this lemma by induction on $k$.
   
   If $k = 1$, then we give the chain $t_2 \to t_3 \to \ldots$ which also
   uses rules from $\intcalc$ infinitely often and which satisfies
@@ -3877,24 +3934,16 @@ proof of finiteness for the reduction chain in $\calc$.
 
 \begin{proof}
   We will prove this theorem by contradiction. Let $t_1 \to t_2 \to \ldots$
-  be an infinite reduction chain in $\banana{\lambda}$.
-
-  First, we will show that this reduction chain must use rules from
-  $\intcalc$ infinitely often. If it would not be the case, then let
-  $t_n \to t_{n+1}$ be the last rule in the chain coming from
-  $\intcalc$. The remaining chain $t_{n+1} \to t_{n+2} \to \ldots$ would be
-  an infinite reduction chain using $\eta$ which is impossible since $\eta$
-  is terminating.
-  
-  Since we have a chain in $\calc$ that uses rules from $\intcalc$
-  infinitely often, we can iterate Lemma~\ref{lem:pulling-links} to get an
+  be an infinite reduction chain in $\calc$. Since we have an infinite
+  chain in $\calc$, we can iterate Lemma~\ref{lem:pulling-links} to get an
   infinite sequence of chains such that the first element of every chain
   reduces via $\intcalc$ to the first element of the next chain in the
-  sequence. The existence of such a chain is in contradiction with the
-  termination of $\intcalc$.
+  sequence. The first elements of these chains form an infinite reduction
+  chain $\intcalc$, which is in contradiction with the termination of
+  $\intcalc$.
 \end{proof}
 
-\begin{theorem}\label{cor:strong-normalization}
+\begin{theorem}\label{thm:strong-normalization}
   (\demph{Strong normalization of $\calc$})
   
   There are no infinite reduction chains in $\calc$ and all maximal
