@@ -709,7 +709,7 @@ follow, we will assume that $\shift$ and $\reset$ are translated to
 $\banana{\lambda}$ using the interpretations given below:
 
 \begin{align*}
-  \sem{\ap{\shift}{M}} &= \sem{M} \hsbind (\lam{m}{\ap{\op{\shift0}!}{(\lam{k}{\ap{\resetobanana}{(\ap{m}{(\banana{} \circ k)})}})}}) \\
+  \sem{\ap{\shift}{M}} &= \sem{M} \hsbind (\lam{m}{\ap{\op{\shift0}!}{(\lam{k}{\ap{\resetobanana}{(\ap{m}{(\banana{} \compop k)})}})}}) \\
   \sem{\ap{\reset}{M}} &= \ap{\banana{}}{(\ap{\resetobanana}{\sem{M}})}
 \end{align*}
 
@@ -1285,7 +1285,7 @@ now we have to define a translation of the types.
   also have
   $\sem{\ap{\shift}{M'}} = \sem{M'} \hsbind
   (\lam{m}{\ap{\op{\shift0}!}{(\lam{k}{\ap{\resetobanana}{(\ap{m}{(\banana{}
-            \circ k)})}})}})$. In Figure~\ref{fig:big-proof-tree-shift}, we
+            \compop k)})}})}})$. In Figure~\ref{fig:big-proof-tree-shift}, we
   construct the appropriate typing derivation for this term.
 
 \end{proof}
@@ -1329,20 +1329,20 @@ now we have to define a translation of the types.
     \AxiomC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}) \vdash m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma})$}
     \AxiomC{$\sem{\Gamma} \vdash \banana{} : \FF_E(\sem{\gamma}) \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})$}
     \AxiomC{$\sem{\Gamma}, k : \sem{\tau} \to \FF_E(\sem{\gamma}) \vdash k : \sem{\tau} \to \FF_E(\sem{\gamma})$}
-    \RightLabel{[$\circ$]}
-    \BinaryInfC{$\sem{\Gamma}, k : \sem{\tau} \to \FF_E(\sem{\gamma}) \vdash \banana{} \circ k : \sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})$}
+    \RightLabel{[$\compop$]}
+    \BinaryInfC{$\sem{\Gamma}, k : \sem{\tau} \to \FF_E(\sem{\gamma}) \vdash \banana{} \compop k : \sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})$}
     \RightLabel{[app]}
-    \BinaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}), k : \sem{\tau} \to \FF_E(\sem{\gamma}) \vdash \ap{m}{(\banana{} \circ k)} : \cstype(\sem{\gamma})$}
+    \BinaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}), k : \sem{\tau} \to \FF_E(\sem{\gamma}) \vdash \ap{m}{(\banana{} \compop k)} : \cstype(\sem{\gamma})$}
     \RightLabel{[app]}
-    \BinaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}), k : \sem{\tau} \to \FF_E(\sem{\gamma}) \vdash \ap{\resetobanana}{(\ap{m}{(\banana{} \circ k)})} : \FF_E(\sem{\gamma})$}
+    \BinaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}), k : \sem{\tau} \to \FF_E(\sem{\gamma}) \vdash \ap{\resetobanana}{(\ap{m}{(\banana{} \compop k)})} : \FF_E(\sem{\gamma})$}
     \RightLabel{[abs]}
-    \UnaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}) \vdash \lam{k}{\ap{\resetobanana}{(\ap{m}{(\banana{} \circ k)})}} : (\sem{\tau} \to \FF_E(\sem{\gamma})) \to \FF_E(\sem{\gamma})$}
+    \UnaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}) \vdash \lam{k}{\ap{\resetobanana}{(\ap{m}{(\banana{} \compop k)})}} : (\sem{\tau} \to \FF_E(\sem{\gamma})) \to \FF_E(\sem{\gamma})$}
     \RightLabel{[$\op{op}!$]}
-    \UnaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}) \vdash \ap{\op{\shift0}!}{(\lam{k}{\ap{\resetobanana}{(\ap{m}{(\banana{} \circ k)})}})} : \cstype(\sem{\tau})$}
+    \UnaryInfC{$\sem{\Gamma}, m : (\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma}) \vdash \ap{\op{\shift0}!}{(\lam{k}{\ap{\resetobanana}{(\ap{m}{(\banana{} \compop k)})}})} : \cstype(\sem{\tau})$}
     \RightLabel{[abs]}
-    \UnaryInfC{$\sem{\Gamma} \vdash \lam{m}{\ap{\op{\shift0}!}{(\lam{k}{\ap{\resetobanana}{(\ap{m}{(\banana{} \circ k)})}})}} : ((\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma})) \to \cstype(\sem{\tau})$}
+    \UnaryInfC{$\sem{\Gamma} \vdash \lam{m}{\ap{\op{\shift0}!}{(\lam{k}{\ap{\resetobanana}{(\ap{m}{(\banana{} \compop k)})}})}} : ((\sem{\tau} \to \FF_{E_{\sem{\delta}}}(\sem{\gamma})) \to \cstype(\sem{\gamma})) \to \cstype(\sem{\tau})$}
     \RightLabel{[$\hsbind$]}
-    \BinaryInfC{$\sem{\Gamma} \vdash \sem{M'} \hsbind (\lam{m}{\ap{\op{\shift0}!}{(\lam{k}{\ap{\resetobanana}{(\ap{m}{(\banana{} \circ k)})}})}}) : \cstype(\sem{\tau})$}
+    \BinaryInfC{$\sem{\Gamma} \vdash \sem{M'} \hsbind (\lam{m}{\ap{\op{\shift0}!}{(\lam{k}{\ap{\resetobanana}{(\ap{m}{(\banana{} \compop k)})}})}}) : \cstype(\sem{\tau})$}
     \DisplayProof
   }}
   \caption{\label{fig:big-proof-tree-shift} The case for

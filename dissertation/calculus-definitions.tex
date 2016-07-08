@@ -1052,7 +1052,7 @@ our calculus. A reduction rule $\xi$ will be a relation on terms. Most of
 the time, we will deal with their context closures, $[\xi]$, for which we
 will also adopt the notation $\to_\xi$. We will also use the notation
 $\to_{\xi_1,\dots,\xi_n}$ for the composition
-$\to_{\xi_n} \circ \dots \circ \to_{\xi_1}$. The \emph{reduction relation}
+$\to_{\xi_n} \compop \dots \compop \to_{\xi_1}$. The \emph{reduction relation}
 $\to$ of $\banana{\lambda}$ is the union of the $\to_\xi$ relations for
 every reduction rule $\xi$. We will also use the symbols $\tto$ and
 $\ttoffrom$ to stand for the reflexive-transitive and
@@ -1392,8 +1392,8 @@ First of all, to save some space and write functions in a terse
 $\textbf{B}$ combinator in combinatory logic).
 
 \begin{align*}
-  \_ \circ \_ &: (\beta \to \gamma) \to (\alpha \to \beta) \to (\alpha \to \gamma) \\
-  f \circ g &= \lam{x}{\ap{f}{(\ap{g}{x})}}
+  \_ \compop \_ &: (\beta \to \gamma) \to (\alpha \to \beta) \to (\alpha \to \gamma) \\
+  f \compop g &= \lam{x}{\ap{f}{(\ap{g}{x})}}
 \end{align*}
 
 We will also ``functionalize'' our term constructors (i.e.\ we will write
@@ -1543,7 +1543,7 @@ handler. We introduce syntax for closed handlers which takes care of this
 problem.
 
 $$
-\ap{\cibbanana}{N} = \ap{\cherry}{(\ap{\banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{(\ap{M_\eta}{x})}})}}}{N})}
+\ap{\cibbanana}{N} = \ap{\cherry}{(\ap{\banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \compop k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{(\ap{M_\eta}{x})}})}}}{N})}
 $$
 
 As we can see, the only material added by the closed handler brackets are
@@ -1589,9 +1589,9 @@ clause.
 
 \begin{align*}
 \ap{\bbanana{(\onto{\op{op}_i}{M_i})_{i \in I}}}{N}
-&= \ap{\cherry}{(\ap{\banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I}}}{N})} \\
- &= \ap{\cherry}{(\ap{\banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{x}})}}}{N})} \\
- &= \ap{\cherry}{(\ap{\banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{(\ap{(\lam{x}{x})}{x})}})}}}{N})} \\
+&= \ap{\cherry}{(\ap{\banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \compop k)})}})})_{i \in I}}}{N})} \\
+ &= \ap{\cherry}{(\ap{\banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \compop k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{x}})}}}{N})} \\
+ &= \ap{\cherry}{(\ap{\banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \compop k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{(\ap{(\lam{x}{x})}{x})}})}}}{N})} \\
  &= \ap{\bbanana{(\onto{\op{op}_i}{M_i})_{i \in I},\ \onto{\eta}{(\lam{x}{x})}}}{N}
 \end{align*}
 

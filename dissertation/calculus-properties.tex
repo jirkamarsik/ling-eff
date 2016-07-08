@@ -23,14 +23,14 @@ section, we will give typing rules and reduction rules to these new
 constructions and prove their correctness.
 
 
-\subsection{Function Composition ($\circ$)}
+\subsection{Function Composition\texorpdfstring{ ($\compop$)}{}}
 \label{ssec:function-composition}
 
 The first piece of syntactic sugar we have introduced was an infix symbol
 for function composition.
 
 $$
-f \circ g = \lam{x}{\ap{f}{(\ap{g}{x})}}
+f \compop g = \lam{x}{\ap{f}{(\ap{g}{x})}}
 $$
 
 In order to type terms containing this symbol, it will be useful to have a
@@ -42,13 +42,13 @@ typing rule.
   \begin{prooftree}
     \AxiomC{$\Gamma \vdash M : \beta \to \gamma$}
     \AxiomC{$\Gamma \vdash N : \alpha \to \beta$}
-    \RightLabel{$[\circ]$}
-    \BinaryInfC{$\Gamma \vdash M \circ N : \alpha \to \gamma$}
+    \RightLabel{$[\compop]$}
+    \BinaryInfC{$\Gamma \vdash M \compop N : \alpha \to \gamma$}
   \end{prooftree}
 \end{proposition}
 
 \begin{proof}
-  Since $M \circ N = \lam{x}{\ap{M}{(\ap{N}{x})}}$, we can prove the
+  Since $M \compop N = \lam{x}{\ap{M}{(\ap{N}{x})}}$, we can prove the
   validity of this rule with the typing rule below:
   
   \begin{prooftree}
@@ -76,21 +76,21 @@ applied to arguments. The following reduction rule will this come in handy.
 
   \vspace{2mm}
   \begin{tabular}{>{$}r<{$} >{$}c<{$} >{$}l<{$}}
-    \ap{(M_1 \circ M_2)}{N} & \to_\circ & \ap{M_1}{(\ap{M_2}{N})} \\
+    \ap{(M_1 \compop M_2)}{N} & \to_\compop & \ap{M_1}{(\ap{M_2}{N})} \\
   \end{tabular}
   \vspace{2mm}
 \end{proposition}
 
 \begin{proof}
   \begin{align*}
-    \ap{(M_1 \circ M_2)}{N}
+    \ap{(M_1 \compop M_2)}{N}
     &= \ap{(\lam{x}{\ap{M_1}{(\ap{M_2}{x})}})}{N} \\
     &\to_\beta \ap{M_1}{(\ap{M_2}{N})}
   \end{align*}
 \end{proof}
 
 
-\subsection{Monadic Bind ($\hsbind$)}
+\subsection{Monadic Bind\texorpdfstring{ ($\hsbind$)}{}}
 \label{ssec:bind}
 
 As a reminder, we give the definition of $\hsbind$
@@ -156,7 +156,7 @@ Next, we will prove the validity of two reduction rules for $\hsbind$.
 \end{proof}
 
 
-\subsection{Closed Handlers ($\bbanana{}$)}
+\subsection{Closed Handlers\texorpdfstring{ ($\bbanana{}$)}{}}
 \label{ssec:closed-handlers}
 
 In~\ref{ssec:operations-and-handlers}, we have also a notation for closed
@@ -166,7 +166,7 @@ do not have to go out of their way to support openness (i.e.\ passing
 through uninterpreted operations).
 
 $$
-\ap{\cibbanana}{N} = \ap{\cherry}{(\ap{\banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{(\ap{M_\eta}{x})}})}}}{N})}
+\ap{\cibbanana}{N} = \ap{\cherry}{(\ap{\banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \compop k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{(\ap{M_\eta}{x})}})}}}{N})}
 $$
 
 We will first go through the typing rule.
@@ -192,7 +192,7 @@ We will first go through the typing rule.
 \begin{proof}
   We have
   $\ap{\cibbanana}{N} = \ap{\cherry}{(\ap{\banana{(\onto{\op{op}_i}{(\lam{x
-            k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in
+            k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \compop k)})}})})_{i \in
           I},\ \onto{\eta}{(\lam{x}{\etaE{(\ap{M_\eta}{x})}})}}}{N})}$ and
   we will proceed by building a typing derivation for this term.
 
@@ -200,7 +200,7 @@ We will first go through the typing rule.
     \AxiomC{$E = \{\typedopg{\op{op}_i}{\alpha_i}{\beta_i}\}_{i \in I}$}
     \def\extraVskip{0pt}
     \noLine
-    \UnaryInfC{$[\Gamma \vdash \lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}} : \alpha_i \to (\beta_i \to
+    \UnaryInfC{$[\Gamma \vdash \lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \compop k)})}} : \alpha_i \to (\beta_i \to
       \FF_\emptyset(\delta)) \to \FF_\emptyset(\delta)]_{i \in I}$}
     \noLine
     \UnaryInfC{$\Gamma \vdash \lam{x}{\etaE{(\ap{M_\eta}{x})}} : \gamma \to \FF_\emptyset(\delta)$}
@@ -208,13 +208,13 @@ We will first go through the typing rule.
     \UnaryInfC{$\Gamma \vdash N : \FF_E(\gamma)$}
     \def\extraVskip{2pt}
     \RightLabel{[$\banana{}$]}
-    \UnaryInfC{$\Gamma \vdash \ap{\banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{(\ap{M_\eta}{x})}})}}}{N} : \FF_\emptyset(\delta)$} 
+    \UnaryInfC{$\Gamma \vdash \ap{\banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \compop k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{(\ap{M_\eta}{x})}})}}}{N} : \FF_\emptyset(\delta)$} 
     \RightLabel{[$\cherry$]}
-    \UnaryInfC{$\Gamma \vdash \ap{\cherry}{(\ap{\banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{(\ap{M_\eta}{x})}})}}}{N})} : \delta$} 
+    \UnaryInfC{$\Gamma \vdash \ap{\cherry}{(\ap{\banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \compop k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{(\ap{M_\eta}{x})}})}}}{N})} : \delta$} 
   \end{prooftree}
 
   We still need to prove both
-  $\Gamma \vdash \lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ
+  $\Gamma \vdash \lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \compop
         k)})}} : \alpha_i \to (\beta_i \to \FF_\emptyset(\delta)) \to
   \FF_\emptyset(\delta)$ for every $i \in I$ and
   $\Gamma \vdash \lam{x}{\etaE{(\ap{M_\eta}{x})}} : \gamma \to
@@ -228,16 +228,16 @@ We will first go through the typing rule.
     \BinaryInfC{$\Gamma, x : \alpha_i \vdash \ap{M_i}{x} : (\beta_i \to \delta) \to \delta$}
     \AxiomC{$\Gamma \vdash \cherry : \FF_\emptyset(\delta) \to \delta$}
     \AxiomC{$\Gamma, k : \beta_i \to \FF_\emptyset(\delta) \vdash k : \beta_i \to \FF_\emptyset(\delta)$}
-    \RightLabel{[$\circ$]}
-    \BinaryInfC{$\Gamma, k : \beta_i \to \FF_\emptyset(\delta) \vdash \cherry \circ k : \beta_i \to \delta$}
+    \RightLabel{[$\compop$]}
+    \BinaryInfC{$\Gamma, k : \beta_i \to \FF_\emptyset(\delta) \vdash \cherry \compop k : \beta_i \to \delta$}
     \RightLabel{[app]}
-    \BinaryInfC{$\Gamma, x : \alpha_i, k : \beta_i \to \FF_\emptyset(\delta) \vdash \ap{\ap{M_i}{x}}{(\cherry \circ k)} : \delta$}
+    \BinaryInfC{$\Gamma, x : \alpha_i, k : \beta_i \to \FF_\emptyset(\delta) \vdash \ap{\ap{M_i}{x}}{(\cherry \compop k)} : \delta$}
     \RightLabel{[$\eta$]}
-    \UnaryInfC{$\Gamma, x : \alpha_i, k : \beta_i \to \FF_\emptyset(\delta) \vdash \ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})} : \FF_\emptyset(\delta)$}
+    \UnaryInfC{$\Gamma, x : \alpha_i, k : \beta_i \to \FF_\emptyset(\delta) \vdash \ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \compop k)})} : \FF_\emptyset(\delta)$}
     \RightLabel{[abs]}
-    \UnaryInfC{$\Gamma, x : \alpha_i \vdash \lam{k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}} : (\beta_i \to \FF_\emptyset(\delta)) \to \FF_\emptyset(\delta)$}
+    \UnaryInfC{$\Gamma, x : \alpha_i \vdash \lam{k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \compop k)})}} : (\beta_i \to \FF_\emptyset(\delta)) \to \FF_\emptyset(\delta)$}
     \RightLabel{[abs]}
-    \UnaryInfC{$\Gamma \vdash \lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}} : \alpha_i \to (\beta_i \to \FF_\emptyset(\delta)) \to \FF_\emptyset(\delta)$}
+    \UnaryInfC{$\Gamma \vdash \lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \compop k)})}} : \alpha_i \to (\beta_i \to \FF_\emptyset(\delta)) \to \FF_\emptyset(\delta)$}
   \end{prooftree}
   \end{adjustwidth}
 
@@ -277,7 +277,7 @@ cases for uninterpreted operations).
 \begin{proof}
   \begin{align*}
     \ap{\cibbanana}{(\etaE{N})}
-    &= \ap{\cherry}{(\ap{\banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{(\ap{M_\eta}{x})}})}}}{(\etaE{N})})} \\
+    &= \ap{\cherry}{(\ap{\banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \compop k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{(\ap{M_\eta}{x})}})}}}{(\etaE{N})})} \\
     &\to_{\banana{\eta}} \ap{\cherry}{(\ap{(\lam{x}{\etaE{(\ap{M_\eta}{x})}})}{N})} \\
     &\to_\beta \ap{\cherry}{({\etaE{(\ap{M_\eta}{N})}})} \\
     &\to_\cherry \ap{M_\eta}{N}
@@ -285,11 +285,11 @@ cases for uninterpreted operations).
 
   \begin{align*}
     \ap{\cibbanana}{(\app{\op{op}_i}{N_\petitp}{(\lam{x}{N_\petitc})})}
-    &= \ap{\cherry}{(\ap{\banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{(\ap{M_\eta}{x})}})}}}{(\app{\op{op}_i}{N_\petitp}{(\lam{x}{N_\petitc})})})} \\
-    &\to_{\banana{\op{op}}} \ap{\cherry}{(\app{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})}{N_\petitp}{(\lam{x}{\ap{\banana{\ldots}}{N_\petitc}})})} \\
-    &\to_\beta \ap{\cherry}{(\ap{(\lam{k}{\ap{\eta}{(\ap{\ap{M_i}{N_\petitp}}{(\cherry \circ k)})}})}{(\lam{x}{\ap{\banana{\ldots}}{N_\petitc}})})} \\
-    &\to_\beta \ap{\cherry}{(\etaE{(\ap{\ap{M_i}{N_\petitp}}{(\cherry \circ (\lam{x}{\ap{\banana{\ldots}}{N_\petitc}}))})})} \\
-    &\to_\cherry \ap{\ap{M_i}{N_\petitp}}{(\cherry \circ (\lam{x}{\ap{\banana{\ldots}}{N_\petitc}}))} \\
+    &= \ap{\cherry}{(\ap{\banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \compop k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{(\ap{M_\eta}{x})}})}}}{(\app{\op{op}_i}{N_\petitp}{(\lam{x}{N_\petitc})})})} \\
+    &\to_{\banana{\op{op}}} \ap{\cherry}{(\app{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \compop k)})}})}{N_\petitp}{(\lam{x}{\ap{\banana{\ldots}}{N_\petitc}})})} \\
+    &\to_\beta \ap{\cherry}{(\ap{(\lam{k}{\ap{\eta}{(\ap{\ap{M_i}{N_\petitp}}{(\cherry \compop k)})}})}{(\lam{x}{\ap{\banana{\ldots}}{N_\petitc}})})} \\
+    &\to_\beta \ap{\cherry}{(\etaE{(\ap{\ap{M_i}{N_\petitp}}{(\cherry \compop (\lam{x}{\ap{\banana{\ldots}}{N_\petitc}}))})})} \\
+    &\to_\cherry \ap{\ap{M_i}{N_\petitp}}{(\cherry \compop (\lam{x}{\ap{\banana{\ldots}}{N_\petitc}}))} \\
     &= \ap{\ap{M_i}{N_\petitp}}{(\lam{x}{\ap{\cherry}{(\ap{(\lam{x}{\ap{\banana{\ldots}}{N_\petitc}})}{x})}})} \\
     &\to_\beta \ap{\ap{M_i}{N_\petitp}}{(\lam{x}{\ap{\cherry}{(\ap{\banana{\ldots}}{N_\petitc})}})} \\
     &= \ap{\ap{M_i}{N_\petitp}}{(\lam{x}{\ap{\cherry}{(\ap{\banana{\ldots}}{N_\petitc})}})} \\
@@ -298,7 +298,7 @@ cases for uninterpreted operations).
 
   In the above, $\banana{\ldots}$ is taken to be a shortcut for
   $\banana{(\onto{\op{op}_i}{(\lam{x
-        k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \circ k)})}})})_{i \in I},\
+        k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \compop k)})}})})_{i \in I},\
     \onto{\eta}{(\lam{x}{\etaE{(\ap{M_\eta}{x})}})}}$.
 \end{proof}
 
@@ -1049,14 +1049,14 @@ underlying $\banana{\lambda}$.
 \item for every two objects $A$ and $B$, a set of arrows from $A$ to $B$
   (an arrow $f$ from $A$ to $B$ is written as $f : A \to B$)
 \item for any two arrows $f : B \to C$ and $g : A \to B$, there exists the
-  composition of the two arrows $f \circ g : A \to C$
+  composition of the two arrows $f \compop g : A \to C$
 \item for any object $A$, there exists a special arrow $\id_A : A \to A$
 \item the following equations hold for any $f : C \to D$, $g : B \to C$ and
   $h : A \to B$:
   \begin{align}
-    \label{law:cat-associativity}(f \circ g) \circ h &= f \circ (g \circ h) & \text{(Associativity)} \\
-    \label{law:cat-left-identity}\id_D \circ f &= f & \text{(Left identity)} \\
-    \label{law:cat-right-identity}f \circ \id_C &= f & \text{(Right identity)}
+    \label{law:cat-associativity}(f \compop g) \compop h &= f \compop (g \compop h) & \text{(Associativity)} \\
+    \label{law:cat-left-identity}\id_D \compop f &= f & \text{(Left identity)} \\
+    \label{law:cat-right-identity}f \compop \id_C &= f & \text{(Right identity)}
   \end{align}
 \end{itemize}
 \end{definition}
@@ -1230,7 +1230,7 @@ consists of:
   F(B)$ in $\DD$
 \item the following equations hold:
   \begin{align}
-    \label{law:functor-composition}F(f \circ g) &= F(f) \circ F(g) & \text{(Composition)} \\
+    \label{law:functor-composition}F(f \compop g) &= F(f) \compop F(g) & \text{(Composition)} \\
     \label{law:functor-identity}F(\id_A) &= \id_{F(A)} & \text{(Identity)}
   \end{align}
 \end{itemize}
@@ -1259,7 +1259,7 @@ Composition~\eqref{law:functor-composition}:
 \setcounter{equation}{0}
 \NoChapterPrefix
 \begin{align}
-  \FF_E(f) \circ \FF_E(g)
+  \FF_E(f) \compop \FF_E(g)
   &= \lam{X}{\FF_E(f)(\FF_E(g)(X))} \\
   &= \lam{X}{\FF_E(f)((\lam{Z}{Z \hsbind (\lam{x}{\eta(g(x))})})(X))} \\
   &= \lam{X}{\FF_E(f)(X \hsbind (\lam{x}{\eta(g(x))}))} \\
@@ -1269,8 +1269,8 @@ Composition~\eqref{law:functor-composition}:
   &= \lam{X}{X \hsbind (\lam{z}{\eta(g(z)) \hsbind (\lam{y}{\eta(f(y))})})} \\
   &= \lam{X}{X \hsbind (\lam{z}{(\lam{y}{\eta(f(y))})(g(z))})} \\
   &= \lam{X}{X \hsbind (\lam{z}{\eta(f(g(z)))})} \\
-  &= \lam{X}{X \hsbind (\lam{z}{\eta((f \circ g)(z))})} \\
-  &= \FF_E(f \circ g)
+  &= \lam{X}{X \hsbind (\lam{z}{\eta((f \compop g)(z))})} \\
+  &= \FF_E(f \compop g)
 \end{align}
 \setcounter{equation}{\value{TemporaryCounter}}
 \ChapterPrefix
@@ -1327,11 +1327,11 @@ presentation favored in functional programming.
   $\alpha$ and $\beta$\footnote{This means that the combinators should not
     have different definitions for different instances of the type
     variables $\alpha$ and $\beta$.}. Furthermore, the following laws must
-  hold\footnote{$(\circ)$ is the function composition combinator.}:
+  hold\footnote{$(\compop)$ is the function composition combinator.}:
 
   \begin{align}
     \label{law:app-identity}\pure(\id) \circledast u &= u & \text{(Identity)} \\
-    \label{law:app-composition}\pure(\circ) \circledast u \circledast v \circledast w &= u \circledast (v \circledast w) & \text{(Composition)} \\
+    \label{law:app-composition}\pure(\compop) \circledast u \circledast v \circledast w &= u \circledast (v \circledast w) & \text{(Composition)} \\
     \label{law:app-homomorphism}\pure(f) \circledast \pure(x) &= \pure(f(x)) & \text{(Homomorphism)} \\
     \label{law:app-interchange}u \circledast \pure(x) &= \pure(\lam{f}{f(x)}) \circledast u & \text{(Interchange)}
   \end{align}
@@ -1390,7 +1390,7 @@ Composition~\eqref{law:app-composition}:
 \setcounter{equation}{0}
 \NoChapterPrefix
 \begin{align}
-  \pure(\circ) \circledast u \circledast v \circledast w
+  \pure(\compop) \circledast u \circledast v \circledast w
   &= \pure(\lam{f g x}{f(g(x))}) \circledast u \circledast v \circledast w \\
   &= \eta(\lam{f g x}{f(g(x))}) \circledast u \circledast v \circledast w \\
   &= (\eta(\lam{f g x}{f(g(x))}) \hsbind (\lam{f}{u \hsbind (\lam{x}{\eta(f(x))})})) \circledast v \circledast w \\
@@ -1421,7 +1421,7 @@ Composition~\eqref{law:app-composition}:
 This law relies heavily on the associativity of
 $\hsbind$~\eqref{law:associativity}. At the beginning, the expression is
 associated to the left:
-$((\pure(\circ) \circledast u) \circledast v) \circledast w$. And at the
+$((\pure(\compop) \circledast u) \circledast v) \circledast w$. And at the
 end, it associated to the right: $u \circledast (v \circledast w)$. In the
 first part of the proof, we use left identity (Lines~4, 9 and 15) and
 associativity (Lines~8 and 13). We reach a normal form on Line~17 and start
@@ -1804,7 +1804,7 @@ were able to get rid of meta-level operations (substitution) and conditions
 ($x \notin FV(N)$) and have them both implemented by the formalism itself.
 
 
-\subsection{$\banana{\lambda}$ as a CRS}
+\subsection{\texorpdfstring{$\banana{\lambda}$}{Our Calculus} as a CRS}
 \label{ssec:banana-as-crs}
 
 We will now see how to rephrase the reduction rules of $\banana{\lambda}$ in
@@ -2074,7 +2074,8 @@ use of Theorem~\ref{thm:confluence-crs}.
 \end{proof}
 
 
-\subsection{Putting $\eta$ Back in $\banana{\lambda}$}
+\subsection{Putting \texorpdfstring{$\eta$}{eta} Back in
+  \texorpdfstring{$\banana{\lambda}$}{Our Calculus}}
 \label{ssec:confluence-eta}
 
 We have shown that both $\banana{\lambda}$ without $\eta$ and
@@ -2377,7 +2378,7 @@ rules. An IDTS induces a rewriting relation in exactly the same way as a
 CRS does, see~\cite{blanqui2000termination} for more details.
 
 
-\subsection{$\banana{\lambda}$ as an IDTS}
+\subsection{\texorpdfstring{$\banana{\lambda}$}{Our Calculus} as an IDTS}
 \label{ssec:banana-idts}
 
 Now we will try to link $\banana{\lambda}$ to the IDTS framework in order
@@ -3124,7 +3125,7 @@ family to another.
 
   In the above, we use the vector notation $\vec{\alpha} \To \beta$ for
   $\alpha_1 \To \ldots \To \alpha_n \To \beta$ and $\delta_{\vec{\alpha}}$
-  for $\delta_{\alpha_1} \circ \ldots \circ \delta_{\alpha_n}$. Note that
+  for $\delta_{\alpha_1} \compop \ldots \compop \delta_{\alpha_n}$. Note that
   the above definition assumes that $\vec{\alpha_i}$, $\beta_i$ and
   $\gamma$ are all base types. Since in our encoding of $\banana{\lambda}$,
   we use a function constructor $\to$ on the level of base types, this is
@@ -3215,18 +3216,18 @@ We will now deal with presheafs equipped with partial orders.
   that every operation of $\AAA$ is weakly monotonic.
 \end{definition}
 
-We will equip our ($V+\Sigma$)-algebra $\TT$ with the partial order
+We will equip our $(V+\Sigma)$-algebra $\TT$ with the partial order
 $\to^*$. Because the reduction relation $\to$ of $\banana{\lambda}$ is
 closed on contexts, the operations of $\TT$ are weakly monotonic: if we
 replace one of the arguments $M_i$ in $f(M_1,\ldots,M_n)$ with an $M'_i$
 such that $M_i \to^* M_i'$, then we will also have
 $f(M_1,\ldots,M_n) \to^* f(M_1,\ldots,M'_i,\ldots,M_n)$. Therefore, we have
-a weakly monotonic ($V+\Sigma$)-algebra $\TT$.
+a weakly monotonic $(V+\Sigma)$-algebra $\TT$.
 
 \begin{definition}
-  For a given ($V+\Sigma$)-algebra $\AAA$, a \demph{term-generated
+  For a given $(V+\Sigma)$-algebra $\AAA$, a \demph{term-generated
     assignment} $\phi$ is an arrow in $(\SetC^\ContextC)^\BB$ from the
-  presheaf $Z$ to the presheaf $A$ such that $\phi = \bangop \circ \theta$,
+  presheaf $Z$ to the presheaf $A$ such that $\phi = \bangop \compop \theta$,
   where:
 
   \begin{itemize}
@@ -3234,7 +3235,7 @@ a weakly monotonic ($V+\Sigma$)-algebra $\TT$.
       introduced in~\ref{ssec:crs}, but typed.}, i.e.\ an arrow from $Z$ to
     $T_\Sigma V$.
   \item $\bangop$ is the unique homomorphism from the initial
-    ($V+\Sigma$)-algebra $T_\Sigma V$ to $A$\footnote{Homomorphisms between
+    $(V+\Sigma)$-algebra $T_\Sigma V$ to $A$\footnote{Homomorphisms between
       $\Sigma$-algebras are defined in the same way as homomorphisms for
       first-order algebras. The term algebra $T_\Sigma V$ is called an
       initial algebra because we can find a (unique) homomorphism from
@@ -3250,7 +3251,7 @@ interpretation $x$ if $x$ can be computed as the interpretation of some
 term.
 
 \begin{definition}
-  A weakly monotonic ($V+\Sigma$)-algebra $(\AAA, \ge_A)$ \demph{satisfies
+  A weakly monotonic $(V+\Sigma)$-algebra $(\AAA, \ge_A)$ \demph{satisfies
     an IDTS rewrite rule} $l \to r$, with $l$ and $r$ of type $\tau$, if
   for all term-generated assignments $\phi$ of the free metavariables $Z$
   in $l$ and $r$, we have:
@@ -3259,13 +3260,13 @@ term.
   \bangop \theta^*_{\tau,\Gamma}(l) \ge_{A_{\tau,\Gamma}} \bangop \theta^*_{\tau,\Gamma}(r)
   $$
 
-  where $\phi = \bangop \circ \theta$, $\theta^*$ is the extension of the
+  where $\phi = \bangop \compop \theta$, $\theta^*$ is the extension of the
   valuation $\theta$ to meta-terms and $\Gamma$ is the context regrouping
   all the free variables exposed by $\theta$.
 \end{definition}
 
 \begin{definition}
-  A weakly monotonic ($V+\Sigma$)-algebra $(\AAA, \ge_A)$ is a quasi-model
+  A weakly monotonic $(V+\Sigma)$-algebra $(\AAA, \ge_A)$ is a quasi-model
   for the IDTS $(\Sigma, \RR)$ if $(\AAA, \ge_A)$ satisfies every rule in
   $\RR$.
 \end{definition}
@@ -3465,8 +3466,8 @@ denotations. Let us start with the alphabet.
 
 \begin{definition}
   Let $\Sigma = (\BB, \XX, \FF, \ZZ)$ be the alphabet of an IDTS
-  $(\Sigma, \RR)$, $M$ a ($V+\Sigma$)-algebra and $S_f$ the chosen semantic
-  label sets. The \demph{alphabet of the labelled IDTS}
+  $(\Sigma, \RR)$ and $S_f$ the chosen semantic label sets. The
+  \demph{alphabet of the labelled IDTS}
   $(\overline{\Sigma}, \overline{\RR})$ is the IDTS alphabet
   $\overline{\Sigma} = (\BB, \XX, \overline{\FF}, \ZZ)$ where:
 
@@ -3482,7 +3483,7 @@ will need a way to label metaterms.
 
 \begin{definition}
   Let $\phi : Z \to T$ be a term-generated assignment with
-  $\phi = \bangop \circ \theta$. The \demph{labelling map}
+  $\phi = \bangop \compop \theta$. The \demph{labelling map}
   $\phi^\Label : M_\Sigma Z \to M_{\overline{\Sigma}} Z$ is the arrow in
   $(\SetC^\ContextC)^\BB$ defined by:
   
@@ -3505,9 +3506,9 @@ The labelling map traverses an IDTS metaterm and replaces unlabelled
 function symbols from $\FF$ with labelled ones from $\overline{\FF}$.  Note
 that the term-generated assignment is not used to rewrite the
 metavariables: the assignment has values in the carrier presheaf of our
-($V+\Sigma$)-algebra and it can therefore be something completely different
+$(V+\Sigma)$-algebra and it can therefore be something completely different
 than an IDTS term. The term-generated assignment
-$\phi = \bangop \circ \theta$ is only used when labelling a function
+$\phi = \bangop \compop \theta$ is only used when labelling a function
 symbol. The IDTS valuation $\theta$ is used to replace the metavariables in
 all of the arguments with some specific terms and the resulting IDTS terms
 are then interpreted in our algebra $\TT$ using $\bangop$ (which simply
@@ -3784,7 +3785,8 @@ well-founded.
 \end{proof}
 
 
-\subsection{Putting $\eta$ Back in $\banana{\lambda}$}
+\subsection{Putting \texorpdfstring{$\eta$}{eta} Back in
+  \texorpdfstring{$\banana{\lambda}$}{Our Calculus}}
 \label{ssec:termination-eta}
 
 We have shown termination for $\intcalc$. We know that the $\eta$-reduction
