@@ -1,13 +1,346 @@
 \chapter{Introducing the Effects}
 
+\setcounter{exx}{0}
+
 \minitoc
 
 \section{Deixis}
 
-We will start with~\cite{\levinson2004deixis}
+The first phenomenon that we will speak about is
+\emph{deixis}~\cite{levinson2004deixis}. Deictic expressions is the class
+of expressions that depend on the time and place of the utterance, the
+speaker and the addressee and any kind of pointing/presenting the speaker
+might be doing to draw the attention of the addressee. These expressions
+include personal pronouns, temporal expressions, tenses, demonstratives and
+others. All of these are characterized by their dependence on the
+extra-linguistic context. In this section, we will restrict our attention
+to a very limited subset of these expressions: singular first-person
+pronouns (\emph{I}, \emph{me}, \emph{my}).
+
+The meanings that we assign to expressions in natural languages must
+reflect this context-sensitivity: the truth-conditions of \emph{Mary loves
+  me} change when it is pronounced by John and when by
+Peter. Montague~\cite{montague1973proper} achieved this by having the
+meaning of every expression depend on a point of reference: a pair of a
+possible world and a moment in time (i.e.\ the modal \emph{where} and the
+\emph{when} of the utterance). To model the first-person pronouns, we will
+need to have our meanings depend on the identity of the speaker.
+
+In the case of a deictic expression like the first-person pronoun, we have
+an expression whose referent cannot be determined solely from its form and
+the meaning of its parts. We will need to reach out into the context and it
+is for this that we will be using the \emph{operations} in
+$\banana{\lambda}$. The first-person pronoun has an interaction with its
+context, which consists of asking the context for the identity of the
+speaker. For this kind of interaction with the context, we will introduce
+an operation symbol, $\op{speaker}$. We will also fix the symbol's input
+and output types. The input type represents the information and/or the
+parameters that the denotation of the first-person pronoun or any other
+expression necessitating the identity of the speaker will need to provide
+to the context. Since we have no information or parameter to give to the
+context, we will use the trivial input type $1$, whose only value is
+$\star$. The output type represents the information that the context will
+provide us in return. We are interested in the identity of the speaker and
+so the type of this information will be the type of individuals, $\iota$.
+
+We can now model the meaning of a first-person pronoun as a computation of
+type $\FF_E(\iota)$ that interacts with the context and produces a referent
+of type $\iota$. The effect signature $E$ can be any signature provided
+that $\typedop{speaker}{1}{\iota} \in E$.
+
+\begin{align*}
+  \lex{I}{\app{\op{speaker}}{\star}{(\lam{x}{\etaE{x}})}} \\
+  &= \ap{\op{speaker}!}{\star} \\
+  \lex{me}{\ap{\op{speaker}!}{\star}}
+\end{align*}
+
+The denotations of $\abs{I}$ and $\abs{me}$ demand the context for the
+identity of the speaker $x$ using operation $\op{speaker}$ and then declare
+that $x$ to be the referent of the pronoun. Taking the output of an
+operation and then immediately returning it as the result of the
+computation will be a common pattern and so we use the $\op{speaker}!$
+shorthand introduced in~\ref{ssec:operations-and-handlers}.
+
+Now the question is how to use the denotation given above to build meanings
+of sentences containing first-person pronouns, e.g.\ \emph{Mary loves
+  me}. In Montague's use of points of reference, Montague introduces an
+intermediate language of intensional logic~\cite{montague1973proper}. When
+Montague then gives a interpretation to this language, the point of
+reference at which an expression is to be evaluated is passed through to
+its subexpressions. We will have to do a similar technical step and state
+how do the meanings of expressions change when they are no longer simple
+values but computations.
+
+
+\subsection{Raising the Semantics into Computations}
+
+Imagine that in our tiny fragment, apart from $\abs{I} : NP$ and $\abs{me}
+: NP$, whose meaning we have given above, we also have:
+
+\begin{align*}
+  \abs{John}, \abs{Mary} &: NP \\
+  \abs{loves} &: NP \limp NP \limp S
+\end{align*}
+
+In this tiny fragment of proper names and predicates, we could easily
+imagine interpreting noun phrases by individuals ($\sem{NP} = \iota$) and
+sentences as propositions ($\sem{S} = o$). Provided we have some constants
+$\obj{j} : \iota$ and $\obj{m} : \iota$ and a predicate
+$\obj{love} : \iota \to \iota \to o$, we can give the following semantics
+to these items:
+
+\begin{align*}
+  \lex{John}{\obj{j}} \\
+  \lex{Mary}{\obj{m}} \\
+  \lex{loves}{\lam{o s}{\app{\obj{love}}{s}{o}}}
+\end{align*}
+
+This interpretation works fine for simple sentences such as \emph{John
+  loves Mary}. However, the type of the denotations we gave to $\abs{I}$
+and $\abs{me}$ is not compatible with the types of denotations we assume
+here. The context-dependence of first-person pronouns have made us use a
+computation as a denotation for some of the noun phrases. In order to
+satisfy the homomorphism property of ACGs and to have a sound
+syntax-semantics interface, we will need to lift the denotations of simple
+denotations into computations. This is very much like the case when one
+introduces quantified noun phrases and switches from using generalized
+quantifiers instead of simple individuals as denotations of noun phrases.
+
+We will want linguistic expressions to denote computations. One systematic
+way to achieve that is to say that the base types of our abstract syntactic
+signature should be interpreted as computations. We will write
+$\sem{-}_\petitv$ for the semantic interpretation using simple values and
+$\sem{-}_\petitc$ for the semantic interpretation using computations. On
+the type level, we will define
+$\sem{\alpha}_\petitc = \FF_E(\sem{\alpha}_\petitv)$. By applying this to
+the common Montagovian interpretation, we get:
+
+\begin{align*}
+  \sem{S}_\petitv &= o & \sem{S}_\petitc &= \FF_E(o) \\
+  \sem{NP}_\petitv &= \iota & \sem{NP}_\petitc &= \FF_E(\iota) \\
+  \sem{N}_\petitv &= \iota \to o & \sem{N}_\petitc &= \FF_E(\iota \to o)
+\end{align*}
+
+To raise the denotations of noun phrases from $\sem{NP}_\petitv = \iota$ to
+$\sem{NP}_\petitc = \FF_E(\iota)$, it suffices to use $\eta$ to inject
+$\iota$ inside of $\FF_E(\iota)$. This goes the same for any other lexical
+item whose abstract type is a base type. For syntactic constructors that
+take arguments, such as verbs or adjectives, we will chain the computations
+of their arguments and apply the meaning of the constructor to the meaning
+of the results of these computations. We will limit ourselves to syntactic
+constructors of \emph{second-order type}, i.e.\ abstract constants whose
+type is $a_1 \limp \cdots a_n \limp b$ where $a_i$ and $b$ are base
+types. If we use higher-order syntactic constructors, we will give them a
+bespoke semantics.
+
+\begin{align*}
+  \raisel_\alpha &: \sem{\alpha}_\petitv \to \sem{\alpha}_\petitc \\
+  \raisel_a(x) &= \etaE{x} \\
+  \raisel_{a \limp \beta}(f) &= \lam{X}{X \hsbind (\lam{x}{\raisel_\beta(\ap{f}{x})})}
+\end{align*}
+
+This particular schema chains the evaluation of its arguments from
+left-to-right (as can be seen by looking at the expanded non-recursive
+definition below). While indexicality is order-independent, some of the
+effects that we will introduce later (such as anaphora) are
+order-dependent. The order that we would like to reflect in the evaluation
+is the linear lexical order in which elements appear in the spoken/written
+form of the sentence. Since in categorial grammars of English, it is often
+the case that operators first take their complements from the right and
+then apply to their argument on the left (e.g.\ transitive verbs or
+complementizers of type $(NP \limp S) \limp N \limp N$), we will often like
+to chain the evaluation of the arguments in the order opposite to the one
+in which we receive them. This will give rise to the $\raiser$
+transformation.
+
+\begin{align*}
+  \raisel_{a_1 \limp \cdots \limp a_n \limp b}(f) &= \lam{X_1 \ldots X_n}{X_1 \hsbind (\lam{x_1}{\ldots\ X_n \hsbind (\lam{x_n}{\etaE{(\ap{f}{x_1 \ldots x_n})}})})} \\
+  \raiser_{a_1 \limp \cdots \limp a_n \limp b}(f) &= \lam{X_1 \ldots X_n}{X_n \hsbind (\lam{x_n}{\ldots\ X_1 \hsbind (\lam{x_1}{\etaE{(\ap{f}{x_1 \ldots x_n})}})})} \\
+\end{align*}
+
+With these in hand, we can now raise the interpretations of our simple
+fragment into computations:
+
+\begin{align*}
+\sem{\abs{John}}_\petitc &= \raisel_{NP}(\obj{j}) \\
+&= \etaE{\obj{j}} \\
+\sem{\abs{Mary}}_\petitc &= \raisel_{NP}(\obj{m}) \\
+&= \etaE{\obj{m}} \\
+\sem{\abs{loves}} &= \raiser_{NP \limp NP \limp S}(\lam{o s}{\app{\obj{love}}{s}{o}}) \\
+&= \lam{O S}{S \hsbind (\lam{s}{O \hsbind (\lam{o}{\app{\obj{love}}{s}{o}})})} \\
+&= \lam{O S}{\obj{love} \apr S \aplr O} \\
+&= \lam{O S}{\etaE{\obj{love}} \aplr S \aplr O}
+\end{align*}
+
+In the lexical entry for $\abs{loves}$, we can express the series of binds
+using the application operators from~\ref{ssec:composing-functions}. The
+idea behind the notation is that you are supposed to put double brackets on
+a side whenever the argument on that side is a computation. In our example,
+$S$ and $O$ are both computations and $\obj{love}$ is a pure function
+term. We can expand this term so that it is a bit more regular by making
+$\obj{love}$ into a computation as well. We can then a notice a connection
+between the denotations in $\sem{-}_\petitv$ and the denotations in
+$\sem{-}_\petitc$. The $\sem{-}_\petitc$ denotations are just the
+$\sem{-}_\petitv$ denotations where every constant $\obj{c}$ was replaced
+with $\etaE{\obj{c}}$ and every application $\ap{f}{x}$ was replaced with
+$f \aplr x$. Note that $\eta$ and $\aplr$ make up the applicative functor
+$\FF_E$ (see~\ref{ssec:applicative-functor}).
+
+
+\subsection{Deixis in an Example}
+
+After our digression into raising semantics to computations, we can go back
+to our example with first-person pronouns. With the interpretations given
+before, we can now analyse the following sentences:
+
+\begin{exe}
+  \ex John loves Mary. \label{ex:trivial}
+  \ex Mary loves me. \label{ex:deixis}
+\end{exe}
+
+whose meanings we can calculate as:
+
+\NoChapterPrefix
+\begin{align}
+  \sem{\app{\abs{loves}}{\abs{Mary}}{\abs{John}}} & \tto 
+  \etaE{(\app{\obj{love}}{\obj{j}}{\obj{m}})} \\
+  \sem{\app{\abs{loves}}{\abs{me}}{\abs{Mary}}} & \tto
+  \app{\op{speaker}}{\star}{(\lam{x}{\etaE{(\app{\obj{love}}{\obj{m}}{x})}})}
+\end{align}
+\ChapterPrefix
+
+For~\eqref{ex:trivial}, we get a pure computation that produces the
+proposition $\app{\obj{love}}{\obj{j}}{\obj{m}}$, which is the same
+proposition that the sentence denoted before we modified the fragment to
+use computations. However, in the case of~\eqref{ex:deixis}, we do not have
+any single proposition as the denotation. Instead, we have a request to
+identify the speaker of the utterance and then we have a different
+proposition $\app{\obj{love}}{\obj{m}}{x}$ for each possible speaker
+$x$. The truth conditions of this sentence can only be found by considering
+some hypothetical speaker $s$. Given such a speaker, we could resolve all
+of the requests for the speaker's identity and since our effect signature
+$E$ does not contain any other operations, arrive at the desired
+truth-conditions. This function that will interpret the $\op{speaker}$
+operation symbols will be a handler.
+
+\begin{align*}
+  \withSpeaker &: \iota \to \FF_{\{\typedop{speaker}{1}{\iota}\} \uplus E}(\alpha) \to \FF_E(\alpha) \\
+  \withSpeaker &= \lam{s M}{\ap{\banana{\onto{\op{speaker}}{(\lam{x k}{\ap{k}{s}})}}}{M}}
+\end{align*}
+
+The type tells us that $\ap{\withSpeaker}{s}$ is a handler for the
+$\op{speaker}$ operation. It takes any computation of type
+$\FF_{\{\typedop{speaker}{1}{\iota}\} \uplus E}(\alpha)$ and gives back a
+computation of type $\FF_E(\alpha)$, in which $\op{speaker}$ will not be
+used. Since $\op{speaker}$ is the only operation in our effect signature,
+by applying this handler to the denotation of a sentence in our fragment,
+we get a denotation of type $\FF_\emptyset(o)$, which is isomorphic to
+$o$\footnote{The two directions of the isomorphism are given by
+  $\cherry : \FF_\emptyset(\alpha) \to \alpha$ and
+  $\eta : \alpha \to \FF_\emptyset(\alpha).$}.
+
+$$
+  \app{\withSpeaker}{s}{\sem{\app{\abs{loves}}{\abs{me}}{\abs{Mary}}}} \tto
+  \etaE{(\app{\obj{love}}{\obj{m}}{s})}
+$$
+
+
+\subsection{Quotations}
+
+Up to now, we could have assumed that at the object level, we have a
+constant $\obj{speaker}$ standing in for the speaker. After adding a
+constant to our logical signature, our new models would have
+interpretations for symbols in the original signature and for the
+$\obj{speaker}$ constant, i.e.\ our models would become descriptions of the
+world paired with some deictic index. However, removing the notion of a
+context and making the speaker be a part of the model would make it
+difficult to analyze the difference between the following two sentences:
+
+\begin{exe}
+  \ex John said Mary loves me. \label{ex:indirect-speech}
+  \ex John said ``Mary loves me''. \label{ex:direct-speech}
+\end{exe}
+
+In our setting, we can model this kind of behavior since the $\withSpeaker$
+is not a meta-level operation, but it is a term in our calculus like any
+other. We can therefore have lexical entries for direct and indirect speech
+that will interact differently with deictic expressions.
+
+\begin{align*}
+  \abs{said}_{\abs{is}} &: S \limp NP \limp S \\
+  \abs{said}_{\abs{ds}} &: S \limp NP \limp S
+\end{align*}
+
+We have two lexical items that correspond to the use of $\abs{said}$ in
+both direct speech and indirect speech. They differ both in surface
+realization (both in prosody and punctuation) and semantic interpretation.
+
+\begin{align*}
+  \sem{\abs{said}_{\abs{is}}} &= \lam{C S}{\obj{say} \apr S \aplr C} \\
+  &= \lam{C S}{S \hsbind (\lam{s}{\ap{\obj{say}}{s} \apr C})} \\
+  \sem{\abs{said}_{\abs{ds}}}
+  &= \lam{C S}{S \hsbind (\lam{s}{\ap{\obj{say}}{s} \apr (\app{\withSpeaker}{s}{C})})}
+\end{align*}
+
+The indirect speech use of \emph{said} has the same kind of lexical entry
+as the transitive verb \emph{loves}. In the direct speech entry, we would
+like to bind the speaker within the complement clause to the referent of
+the subject. We will therefore want to wrap the complement clause in a
+handler for $\op{speaker}$. However, the handler $(\ap{\withSpeaker}{s})$
+needs to know the referent $s$ of the subject $S$. We will need to first
+evaluate $S$ and bind its result to $s$. To highlight the fact that the two
+entries differ only in the use of the $(\ap{\withSpeaker}{s})$ handler, we
+have expanded the entry for direct speech into the same form. Also note
+that in this solution, we have had to use $\hsbind$ and we cannot get by
+with only $\eta$ and $\aplr$, which would be the case if we were to use
+applicative functor which is not a monad.
+
+We can now plug in this new entry and compute the meanings
+of~\eqref{ex:indirect-speech} and~\eqref{ex:direct-speech}.
+
+\NoChapterPrefix
+\begin{align}
+  \sem{\app{\abs{said}_{\abs{is}}}{(\app{\abs{loves}}{\abs{me}}{\abs{Mary}})}{\abs{John}}}
+  & \tto \app{\op{speaker}}{\star}{(\lam{x}{\etaE{(\app{\obj{say}}{\obj{j}}{(\app{\obj{love}}{\obj{m}}{x})})}})} \\
+  \sem{\app{\abs{said}_{\abs{ds}}}{(\app{\abs{loves}}{\abs{me}}{\abs{Mary}})}{\abs{John}}}
+  & \tto \etaE{(\app{\obj{say}}{\obj{j}}{(\app{\obj{love}}{\obj{m}}{\obj{j}})})}
+\end{align}
+\ChapterPrefix
+
+In the meaning of~\eqref{ex:indirect-speech}, the $\op{speaker}$ operation
+projects outside the complement clause and we end up with another
+speaker-dependent proposition. On the other hand,
+in~\eqref{ex:direct-speech}, the dependence on the identity of the speaker
+has been discharged by the handler contained in the denotation of
+$\abs{said}_{\abs{ds}}$.
 
 
 \section{Conventional Implicature}
+
+We have seen an example of an expression asking the context for some
+missing information. We will now look at a phenomenon which incurs
+communication in the opposite direction. \emph{Conventional
+  implicatures}~\cite{potts2005logic} are parts of the entailed meaning
+which are not at-issue, i.e.\ are not being asserted, simply mentioned. One
+of the distinguishing signs is that they project out of logical contexts
+such as negation, disjunction or implication. Typical examples include
+supplements such as nominal appositives and supplementary relative clauses,
+and expressives such as epithets.
+
+Here, we will deal with supplements, namely nominal appositives and
+supplementary relative clauses.
+
+\begin{align*}
+  \abs{who}_{\abs{s}} &: (NP \limp S) \limp NP \limp NP \\
+  \abs{appos} &: NP \limp NP \limp NP \\
+  \abs{best-friend} &: NP \limp NP \\
+  \\
+  \abs{not-the-case} &: S \limp S \\
+  \abs{if-then} &: S \limp S \limp S \\
+  \abs{either-or} &: S \limp S \limp S
+\end{align*}
+
+
 
 
 \section{Quantification}
@@ -16,6 +349,7 @@ We will start with~\cite{\levinson2004deixis}
 
 
 \section{Dynamic Semantics}
+
 
 \subsection{Anaphora}
 
