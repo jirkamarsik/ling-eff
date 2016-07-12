@@ -166,7 +166,7 @@ fragment into computations:
 &= \etaE{\obj{j}} \\
 \sem{\abs{Mary}}_\petitc &= \raisel_{NP}(\obj{m}) \\
 &= \etaE{\obj{m}} \\
-\sem{\abs{loves}} &= \raiser_{NP \limp NP \limp S}(\lam{o s}{\app{\obj{love}}{s}{o}}) \\
+\sem{\abs{loves}}_\petitc &= \raiser_{NP \limp NP \limp S}(\lam{o s}{\app{\obj{love}}{s}{o}}) \\
 &= \lam{O S}{S \hsbind (\lam{s}{O \hsbind (\lam{o}{\app{\obj{love}}{s}{o}})})} \\
 &= \lam{O S}{\obj{love} \apr S \aplr O} \\
 &= \lam{O S}{\etaE{\obj{love}} \aplr S \aplr O}
@@ -195,7 +195,7 @@ before, we can now analyse the following sentences:
 
 \begin{exe}
   \ex John loves Mary. \label{ex:trivial}
-  \ex Mary loves me. \label{ex:deixis}
+  \ex John loves me. \label{ex:deixis}
 \end{exe}
 
 whose meanings we can calculate as:
@@ -204,8 +204,8 @@ whose meanings we can calculate as:
 \begin{align}
   \sem{\app{\abs{loves}}{\abs{Mary}}{\abs{John}}} & \tto 
   \etaE{(\app{\obj{love}}{\obj{j}}{\obj{m}})} \\
-  \sem{\app{\abs{loves}}{\abs{me}}{\abs{Mary}}} & \tto
-  \app{\op{speaker}}{\star}{(\lam{x}{\etaE{(\app{\obj{love}}{\obj{m}}{x})}})}
+  \sem{\app{\abs{loves}}{\abs{me}}{\abs{John}}} & \tto
+  \app{\op{speaker}}{\star}{(\lam{x}{\etaE{(\app{\obj{love}}{\obj{j}}{x})}})}
 \end{align}
 \ChapterPrefix
 
@@ -215,7 +215,7 @@ proposition that the sentence denoted before we modified the fragment to
 use computations. However, in the case of~\eqref{ex:deixis}, we do not have
 any single proposition as the denotation. Instead, we have a request to
 identify the speaker of the utterance and then we have a different
-proposition $\app{\obj{love}}{\obj{m}}{x}$ for each possible speaker
+proposition $\app{\obj{love}}{\obj{j}}{x}$ for each possible speaker
 $x$. The truth conditions of this sentence can only be found by considering
 some hypothetical speaker $s$. Given such a speaker, we could resolve all
 of the requests for the speaker's identity and since our effect signature
@@ -240,8 +240,8 @@ $o$\footnote{The two directions of the isomorphism are given by
   $\eta : \alpha \to \FF_\emptyset(\alpha).$}.
 
 $$
-  \app{\withSpeaker}{s}{\sem{\app{\abs{loves}}{\abs{me}}{\abs{Mary}}}} \tto
-  \etaE{(\app{\obj{love}}{\obj{m}}{s})}
+  \app{\withSpeaker}{s}{\sem{\app{\abs{loves}}{\abs{me}}{\abs{John}}}} \tto
+  \etaE{(\app{\obj{love}}{\obj{j}}{s})}
 $$
 
 
@@ -421,7 +421,7 @@ that the two sentences try to implicate.
 \begin{align}
   & \sem{\app{\abs{either-or}}{(\app{\abs{loves}}{\abs{Jane}}{\abs{John}})}{(\app{\abs{loves}}{\abs{John}}{(\app{\abs{appos}}{(\ap{\abs{best-friend}}{\abs{John}})}{\abs{Mary}})})}} \nonumber \\
   & \tto \app{\op{implicate}}{(\obj{m} = \ap{\obj{best-friend}}{\obj{j}})}{(\lam{z}{\etaE{(\app{\obj{love}}{\obj{j}}{\obj{s}} \lor \app{\obj{love}}{\obj{m}}{\obj{j}})}})} \\
-  & \sem{\app{\abs{if-then}}{\ap{\lnot}{(\app{\abs{loves}}{\abs{Sarah}}{\abs{John}})}}{(\app{\abs{loves}}{\abs{John}}{\abs{Mary}})}} \nonumber \\
+  & \sem{\app{\abs{if-then}}{(\ap{\abs{not-the-case}}{(\app{\abs{loves}}{\abs{Sarah}}{\abs{John}})})}{(\app{\abs{loves}}{\abs{John}}{\abs{Mary}})}} \nonumber \\
   & \tto \app{\op{implicate}}{(\app{\obj{love}}{\obj{s}}{\obj{j}})}{(\lam{z}{\etaE{(\lnot(\app{\obj{love}}{\obj{j}}{\obj{s}}) \to \app{\obj{love}}{\obj{m}}{\obj{j}})}})}
 \end{align}
 \ChapterPrefix
@@ -451,13 +451,90 @@ get propositions that do entail the intended implicatures.
 \begin{align*}
   & \ap{\accommodate}{\sem{\app{\abs{either-or}}{(\app{\abs{loves}}{\abs{Jane}}{\abs{John}})}{(\app{\abs{loves}}{\abs{John}}{(\app{\abs{appos}}{(\ap{\abs{best-friend}}{\abs{John}})}{\abs{Mary}})})}}} \nonumber \\
   & \tto (\obj{m} = \ap{\obj{best-friend}}{\obj{j}}) \land (\app{\obj{love}}{\obj{j}}{\obj{s}} \lor \app{\obj{love}}{\obj{m}}{\obj{j}}) \\
-  & \ap{\accommodate}{\sem{\app{\abs{if-then}}{\ap{\lnot}{(\app{\abs{loves}}{\abs{Sarah}}{\abs{John}})}}{(\app{\abs{loves}}{\abs{John}}{\abs{Mary}})}}} \nonumber \\
+  & \ap{\accommodate}{\sem{\app{\abs{if-then}}{\ap{\abs{not-the-case}}{(\app{\abs{loves}}{\abs{Sarah}}{\abs{John}})}}{(\app{\abs{loves}}{\abs{John}}{\abs{Mary}})}}} \nonumber \\
   & \tto (\app{\obj{love}}{\obj{s}}{\obj{j}}) \land (\lnot(\app{\obj{love}}{\obj{j}}{\obj{s}}) \to \app{\obj{love}}{\obj{m}}{\obj{j}})
 \end{align*}
 
 
-
 \section{Quantification}
+
+Next, we turn our attention to in-situ quantification. This is the
+phenomenon of quantified noun phrases such as \emph{every man} or \emph{a
+  woman} acting as quantifiers over the sentence in which they appear. One
+of the mechanisms which is used to model the inversion from being an
+argument of a verb inside a sentence to taking the verb and the whole
+sentence as an argument yourself are
+continuations~\cite{de2001type,barker2002continuations}.
+
+
+
+We will be working with the following abstract syntax:
+
+\begin{align*}
+  \abs{every}, \abs{a} &: N \limp NP \\
+  \abs{man}, \abs{woman} &: N
+\end{align*}
+
+The challenge will be how to fit in the denotations of \emph{every man} or
+\emph{some woman} into the type $\sem{NP}_\petitc = \FF_E(\iota)$. We
+cannot find a unique referent for either of these noun phrases and we need
+to take into account their quantificational effect on the meaning of the
+whole sentence. We will make use of the operations and handlers present in
+$\banana{\lambda}$, as we have done in all the previous section of this
+Chapter. We will use an operation symbol $\op{scope}$ of type
+$((\iota \to o) \to o) \rightarrowtail \iota$, for which we can give two
+different motivations:
+
+\begin{itemize}
+\item We know that continuations are a useful technique for dealing with
+  quantification and in Chapter~\ref{chap:continuations}, we have seen how
+  to encode continuations in $\banana{\lambda}$. The type that we have
+  given to the $\shifto$ operator there was
+  $((\delta \to \FF_E(\omega)) \to \FF_E(\omega)) \rightarrowtail
+  \delta$. We can specialize this to our case. The type $\omega$ of
+  observations will be the type $o$ of propositions, as it will be over
+  propositions that our quantifiers will scope. The type $\delta$ of
+  expressions at which we will shift will be the type $\iota$ of
+  individuals as that is the type of referents for noun phrases. Finally,
+  in this section we will be dealing only with quantification and no other
+  effects and therefore the signature $E$ will be empty and we can also go
+  ahead replace $\FF_\emptyset(\omega)$ with $\omega$. This leaves with the
+  type $((\iota \to o) \to o) \rightarrowtail \iota$.
+\item Like in the previous sections, we can also figure out the input and
+  output types of $\op{scope}$ by considering what information can the
+  quantificational noun phrase offer to its context and what does it expect
+  in return. We know that we can model the meaning of quantificational noun
+  phrases as generalized quantifiers~\cite{montague1973proper}: e.g.\
+  \emph{every man} becomes
+  $\lam{P}{\forall x.\ \ap{\obj{man}}{x} \to \ap{P}{x}}$ of type
+  $(\iota \to o) \to o$. We also want quantificational noun phrases to be
+  like other noun phrases in that they should behave as if their referents
+  were individuals of type $\iota$. Inside the denotation, we therefore
+  have a generalized quantifier of type $(\iota \to o) \to o$ and we would
+  like to trade it for an individual of type $\iota$, leading us to the
+  type for $\op{scope} : ((\iota \to o) \to o) \rightarrowtail \iota$. We
+  give a generalized quantifier to the context and the context will have
+  that quantifier scope over the sentence. In return, we get the variable
+  of type $\iota$ that is being quantified over and that stands for the
+  referent of the noun phrase.
+\end{itemize}
+
+With this operation $\op{scope}$, we can now give a semantics to our
+determiners:
+
+\begin{align*}
+  \lex{every}{\lam{N}{N \hsbind (\lam{n}{\ap{\op{scope}!}{(\lam{c}{\forall x.\ \ap{n}{x} \to \ap{c}{x}})}})}} \\
+  \lex{every}{\ap{\op{scope}!}{(\lam{c}{\forall x.\ (\ap{\SI}{(N \apl x)}) \to \ap{c}{x}})}} \\
+  \lex{a}{\lam{N}{N \hsbind (\lam{n}{\ap{\op{scope}!}{(\lam{c}{\exists x.\ \ap{n}{x} \land \ap{c}{x}})}})}} \\
+  \lex{a}{\ap{\op{scope}!}{(\lam{c}{\exists x.\ (\ap{\SI}{(N \apl x)}) \land \ap{c}{x}})}} \\
+  \lex{man}{\etaE{\obj{man}}} \\
+  \lex{woman}{\etaE{\obj{woman}}} \\
+  \SI &= \bbanana{\onto{\op{scope}}{(\lam{c k}{\ap{c}{k}})}}
+\end{align*}
+
+\ldots Work in progress here \ldots
+
+
 
 \input{effects-quantifier-ambiguity}
 
