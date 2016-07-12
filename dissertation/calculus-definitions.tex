@@ -1442,9 +1442,29 @@ a monad, as in Haskell.\footnote{In the types of the operators given below,
   M \hsbind N &= \ap{N^*}{M} \\
 \end{align*}
 
-Finally, we will define operators for performing function application in
-cases when either the function or argument (or both) are wrapped in a
-computation.
+Finally, we will define a notation for applying infix operators to
+arguments wrapped inside computations. Let $\_ \times \_$ be an infix
+operator of type $\alpha \to \beta \to \gamma$. Then we define the
+following:
+
+\begin{align*}
+  \_ \opl{\times} \_ &: \FF_E(\alpha) \to \beta \to \FF_E(\gamma) \\
+  X \opl{\times} y &= X \hsbind (\lam{x}{\ap{\eta}{(x \times y)}}) \\
+  \_ \opr{\times} \_ &: \alpha \to \FF_E(\beta) \to \FF_E(\gamma) \\
+  x \opr{\times} Y &= Y \hsbind (\lam{y}{\ap{\eta}{(x \times y)}}) \\
+  \_ \oplr{\times} \_ &: \FF_E(\alpha) \to \FF_E(\beta) \to \FF_E(\gamma) \\
+  X \oplr{\times} Y &= X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\ap{\eta}{(x \times y)}})})
+\end{align*}
+
+In particular, we will be using this notation for the function application
+operator:
+
+\begin{align*}
+  \_ \cdot \_ &: (\alpha \to \beta) \to \alpha \to \beta \\
+  f \cdot x &= \ap{f}{x}
+\end{align*}
+
+which will yield the following combinators:
 
 \begin{align*}
   \_ \apl \_ &: \FF_E(\alpha \to \beta) \to \alpha \to \FF_E(\beta) \\
@@ -1452,7 +1472,7 @@ computation.
   \_ \apr \_ &: (\alpha \to \beta) \to \FF_E(\alpha) \to \FF_E(\beta) \\
   f \apr X &= X \hsbind (\lam{x}{\ap{\eta}{(\ap{f}{x})}}) \\
   \_ \aplr \_ &: \FF_E(\alpha \to \beta) \to \FF_E(\alpha) \to \FF_E(\beta) \\
-  F \aplr X &= F \hsbind (\lam{f}{X \hsbind (\lam{x}{\ap{\eta}{(\ap{f}{x})}})}) \\
+  F \aplr X &= F \hsbind (\lam{f}{X \hsbind (\lam{x}{\ap{\eta}{(\ap{f}{x})}})})
 \end{align*}
 
 The second of these three, $\apr$, is the morphism component of the $\FF_E$

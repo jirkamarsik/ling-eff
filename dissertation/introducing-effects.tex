@@ -148,9 +148,9 @@ is the linear lexical order in which elements appear in the spoken/written
 form of the sentence. Since in categorial grammars of English, it is often
 the case that operators first take their complements from the right and
 then apply to their argument on the left (e.g.\ transitive verbs or
-complementizers of type $(NP \limp S) \limp N \limp N$), we will often like
-to chain the evaluation of the arguments in the order opposite to the one
-in which we receive them. This will give rise to the $\raiser$
+relative pronouns of type $(NP \limp S) \limp N \limp N$), we will often
+like to chain the evaluation of the arguments in the order opposite to the
+one in which we receive them. This will give rise to the $\raiser$
 transformation.
 
 \begin{align*}
@@ -225,7 +225,7 @@ operation symbols will be a handler.
 
 \begin{align*}
   \withSpeaker &: \iota \to \FF_{\{\typedop{speaker}{1}{\iota}\} \uplus E}(\alpha) \to \FF_E(\alpha) \\
-  \withSpeaker &= \lam{s M}{\ap{\banana{\onto{\op{speaker}}{(\lam{x k}{\ap{k}{s}})}}}{M}}
+  \withSpeaker &= \lam{s}{\banana{\onto{\op{speaker}}{(\lam{x k}{\ap{k}{s}})}}}
 \end{align*}
 
 The type tells us that $\ap{\withSpeaker}{s}$ is a handler for the
@@ -328,18 +328,132 @@ supplements such as nominal appositives and supplementary relative clauses,
 and expressives such as epithets.
 
 Here, we will deal with supplements, namely nominal appositives and
-supplementary relative clauses.
+supplementary relative clauses. We will assume abstract constants for the
+(supplementary) relative pronoun, the appositive construction and a
+relational noun\footnote{We are working in a minimal fragment without
+  determiners. Relational nouns will let use some meaningful noun phrases
+  as nominal appositives in the examples to come.} with the following
+types:
 
 \begin{align*}
   \abs{who}_{\abs{s}} &: (NP \limp S) \limp NP \limp NP \\
   \abs{appos} &: NP \limp NP \limp NP \\
-  \abs{best-friend} &: NP \limp NP \\
-  \\
+  \abs{best-friend} &: NP \limp NP
+\end{align*}
+
+The point of our modeling is to show that the conventional implicatures
+engendered by the supplements project out of all sorts of logical
+context. We will therefore also consider a fragment that contains syntactic
+constructions for negation (``it is not the case that X''), implication
+(``if X, then Y'') and disjunction (``either X, or Y'').
+
+\begin{align*}
   \abs{not-the-case} &: S \limp S \\
   \abs{if-then} &: S \limp S \limp S \\
   \abs{either-or} &: S \limp S \limp S
 \end{align*}
 
+In our fragment, a noun phrase contributes both its referent and also
+possibly some conventional implicature. If we would model this fact by
+interpreting NPs as pairs, we would be forced to revisit all the other
+lexical entries to take this change into account (e.g.\ transitive verbs
+such as $\abs{loves}$ would need to explicitly aggregate the conventional
+implicatures of both its subject and object). Rather than do that, we will
+make use of $\banana{\lambda}$ and model this interaction with the context
+as an operation. When a linguistic expression wants to conventionally
+implicate something, it will use the $\op{implicate}$ operation. The
+expression will need to communicate what exactly it wants to
+implicate. This will be a proposition and so the input type of
+$\op{implicate}$ will be the type $o$ of propositions. We do not need to
+collect any information from the context and so the output type will be
+$1$. Using this operation, we can now give denotations to expressions that
+are about to generate conventional implicatures:
+
+\begin{align*}
+  \sem{\abs{who}_{\abs{s}}} &= \lam{C X}{X \hsbind (\lam{x}{\op{implicate} \apr (\ap{C}{(\etaE{x})}) \apl (\lam{z}{\etaE{x}})})} \\
+  \lex{appos}{\lam{Y X}{X \hsbind (\lam{x}{\op{implicate} \apr (x \eqr Y) \apl (\lam{z}{\etaE{x}})})}} \\
+  \lex{best-friend}{\lam{X}{\obj{best-friend} \apr X}}
+\end{align*}
+
+In both of the supplement constructions, we first evaluate the head NP $X$
+to get its referent $x$. We use $x$ twice: once to construct the
+implicature and once to produce the referent of the entire complex noun
+phrase. The implicature constructed by the relative clause is the clause
+with its gap filled in by an expression that refers to the same referent as
+the head noun $X$. The implicature of the appositive is a statement of
+equality between the referents of the two noun phrases\footnote{The
+  operator $\eqr$ is the variant of $=$ that expects its right-hand side
+  argument to be a computation and whose result is therefore a computation
+  too.}. The first argument that we are applying $\op{implicate}$ to in
+both entries is a computation and hence the $\apr$ and $\apl$ operators
+surrounding it. Finally, we also give the semantics to the relation noun
+``X's best friend'' by assuming that we have function
+$\obj{best-friend} : \iota \to \iota$ in the model.
+
+We will want to show that these denotations project through the operators
+that make up the logical structure of a sentence/discourse. Since the
+conventional implicature mechanism is implemented using operations, we can
+get this behavior for free by just using the standard operators.
+
+\begin{align*}
+  \lex{not-the-case}{\raisel_{S \limp S}(\lnot)} \\
+  &= \lam{X}{\lnot \apr X} \\
+  \lex{if-then}{\raisel_{S \limp S \limp S}(\to)} \\
+  &= \lam{X Y}{X \implr Y} \\
+  \lex{either-or}{\raisel_{S \limp S \limp S}(\lor)} \\
+  &= \lam{X Y}{X \orlr Y}
+\end{align*}
+
+We can now look at several examples of conventional implicatures buried
+inside logical operators:
+
+\begin{exe}
+  \ex Either John loves Sarah, or Mary, John's best friend, loves John. \label{ex:either-or}
+  \ex If it is not the case that John, whom Sarah loves, loves Sarah then Mary loves John. \label{ex:if-not}
+\end{exe}
+
+We expect~\eqref{ex:either-or} to implicate that Mary is John's best friend
+and~\eqref{ex:if-not} to implicate that Sarah loves John. If we compute
+their denotations, we find out that these actually are the propositions
+that the two sentences try to implicate.
+
+\NoChapterPrefix
+\begin{align}
+  & \sem{\app{\abs{either-or}}{(\app{\abs{loves}}{\abs{Jane}}{\abs{John}})}{(\app{\abs{loves}}{\abs{John}}{(\app{\abs{appos}}{(\ap{\abs{best-friend}}{\abs{John}})}{\abs{Mary}})})}} \nonumber \\
+  & \tto \app{\op{implicate}}{(\obj{m} = \ap{\obj{best-friend}}{\obj{j}})}{(\lam{z}{\etaE{(\app{\obj{love}}{\obj{j}}{\obj{s}} \lor \app{\obj{love}}{\obj{m}}{\obj{j}})}})} \\
+  & \sem{\app{\abs{if-then}}{\ap{\lnot}{(\app{\abs{loves}}{\abs{Sarah}}{\abs{John}})}}{(\app{\abs{loves}}{\abs{John}}{\abs{Mary}})}} \nonumber \\
+  & \tto \app{\op{implicate}}{(\app{\obj{love}}{\obj{s}}{\obj{j}})}{(\lam{z}{\etaE{(\lnot(\app{\obj{love}}{\obj{j}}{\obj{s}}) \to \app{\obj{love}}{\obj{m}}{\obj{j}})}})}
+\end{align}
+\ChapterPrefix
+
+To go full circle and fulfill the empirical criterion that the meaning
+of~\eqref{ex:either-or} should entail that Mary is John's best friend, we
+will need to translate the term containing $\op{implicate}$ operations into
+a proposition. This will be another question of interpreting operation
+symbols and so we will use a handler.
+
+\begin{align*}
+  \accommodate &: \FF_{\{\typedop{implicate}{o}{1}\}}(o) \to o \\
+  \accommodate &= \bbanana{\onto{\op{implicate}}{(\lam{i k}{i \land \ap{k}{\star}})}}
+\end{align*}
+
+This handler applies only to computations that produce propositions. It
+collects all of the implicatures and conjoins them with the (at-issue)
+proposition. We used a closed handler to make the presentation slightly
+simpler (no need to mention computation types inside the handler). In
+Chapter~\ref{chap:composing-effects}, we will introduce an open handler
+which does the same but works inside arbitrary effect signatures.
+
+If we apply the $\accommodate$ handler to the denotations
+of~\eqref{ex:either-or} and~\eqref{ex:if-not}, then we can verify that we
+get propositions that do entail the intended implicatures.
+
+\begin{align*}
+  & \ap{\accommodate}{\sem{\app{\abs{either-or}}{(\app{\abs{loves}}{\abs{Jane}}{\abs{John}})}{(\app{\abs{loves}}{\abs{John}}{(\app{\abs{appos}}{(\ap{\abs{best-friend}}{\abs{John}})}{\abs{Mary}})})}}} \nonumber \\
+  & \tto (\obj{m} = \ap{\obj{best-friend}}{\obj{j}}) \land (\app{\obj{love}}{\obj{j}}{\obj{s}} \lor \app{\obj{love}}{\obj{m}}{\obj{j}}) \\
+  & \ap{\accommodate}{\sem{\app{\abs{if-then}}{\ap{\lnot}{(\app{\abs{loves}}{\abs{Sarah}}{\abs{John}})}}{(\app{\abs{loves}}{\abs{John}}{\abs{Mary}})}}} \nonumber \\
+  & \tto (\app{\obj{love}}{\obj{s}}{\obj{j}}) \land (\lnot(\app{\obj{love}}{\obj{j}}{\obj{s}}) \to \app{\obj{love}}{\obj{m}}{\obj{j}})
+\end{align*}
 
 
 
