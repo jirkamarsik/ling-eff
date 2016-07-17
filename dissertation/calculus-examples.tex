@@ -486,7 +486,7 @@ $$
 Let us start off with the innermost expression, the sum of $\bar{x}$ and
 $\bar{y}$.
 
-\ChapterPrefix
+\NoChapterPrefix
 \begin{align}
   \sumecn{\varec{x}}{\varec{y}}
   & = \sumecn{(\ap{\op{get}!}{\bar{x}})}
@@ -518,7 +518,7 @@ $\bar{y}$.
     {(\lam{x}{\app{\op{get}}{\bar{y}}{(\lam{y}{\ap{\eta}{(x + y)}})}})}
 \end{align}
 \setcounter{equation}{0}
-\NoChapterPrefix
+\ChapterPrefix
 
 The first three lines are the usual. First, we expand the definitions of
 the operands (the $\vare$ operator). Then we do the same for the operation
@@ -546,7 +546,7 @@ We have our result, a computation that asks for the values of the variables
 $\bar{x}$ and $\bar{y}$ to compute their sum. Now we will compute the value
 of $\app{\lete}{\bar{y}}{\litec{2}}$.
 
-\ChapterPrefix
+\NoChapterPrefix
 \begin{align}
   \app{\lete}{\bar{y}}{\litec{2}}
 &= \app{\lete}{\bar{y}}{(\ap{\eta}{2})} \\
@@ -557,7 +557,7 @@ of $\app{\lete}{\bar{y}}{\litec{2}}$.
 &\to_{\eta} \banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = \bar{y}}{(\ap{k}{2})}{(\app{\op{get}}{u}{k})}})}}
 \end{align}
 \setcounter{equation}{0}
-\NoChapterPrefix
+\ChapterPrefix
 
 Lines 1 and 2 are our interpretations of $\lite$ and $\lete$ and the rest
 are applications of rules we have seen before. We find out that the
@@ -570,7 +570,7 @@ We will now apply this handler to the meaning of
 $\sumecn{\varec{x}}{\varec{y}}$ to get the meaning of
 $\letecn{y}{\litec{2}}{\sumec{\varec{x}}{\varec{y}}}$.
 
-\ChapterPrefix
+\NoChapterPrefix
 \begin{align}
   & \letecn{y}{\litec{2}}{\sumec{\varec{x}}{\varec{y}}} \\
 = & \letecn{y}{\litec{2}}
@@ -640,7 +640,7 @@ $\letecn{y}{\litec{2}}{\sumec{\varec{x}}{\varec{y}}}$.
 \to_{\banana{\eta}} & \app{\op{get}}{\bar{x}} {(\lam{x}{\ap{\eta}{(x + 2)}})}
 \end{align}
 \setcounter{equation}{0}
-\NoChapterPrefix
+\ChapterPrefix
 
 This one is a bit more complicated and so we will go through it line by
 line:
@@ -843,9 +843,12 @@ seen in~\ref{ssec:refactoring-with-monads}. We can find a monad whose type
 constructor is $T(\alpha) = \gamma \to \alpha + 1$, whose unit is $\eta =
 (\lam{x e}{\ap{\inl}{x}})$ and whose bind simultaneously takes care of
 passing around the environment and performing case analysis on intermediate
-results. However, as we will see in~\ref{sec:monads}, we will still be
-motivated to recreate something like the abstract operations that we are
-using in our proposed solution.
+results
+
+%% TODO: Talk about monad transformers, maybe?
+%% However, as we will see in~\ref{sec:monads}, we will still be
+%% motivated to recreate something like the abstract operations that we are
+%% using in our proposed solution.
 
 
 \section{Summary}

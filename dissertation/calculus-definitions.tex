@@ -63,14 +63,13 @@ such as the following:
 \item semantics/pragmatics
 \end{itemize}
 
-The question then is, what form should our general $\FF$ type
-constructor take? We want to have a construction that can combine all the
-existing ones. One can do the combining at the level of monads with the use
-of monad transformers, a technique pioneered by Moggi and very
-well-established in the Haskell programming community
-\cite{moggi1991notions}. Simon Charlow has made the case that this
-technique can be exploited to great benefit in natural language semantics
-as well \cite{charlow2014semantics}.
+The question then is, what form should our general $\FF$ type constructor
+take? We want to have a construction that can combine all the existing
+ones. One can do the combining at the level of monads with the use of monad
+transformers, a technique pioneered by Moggi and very well-established in
+the Haskell programming community~\cite{moggi1991notions}. Simon Charlow
+has made the case that this technique can be exploited to great benefit in
+natural language semantics as well~\cite{charlow2014semantics}.
 
 However, a competing technique has emerged in recent years and it is the
 goal of this thesis to introduce it to semanticists and verify its
@@ -650,9 +649,10 @@ effect signature $E''$. It serves two roles.
   and [$\op{op}$] rules. This freedom of effect variables is a way of
   implementing the idea that a computation of type $\FF_{E_1}(\alpha)$ can
   be used anywhere that a computation of type $\FF_{E_2}(\alpha)$ given
-  that $E_1 \subseteq E_2$\footnote{This relation is an instance of
-    subtyping and a more robust treatment will be outlined in
-    Section~\ref{sec:subtyping}.}.
+  that $E_1 \subseteq E_2$.
+ %% \footnote{This relation is an instance of
+ %%   subtyping and a more robust treatment will be outlined in
+ %%   Section~\ref{sec:subtyping}.}
 
 \item In the previous paragraph, why did we put the word ``free'' in
   quotation marks?  Because the effect variable $E''$ is not actually
@@ -899,7 +899,7 @@ notion.
   such that $M = C[N]$.
 \end{definition}
 
-\begin{definition}
+\begin{definition}\label{def:context-closure}
   Let $\sim$ be a binary relation on the terms of our calculus. We define
   the relation $\syntclos{\sim}$, called the \textbf{context closure} of
   $\sim$, as the smallest relation
@@ -990,8 +990,8 @@ have introduced in this section are congruent with $\alpha$-equivalence?
 $\FV$ is congruent: swapping names bound by $\lambda$ does not change the
 set of free variables in a term.
 
-The definition of context closure works for $\alpha$-equivalence classes as
-well.
+Definition~\ref{def:context-closure} of context closure works for
+$\alpha$-equivalence classes as well.
 
 What about substitution? As we have already seen, capture-avoiding
 substitution is a partial operation: $\subst{(\lam{y}{x})}{x}{y}$ does not
@@ -1015,7 +1015,7 @@ $\XX$ which is different from $y$ and end up in the same $=_\alpha$
 class). By extension, we can also assume that a variable $x$ bound in some
 term is fresh in some other term.
 
-\begin{definition}
+\begin{definition}\label{def:capture-resolving-substitution}
   Let $M$ and $N$ be terms and $x$ a variable. We define the
   \textbf{(capture-resolving) substitution} of $N$ for $x$ in $M$, written as
   $\subst{M}{x}{N}$\footnote{From now on, this notation will be used for

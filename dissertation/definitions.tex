@@ -81,8 +81,6 @@
 
 \newcommand{\syntclos}[1]{\mathbin{[#1]}}
 
-\newtheorem*{definition}{Definition}
-\newtheorem*{notation}{Notation}
 \newtheorem{theorem}{Theorem}
 \newtheorem{property}[theorem]{Property}
 \newtheorem{observation}[theorem]{Observation}
@@ -90,6 +88,9 @@
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{proposition}[theorem]{Proposition}
 \newtheorem{law}[theorem]{Law}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{notation}[theorem]{Notation}
+\numberwithin{theorem}{section}
 
 \newcommand{\cibanana}{\banana{(\onto{\op{op}_i} M_i)_{i \in I},\ \onto{\eta} M_\eta}}
 \newcommand{\cdbanana}{\banana{\onto{\op{op}_1} M_1,\ \dots,\ \onto{\op{op}_n} M_n,\ \onto{\eta} M_\eta}}
