@@ -523,9 +523,7 @@ With this operation $\op{scope}$, we can now give a semantics to our
 determiners:
 
 \begin{align*}
-  \lex{every}{\lam{N}{N \hsbind (\lam{n}{\ap{\op{scope}!}{(\lam{c}{\forall x.\ \ap{n}{x} \to \ap{c}{x}})}})}} \\
   \lex{every}{\ap{\op{scope}!}{(\lam{c}{\forall x.\ (\ap{\SI}{(N \apl x)}) \to \ap{c}{x}})}} \\
-  \lex{a}{\lam{N}{N \hsbind (\lam{n}{\ap{\op{scope}!}{(\lam{c}{\exists x.\ \ap{n}{x} \land \ap{c}{x}})}})}} \\
   \lex{a}{\ap{\op{scope}!}{(\lam{c}{\exists x.\ (\ap{\SI}{(N \apl x)}) \land \ap{c}{x}})}} \\
   \lex{man}{\etaE{\obj{man}}} \\
   \lex{woman}{\etaE{\obj{woman}}} \\
