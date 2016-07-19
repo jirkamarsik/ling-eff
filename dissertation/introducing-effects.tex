@@ -879,8 +879,17 @@ system\footnote{The overgenerating case is due to variable escaping its
 \ChapterPrefix
 
 The QR operator allows us to displace the scope of any quantifier
-(actually, it can displace any kind of $NP$ effect, including dynamics, so
-it can be used, e.g., to implement a kind of cataphora).
+\footnote{Actually, it can displace any kind of $NP$ effect, including
+  dynamics, and so it can be used, e.g., to implement a kind of
+  cataphora. This will turn out to be a bug, not a feature, because of
+  crossover constraints~\cite{shan2006explaining}, to be treated in
+  Chapter~\ref{chap:composing-effects}.}. We might now risk overgenerating
+by letting quantifiers leak outside of scope islands. However, this can be
+remedied at the level of the abstract type signature. Pogodalla and
+Pompigne~\cite{pogodalla2012controlling} show how to use dependent types in
+the abstract types of an ACG to enforce a scope island constraint ---
+namely that quantificational noun phrases should not take scope outside of
+the nearest enclosing tensed clause.
 
 
 \section{Dynamic Semantics}
