@@ -547,6 +547,8 @@ further, we will consider the following example:
   \ex Every man loves a woman. \label{ex:quantifiers}
 \end{exe}
 
+and its denotation:
+
 \NoChapterPrefix
 \begin{align}
 & \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{woman}})}{(\ap{\abs{every}}{\abs{man})}}} \nonumber \\
@@ -564,14 +566,321 @@ take this scope material and apply it to the meaning of the nucleus. This
 role is carried out by the handler $\SI$, short for Scope Island.
 
 \begin{align*}
-& \ap{\SI}{\sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{woman}})}{(\ap{\abs{every}}{\abs{man})}}}} \\
-&\tto \etaE{(\forall x.\ \ap{\obj{man}}{x} \to (\exists y.\ \ap{\obj{woman}}{y} \land \app{\obj{love}}{x}{y}))}
+& \ap{\SI}{\sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{woman}})}{(\ap{\abs{every}}{\abs{man}})}}} \\
+&\tto \forall x.\ \ap{\obj{man}}{x} \to (\exists y.\ \ap{\obj{woman}}{y} \land \app{\obj{love}}{x}{y})
 \end{align*}
 
+The handler $\SI$ will also end up being part of our
+denotations. Quantifiers can only take scope up to the limit of the nearest
+enclosing scope island and that is a constraint that we can encode using
+this handler. We could, for example, implement the constraint that tensed
+clauses should form scope islands by including the $\SI$ handler in the
+denotations of the constructors of tensed clauses.
+
+\begin{align*}
+  \lex{loves}{\lam{O S}{\ap{(\eta \circ \SI)}{(\obj{love} \apr S \aplr O)}}}
+\end{align*}
+
+Here, we apply not only $\SI$, but $\eta \circ \SI$, to the sentence
+denotation. This is because our type for interpreting sentences, $\sem{S}$,
+is $\FF_E(o)$ and since in this section, we are using a closed handler
+(type $\FF_E(o) \to o$), we have to follow with the injection $\eta$ (type
+$o \to \FF_E(o)$)\footnote{We could also just as well choose $\sem{S} = o$
+  but we want to be consistent with the other treatments we have shown so
+  far and the ones we will see later.}.
+
+Using this new lexical entry for $\abs{loves}$, we can directly compute a
+reading for Sentence~\ref{ex:quantifiers}:
+
+\addtocounter{equation}{-1}
+\NoChapterPrefix
+\begin{align}
+& \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{woman}})}{(\ap{\abs{every}}{\abs{man}})}} \nonumber \\
+&\tto \etaE{(\forall x.\ \ap{\obj{man}}{x} \to (\exists y.\ \ap{\obj{woman}}{y} \land \app{\obj{love}}{x}{y}))}
+\end{align}
+\ChapterPrefix
+
+Finally, we will address the use of $\SI$ in the denotations of
+$\abs{every}$ and $\abs{a}$. We will note that we interpret constituents of
+type $N$ with the type $\FF_E(\iota \to o)$. However, in the fragment so
+far, we have only seen pure nouns, nouns whose denotation is of the form
+$\etaE{M}$. Nevertheless, we can imagine complex constituents of type $N$
+which do have a quantificational effect (e.g.\ \emph{owner of a cat}).
+
+\begin{align*}
+  \abs{owner-of} &: NP \limp N \\
+  \lex{owner-of}{\raisel_{NP \limp N}(\lam{y x}{\app{\obj{own}}{x}{y}})} \\
+  &= \lam{Y}{Y \hsbind (\lam{y}{\etaE{(\lam{x}{\app{\obj{own}}{x}{y}})}})}
+\end{align*}
+
+The relational noun \emph{owner} does not contribute any quantificational
+effect, but the complex noun \emph{owner of $Y$} inherits any effects of
+$Y$. We will see this in the denotation of \emph{owner of a cat}:
+
+\begin{align*}
+&\sem{\ap{\abs{owner-of}}{(\ap{\abs{a}}{\abs{cat}})}} \\
+&\tto \ap{\sem{\abs{owner-of}}}{(\app{\op{scope}}
+    {(\lam{c}{\exists y.\ \ap{\obj{cat}}{y} \land \ap{c}{y}})}
+    {(\lam{y}{\etaE{y}})})} \\
+&\tto (\lam{y x}{\app{\obj{own}}{x}{y}}) \apr (\app{\op{scope}}
+    {(\lam{c}{\exists y.\ \ap{\obj{cat}}{y} \land \ap{c}{y}})}
+    {(\lam{y}{\etaE{y}})}) \\
+&\tto \app{\op{scope}}{(\lam{c}{\exists y.\ \ap{\obj{cat}}{y} \land \ap{c}{y}})}
+    {(\lam{y}{\etaE{(\ap{(\lam{y x}{\app{\obj{own}}{x}{y}})}{y})}})} \\
+&\to_\beta \app{\op{scope}}{(\lam{c}{\exists y.\ \ap{\obj{cat}}{y} \land \ap{c}{y}})}
+                      {(\lam{y}{\etaE{(\lam{x}{\app{\obj{own}}{x}{y}})}})}
+\end{align*}
+
+We can look at the result through the analogy to Cooper storage. We started
+with the meaning of \emph{a cat}, which stored the generalized quantifier
+$\lam{c}{\exists y.\ \ap{\obj{cat}}{y} \land \ap{c}{y}}$ in the storage and
+whose semantic placeholder was the variable $y$. We then applied the
+function $\lam{y x}{\app{\obj{own}}{x}{y}}$ to this semantic placeholder
+and we arrived at $\lam{x}{\app{\obj{own}}{x}{y}}$ with the storage still
+holding the quantifier
+$\lam{c}{\exists y.\ \ap{\obj{cat}}{y} \land \ap{c}{y}}$.
+
+And so we have seen that constituents of type $N$ can have a
+quantificational effect in much the same way as other constituents, such as
+those of type $NP$. In the generalized quantifier for indefinites,
+$(\lam{c}{\exists y.\ \ap{n}{y} \land \ap{c}{y}})$, we make use of the
+meaning $n$ of the restrictor noun. By looking at the type of
+$\op{scope} : ((\iota \to o) \to o) \rightarrowtail \iota$, we see that we
+cannot pass a computation with quantificational effects as an argument to
+$\op{scope}$\footnote{In that case, we would need to have
+  $\typedop{scope}{((\iota \to \FF_E(o)) \to o)}{\iota} \in E$. This is
+  problematic since $E$ is itself used as a part of a type contained in
+  $E$. The type of $\op{scope}$ would therefore not be neither finite nor
+  well-founded.}. So instead, we discharge the quantificational potential
+of the noun in the restrictor of the generalized quantifier using the $\SI$
+handler\footnote{This is very much like the situation we have seen towards
+  the end of Chapter~\ref{chap:continuations}. The $\SI$ handler is our
+  $\reset$. We can only pass the type check if we use $\shift$/$\reset$
+  (Section~\ref{sec:considering-types}). We encode $\shift$ using $\shifto$
+  by using a $\reset$ (in our case $\SI$) inside the argument to $\shifto$
+  (in our case $\op{scope}$), as in
+  Section~\ref{sec:turning-to-shift}.}. We will look at the kind of
+readings this leads to by considering the classic example
+from~\cite{burchardt2004computational}:
+
+\begin{exe}
+  \ex Every owner of a siamese cat loves a therapist. \label{ex:siamese}
+\end{exe}
+
+Assuming the inclusion of the common nouns \emph{siamese cat} and
+\emph{therapist} in our fragment (with semantics analogous to the ones for
+\emph{man} and \emph{woman}), we can compute the following interpretation:
+
+\NoChapterPrefix
+\begin{align}
+& \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{therapist}})}{(\ap{\abs{every}}{(\ap{\abs{owner-of}}{(\ap{\abs{a}}{\abs{siamese-cat}})})})}} \nonumber \\
+&\tto \etaE{(\forall x.\ (\exists y.\ \ap{\obj{siamese-cat}}{y} \land \app{\obj{own}}{x}{y}) \to (\exists z.\ \ap{\obj{therapist}}{z} \land \app{\obj{love}}{x}{z}))}
+\end{align}
+\ChapterPrefix
 
 
+\subsection{Quantifier Ambiguity}
 
-\input{effects-quantifier-ambiguity}
+The lexical entry that we have considered for the determiner
+\emph{every}\footnote{Though the same applies to the lexical entry for the
+  indefinite article \emph{a} as well.} so far was:
+
+$$
+\sem{\abs{every}} = \lam{N}{\ap{\op{scope}!}{(\lam{c}{\forall x.\
+      (\ap{\SI}{(N \apl x)}) \to \ap{c}{x}})}}
+$$
+
+However, if we followed the analogy to $\shift$ and $\reset$ (i.e.\
+wrapping the entire body of the function that is the argument to
+$\op{scope}$/$\shifto$ in $\SI$/$\reset$, see
+Section~\ref{sec:turning-to-shift}), we might have tried the following:
+
+$$
+\sem{\abs{every'}} = \lam{N}{\ap{\op{scope}!}{(\lam{c}{\ap{\SI}{(N \hsbind
+        (\lam{n}{\etaE{(\forall x.\ \ap{n}{x} \to \ap{c}{x})}}))}})}}
+$$
+
+Here, we put the $\SI$ handler above the quantifier introduced by the
+semantics of the determiner. For reasons of readability, we have also
+pulled the only impure part, $N$, in front of the expression using the
+$\hsbind$ operator. This lexical entry puts the scope of any quantifiers
+found in the restrictor noun over the scope of the quantifier contribued by
+the determiner. If we try using this lexical entry when computing the
+meaning of Sentence~\ref{ex:siamese}, we find another possible reading:
+
+\addtocounter{equation}{-1}
+\NoChapterPrefix
+\begin{align}
+& \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{therapist}})}{(\ap{\abs{every'}}{(\ap{\abs{owner-of}}{(\ap{\abs{a}}{\abs{siamese-cat}})})})}} \nonumber \\
+&\tto \etaE{(\exists y.\ \ap{\obj{siamese-cat}}{y} \land (\forall x.\ \app{\obj{own}}{x}{y} \to (\exists z.\ \ap{\obj{therapist}}{z} \land \app{\obj{love}}{x}{z})))}
+\end{align}
+\ChapterPrefix
+
+Both of the readings we have seen are actually valid interpretations of
+this sentence; quantifiers are a notorious source of ambiguities. In the
+ACG framework, a term from the abstract signature, the tectogrammatic
+structure of a sentence, is mapped by a deterministic interpretation
+function into a term in the object signature, in the case of semantics, its
+sense or denotation. The conventional approach to dealing with ambiguities
+in ACGs~\cite{de2001towards,pogodalla2007generalizing} is to make it so
+that the ambiguous sentence has multiple corresponding abstract terms,
+i.e.\ tectogrammatic analyses\footnote{Alternatively, we could make it so
+  that a single object term corresponds to multiple readings. A natural way
+  to deal with that would be to introduce the effect of non-determinism
+  (signature $\typedop{choose}{1}{2}$).
+%% TODO?: Maybe show the approach that relies on weakly-typed lambda-banana?
+}. We can therefore imagine that our fragment contains both $\abs{every}$
+and $\abs{every'}$, one giving narrow scope to resrictor quantifiers and
+the other giving them wide scope (the same would be the case for other
+determiners such as $\abs{a}$).
+
+Note that Sentence~\ref{ex:quantifiers} is ambiguous as well. The
+existential quantifier in \emph{a woman} can take either wide or narrow
+scope (we call it wide scope when the object quantifier scopes over the
+subject quantifier and we call it narrow when it scopes under). The
+relative scope of the quantifiers is given by the order in which they
+appear in the computation: to get the object in wide scope, we would need
+to chain the computations of the subject and object by putting object
+first, subject last.
+
+\begin{align*}
+\lex{loves}{\lam{O S}{\ap{(\eta \circ \SI)}{(\obj{love} \apr S \aplr O)}}} \\
+&= \lam{O S}{\ap{(\eta \circ \SI)}{(S \hsbind (\lam{s}{O \hsbind
+  (\lam{o}{\etaE{(\app{\obj{love}}{s}{o})}})}))}} \\
+\lex{loves'}{\lam{O S}{\ap{(\eta \circ \SI)}{(O \hsbind (\lam{o}{S \hsbind
+  (\lam{s}{\etaE{(\app{\obj{love}}{s}{o})}})}))}}}
+\end{align*}
+
+Using the lexical entry, we can now derive the other reading for
+Sentence~\ref{ex:quantifiers}:
+
+\addtocounter{equation}{-2}
+\NoChapterPrefix
+\begin{align}
+& \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{therapist}})}{(\ap{\abs{every'}}{(\ap{\abs{owner-of}}{(\ap{\abs{a}}{\abs{siamese-cat}})})})}} \nonumber \\
+&\tto \etaE{(\exists y.\ \ap{\obj{siamese-cat}}{y} \land (\forall x.\ \app{\obj{own}}{x}{y} \to (\exists z.\ \ap{\obj{therapist}}{z} \land \app{\obj{love}}{x}{z})))}
+\end{align}
+\ChapterPrefix
+\addtocounter{equation}{1}
+
+as well as two more readings for Sentence~\ref{ex:siamese}:
+
+\addtocounter{equation}{-1}
+\NoChapterPrefix
+\begin{align}
+& \sem{\app{\abs{loves'}}{(\ap{\abs{a}}{\abs{therapist}})}{(\ap{\abs{every}}{(\ap{\abs{owner-of}}{(\ap{\abs{a}}{\abs{siamese-cat}})})})}} \nonumber \\
+&\tto \etaE{(\exists z.\ \ap{\obj{therapist}}{z} \land (\forall x.\ (\exists y.\ \ap{\obj{siamese-cat}}{y} \land \app{\obj{own}}{x}{y}) \to \app{\obj{love}}{x}{z}))} \\
+\addtocounter{equation}{-1}
+& \sem{\app{\abs{loves'}}{(\ap{\abs{a}}{\abs{therapist}})}{(\ap{\abs{every'}}{(\ap{\abs{owner-of}}{(\ap{\abs{a}}{\abs{siamese-cat}})})})}} \nonumber \\
+&\tto \etaE{(\exists z.\ \ap{\obj{therapist}}{z} \land (\exists y.\ \ap{\obj{siamese-cat}}{y} \land (\forall x.\ \app{\obj{own}}{x}{y} \to \app{\obj{love}}{x}{z})))}
+\end{align}
+\ChapterPrefix
+
+However, Sentence~\ref{ex:siamese} has one more reading that we will not be
+able to get at using this technique.
+
+$$
+\exists y.\ \ap{\obj{siamese-cat}}{y} \land (\exists z.\ \ap{\obj{therapist}}{z} \land (\forall x.\ \app{\obj{own}}{x}{y} \to \app{\obj{love}}{x}{z}))
+$$
+
+This reading is equivalent to the last reading,
+$\sem{\app{\abs{loves'}}{(\ap{\abs{a}}{\abs{therapist}})}{(\ap{\abs{every'}}{(\ap{\abs{owner-of}}{(\ap{\abs{a}}{\abs{siamese-cat}})})})}}$. The
+only difference is that this time, \emph{a siamese cat} has scope over
+\emph{a therapist}. This distinction would be important in sentences
+involving a different quantifier then the existential coming from the
+indefinite, such as in the sentence ``\emph{Every researcher of a company
+  saw most samples}''~\cite{burchardt2004computational}. In our fragment,
+we cannot reproduce this reading because the order in which the quantifiers
+take place goes like this: \emph{a siamese cat} from the subject, \emph{a
+  therapist} from the object and \emph{every owner} from the
+subject. However, we have no simple way to crack open the chain of
+quantifications from the subject and insert the quantification from the
+object in the middle. We will therefore turn to a more robust and elegant
+solution which will get us the readings we want and will not profilerate
+duplicate entries such as $\abs{every}$/$\abs{every'}$ and
+$\abs{loves}$/$\abs{loves'}$.
+
+
+\subsubsection{Quantifier Raising}
+
+We will make use of the fact that ACGs are a categorial grammar formalism
+and their syntactic structures are not just constituency trees, but
+derivations which can use hypothetical reasoning. That is to say, the terms
+in the abstract signature which represent the tectogrammatic structure can
+contain $\lambda$-binders and variables. We will use this to implement
+Montague's treatment of quantifiers~\cite{montague1973proper}, called
+``quantifying in'' or ``quantifier raising''.
+
+Montague's technique can be explained by introducing by saying that
+sentences such as ``\emph{every man loves a woman}'' can be paraphrased as
+``\emph{a woman, every man loves her}''. The quantifier that is to be
+raised is replaced by a pronoun/variable. Later, we use a construction that
+lets us form a sentence by combining a noun phrase with a sentence in which
+a variable is to be bound. We can licence this kind of construction in our
+ACG by adding the following (unlexicalised) abstract constant:
+
+\begin{align*}
+  \abs{QR} &: NP \limp (NP \limp S) \limp S \\
+  \lex{QR}{\lam{X k}{X \hsbind (\lam{x}{\ap{k}{(\etaE{x})}})}}
+\end{align*}
+
+The type of $\abs{QR}$ can also be read as a kind of type lifting operator
+on NPs: it takes an $NP$ and gives back an $(NP \limp S) \limp S$ (the
+syntactic type for quantificational noun phrases used
+in~\cite{pogodalla2007generalizing}). As for the semantics, we can regard
+it as a variation on the term $\lam{X k}{\ap{k}{X}}$: instead of passing
+$X$ directly to $k$ though, we first evaluate it to get its referent $x$
+and then we pass to $k$ a trivial computation that always this referent
+$x$.
+
+We will demonstrate $\abs{QR}$ by deriving the object wide scope reading of
+Sentence~\ref{ex:quantifiers}:
+
+\addtocounter{equation}{-2}
+\NoChapterPrefix
+\begin{align}
+& \ap{\SI}{\sem{(\app{\abs{QR}}{(\ap{\abs{a}}{\abs{woman}})}{(\lam{y}{\app{\abs{loves}}{y}{(\ap{\abs{every}}{\abs{man}})}})})}} \nonumber \\
+&\tto \ap{\SI}{(\app{\op{scope}}
+  {(\lam{c}{\exists y.\ \ap{\obj{woman}}{y} \land \ap{c}{y}})}
+  {(\lam{y}{\forall x.\ \etaE{(\ap{\obj{man}}{x} \rightarrow \app{\obj{love}}{x}{y})}})})} \nonumber \\
+&\tto \ap{(\lam{c}{\exists y.\ \ap{\obj{woman}}{y} \land \ap{c}{y}})}
+         {(\lam{y}{\forall x.\ \ap{\obj{man}}{x} \rightarrow \app{\obj{love}}{x}{y}})} \nonumber \\
+&\tto \exists y.\ \ap{\obj{woman}}{y} \land (\forall x.\ \ap{\obj{man}}{x} \rightarrow \app{\obj{love}}{x}{y})
+\end{align}
+\ChapterPrefix
+\addtocounter{equation}{1}
+
+We can also generate all five readings of Sentence~\ref{ex:siamese},
+without incurring the overgeneration due to Cooper's
+storage~\cite{burchardt2004computational} thanks to the ACG type
+system\footnote{The overgenerating case is due to variable escaping its
+  scope. However, such a term with a free occurrence of a variable would
+  not be a well-typed closed term and so such a derivation does not
+  exist.}.
+
+\addtocounter{equation}{-1}
+\NoChapterPrefix
+\begin{align}
+& \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{therapist}})}{(\ap{\abs{every}}{(\ap{\abs{owner-of}}{(\ap{\abs{a}}{\abs{siamese-cat}})})})}} \nonumber \\
+&\tto \etaE{(\forall x.\ (\exists y.\ \ap{\obj{siamese-cat}}{y} \land \app{\obj{own}}{x}{y}) \to (\exists z.\ \ap{\obj{therapist}}{z} \land \app{\obj{love}}{x}{z}))} \\
+\addtocounter{equation}{-1}
+& \ap{\SI}{\sem{\app{QR}{(\ap{\abs{a}}{\abs{siamese-cat}})}{(\lam{y}{(\app{\abs{loves}}{(\ap{\abs{a}}{\abs{therapist}})}{(\ap{\abs{every}}{(\ap{\abs{owner-of}}{y})})})})}}} \nonumber \\
+&\tto \exists y.\ \ap{\obj{siamese-cat}}{y} \land (\forall x.\ \app{\obj{own}}{x}{y} \to (\exists z.\ \ap{\obj{therapist}}{z} \land \app{\obj{love}}{x}{z})) \\
+\addtocounter{equation}{-1}
+& \ap{\SI}{\sem{\app{QR}{(\ap{\abs{a}}{\abs{therapist}})}{(\lam{z}{(\app{\abs{loves}}{z}{(\ap{\abs{every}}{(\ap{\abs{owner-of}}{(\ap{\abs{a}}{\abs{siamese-cat}})})})})})}}} \nonumber \\
+&\tto \exists z.\ \ap{\obj{therapist}}{z} \land (\forall x.\ (\exists y.\ \ap{\obj{siamese-cat}}{y} \land \app{\obj{own}}{x}{y}) \to \app{\obj{love}}{x}{z}) \\
+\addtocounter{equation}{-1}
+& \ap{\SI}{\sem{\app{QR}{(\ap{\abs{a}}{\abs{siamese-cat}})}{(\lam{y}{(\app{QR}{(\ap{\abs{a}}{\abs{therapist}})}{(\lam{z}{(\app{\abs{loves}}{z}{(\ap{\abs{every}}{(\ap{\abs{owner-of}}{y})})})})})})}}} \nonumber \\
+&\tto \exists y.\ \ap{\obj{siamese-cat}}{y} \land (\exists z.\ \ap{\obj{therapist}}{z} \land (\forall x.\ \app{\obj{own}}{x}{y} \to \app{\obj{love}}{x}{z})) \\
+\addtocounter{equation}{-1}
+& \ap{\SI}{\sem{\app{QR}{(\ap{\abs{a}}{\abs{therapist}})}{(\lam{z}{(\app{QR}{(\ap{\abs{a}}{\abs{siamese-cat}})}{(\lam{y}{(\app{\abs{loves}}{z}{(\ap{\abs{every}}{(\ap{\abs{owner-of}}{y})})})})})})}}} \nonumber \\
+&\tto \exists z.\ \ap{\obj{therapist}}{z} \land (\exists y.\ \ap{\obj{siamese-cat}}{y} \land (\forall x.\ \app{\obj{own}}{x}{y} \to \app{\obj{love}}{x}{z}))
+\end{align}
+\ChapterPrefix
+
+The QR operator allows us to displace the scope of any quantifier
+(actually, it can displace any kind of $NP$ effect, including dynamics, so
+it can be used, e.g., to implement a kind of cataphora).
 
 
 \section{Dynamic Semantics}
