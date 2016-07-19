@@ -523,14 +523,51 @@ With this operation $\op{scope}$, we can now give a semantics to our
 determiners:
 
 \begin{align*}
-  \lex{every}{\ap{\op{scope}!}{(\lam{c}{\forall x.\ (\ap{\SI}{(N \apl x)}) \to \ap{c}{x}})}} \\
-  \lex{a}{\ap{\op{scope}!}{(\lam{c}{\exists x.\ (\ap{\SI}{(N \apl x)}) \land \ap{c}{x}})}} \\
+  \lex{every}{\lam{N}{\ap{\op{scope}!}{(\lam{c}{\forall x.\ (\ap{\SI}{(N \apl x)}) \to \ap{c}{x}})}}} \\
+  \lex{a}{\lam{N}{\ap{\op{scope}!}{(\lam{c}{\exists x.\ (\ap{\SI}{(N \apl x)}) \land \ap{c}{x}})}}} \\
   \lex{man}{\etaE{\obj{man}}} \\
   \lex{woman}{\etaE{\obj{woman}}} \\
   \SI &= \bbanana{\onto{\op{scope}}{(\lam{c k}{\ap{c}{k}})}}
 \end{align*}
 
-\ldots Work in progress here \ldots
+The denotations of $\abs{every}$ and $\abs{a}$ are both making use of the
+new $\op{scope}$ operation. If we look at the meaning of
+$\sem{\ap{\abs{every}}{\abs{man}}} = \app{\op{scope}}{(\lam{c}{\forall x.\
+    \ap{\obj{man}}{x} \to \ap{c}{x}})}{(\lam{x}{\etaE{x}})}$, we see that
+it is composed of two parts: some logical material
+$\forall x.\ \ap{\obj{man}}{x} \to \ap{c}{x}$ that is to scope over the
+enclosing context $c$ and a placeholder NP denotation $\etaE{x}$ for some
+variable $x$. This is very much like Cooper
+storage~\cite{cooper1979montague}. We store the request to scope certain
+material over the sentence and we keep a variable as a placeholder
+denotation for the NP. Before we proceed to explain this fragment any
+further, we will consider the following example:
+
+\begin{exe}
+  \ex Every man loves a woman. \label{ex:quantifiers}
+\end{exe}
+
+\NoChapterPrefix
+\begin{align}
+& \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{woman}})}{(\ap{\abs{every}}{\abs{man})}}} \nonumber \\
+&\tto \app{\op{scope}}{(\lam{c}{\forall x.\ \ap{\obj{man}}{x} \to \ap{c}{x}})}{(\lam{x}{\app{\op{scope}}{(\lam{c}{\exists y.\ \ap{\obj{woman}}{y} \land \ap{c}{y}})}{(\lam{y}{\etaE{(\app{\obj{love}}{x}{y})}})}})}
+\end{align}
+\ChapterPrefix
+
+We have $\etaE{(\app{\obj{love}}{x}{y})}$ as the kernel of the meaning,
+with both $(\lam{c}{\forall x.\ \ap{\obj{man}}{x} \to \ap{c}{x}})$ and
+$(\lam{c}{\exists y.\ \ap{\obj{woman}}{y} \land \ap{c}{y}})$ scheduled to
+scope over it. We see that as in Cooper's approach, the scope material that
+we stored in the NPs gets carried over to the meaning of the entire
+clause. Now we need an analogue to Cooper's retrieval procedure that can
+take this scope material and apply it to the meaning of the nucleus. This
+role is carried out by the handler $\SI$, short for Scope Island.
+
+\begin{align*}
+& \ap{\SI}{\sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{woman}})}{(\ap{\abs{every}}{\abs{man})}}}} \\
+&\tto \etaE{(\forall x.\ \ap{\obj{man}}{x} \to (\exists y.\ \ap{\obj{woman}}{y} \land \app{\obj{love}}{x}{y}))}
+\end{align*}
+
 
 
 
