@@ -2,9 +2,321 @@
 
 \setcounter{exx}{0}
 
+In this chapter, we will take a miniature fragment and extend it in
+different directions, studying various linguistic phenomena. The common
+point in all of these analyses is that they will all rely on the notion of
+computations introduced in $\banana{\lambda}$.
+
+We will start by first taking the initial fragment and lift its usual
+semantics into the domain of computations~(\ref{sec:lifting-semantics}), so
+as to be compatible with the development in the following sections. We will
+then consider the semantics of deictic pronouns~(\ref{sec:deixis}),
+appositives~(\ref{sec:conventional-implicature}) and quantificational noun
+phrases~(\ref{sec:quantification}). After a tour of these analyses, we take
+a step back and reflect on the methodological process that underlied their
+development~(\ref{sec:methodology}). We then end the chapter with the
+analysis of a more involved phenomenon: dynamicity and anaphora.
+
 \minitoc
 
+
+\section{Lifting Semantics into Computations}
+\label{sec:lifting-semantics}
+
+Let us start with a very tiny fragment with proper names to name
+individuals and verbs to act as predicates over these individuals:
+
+\begin{align*}
+  \abs{John}, \abs{Mary} &: NP \\
+  \abs{loves} &: NP \limp NP \limp S
+\end{align*}
+
+In this tiny fragment of proper names and predicates, we could interpret
+noun phrases as individuals ($\sem{NP} = \iota$) and sentences as
+propositions ($\sem{S} = o$). Provided we have some constants
+$\obj{j} : \iota$ and $\obj{m} : \iota$ and a predicate
+$\obj{love} : \iota \to \iota \to o$, we can give the following semantics
+to these items:
+
+\begin{align*}
+  \lex{John}{\obj{j}} \\
+  \lex{Mary}{\obj{m}} \\
+  \lex{loves}{\lam{o s}{\app{\obj{love}}{s}{o}}}
+\end{align*}
+
+This interpretation works fine for simple sentences such as \emph{John
+  loves Mary}.
+
+However, the denotations that we will assign to noun phrases that are
+deictic or quantificational will not fit into the type $\iota$. Instead, we
+will interpret these constituents as \emph{computations} producing
+individuals, type $\FF_E(\iota)$. In order to satisfy the homomorphism
+property of ACGs and to have a sound syntax-semantics interface, we will
+need to lift the denotations of these basic constants and predicates into
+computations. This is very much like the case when one introduces
+quantified noun phrases and switches from using generalized quantifiers
+instead of simple individuals as denotations of noun phrases.
+
+We will want linguistic expressions to denote computations. One systematic
+way to achieve that is to say that the atomic types of our abstract
+syntactic signature should be interpreted as computations. We will write
+$\sem{-}_\petitv$ for the semantic interpretation using simple values and
+$\sem{-}_\petitc$ for the semantic interpretation using computations. On
+the type level, we will define
+$\sem{\alpha}_\petitc = \FF_E(\sem{\alpha}_\petitv)$. By applying this to
+the common Montagovian interpretation, we get:
+
+\begin{align*}
+  \sem{S}_\petitv &= o & \sem{S}_\petitc &= \FF_E(o) \\
+  \sem{NP}_\petitv &= \iota & \sem{NP}_\petitc &= \FF_E(\iota) \\
+  \sem{N}_\petitv &= \iota \to o & \sem{N}_\petitc &= \FF_E(\iota \to o)
+\end{align*}
+
+To lift the denotations of noun phrases from $\sem{NP}_\petitv = \iota$ to
+$\sem{NP}_\petitc = \FF_E(\iota)$, it suffices to use $\eta$ to inject
+$\iota$ inside of $\FF_E(\iota)$. This goes the same for any other lexical
+item whose abstract type is an atomic type. For syntactic constructors that
+take arguments, such as verbs or adjectives, we will chain the computations
+of their arguments and apply the meaning of the constructor to the meaning
+of the results of these computations. We will limit ourselves to syntactic
+constructors of \emph{second-order type}, i.e.\ abstract constants whose
+type is $a_1 \limp \cdots a_n \limp b$ where all $a_i$ and $b$ are atomic
+types. If we use higher-order syntactic constructors, we will give them a
+bespoke semantics.
+
+\begin{align*}
+  \liftl_\alpha &: \sem{\alpha}_\petitv \to \sem{\alpha}_\petitc \\
+  \liftl_a(x) &= \etaE{x} \\
+  \liftl_{a \limp \beta}(f) &= \lam{X}{X \hsbind (\lam{x}{\liftl_\beta(\ap{f}{x})})}
+\end{align*}
+
+This particular schema chains the evaluation of its arguments from
+left-to-right (as can be seen by looking at the expanded non-recursive
+definition below). While indexicality is order-independent, some of the
+effects that we will introduce later (such as anaphora) are
+order-dependent. The order that we would like to reflect in the evaluation
+is the linear lexical order in which elements appear in the spoken/written
+form of the sentence. Since in categorial grammars of English, it is often
+the case that operators first take their complements from the right and
+then apply to their argument on the left (e.g.\ transitive verbs or
+relative pronouns of type $(NP \limp S) \limp N \limp N$), we will often
+like to chain the evaluation of the arguments in the order opposite to the
+one in which we receive them. This will give rise to the $\liftr$
+transformation.
+
+\begin{align*}
+  \liftl_{a_1 \limp \cdots \limp a_n \limp b}(f) &= \lam{X_1 \ldots X_n}{X_1 \hsbind (\lam{x_1}{\ldots\ X_n \hsbind (\lam{x_n}{\etaE{(\ap{f}{x_1\ \ldots\ x_n})}})})} \\
+  \liftr_{a_1 \limp \cdots \limp a_n \limp b}(f) &= \lam{X_1 \ldots X_n}{X_n \hsbind (\lam{x_n}{\ldots\ X_1 \hsbind (\lam{x_1}{\etaE{(\ap{f}{x_1\ \ldots\ x_n})}})})} \\
+\end{align*}
+
+With these in hand, we can now lift the interpretations of our simple
+fragment into computations:
+
+\begin{align*}
+\sem{\abs{John}}_\petitc &= \liftl_{NP}(\obj{j}) \\
+&= \etaE{\obj{j}} \\
+\sem{\abs{Mary}}_\petitc &= \liftl_{NP}(\obj{m}) \\
+&= \etaE{\obj{m}} \\
+\sem{\abs{loves}}_\petitc &= \liftr_{NP \limp NP \limp S}(\lam{o s}{\app{\obj{love}}{s}{o}}) \\
+&= \lam{O S}{S \hsbind (\lam{s}{O \hsbind (\lam{o}{\app{\obj{love}}{s}{o}})})} \\
+&= \lam{O S}{\obj{love} \apr S \aplr O} \\
+&= \lam{O S}{\etaE{\obj{love}} \aplr S \aplr O}
+\end{align*}
+
+In the lexical entry for $\abs{loves}$, we can express the series of binds
+using the application operators from~\ref{ssec:composing-functions}. The
+idea behind the notation is that you are supposed to put double brackets on
+a side whenever the argument on that side is a computation. In our example,
+$S$ and $O$ are both computations and $\obj{love}$ is a pure function
+term. We can expand this term so that it is a bit more regular by making
+$\obj{love}$ into a computation as well. We can then a notice a connection
+between the denotations in $\sem{-}_\petitv$ and the denotations in
+$\sem{-}_\petitc$. The $\sem{-}_\petitc$ denotations are just the
+$\sem{-}_\petitv$ denotations where every constant $\obj{c}$ was replaced
+with $\etaE{\obj{c}}$ and every application $\ap{f}{x}$ was replaced with
+$f \aplr x$. Note that $\eta$ and $\aplr$ make up the applicative functor
+$\FF_E$ (see~\ref{ssec:applicative-functor}).
+
+We can prove that adding this computation layer does not affect the
+predictions that this semantics makes.
+
+\begin{lemma}\label{lem:second-order-no-abstractions}
+  (\demph{Second-order terms hide no abstractions})
+
+  Every $\beta$-normal term $\Gamma \vdash M : \tau$ of second-order type
+  $\tau$ in the simply-typed lambda calculus is of the form
+  $\lam{x_1 \ldots x_n}{N}$ where $N$ contains no abstractions, provided
+  that any constants used have only a second-order type and any variables
+  present in $\Gamma$ have a first-order (i.e.\ atomic) type.
+\end{lemma}
+
+\begin{proof}
+  Let $M = \lam{x_1 \ldots x_n}{N}$ where $N$ is not an abstraction ($n$
+  might be $0$). We will need to prove that $N$ contains no abstractions.
+
+  We will use proof by contradiction. Let us assume that $N$ contains some
+  abstractions. We order the subterms of $N$ left-to-right, depth-first.
+  Let $N' = \lam{x}{N''}$ be the first abstraction we find in this
+  traversal. $N'$ must be a proper subterm of $N$ since $N$ is known not to
+  be an abstraction.
+  
+  We now consider the contexts in which $N'$ can occur:
+
+  \begin{itemize}
+  \item $N'$ occurs as the function in an application $\ap{N'}{A}$
+    
+    This is in contradiction with $M$ being a $\beta$-normal form since we
+    have an abstraction in function position, i.e.\ a $\beta$-redex.
+
+  \item $N'$ occurs as the argument in an application $\ap{F}{N'}$
+    
+    Since we know that the function that we are applying to $N'$ does not
+    contain any abstractions since $N'$ is the first abstraction we
+    encountered in the left-to-right ordering of subterms. Furthermore,
+    $N'$ is the first abstraction in a depth-first ordering and so the only
+    (free) variables that occur in $F$ are the variables $x_1 \ldots x_n$
+    and the variables in $\Gamma$, all of which are of first-order
+    type. $F$ is therefore not a variable (since it must have a functional
+    type). $F$ is either a constant or an application. Furthermore, if $F$
+    is an application, we can apply the same reasoning and by induction
+    conclude that $F$ must be a constant $c$ applied to some $n$ arguments,
+    $F = \ap{c}{A_1\ \ldots\ A_n}$, with $n$ possibly being $0$. However,
+    since $c$ is of second-order type, all of its arguments are of
+    first-order type. This is in contradiction with $N'$ being an
+    abstraction.
+
+  \item $N'$ occurs as the body of an abstraction $\lam{y}{N'}$
+    
+    This is in contradiction with $N'$ being the first abstraction we
+    encounter in the depth-first order.
+  \end{itemize}
+\end{proof}
+
+\begin{corollary}\label{cor:second-order-trees}
+  (\demph{Second order terms are trees})
+  
+  Assuming all constants are of second-order type, every closed term
+  $\vdash M : \nu$ of atomic type $\nu$ has a $\beta$-normal form
+  $\ap{c}{M_1 \ldots M_n}$ where $M_i$ are also closed terms of atomic
+  types.
+\end{corollary}
+
+\begin{proof}
+  From Lemma~\ref{lem:second-order-no-abstractions}, we know that the
+  normal form of $M$ is of the shape $\lam{x_1 \ldots x_n}{N}$ where $N$
+  contains no abstraction. Furthermore, we know that $M$ is of an atomic
+  type, therefore $n = 0$ and the normal form is just $N$. Since $N$ is
+  closed, it contains no free variables, and since it is abstraction-free,
+  it contains no bound variables either. Note that this is also the case
+  for every subterm of $N$.
+  
+  $N$ is composed entirely of constants and applications. If an $N$ is an
+  application, then the function is either a constant or some smaller
+  application composed entirely of constants and applications. By
+  induction, we thus show that $M$'s normal form, $N$, is of the shape
+  $\ap{c}{M_1\ \ldots\ M_n}$. Since $c$ has a second-order type, all of its
+  arguments must have a first-order, atomic, type.
+\end{proof}
+
+\begin{observation}
+  Let $\left< \Sigma_\petita, \Sigma_\petito, \sem{-}_\petitv, S \right>$
+  be an ACG where every constant $c : \tau \in \Sigma_\petita$ is of at
+  most second-order type ($\tau = a_1 \limp \ldots \limp a_n \limp b$ where
+  all $a_i$ and $b$ are atomic types) and let
+  $\left< \Sigma_\petita, \Sigma_\petito, \sem{-}_\petitc, S \right>$ be
+  the ACG whose lexicon $\sem{-}_\petitc$ satisfies the following
+  conditions:
+
+  \begin{itemize}
+  \item there exists some effect signature $E$ such that for every abstract
+    atomic type $\tau \in \Sigma_\petita$,
+    $\sem{\tau}_\petitc = \FF_E(\sem{\tau}_\petitv)$
+  \item for every abstract constant $c : \tau \in \Sigma_\petita$,
+    $\sem{c}_\petitc = \lift_\tau(\sem{c}_\petitv)$ where $\lift$ is either
+    $\liftl$ or $\liftr$
+  \end{itemize}
+  
+  Then for every closed well-typed abstract term
+  $\vdash_{\Sigma_\petita} M : \nu$ where $\nu$ is an atomic abstract type
+  from $\Sigma_\petita$, we have:
+
+  $$
+  \sem{M}_\petitc = \etaE{(\sem{M}_\petitv)}
+  $$
+\end{observation}
+
+\begin{proof}
+  From Corollary~\ref{cor:second-order-trees}, we know that $M$ can be
+  $\beta$-converted to a term of the form $\ap{c}{M_1\ \ldots\ M_n}$ where
+  all $M_i$ are also closed abstract terms of atomic type. Let
+  $a_1 \limp \ldots a_n \limp \nu$ be the type of $c$ in $\Sigma_\petita$.
+
+  We will proceed by induction on the structure of this normal form:
+
+  \begin{itemize}
+  \item $M = c$ with $c : \nu \in \Sigma_\petita$
+    
+    In that case, we have the desired property by definition of
+    $\sem{-}_\petitc$.
+  
+  \item $M = \ap{c}{M_1\ \ldots\ M_n}$ with $n > 0$
+
+    First, we apply $\sem{-}_\petitc$ to $M$ and make use of the induction
+    hypothesis for $M_i$:
+
+    \begin{align*}
+      \sem{\ap{c}{M_1\ \ldots\ M_n}}_\petitc
+      &= \ap{\sem{c}_\petitc}{\sem{M_1}_\petitc\ \ldots\ \sem{M_n}_\petitc} \\
+      &= \ap{\lift_{a_1 \limp \ldots a_n \limp \nu}(\sem{c}_\petitv)}
+            {(\etaE{\sem{M_1}_\petitv})\ \ldots\ (\etaE{\sem{M_n}_\petitv})}
+    \end{align*}
+    
+    If $\lift$ is $\liftl$, then:
+
+    \begin{align*}
+      &\ap{\liftl_{a_1 \limp \ldots a_n \limp \nu}(\sem{c}_\petitv)}
+         {(\etaE{\sem{M_1}_\petitv})\ \ldots\ (\etaE{\sem{M_n}_\petitv})} \\
+      =\ &\ap{(\lam{X_1 \ldots X_n}{X_1 \hsbind (\lam{x_1}{\ldots\ 
+                                   X_n \hsbind (\lam{x_n}{
+                   \etaE{(\ap{\sem{c}_\petitv}{x_1\ \ldots\ x_n})}})})})}
+            {(\etaE{\sem{M_1}_\petitv})\ \ldots\ (\etaE{\sem{M_n}_\petitv})} \\
+      =\ &(\etaE{\sem{M_1}_\petitv}) \hsbind (\lam{x_1}{\ldots\ 
+         (\etaE{\sem{M_n}_\petitv}) \hsbind (\lam{x_n}{
+              \etaE{(\ap{\sem{c}_\petitv}{x_1\ \ldots\ x_n})}})}) \\
+      =\ &\etaE{(\ap{\sem{c}_\petitv}{\sem{M_1}_\petitv\ \ldots\ \sem{M_n}_\petitv})} \\
+      =\ &\etaE{\sem{\ap{c}{M_1\ \ldots\ M_n}}_\petitv} \\
+    \end{align*}
+    
+    Similarly, if $\lift$ is $\liftr$, then:
+    
+    \begin{align*}
+      &\ap{\liftr_{a_1 \limp \ldots a_n \limp \nu}(\sem{c}_\petitv)}
+         {(\etaE{\sem{M_1}_\petitv})\ \ldots\ (\etaE{\sem{M_n}_\petitv})} \\
+      =\ &\ap{(\lam{X_1 \ldots X_n}{X_n \hsbind (\lam{x_n}{\ldots\ 
+                                   X_1 \hsbind (\lam{x_1}{
+                   \etaE{(\ap{\sem{c}_\petitv}{x_1\ \ldots\ x_n})}})})})}
+            {(\etaE{\sem{M_1}_\petitv})\ \ldots\ (\etaE{\sem{M_n}_\petitv})} \\
+      =\ &(\etaE{\sem{M_n}_\petitv}) \hsbind (\lam{x_n}{\ldots\ 
+         (\etaE{\sem{M_1}_\petitv}) \hsbind (\lam{x_1}{
+              \etaE{(\ap{\sem{c}_\petitv}{x_1\ \ldots\ x_n})}})}) \\
+      =\ &\etaE{(\ap{\sem{c}_\petitv}{\sem{M_1}_\petitv\ \ldots\ \sem{M_n}_\petitv})} \\
+      =\ &\etaE{\sem{\ap{c}{M_1\ \ldots\ M_n}}_\petitv} \\
+    \end{align*}
+  \end{itemize}
+\end{proof}
+
+\begin{corollary}
+  For every term $M$ in the abstract language of a second-order ACG with an
+  atomic distinguished type $S$, we have:
+
+  $$
+  \sem{M}_\petitc = \etaE{(\sem{M}_\petitv)}
+  $$
+\end{corollary}
+
+
 \section{Deixis}
+\label{sec:deixis}
 
 The first phenomenon that we will speak about is
 \emph{deixis}~\cite{levinson2004deixis}. Deictic expressions is the class
@@ -15,7 +327,12 @@ include personal pronouns, temporal expressions, tenses, demonstratives and
 others. All of these are characterized by their dependence on the
 extra-linguistic context. In this section, we will restrict our attention
 to a very limited subset of these expressions: singular first-person
-pronouns (\emph{I}, \emph{me}, \emph{my}).
+pronouns (\emph{I}, \emph{me}).
+
+\begin{align*}
+\abs{I} &: NP \\
+\abs{me} &: NP
+\end{align*}
 
 The meanings that we assign to expressions in natural languages must
 reflect this context-sensitivity: the truth-conditions of \emph{Mary loves
@@ -67,131 +384,14 @@ of sentences containing first-person pronouns, e.g.\ \emph{Mary loves
 intermediate language of intensional logic~\cite{montague1973proper}. When
 Montague then gives a interpretation to this language, the point of
 reference at which an expression is to be evaluated is passed through to
-its subexpressions. We will have to do a similar technical step and state
-how do the meanings of expressions change when they are no longer simple
-values but computations.
+its subexpressions. We will be making use of the lifted semantics
+introduced in the previous section. The chaining of the computations will
+serve our purpose of propagating the indexicality of the noun phrase to the
+sentence containing (or vice versa, the propagation of the sentence's
+speaker to the noun phrase contained within).
 
-
-\subsection{Raising the Semantics into Computations}
-
-Imagine that in our tiny fragment, apart from $\abs{I} : NP$ and $\abs{me}
-: NP$, whose meaning we have given above, we also have:
-
-\begin{align*}
-  \abs{John}, \abs{Mary} &: NP \\
-  \abs{loves} &: NP \limp NP \limp S
-\end{align*}
-
-In this tiny fragment of proper names and predicates, we could easily
-imagine interpreting noun phrases by individuals ($\sem{NP} = \iota$) and
-sentences as propositions ($\sem{S} = o$). Provided we have some constants
-$\obj{j} : \iota$ and $\obj{m} : \iota$ and a predicate
-$\obj{love} : \iota \to \iota \to o$, we can give the following semantics
-to these items:
-
-\begin{align*}
-  \lex{John}{\obj{j}} \\
-  \lex{Mary}{\obj{m}} \\
-  \lex{loves}{\lam{o s}{\app{\obj{love}}{s}{o}}}
-\end{align*}
-
-This interpretation works fine for simple sentences such as \emph{John
-  loves Mary}. However, the type of the denotations we gave to $\abs{I}$
-and $\abs{me}$ is not compatible with the types of denotations we assume
-here. The context-dependence of first-person pronouns have made us use a
-computation as a denotation for some of the noun phrases. In order to
-satisfy the homomorphism property of ACGs and to have a sound
-syntax-semantics interface, we will need to lift the denotations of simple
-denotations into computations. This is very much like the case when one
-introduces quantified noun phrases and switches from using generalized
-quantifiers instead of simple individuals as denotations of noun phrases.
-
-We will want linguistic expressions to denote computations. One systematic
-way to achieve that is to say that the base types of our abstract syntactic
-signature should be interpreted as computations. We will write
-$\sem{-}_\petitv$ for the semantic interpretation using simple values and
-$\sem{-}_\petitc$ for the semantic interpretation using computations. On
-the type level, we will define
-$\sem{\alpha}_\petitc = \FF_E(\sem{\alpha}_\petitv)$. By applying this to
-the common Montagovian interpretation, we get:
-
-\begin{align*}
-  \sem{S}_\petitv &= o & \sem{S}_\petitc &= \FF_E(o) \\
-  \sem{NP}_\petitv &= \iota & \sem{NP}_\petitc &= \FF_E(\iota) \\
-  \sem{N}_\petitv &= \iota \to o & \sem{N}_\petitc &= \FF_E(\iota \to o)
-\end{align*}
-
-To raise the denotations of noun phrases from $\sem{NP}_\petitv = \iota$ to
-$\sem{NP}_\petitc = \FF_E(\iota)$, it suffices to use $\eta$ to inject
-$\iota$ inside of $\FF_E(\iota)$. This goes the same for any other lexical
-item whose abstract type is a base type. For syntactic constructors that
-take arguments, such as verbs or adjectives, we will chain the computations
-of their arguments and apply the meaning of the constructor to the meaning
-of the results of these computations. We will limit ourselves to syntactic
-constructors of \emph{second-order type}, i.e.\ abstract constants whose
-type is $a_1 \limp \cdots a_n \limp b$ where $a_i$ and $b$ are base
-types. If we use higher-order syntactic constructors, we will give them a
-bespoke semantics.
-
-\begin{align*}
-  \raisel_\alpha &: \sem{\alpha}_\petitv \to \sem{\alpha}_\petitc \\
-  \raisel_a(x) &= \etaE{x} \\
-  \raisel_{a \limp \beta}(f) &= \lam{X}{X \hsbind (\lam{x}{\raisel_\beta(\ap{f}{x})})}
-\end{align*}
-
-This particular schema chains the evaluation of its arguments from
-left-to-right (as can be seen by looking at the expanded non-recursive
-definition below). While indexicality is order-independent, some of the
-effects that we will introduce later (such as anaphora) are
-order-dependent. The order that we would like to reflect in the evaluation
-is the linear lexical order in which elements appear in the spoken/written
-form of the sentence. Since in categorial grammars of English, it is often
-the case that operators first take their complements from the right and
-then apply to their argument on the left (e.g.\ transitive verbs or
-relative pronouns of type $(NP \limp S) \limp N \limp N$), we will often
-like to chain the evaluation of the arguments in the order opposite to the
-one in which we receive them. This will give rise to the $\raiser$
-transformation.
-
-\begin{align*}
-  \raisel_{a_1 \limp \cdots \limp a_n \limp b}(f) &= \lam{X_1 \ldots X_n}{X_1 \hsbind (\lam{x_1}{\ldots\ X_n \hsbind (\lam{x_n}{\etaE{(\ap{f}{x_1 \ldots x_n})}})})} \\
-  \raiser_{a_1 \limp \cdots \limp a_n \limp b}(f) &= \lam{X_1 \ldots X_n}{X_n \hsbind (\lam{x_n}{\ldots\ X_1 \hsbind (\lam{x_1}{\etaE{(\ap{f}{x_1 \ldots x_n})}})})} \\
-\end{align*}
-
-With these in hand, we can now raise the interpretations of our simple
-fragment into computations:
-
-\begin{align*}
-\sem{\abs{John}}_\petitc &= \raisel_{NP}(\obj{j}) \\
-&= \etaE{\obj{j}} \\
-\sem{\abs{Mary}}_\petitc &= \raisel_{NP}(\obj{m}) \\
-&= \etaE{\obj{m}} \\
-\sem{\abs{loves}}_\petitc &= \raiser_{NP \limp NP \limp S}(\lam{o s}{\app{\obj{love}}{s}{o}}) \\
-&= \lam{O S}{S \hsbind (\lam{s}{O \hsbind (\lam{o}{\app{\obj{love}}{s}{o}})})} \\
-&= \lam{O S}{\obj{love} \apr S \aplr O} \\
-&= \lam{O S}{\etaE{\obj{love}} \aplr S \aplr O}
-\end{align*}
-
-In the lexical entry for $\abs{loves}$, we can express the series of binds
-using the application operators from~\ref{ssec:composing-functions}. The
-idea behind the notation is that you are supposed to put double brackets on
-a side whenever the argument on that side is a computation. In our example,
-$S$ and $O$ are both computations and $\obj{love}$ is a pure function
-term. We can expand this term so that it is a bit more regular by making
-$\obj{love}$ into a computation as well. We can then a notice a connection
-between the denotations in $\sem{-}_\petitv$ and the denotations in
-$\sem{-}_\petitc$. The $\sem{-}_\petitc$ denotations are just the
-$\sem{-}_\petitv$ denotations where every constant $\obj{c}$ was replaced
-with $\etaE{\obj{c}}$ and every application $\ap{f}{x}$ was replaced with
-$f \aplr x$. Note that $\eta$ and $\aplr$ make up the applicative functor
-$\FF_E$ (see~\ref{ssec:applicative-functor}).
-
-
-\subsection{Deixis in an Example}
-
-After our digression into raising semantics to computations, we can go back
-to our example with first-person pronouns. With the interpretations given
-before, we can now analyse the following sentences:
+With the interpretations given before, we can now analyse the following
+sentences:
 
 \begin{exe}
   \ex John loves Mary. \label{ex:trivial}
@@ -273,7 +473,14 @@ that will interact differently with deictic expressions.
 
 We have two lexical items that correspond to the use of $\abs{said}$ in
 both direct speech and indirect speech. They differ both in surface
-realization (both in prosody and punctuation) and semantic interpretation.
+realization (both in prosody and punctuation) and semantic
+interpretation\footnote{Here we model the truth-conditions of direct speech
+  similarly to those of indirect speech: a relation between a speaker and a
+  proposition. A more accurate account of direct speech would relate the
+  speaker to the exact utterance that is being attributed to
+  him~\cite{shan2010character}.
+  %% TODO: Read Kaplan1989 and Shan2010 more closely.
+}.
 
 \begin{align*}
   \sem{\abs{said}_{\abs{is}}} &= \lam{C S}{\obj{say} \apr S \aplr C} \\
@@ -315,7 +522,61 @@ has been discharged by the handler contained in the denotation of
 $\abs{said}_{\abs{ds}}$.
 
 
+\subsection{Algebraic Considerations}
+\label{ssec:algebraic-deixis}
+
+One of the traditions from which the technique of effects and handlers
+originates is the study of algebraic effects by Plotkin, Power, Pretnar and
+Hyland~\cite{hyland2006combining,plotkin2009handlers,pretnar2010logic,plotkin2013handling}.
+The semantics of a system of operations is not given by handlers but by a
+system of equations. Instead of writing a handler which would interpret two
+computations as the same object, we would give equations that let us prove
+the two computations equivalent. This perspective can give us some
+insights.
+
+Assuming that the $\op{speaker}$ operation is only ever handled by the
+$\withSpeaker$ handler, the following equations become admissible:
+
+\begin{align*}
+  \app{\op{speaker}}{\star}{(\lam{x}{\app{\op{speaker}}{\star}{(\lam{y}{M(x,y)})}})}
+  &= \app{\op{speaker}}{\star}{(\lam{x}{M(x,x)})} \\
+  M &= \app{\op{speaker}}{\star}{(\lam{x}{M})}
+\end{align*}
+
+$M$ is a metavariable ranging over computations of type
+$\FF_{\{ \typedop{speaker}{1}{\iota} \}}(\alpha)$\footnote{For a
+  formalization of the use of metavariables, see~\ref{ssec:crs}
+  or~\cite{klop1993combinatory}.}. We can check by reduction that whenever
+$M_1 = M_2$ via the above equations, then $(\app{\withSpeaker}{s}{M_1})$
+and $(\app{\withSpeaker}{s}{M_2})$ are convertible in
+$\banana{\lambda}$. The insight we get from these equations is that asking
+for the speaker is an idempotent operation: if we ask twice within the same
+computation, we are guaranteed to get the same answer. It also tells us
+that asking for the speaker has no other effect than to make available the
+identity of the speaker: we can add a request for the current speaker and
+if we do not use the answer, this addition will not change anything.
+
+The motivation behind the choice of exactly these two equations is
+normalization. Denotations in
+$\FF_{\{ \typedop{speaker}{1}{\iota} \}}(\alpha)$ are formed by a series of
+$\op{speaker}$ operations followed by a value of type $\alpha$. We can use
+the first equation to collapse all of the $\op{speaker}$ operations into
+one, or if there were no $\op{speaker}$ operations we can use the second
+equation to include one. This means that we can see every value of type
+$\FF_{\{ \typedop{speaker}{1}{\iota} \}}(\alpha)$ as being equal to one
+which is of the shape
+$\app{\op{speaker}}{\star}{(\lam{x}{\etaE{(M(x))}})}$, i.e.\ a family which
+to every $x : \iota$ assigns an $M(x) : \alpha$. This connects us back to
+the treatment of deixis in Montague's approach~\cite{montague1973proper}
+where meanings are functions which assign to every point of reference $x$
+some referent $M(x)$. This normalization is imlemented by the
+$\withSpeaker$ handler. If we flip its arguments, getting
+($\lam{M s}{\app{\withSpeaker}{s}{M}}$), we get a function of type
+$\FF_{\{ \typedop{speaker}{1}{\iota} \}}(\alpha) \to (\iota \to \alpha)$.
+
+
 \section{Conventional Implicature}
+\label{sec:conventional-implicature}
 
 We have seen an example of an expression asking the context for some
 missing information. We will now look at a phenomenon which incurs
@@ -396,11 +657,11 @@ conventional implicature mechanism is implemented using operations, we can
 get this behavior for free by just using the standard operators.
 
 \begin{align*}
-  \lex{not-the-case}{\raisel_{S \limp S}(\lnot)} \\
+  \lex{not-the-case}{\liftl_{S \limp S}(\lnot)} \\
   &= \lam{X}{\lnot \apr X} \\
-  \lex{if-then}{\raisel_{S \limp S \limp S}(\to)} \\
+  \lex{if-then}{\liftl_{S \limp S \limp S}(\to)} \\
   &= \lam{X Y}{X \implr Y} \\
-  \lex{either-or}{\raisel_{S \limp S \limp S}(\lor)} \\
+  \lex{either-or}{\liftl_{S \limp S \limp S}(\lor)} \\
   &= \lam{X Y}{X \orlr Y}
 \end{align*}
 
@@ -451,12 +712,78 @@ get propositions that do entail the intended implicatures.
 \begin{align*}
   & \ap{\accommodate}{\sem{\app{\abs{either-or}}{(\app{\abs{loves}}{\abs{Jane}}{\abs{John}})}{(\app{\abs{loves}}{\abs{John}}{(\app{\abs{appos}}{(\ap{\abs{best-friend}}{\abs{John}})}{\abs{Mary}})})}}} \nonumber \\
   & \tto (\obj{m} = \ap{\obj{best-friend}}{\obj{j}}) \land (\app{\obj{love}}{\obj{j}}{\obj{s}} \lor \app{\obj{love}}{\obj{m}}{\obj{j}}) \\
-  & \ap{\accommodate}{\sem{\app{\abs{if-then}}{\ap{\abs{not-the-case}}{(\app{\abs{loves}}{\abs{Sarah}}{\abs{John}})}}{(\app{\abs{loves}}{\abs{John}}{\abs{Mary}})}}} \nonumber \\
+  & \ap{\accommodate}{\sem{\app{\abs{if-then}}{(\ap{\abs{not-the-case}}{(\app{\abs{loves}}{\abs{Sarah}}{\abs{John}})})}{(\app{\abs{loves}}{\abs{John}}{\abs{Mary}})}}} \nonumber \\
   & \tto (\app{\obj{love}}{\obj{s}}{\obj{j}}) \land (\lnot(\app{\obj{love}}{\obj{j}}{\obj{s}}) \to \app{\obj{love}}{\obj{m}}{\obj{j}})
 \end{align*}
 
 
+\subsection{Algebraic Considerations}
+\label{ssec:algebraic-ci}
+
+As in~\ref{ssec:algebraic-deixis}, we will look for equations that are
+admissible w.r.t.\ the $\accommodate$ handler (equations such equivalent
+computations will be interpreted with the same value) with an eye towards
+deriving some canonical form.
+
+\begin{align*}
+  \app{\op{implicate}}{a}{(\lam{x}{\app{\op{implicate}}{b}{(\lam{y}{M(x,y)})}})}
+  &= \app{\op{implicate}}{(a \land b)}{(\lam{x}{M(x,x)})} \\
+  M &= \app{\op{implicate}}{\top}{(\lam{x}{M})}
+\end{align*}
+
+The equations are quite similar to those we have seen with
+deixis\footnote{The output type of $\op{implicate}$ is the unit type $1$
+  whose only value is $\star$. We can therefore replace $y$ with $x$ since
+  they are guaranteed to be equal. For simplicity, we could also assume
+  that $M$ is fresh for $x$ and $y$.}. Here, $M$ ranges over computations
+of type $\FF_{\{ \typedop{implicate}{o}{1} \}}(\alpha)$. Since we know that
+our only handler, $\accommodate$, ends up combining all the implicatures
+using conjunction, we can collapse two implicatures into a single
+implicature. Furthermore, implicating the tautology $\top$ has no
+observable effect. By making an appeal to the conjunction operator, we can
+make use of the equations governing the operations on propositions and
+derive equations for,e.g., the commutativity or idempotence of
+$\op{implicate}$:
+
+\begin{align*}
+  \app{\op{implicate}}{a}{(\lam{x}{\app{\op{implicate}}{b}{(\lam{y}{M(x,y)})}})}
+  &= \app{\op{implicate}}{(a \land b)}{(\lam{x}{M(x,x)})} \\
+  &= \app{\op{implicate}}{(b \land a)}{(\lam{x}{M(x,x)})} \\
+  &= \app{\op{implicate}}{b}{(\lam{x}{\app{\op{implicate}}{a}{(\lam{y}{M(y,x)})}})}
+\end{align*}
+
+A denotation in $\FF_{\{ \typedop{implicate}{o}{1} \}}(\alpha)$ is a
+sequence of implicated propositions terminated with a value of type
+$\alpha$. This is very much like the result of the \emph{parsetree
+  interpretation} in~\cite{potts2005logic} (Definition~2.50), which is an
+$(n+1)$-tuple of the interpretation of some term of type $\alpha$ together
+with the propositions which are the interpretations of the $n$ conventional
+implicatures embedded within the term.
+
+Instead of constructing an $n$-tuple of the implicated propositions, our
+handler conjoins all the propositions into a single conjunction. This lets
+us admit the above equations, which tell us that a computation in
+$\FF_{\{ \typedop{implicate}{o}{1} \}}(\alpha)$ is always equivalent to one
+of the form $\app{\op{implicate}}{p}{(\lam{x}{\etaE{M}})}$, where $p$ is a
+proposition and $M$ is a value of type $\alpha$. For the case of
+$\FF_{\{ \typedop{implicate}{o}{1} \}}(o)$ in particular, the domain in
+which we interpret sentences, we have that the denotation is a pair of
+propositions: the implicated content and the at-issue content.
+
+As in~\ref{ssec:algebraic-deixis}, we can construct a handler which maps a
+computation to this canonical representation:
+
+\begin{align*}
+  \operatorname{accommodate'}
+&: \FF_{\{\typedop{implicate}{o}{1}\}}(\alpha) \to (o \times \alpha) \\
+  \operatorname{accommodate'}
+&= \bbanana{\onto{\op{implicate}}{(\lam{i k}{\left< i \land \ap{\pi_1}{(\ap{k}{\star})}, \ap{\pi_2}{(\ap{k}{\star})} \right>})},\ 
+            \onto{\eta}{(\lam{x}{\left< \top, x \right>})}}
+\end{align*}
+
+
 \section{Quantification}
+\label{sec:quantification}
 
 Next, we turn our attention to in-situ quantification. This is the
 phenomenon of quantified noun phrases such as \emph{every man} or \emph{a
@@ -609,7 +936,7 @@ which do have a quantificational effect (e.g.\ \emph{owner of a cat}).
 
 \begin{align*}
   \abs{owner-of} &: NP \limp N \\
-  \lex{owner-of}{\raisel_{NP \limp N}(\lam{y x}{\app{\obj{own}}{x}{y}})} \\
+  \lex{owner-of}{\liftl_{NP \limp N}(\lam{y x}{\app{\obj{own}}{x}{y}})} \\
   &= \lam{Y}{Y \hsbind (\lam{y}{\etaE{(\lam{x}{\app{\obj{own}}{x}{y}})}})}
 \end{align*}
 
@@ -680,6 +1007,7 @@ Assuming the inclusion of the common nouns \emph{siamese cat} and
 
 
 \subsection{Quantifier Ambiguity}
+\label{ssec:quantifier-ambiguity}
 
 The lexical entry that we have considered for the determiner
 \emph{every}\footnote{Though the same applies to the lexical entry for the
@@ -890,6 +1218,87 @@ Pompigne~\cite{pogodalla2012controlling} show how to use dependent types in
 the abstract types of an ACG to enforce a scope island constraint ---
 namely that quantificational noun phrases should not take scope outside of
 the nearest enclosing tensed clause.
+
+
+\subsection{Algebraic Considerations}
+\label{ssec:algebraic-quantification}
+
+Unlike deixis and conventional implicature, we will not derive many useful
+admissible equations for $\op{scope}$. If we try to collapse two uses of
+$\op{scope}$ into a single one, we can succeed only partially:
+
+$$
+\app{\op{scope}}{f_1}{(\lam{x}{\app{\op{scope}}{f_2}{(\lam{y}{M(x,y)})}})}
+= \app{\op{scope}}{(\lam{c}{\ap{f_1}{(\lam{x}{\ap{f_2}{(\lam{y}{\ap{c}{(x,y)}})}})}})}{(\lam{(x,y)}{M(x,y)})}
+$$
+
+We can compose the two quantifiers $f_1$ and $f_2$, but then we are
+quantifying over pairs of individuals $(x,y)$, which is not something that
+we have planned to do with $\op{scope}$, whose output type is $\iota$, the
+type of (single) individuals. Therefore, the above would not even
+type-check correctly. However, we could define a rule which shows us how
+pure computations that yield individuals correspond to computations using
+$\op{scope}$.
+
+$$
+\etaE{M} = \ap{\op{scope}!}{(\lam{c}{\ap{c}{M}})}
+$$
+
+$M$ ranges over values of type $\iota$. This equation shows why in
+$\banana{\lambda}$, we are not obliged to raise the denotations of our
+non-quantificational noun phrases (such as the proper names $\abs{John}$
+and $\abs{Mary}$) into generalized quantifiers: the pure individuals
+$\etaE{\obj{j}}$ and $\etaE{\obj{m}}$ behave exactly the same as the
+generalized quantifiers $\lam{c}{\ap{c}{\obj{j}}}$ and
+$\lam{c}{\ap{c}{\obj{m}}}$, respectively.
+
+Since we do not have any useful laws to simplify the denotations in
+$\FF_{\{ \typedop{scope}{((\iota \to o) \to o)}{\iota} \}}(\alpha)$, the
+canonical representations will be a hierarchy of generalized quantifiers,
+one scoping over the other, with a value of type $\alpha$ at the
+bottom. Previously, we have drawn analogy to Cooper storage. However, in
+Cooper storage, the quantifiers are not stored hierarchically, but
+side-by-side, so that any quantifier can be retrieved. However, this can
+lead to generating undesired meanings in which variables escape from the
+scopes of their intended binders. Our approach is closer to \emph{Keller
+  storage}~\cite{keller1988nested}, also known as nested Cooper storage. In
+Keller storage, quantifiers can be stored both side-by-side and embedded:
+any of the quantifiers stored by side-by-side can be retrieved, but
+whenever a quantifier is retrieved, all of its embedded quantifiers are
+retrieved at the same time. Our representation lacks the side-by-side mode
+of composition. The chain of $\op{scope}$ operations in an
+$\FF_{\{ \typedop{scope}{((\iota \to o) \to o)}{\iota} \}}(\alpha)$
+denotation corresponds to a series of embedded quantifiers in Keller
+storage: we cannot retrieve a quantifier without first retrieving the
+quantifiers which precede it in the chain. This is exemplified by this
+chain from Sentence~\ref{ex:siamese} where the $y$ in the second quantifier
+is bound by the first quantifier:
+
+$$
+\app{\op{scope}}{(\lam{c}{\exists y.\ \ap{\obj{cat}}{y} \land \ap{c}{y}})}
+{(\lam{y}{\app{\op{scope}}{(\lam{c}{\forall x.\ \app{\obj{own}}{x}{y} \to \ap{c}{x}})}
+{(\lam{x}{\etaE{x}})}})}
+$$
+
+This means that our representation behaves like Keller storage in that it
+prevents scope extrusion (variables escaping out of the scope of their
+intended binders). However, it lacks the basic feature of Cooper (and
+Keller) storage that is the side-by-side storing of quantifiers to enable
+ambiguity. In~\ref{ssec:quantifier-ambiguity}, we have dealt with the
+ambiguity issue by use of Montague's ``quantifying in''.
+
+
+\section{Methodology}
+\label{sec:methodology}
+
+We will now take a step back and identify the methodology we have used to
+analyse these three phenomena: deixis, conventional implicature and
+quantification.
+
+At the basis of any linguistic modelling that uses $\banana{\lambda}$ is
+the notion of a computation: all of the extensions to the simply-typed
+lambda calculus in $\banana{\lambda}$ deal with computation types, types of
+the form $\FF_E(\alpha)$.
 
 
 \section{Dynamic Semantics}
