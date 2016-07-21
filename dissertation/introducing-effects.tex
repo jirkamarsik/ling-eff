@@ -884,7 +884,7 @@ and its denotation:
 
 \NoChapterPrefix
 \begin{align}
-& \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{woman}})}{(\ap{\abs{every}}{\abs{man})}}} \nonumber \\
+& \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{woman}})}{(\ap{\abs{every}}{\abs{man}})}} \nonumber \\
 &\tto \app{\op{scope}}{(\lam{c}{\forall x.\ \ap{\obj{man}}{x} \to \ap{c}{x}})}{(\lam{x}{\app{\op{scope}}{(\lam{c}{\exists y.\ \ap{\obj{woman}}{y} \land \ap{c}{y}})}{(\lam{y}{\etaE{(\app{\obj{love}}{x}{y})}})}})}
 \end{align}
 \ChapterPrefix
@@ -1338,7 +1338,7 @@ type\footnote{Meaning that this strategy constrains the choice of atomic
   types, which is otherwise somewhat arbitrary.}. Barker's continuization
 approach~\cite{barker2002continuations}, which replaces the NP
 interpretation type $\iota$ with a ``computation type''
-$(\iota \to o) \to o$, is a similar strategy. Other possible strategies
+$(\iota \to o) \to o$, uses the same strategy. Other possible strategies
 include:
 
 \begin{itemize}
@@ -1354,6 +1354,36 @@ include:
   $o$ with $\sigma \to o$) and de Groote and Kanazawa's
   variation~\cite{de2013note} (also replaces $\iota$ with
   $\sigma \to \iota$).
+  
+  We can contrast this approach to ours. Let $\sem{-}$ be some
+  interpretation of the atomic abstract types. Our strategy leads us to the
+  interpretation $\sem{-}_\petitc$ with:
+  
+  \begin{align*}
+    \sem{\alpha \limp \beta}_\petitc &= \sem{\alpha}_\petitc \to \sem{\beta}_\petitc \\
+    \sem{\nu}_\petitc &= \FF_E(\sem{\nu})
+  \end{align*}
+  
+  $\sem{\alpha \limp \beta}_\petitc$ is the homomorphic interpretation of
+  an ACG type. The interpretations of the atomic abstract types are wrapped
+  in the functor $\FF_E$.
+
+  With the intensionalization procedure of de Groote and
+  Kanazawa~\cite{de2013note}, we have:
+
+  \begin{align*}
+    \sem{\alpha \limp \beta}_\petiti &= \sem{\alpha}_\petiti \to \sem{\beta}_\petiti \\
+    \sem{\nu}_\petiti &= \overline{\sem{\nu}} \\
+    \overline{\alpha \to \beta} &= \overline{\alpha} \to \overline{\beta} \\
+    \overline{\nu} &= \sigma \to \nu
+  \end{align*}
+  
+  Again, $\sem{-}_\petiti$ is an ACG type homomorphism. The interpretations
+  of the atomic types are passed through another type homomorphism, which
+  traverses the structure of the object (semantic) type. The atomic
+  semantic types are then wrapped in the functor
+  $F(\alpha) = \sigma \to \alpha$, where $\sigma$ is the type of possible
+  worlds.
 
 \item Turning every semantic function type $\alpha \to \beta$ into the type
   $\alpha \to \FF_E(\beta)$
@@ -1407,30 +1437,364 @@ interpretation of every atomic abstract type and so we stick with this
 strategy throughout the whole manuscript. However, the techniques developed
 here can be also used in the other settings.
 
+
+\subsubsection{Choosing the Return Types and Seeding a Grammar}
+
 We can now take some base grammar that will serve as our starting point in
-investigating some phenomenon. In our case, this is one of the smallest
+investigating some phenomenon. In our case, we consider one of the smallest
 fragments imaginable: transitive verbs and names. We presuppose a semantics
 for this fragment that uses computations. We either build it from scratch
 or we lift an existing semantics as we did
-in~\ref{sec:lifting-semantics}. In our case, this base semantics is very
-simple, it does not use generalized quantifiers or dynamic logics, since we
-can treat these phenomena using effects. Again, we use the simplest
-possible types for the computations. For example for noun phrases, we do
-not use generalized quantifiers, since we can do quantification as an
-effect, we use just simple individuals. We cannot go simpler than that
-since verbs still need to know what the referents of their subjects are and
-objects, to what their predicates should be applied. Similarly for
-sentences, we will use simple propositions instead of dynamic propositions
-since we will treat dynamicity as an effect. Again, it might seem that a
+in~\ref{sec:lifting-semantics}. Our base semantics is very simple, it does
+not use generalized quantifiers or dynamic logics, since we can treat these
+phenomena using effects. Again, we use the simplest possible types for the
+return types of the computations. For example for noun phrases, we do not
+use generalized quantifiers, since we can do quantification as an effect,
+we use computations that yield individuals ($\FF_E(\iota)$ instead of
+$\FF_E((\iota \to o) \to o)$). We cannot go simpler than that since verbs
+still need to know what the referents of their subjects and objects are, to
+what their predicates should be applied. Similarly for sentences, we will
+use simple propositions instead of dynamic propositions since we will treat
+dynamicity as an effect ($\FF_E(o)$ instead of
+$\FF_E(\gamma \to (\gamma \to o) \to o)$). Again, it might seem that a
 proposition is the bare minimum that a sentence must denote because that is
-the product that we are interested in. However, in analysis of dynamic
+the product that we are interested in. However, in analyses of dynamic
 semantics, it might make sense to model sentences as having no referent,
 only side effects that contribute to some knowledge base.
+
+
+\subsection{Digression: Call-by-Name and Call-by-Value}
+\label{ssec:cbn-and-cbv}
+
+We have mentioned the possible use of call-by-name and call-by-value. Our
+approach is more conservative. We do not assume that a single strategy will
+always suffice and we wire up the evaluation order manually using operators
+like $\hsbind$. Nevertheless, we can still find some regularity in how we
+treat evaluation order. Syntactic functions (e.g.\ movement) are
+call-by-name and semantic functions (e.g.\ predicates) are
+call-by-value. By syntactic function, we mean a function of type
+$\alpha \limp \beta$ at the abstract which was mapped by the homomorphism
+$\sem{-}$ to the object-level function $\alpha \to \beta$. A semantic
+function is any other function present at the object (semantic) level,
+e.g.\ the predicate $\obj{love} : \iota \to \iota \to o$.
+
+We will demonstrate this on the example of Sentence~\ref{ex:quantifiers}:
+\emph{every man loves a woman}.
+
+\begin{align*}
+& \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{woman}})}{(\ap{\abs{every}}{\abs{man}})}} \\
+&= \app{(\lam{O S}{\ap{(\eta \circ \SI)}{(\obj{love} \apr S \aplr O)}})}{\sem{\ap{\abs{a}}{\abs{woman}}}}{\sem{\ap{\abs{every}}{\abs{man}}}} \\
+&\tto \etaE{(\ap{\SI}{(\obj{love} \apr \sem{\ap{\abs{every}}{\abs{man}}} \aplr \sem{\ap{\abs{a}}{\abs{woman}}})})}
+\end{align*}
+
+We pass the computations $\sem{\ap{\abs{a}}{\abs{woman}}}$ and
+$\sem{\ap{\abs{every}}{\abs{man}}}$ intact to the lexical entry for the
+transitive verb $\abs{loves} : NP \limp NP \limp S$, without forcing their
+evaluation using $\hsbind$ or other operators. Once inside the transitive
+verb, we apply to them the predicate $\obj{love}$. This time, we use the
+$\apr$ and $\aplr$ which first evaluates both arguments left-to-right and
+passes the results to $\obj{love}$. All of this happens in the scope of
+$\SI$, so any quantification that takes place in the verb's arguments is
+resolved. If we were to simulate call-by-value in the outer application
+(evaluating the meanings of $\ap{\abs{a}}{\abs{woman}}$ and
+$\ap{\abs{every}}{\abs{man}}$ and then passing the results to the meaning
+of $\abs{loves} : NP \limp NP \limp S$), we would have the two arguments
+evaluated in the opposite order and both of them escaping the scope island
+we set up in the verb's lexical entry.
+
+\begin{align*}
+& (\lam{O S}{\ap{(\eta \circ \SI)}{(\etaE{(\app{\obj{love}}{S}{O})})}}) \apr
+  \sem{\ap{\abs{a}}{\abs{woman}}} \aplr \sem{\ap{\abs{every}}{\abs{man}}} \\
+&\tto \sem{\ap{\abs{a}}{\abs{woman}}} \hsbind (\lam{o}{
+      \sem{\ap{\abs{every}}{\abs{man}}} \hsbind (\lam{s}{
+      \etaE{(\ap{\SI}{(\etaE{(\app{\obj{love}}{s}{o})})})}})}) \\
+&\tto \sem{\ap{\abs{a}}{\abs{woman}}} \hsbind (\lam{o}{
+      \sem{\ap{\abs{every}}{\abs{man}}} \hsbind (\lam{s}{
+      \etaE{(\app{\obj{love}}{s}{o})}})})
+\end{align*}
+
+Since quantifiers are known to have ambiguous scope and the strength to
+leave scope islands under certain conditions, this reading might still be
+acceptable, even though it was not what our lexical entry intended to do
+(the $\SI$ handler had no effect at all). We can look at another example,
+Sentence~\ref{ex:direct-speech}: \emph{John said ``Mary loves me''}.
+
+\begin{align*}
+& \sem{\app{\abs{said}_{\abs{ds}}}{(\app{\abs{loves}}{\abs{me}}{\abs{Mary}})}{\abs{John}}} \\
+&= \app{(\lam{C S}{S \hsbind (\lam{s}{\ap{\obj{say}}{s} \apr (\app{\withSpeaker}{s}{C})})})}
+       {\sem{\app{\abs{loves}}{\abs{me}}{\abs{Mary}}}}{\sem{\abs{John}}} \\
+&\tto \sem{\abs{John}} \hsbind (\lam{s}{\ap{\obj{say}}{s} \apr (\app{\withSpeaker}{s}{\sem{\app{\abs{loves}}{\abs{me}}{\abs{Mary}}}})}) \\
+&\tto \ap{\obj{say}}{\obj{j}} \apr (\app{\withSpeaker}{\obj{j}}{\sem{\app{\abs{loves}}{\abs{me}}{\abs{Mary}}}}) \\
+&\tto \etaE{(\app{\obj{say}}{\obj{j}}{(\app{\obj{love}}{\obj{m}}{\obj{j}})})}
+\end{align*}
+
+Here we perform the application of the lexical entry of
+$\abs{said}_{\abs{ds}} : S \limp NP \limp S$ in a call-by-name manner. The
+computation $\sem{\app{\abs{loves}}{\abs{me}}{\abs{Mary}}}$ gets evaluated
+only in the scope of the $\withSpeaker$ handler. On the other hand, the
+predicate $\obj{say} : \iota \to o \to o$ is applied to these computations
+in a call-by-value manner, forcing their evaluation down to their
+referents, $\obj{j}$ and $\app{\obj{love}}{\obj{m}}{\obj{j}}$.
+
+If we were to perform a call-by-value application already when applying the
+lexical entry for $\abs{said}_{\abs{ds}} : S \limp NP \limp S$ to the
+meanings of its arguments, we would end up binding the first-person pronoun
+not to John, but to the speaker of the utterance.
+
+\begin{align*}
+&(\lam{C S}{\etaE{(\ap{\obj{say}}{S} \apr (\app{\withSpeaker}{S}{(\etaE{C})}))}})
+  \apr \sem{\app{\abs{loves}}{\abs{me}}{\abs{Mary}}} \aplr \sem{\abs{John}} \\
+&\tto \sem{\app{\abs{loves}}{\abs{me}}{\abs{Mary}}} \hsbind (\lam{c}{
+  \sem{\abs{John}} \hsbind (\lam{s}{
+  \etaE{(\ap{\obj{say}}{s} \apr (\app{\withSpeaker}{s}{(\etaE{c})}))}})}) \\
+&\tto \sem{\app{\abs{loves}}{\abs{me}}{\abs{Mary}}} \hsbind (\lam{c}{
+  \etaE{(\ap{\obj{say}}{\obj{j}} \apr (\app{\withSpeaker}{\obj{j}}{(\etaE{c})}))}}) \\
+&\tto \app{\op{speaker}}{\star}{(\lam{x}{
+   \etaE{(\ap{\obj{say}}{\obj{j}} \apr (\app{\withSpeaker}{\obj{j}}{(\etaE{(\app{\obj{love}}{\obj{m}}{x})})}))}})} \\
+&\tto \app{\op{speaker}}{\star}{(\lam{x}{
+   \etaE{(\ap{\obj{say}}{\obj{j}} \apr (\etaE{(\app{\obj{love}}{\obj{m}}{x})}))}})} \\
+&\tto \app{\op{speaker}}{\star}{(\lam{x}{
+   \etaE{(\app{\obj{say}}{\obj{j}}{(\app{\obj{love}}{\obj{m}}{x})})}})}
+\end{align*}
+
+\begin{figure}
+  \begin{subfigure}[b]{.25\textwidth}
+  \begin{tikzpicture}[level distance=10mm,sibling distance=5mm]
+  \Tree [.$\abs{loves}$
+    [.$\abs{a}$ $\abs{woman}$ ]
+    [.$\abs{every}$ $\abs{man}$ ] ]
+  \end{tikzpicture}
+  \caption{\label{fig:second-order-tree} The second-order term as a tree.}
+  \end{subfigure}
+  \begin{subfigure}[b]{.49\textwidth}
+  \begin{tikzpicture}[level distance=10mm,sibling distance=5mm]
+  \Tree [.$@$
+    [.$@$
+      $\abs{loves}$
+      [.$@$ $\abs{a}$ $\abs{woman}$ ] ]
+    [.$@$ $\abs{every}$ $\abs{man}$ ] ]
+  \end{tikzpicture}
+  \caption{\label{fig:abstract-syntax-tree} The syntax of the term as a
+    tree.}
+  \end{subfigure}
+  \begin{subfigure}[b]{.25\textwidth}
+  \begin{tikzpicture}[level distance=10mm,sibling distance=5mm]
+  \Tree [.$\abs{loves}$ $\ap{\abs{every}}{\abs{man}}$
+                        $\ap{\abs{a}}{\abs{woman}}$ ]
+  \end{tikzpicture}
+  \caption{\label{fig:common-syntax-tree} The common syntactic tree for the
+    sentence represented by the term.}
+  \end{subfigure}
+
+  \caption{\label{fig:cbn-cbv-trees} Various trees representing the
+    structure of the term
+    $\app{\abs{loves}}{(\ap{\abs{a}}{\abs{woman}})}{(\ap{\abs{every}}{\abs{man}})}$.}
+\end{figure}
+
+When looking at a term like
+$\app{\abs{loves}}{(\ap{\abs{a}}{\abs{woman}})}{(\ap{\abs{every}}{\abs{man}})}$,
+we might intuitively picture it as the tree in
+Figure~\ref{fig:second-order-tree}. If we wrap the denotation of the
+sentence produced by a transitive verb in a handler such as $\SI$, we would
+expect the handler to apply to any operations that would be triggered by
+the subject or the object. However, if we look at the actual syntactic tree
+of that term (Figure~\ref{fig:abstract-syntax-tree}), we see that the
+subject and the object are not dominated by the transitive verb. If we
+would use call-by-value evaluation, their effects would not be captured by
+any handler inside the verb's lexical entry. That is why we perform these
+applications with call-by-name, moving the computations which are the
+denotations of the subject and the object inside the lexical entry for the
+transitive verb. The idea is that the structure of the sentence corresponds
+to the third tree in Figure~\ref{fig:common-syntax-tree} and we want to
+treat $\abs{loves}$ as a handler and $\ap{\abs{every}}{\abs{man}}$ and
+$\ap{\abs{a}}{\abs{woman}}$ as expressions having effects. Call-by-name
+takes care of plugging in the holes and moving the computations into the
+correct place (under the scope of the correct handlers, in the correct
+order) and that is why we use call-by-name for syntactic functions
+$\alpha \limp \beta$.
+
+If we find out that we always adhere to this rule, we can go further. We
+could introduce an impure language with algebraic effects (or use an
+existing one like $\lambda_{\mathrm{eff}}$~\cite{kammar2013handlers} or
+\emph{Eff}~\cite{bauer2012programming}) and translate it to
+$\banana{\lambda}$ in the same way that we translated $\lambda_\shift$ and
+$\lambda_\shifto$ in Chapter~\ref{chap:continuations}. The translation
+would take care of managing the computation types and ordering evaluation,
+freeing our hands from having to distinguish the types $\alpha$ and
+$\FF_E(\alpha)$ and having to use $\hsbind$ to dictate evaluation order. As
+we have seen above, the language would need to have both call-by-name and
+call-by-value abstractions (much like the language proposed by Kiselyov
+in~\cite{kiselyov2008call}). In our previous attempt, we used a language
+without call-by-name abstractions and had to resort to wrapping expressions
+in thunks. In this manuscript, we found the order in which computations are
+evaluated too important to be handled by a translation hidden behind the
+calculus and we prefer to use explicit constructions such as $\hsbind$ and
+computation types to make the evaluation explicit.
+
 
 \subsection{Choosing an Effect Signature}
 \label{ssec:choosing-effect-signature}
 
+We have a simple grammar using computations in some principled way. We are
+ready to start introducing computations which actually do something and the
+reason we want to do that is to analyse phenomena which would otherwise
+defy compositionality. The workflow that we follow goes like this:
 
+\begin{enumerate}
+\item Choose a suitable effect signature
+
+  This means identifying the operations that we will be using to implement
+  the phenomenon, what their meaning should be, what input and output type
+  should have.
+  
+\item Introduce the operations in the lexical entries
+  
+  If we designed the operations correctly, we should be able to give
+  meanings to lexical items that exhibit the phenomenon that we are
+  studying.
+  
+\item Write handlers for the new operations
+  
+  Finally, we formalize the meaning of the new operations by writing
+  handlers that interpret them in more basic terms. These handlers can then
+  also be parts of lexical entries.
+\end{enumerate}
+
+The first step is the most important. Having found the right set of
+operations, their use is usually straightforward. An effect signature is
+validated by writing handlers that give the desired semantics to
+computations that use the new operations. There are two processes that we
+follow in order to find the correct effect signature. We will give
+guidelines on how to use both.
+
+
+\subsubsection{Identifying the Interactions with the Context}
+
+Imagine that we are studying some non-compositional phenomenon. Let us
+remind ourselves of the definition of compositionality: the meaning of a
+complex expression is fully determined by its structure and the meaning of
+its constituents (and \emph{nothing else}). For meaning to be
+non-compositional is for meaning to depend on something that is not one of
+the above. If the meaning depends on something which is not part of the
+expression itself, we call that something the \emph{context}.
+
+If the meaning depends on some part of the context which can be represented
+with objects of type $\beta$, then we will introduce an operation with
+output type $\beta$. If there are multiple such parts of the context and
+the meaning needs to identify which one it depends on, the operation will
+have input type $\alpha$, where $\alpha$ is the type of the object used to
+identify the part of the context we are interested in. If there is no need
+to identify a part of the context, we will use the trivial input type
+$1$. Operations such as this can be though of as \emph{getters}, their
+purpose is to retrieve something from the context.
+
+Examples:
+
+\begin{itemize}
+\item Deixis, in particular first-person pronouns.
+
+  A first-person pronoun is an atomic expression: it has no constituents
+  (not counting case markers). Therefore its meaning cannot really depend
+  on anything and would have to be fixed. However, the referent of the
+  first-person pronoun varies from speaker to speaker. We want the
+  first-person pronoun to designate the speaker, which is part of the
+  context. The speaker is an individual (an entity) and so we will use an
+  operation of output type $\iota$. We assume that there is always at most
+  a single entity which can be identified as the speaker of the utterance
+  and so choose the input type $1$. This gives us an operation of type
+  $1 \rightarrowtail \iota$, same as the operation $\op{speaker}$ that we
+  have used in~\ref{sec:deixis}.
+  
+  $$
+  \typedop{speaker}{1}{\iota}
+  $$
+  
+\item Anaphora, such as in third-person pronouns.
+
+  A third-person pronoun is also an atomic expression whose referent varies
+  from situation to situation. Its referent depends on the individuals
+  which are currently under discussion. Out of all such individuals, the
+  pronoun needs the identity of the most salient one. We can therefore
+  choose the output type of our operation to be $\iota$. At any time, we
+  could have mutliple salient individuals as candidate answers. The right
+  answer will depend on which third-person pronoun we have used (gender and
+  number). Thus we choose $\mu \times \nu$ as the input type, where $\mu$
+  is the type of grammatical genders and $\nu$ is the type of grammatical
+  numbers.
+  
+  $$
+  \typedop{select}{\mu \times \nu}{\iota}
+  $$
+
+\item Definite descriptions.
+  
+  A definite description serves to designate an individual. It is composed
+  of the article \emph{the} and a noun, the meaning of which is a set of
+  individuals. For example, \emph{the lazy cat} should designate some
+  contextually salient member of the set of lazy cats. Without recourse to
+  context, we do not know which individual to choose and we will therefore
+  use an operation. What we ask for from the context is an individual and
+  so the output type will be $\iota$ once more. Contrary to pronouns, we
+  are not looking for just any salient individual but a salient individual
+  that belongs to some specific set (the set of lazy cats in our
+  example). Therefore, we will choose $\iota \to o$ as the input type of
+  the operation.
+  
+  $$
+  \typedop{find}{(\iota \to o)}{\iota}
+  $$
+
+\item Possible worlds.
+  
+  This one is similar to deixis. If we are working with modal operators
+  such as \emph{might} or \emph{must} without using a modal logic, i.e.\ by
+  quantifying over possible worlds and parameterizing predicates by
+  possible worlds, then we will often need to access the current salient
+  world. In order to know the meaning of the noun \emph{lazy cat}, i.e.\
+  the set of lazy cats, we will need to know w.r.t.\ which world we are
+  speaking since different cats are lazy in different worlds. Similarly
+  when we deal with verbs, we will need to know the current world to know
+  whether or not entities are in some relation. The information we want
+  from the context is the current salient world. If $\sigma$ is the type of
+  possible worlds, we will introduce an operation of output type
+  $\sigma$. There is no need to specify which current salied world we mean
+  and so we leave the input type at $1$.
+  
+  $$
+  \typedop{world}{1}{\sigma}
+  $$
+\end{itemize}
+
+We have examined the case of the expressions meaning being dependent on
+something which is not part of the expression of itself. Note that this is
+not the only source of non-compositionality. The meaning could also depend
+on some part $A$ of the expression which is not manifest in the meanings of
+its constituents. In these cases, we will use an operation in $A$ to
+smuggle out the necessary information so that the expression can access it
+using a handler. The input type of this operation will be the piece of
+information that will need to communicate ``upwards''. The output type will
+usually be less important, i.e.\ the trivial type $1$. This pattern will be
+particularly for smuggling out non-at-issue content (implicatures and
+presuppositions).
+
+Examples:
+
+\begin{itemize}
+\item Conventional implicature.
+  
+  In Potts' logic of conventional implicatures~\cite{potts2005logic}, a
+  \emph{parsetree interpretation} step traverses the syntactic tree of a
+  sentence and scoops up all the conventional implicatures generated by
+  nominal appositives, non-restrictive relative clauses or other
+  supplements. The truth-conditions of the sentence are then a combination
+  of the at-issue proposition and all the implicated propositions.
+
+\item Presuppositions.
+\end{itemize}
+
+
+\subsection{When (Not) to Use Effects}
+\label{ssec:when-to-use-effects}
 
 
 \section{Dynamic Semantics}
