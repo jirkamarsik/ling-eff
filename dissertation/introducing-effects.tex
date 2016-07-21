@@ -219,6 +219,8 @@ predictions that this semantics makes.
 \end{proof}
 
 \begin{observation}
+  (\demph{Conservativity of lifting})
+  
   Let $\left< \Sigma_\petita, \Sigma_\petito, \sem{-}_\petitv, S \right>$
   be an ACG where every constant $c : \tau \in \Sigma_\petita$ is of at
   most second-order type ($\tau = a_1 \limp \ldots \limp a_n \limp b$ where
@@ -233,7 +235,11 @@ predictions that this semantics makes.
     $\sem{\tau}_\petitc = \FF_E(\sem{\tau}_\petitv)$
   \item for every abstract constant $c : \tau \in \Sigma_\petita$,
     $\sem{c}_\petitc = \lift_\tau(\sem{c}_\petitv)$ where $\lift$ is either
-    $\liftl$ or $\liftr$
+    $\liftl$ or $\liftr$\footnote{This result is analogous to Barker's
+      Simulation Theorem for the Continuation Schema
+      in~\cite{barker2002continuations}. As in Barker's theorem, this
+      result holds not only for $\liftl$ and $\liftr$ but to liftings that
+      arbitrarily permute the evaluation order of their arguments.}
   \end{itemize}
   
   Then for every closed well-typed abstract term
@@ -1250,7 +1256,24 @@ non-quantificational noun phrases (such as the proper names $\abs{John}$
 and $\abs{Mary}$) into generalized quantifiers: the pure individuals
 $\etaE{\obj{j}}$ and $\etaE{\obj{m}}$ behave exactly the same as the
 generalized quantifiers $\lam{c}{\ap{c}{\obj{j}}}$ and
-$\lam{c}{\ap{c}{\obj{m}}}$, respectively.
+$\lam{c}{\ap{c}{\obj{m}}}$, respectively. This means that a sentence can
+mix the lexical entries for proper nouns from~\ref{sec:lifting-semantics}
+with the new lexical entries for quantificational noun phrases from this
+section in a sound way, without violating the homomorphism property of the
+ACG.
+
+\begin{exe}
+  \ex John loves a man. \label{ex:mixed-nps}
+\end{exe}
+
+\vspace{-8mm}
+
+\NoChapterPrefix
+\begin{align}
+& \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{man}})}{\abs{John}}} \nonumber \\
+&\tto \etaE{(\exists x.\ \ap{\obj{man}}{x} \land \app{\obj{love}}{\obj{j}}{x})}
+\end{align}
+\ChapterPrefix
 
 Since we do not have any useful laws to simplify the denotations in
 $\FF_{\{ \typedop{scope}{((\iota \to o) \to o)}{\iota} \}}(\alpha)$, the
@@ -1295,10 +1318,119 @@ We will now take a step back and identify the methodology we have used to
 analyse these three phenomena: deixis, conventional implicature and
 quantification.
 
+
+\subsection{Using Computation Types}
+\label{ssec:methodology-computation-types}
+
 At the basis of any linguistic modelling that uses $\banana{\lambda}$ is
 the notion of a computation: all of the extensions to the simply-typed
 lambda calculus in $\banana{\lambda}$ deal with computation types, types of
-the form $\FF_E(\alpha)$.
+the form $\FF_E(\alpha)$. We will want to use computations in the semantic
+interpretations of our lexical items.
+
+If we start from some existing Montagovian semantics (interpreting
+sentences as propositions, noun phrases as individuals, nouns as sets),
+there is a question of where to introduce the computation types. In our
+approach, we choose to make the interpretation of every atomic abstract
+type a computation. This has roughly the effect of making every constituent
+a computation and gives a bit more meaning to the notion of an atomic
+type\footnote{Meaning that this strategy constrains the choice of atomic
+  types, which is otherwise somewhat arbitrary.}. Barker's continuization
+approach~\cite{barker2002continuations}, which replaces the NP
+interpretation type $\iota$ with a ``computation type''
+$(\iota \to o) \to o$, is a similar strategy. Other possible strategies
+include:
+
+\begin{itemize}
+\item Turning every atomic semantic type ($\iota$, $o$, \ldots) into a
+  computation
+
+  This idea is well-established in formal semantics. Examples include de
+  Groote's Montagovian treatment of anaphora~\cite{de2006towards} ($o$ is
+  replaced with $\gamma \to (\gamma \to o) \to o$), Lebedeva's extension of
+  this formalism~\cite{lebedeva2012expression} (furthermore replaces
+  $\iota$ with $\gamma \to \iota$), Ben-Avi and
+  Winter's~\cite{ben2007semantics} intensionalization procedure (replaces
+  $o$ with $\sigma \to o$) and de Groote and Kanazawa's
+  variation~\cite{de2013note} (also replaces $\iota$ with
+  $\sigma \to \iota$).
+
+\item Turning every semantic function type $\alpha \to \beta$ into the type
+  $\alpha \to \FF_E(\beta)$
+
+  This corresponds to interpreting a call-by-value language using the monad
+  $\FF_E$~\cite{moggi1991notions,wadler1992essence}. Techniques that use a
+  call-by-value impure language for their semantic entries fall in this
+  category as well. Examples include Shan's use of $\shift$ and
+  $\reset$~\cite{shan2004delimited,shan2005linguistic} and our previous
+  attempts~\cite{marsik2014algebraic} using the Eff
+  language~\cite{bauer2012programming}.
+
+\item Turning every semantic function type $\alpha \to \beta$ into the type
+  $\FF_E(\alpha) \to \FF_E(\beta)$
+
+  This is very similar to the idea above but instead of call-by-value, it
+  lets us get a call-by-name interpretation. Call-by-name side effects in
+  natural language semantics have been proposed by
+  Kiselyov~\cite{kiselyov2008call}.
+\end{itemize}
+
+This palette of strategies ranges the possibility space in a tradeoff
+between flexibility and simplicity. Inserting computations into more and
+more places gives us more expressivity but this comes at the price of the
+system's simplicity:
+
+\begin{itemize}
+\item A noun denotation of type $\FF_E(\iota \to o)$ has some effect and
+  then yields a pure predicate of type $\iota \to o$.
+\item A noun denotation of type $\iota \to \FF_E(o)$ might have different
+  effects, depending on the semantic argument that it will be applied
+  to. As a consequence, this effect becomes available only when we apply
+  the denotation to some argument of type $\iota$\footnote{We could use the
+    $\CC$ operator of $\banana{\lambda}$ to get a value of the above type
+    $\FF_E(\iota \to o)$. However, this partial operation succeeds only if
+    the effects do not actually depend on the argument. If that is the
+    case, we might as well use $\FF_E(\iota \to o)$ directly.}.
+\item A noun denotation of type $\FF_E(\iota) \to \FF_E(o)$ might evaluate
+  its argument first, or it might perform some other effects, or it might
+  handle some of the operations used in the computation of its argument.
+\end{itemize}
+
+Furthermore, in a calculus such as $\banana{\lambda}$, where order of
+evaluation is controlled manually using monadic combinators, having an
+overabundance of computation types clouds the terms with uninteresting
+plumbing and enlarges the possibility space to a point that facilitates ad
+hoc solutions. In the analyses presented in this manuscript, we have found
+that the simplest strategy which is sufficiently expressive for our
+purposes is the one which introduces a computation type into the
+interpretation of every atomic abstract type and so we stick with this
+strategy throughout the whole manuscript. However, the techniques developed
+here can be also used in the other settings.
+
+We can now take some base grammar that will serve as our starting point in
+investigating some phenomenon. In our case, this is one of the smallest
+fragments imaginable: transitive verbs and names. We presuppose a semantics
+for this fragment that uses computations. We either build it from scratch
+or we lift an existing semantics as we did
+in~\ref{sec:lifting-semantics}. In our case, this base semantics is very
+simple, it does not use generalized quantifiers or dynamic logics, since we
+can treat these phenomena using effects. Again, we use the simplest
+possible types for the computations. For example for noun phrases, we do
+not use generalized quantifiers, since we can do quantification as an
+effect, we use just simple individuals. We cannot go simpler than that
+since verbs still need to know what the referents of their subjects are and
+objects, to what their predicates should be applied. Similarly for
+sentences, we will use simple propositions instead of dynamic propositions
+since we will treat dynamicity as an effect. Again, it might seem that a
+proposition is the bare minimum that a sentence must denote because that is
+the product that we are interested in. However, in analysis of dynamic
+semantics, it might make sense to model sentences as having no referent,
+only side effects that contribute to some knowledge base.
+
+\subsection{Choosing an Effect Signature}
+\label{ssec:choosing-effect-signature}
+
+
 
 
 \section{Dynamic Semantics}
