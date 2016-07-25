@@ -2017,11 +2017,498 @@ covered dynamic semantics, in~\ref{ssec:double-negation}.
 \section{Dynamic Semantics}
 \label{sec:dynamic-semantics}
 
+We will now examine dynamic semantics. We will consider two theories of
+dynamics in natural language: Kamp's DRT~\cite{kamp1993discourse} and de
+Groote's TTDL~\cite{de2006towards}. We will build a $\banana{\lambda}$
+analysis of dynamics and link it to both theories, as a side effect showing
+how DRT links to TTDL.\@ The analysis we will present can be motivated on
+the grounds of either DRT or TTDL.\@ We can look at the monad at the core
+of TTDL and devise operations that let us perform interesting things within
+the monad (quantifying over the discourse and modifying the discourse
+state). While this is the process that we have followed to discover this
+analysis (presented in~\cite{marsik2014algebraic}), we will follow a novel
+strategy in this exposition. We will start with DRT, more specifically its
+presentation in Kamp and Reyle's canonical
+textbook~\cite{kamp1993discourse} and show how to translate it into
+$\banana{\lambda}$ computations. We will then interpret those computations
+as TTDL dynamic propositions.
+
+
+\subsection{DRT as a Programming Language}
+\label{ssec:drt-as-pl}
+
+We will argue that the construction rules for DRSes as presented
+in~\cite{kamp1993discourse} can be seen as an operational semantics for a
+programming language. Once we will have established that DRT is a
+programming language, we will use techniques similar to those in
+Chapter~\ref{chap:continuations} to embed this language in
+$\banana{\lambda}$.
+
+\vspace{6mm}
+
+\doublebox{
+\parbox{0.64\textwidth}{
+  \underline{\textbf{DRS-Construction Algorithm}}
+
+  \textbf{Input:}
+  \begin{tabular}{l}
+    discourse $D = S_1, \ldots, S_i, S_{i+1}, \ldots, S_n$ \\
+    the empty DRS $K_0$
+  \end{tabular}
+  
+  \vspace{2mm}
+  \textbf{Keep repeating for $i = 1, \ldots, n$:}
+
+  \begin{enumerate}[(i)]
+  \item\label{item:drs-alg-step1} add the syntactic analysis $[S_i]$ of
+    (the next) sentence $S_i$ to the conditions of $K_{i-1}$; call this DRS
+    $K_i^*$. Go to~(\ref{item:drs-alg-step2}).
+
+  \item\label{item:drs-alg-step2} Input: a set of reducible conditions of $K_i^*$
+
+    Keep on applying construction principles to each reducible condition of
+    $K_i^*$ until a DRS $K_i$ is obtained that only contains irreducible
+    conditions. Go to~(\ref{item:drs-alg-step1}).
+  \end{enumerate}
+}
+}
+
+\vspace{6mm}
+
+In~\ref{ssec:drs}, we have said that the conditions of a DRS are atomic
+formulas of predicate logic: predicates applied to variables or
+constants. However, during DRS construction, this notion is expanded. The
+atomic predicates described above are called \emph{irreducible
+  conditions}. Along with them, we will also have syntactic trees as
+conditions. Furthermore, these syntactic trees might contain discourse
+referents.
+
+We will look at DRS construction for an example
+from~\cite{kamp1993discourse} (Example~(1.28), Section~1.1.3):
+
+\begin{exe}
+  \ex \label{ex:jones-porsche} Jones owns a Porsche. It fascinates him.
+\end{exe}
+
+\begin{center}
+\begin{tabular}{rcccl}
+\drs{\hspace{1cm}}
+{
+\begin{tikzpicture}
+  \Tree [.S [.NP [.PN Jones ] ]
+            [.VP$'$ [.VP [.V owns ]
+                       [.NP [.DET a ]
+                            [.N Porsche ] ] ] ] ]
+\end{tikzpicture}
+}
+& $\to_\crpn$
+& \drs{x}
+{
+$\obj{Jones}(x)$ \\
+\begin{tikzpicture}
+  \Tree [.S $x$
+            [.VP$'$ [.VP [.V owns ]
+                       [.NP [.DET a ]
+                            [.N Porsche ] ] ] ] ]
+\end{tikzpicture}
+}
+& $\to_\crid$
+& \drs{x y}
+{
+$\obj{Jones}(x)$ \\
+\begin{tikzpicture}
+  \Tree [.N($y$) Porsche ]
+\end{tikzpicture} \\
+\begin{tikzpicture}
+  \Tree [.S $x$
+            [.VP$'$ [.VP [.V owns ]
+                       $y$ ] ] ]
+\end{tikzpicture}
+}
+\end{tabular}
+\end{center}
+
+We insert the syntactic analysis of the first sentence into the empty
+DRS.\@ Then there is a reduction rule which replaces the NP \emph{Jones}
+with a discourse referent $x$ while at the same time introducing the
+discourse referent $x$ and the condition $\obj{Jones}(x)$ into the DRS.\@
+In the next DRS, we evaluate the object by replacing it with $y$ and adding
+the discourse referent $y$ and a condition in which (the meaning of) the
+noun \emph{Porsche} is applied to $y$.
+
+\begin{center}
+\begin{tabular}{rcccccl}
+\drs{x y}
+{
+$\obj{Jones}(x)$ \\
+\begin{tikzpicture}
+  \Tree [.N($y$) Porsche ]
+\end{tikzpicture} \\
+\begin{tikzpicture}
+  \Tree [.S $x$
+            [.VP$'$ [.VP [.V owns ]
+                       $y$ ] ] ]
+\end{tikzpicture}
+}
+& $\to_\crlin$
+& \drs{x y}
+{
+$\obj{Jones}(x)$ \\
+$\obj{Porsche}(y)$ \\
+\begin{tikzpicture}
+  \Tree [.S $x$
+            [.VP$'$ [.VP [.V owns ]
+                       $y$ ] ] ]
+\end{tikzpicture}
+}
+& $=$
+& \drs{x y}
+{
+$\obj{Jones}(x)$ \\
+$\obj{Porsche}(y)$ \\
+$[x$ owns $y]$
+}
+& $\to_\crlitv$
+& \drs{x y}
+{
+$\obj{Jones}(x)$ \\
+$\obj{Porsche}(y)$ \\
+$\obj{own}(x, y)$
+}
+\end{tabular}
+\end{center}
+
+Having reduced the noun phrase \emph{a Porsche}, we are now led to evaluate
+the noun \emph{Porsche} itself. It yields the predicate $\obj{Porsche}$. At
+this point, the algorithm presented in~\cite{kamp1993discourse}
+stops. However, in order to be a little bit more uniform, we will evaluate
+reduce the piece of syntax [$x$ owns $y$] and replace it with an atomic
+formula $\obj{own}(x,y)$. We can now add the syntactic analysis of the
+second sentence and proceed with computation.
+
+
+\begin{center}
+\begin{tabular}{rcl}
+\drs{x y}
+{
+$\obj{Jones}(x)$ \\
+$\obj{Porsche}(y)$ \\
+$\obj{own}(x, y)$ \\
+\begin{tikzpicture}
+  \Tree [.S [.NP [.PRO It ] ]
+            [.VP$'$ [.VP [.V fascinates ]
+                       [.NP [.PRO him ] ] ] ] ]
+\end{tikzpicture}
+}
+& $\to_\crpro$
+& \drs{x y u}
+{
+$\obj{Jones}(x)$ \\
+$\obj{Porsche}(y)$ \\
+$\obj{own}(x, y)$ \\
+$u = y$ \\
+\begin{tikzpicture}
+  \Tree [.S $u$
+            [.VP$'$ [.VP [.V fascinates ]
+                       [.NP [.PRO him ] ] ] ] ]
+\end{tikzpicture}
+}
+\end{tabular}
+\end{center}
+
+Again, we start by evaluating the subject. This time, it is a pronoun, but
+the process remains largely the same. We replace the pronoun with a new
+discourse referent $u$ which we introduce into the DRS along with the
+condition $u = y$.
+
+\begin{center}
+\begin{tabular}{rcccl}
+\drs{x y u}
+{
+$\obj{Jones}(x)$ \\
+$\obj{Porsche}(y)$ \\
+$\obj{own}(x, y)$ \\
+$u = y$ \\
+\begin{tikzpicture}
+  \Tree [.S $u$
+            [.VP$'$ [.VP [.V fascinates ]
+                       [.NP [.PRO him ] ] ] ] ]
+\end{tikzpicture}
+}
+& $\to_\crpro$
+& \drs{x y u v}
+{
+$\obj{Jones}(x)$ \\
+$\obj{Porsche}(y)$ \\
+$\obj{own}(x, y)$ \\
+$u = y$ \\
+$v = x$ \\
+\begin{tikzpicture}
+  \Tree [.S $u$
+            [.VP$'$ [.VP [.V fascinates ]
+                       $v$ ] ] ]
+\end{tikzpicture}
+}
+& $\to_\crlitv$
+& \drs{x y u v}
+{
+$\obj{Jones}(x)$ \\
+$\obj{Porsche}(y)$ \\
+$\obj{own}(x, y)$ \\
+$u = y$ \\
+$v = x$ \\
+$\obj{fascinate}(u, v)$
+}
+\end{tabular}
+\end{center}
+
+For the object noun we do the same, introducing the discourse referent $v$
+and the condition $v = x$. Finally, all that is left to translate the
+transitive verb into a binary relation and we get the final DRS
+representation.
+
+Let us now look at the formulation of the construction rules\footnote{We
+  will omit gender features from the rules as we will not be studying
+  anaphora resolution in this work.}.
+
+\vspace{6mm}
+
+\doublebox{
+\parbox{0.66\textwidth}{
+  \underline{$\crid$}
+  
+  {\setlength\extrarowheight{3pt}
+  \begin{tabular}{p{4cm}l}
+    \textbf{Trigerring \newline
+    configuration \newline
+    $\gamma \subseteq \overline{\gamma} \in \conditions_\KK$}:
+    & \begin{tikzpicture}[baseline={(current bounding box.center)}]
+        \Tree [.S [.NP [.DET a(n) ] N ] VP$'$ ]
+      \end{tikzpicture}
+      $\left\{ \textbf{or: }
+               \begin{tikzpicture}[baseline={(current bounding box.center)}]
+                 \Tree [.VP V [.NP [.DET a(n) ] N ] ]
+               \end{tikzpicture} \right\}$ \\
+    \textbf{Introduce in $\universe_\KK$}: & new discourse referent $u$ \\
+    \textbf{Introduce in $\conditions_\KK$}: & new condition $[N](u)$ \\
+    \textbf{Substitute in $\overline{\gamma}$:} & $u$ for
+      \begin{tikzpicture}[baseline={(current bounding box.center)}]
+        \Tree [.NP [.DET a(n) ] N ]
+      \end{tikzpicture}
+  \end{tabular}
+  }
+}
+}
+
+\vspace{6mm}
+
+The \emph{triggering configuration} describes the rule's redex (and part of
+its context). In the case of $\crid$, the rule for indefinite descriptions,
+the redex is a noun phrase of the form \emph{a(n) $N$}. The actual
+triggering configuration also includes the node dominating the NP as
+well. This is for reasons of evaluation order:
+
+\begin{quote}
+``A reducible condition $\gamma$ must be reduced by applying the appropriate
+rule to its \emph{highest} triggering configuration, i.e.\ that triggering
+configuration $\tau$ such that the highest node of $\tau$ dominates the
+highest node of any other triggering configuration that $\gamma$ contains.''
+\begin{flushright}
+  From Discourse to Logic~\cite{kamp1993discourse} (Section 1.1.4, page 87
+  in the Student Edition)
+\end{flushright}
+\end{quote}
+
+In this rule, it serves to make the application of the rule to a subject
+dominant to the application of the same rule (or any other rule evaluating,
+for that purpose) to an object and therefore fixes evaluation order: first
+subject, then object.
+
+The rule then has its contractum, which is given on the last line
+(\textbf{Substitute in $\overline{\gamma}$}). In this case, the contractum
+is the discourse referent $u$. The rule also has two important side
+effects. First, the discourse referent $u$ is introduced into the DRS that
+contains this condition. Second, the condition $[N](u)$ is added to the
+conditions of that same DRS.\@ The notation $[N](u)$ means that we copy the
+whole syntactic structure of $N$ (i.e.\ the whole program for computing the
+meaning of the noun) and once its meaning (a predicate) is computed, we
+apply it to the discourse referent $u$.
+
+\vspace{6mm}
+
+\framebox{
+\parbox{0.6\textwidth}{
+  \underline{$\crpro$}
+  
+  {\setlength\extrarowheight{3pt}
+  \begin{tabular}{p{4cm}p{6cm}}
+    \textbf{Trigerring \newline
+    configuration \newline
+    $\gamma \subseteq \overline{\gamma} \in \conditions_\KK$}:
+    & \begin{tikzpicture}[baseline={(current bounding box.center)}]
+        \Tree [.S [.NP [.PRO $\alpha$ ] ] VP$'$ ]
+      \end{tikzpicture}
+      $\left\{ \textbf{or: }
+               \begin{tikzpicture}[baseline={(current bounding box.center)}]
+                 \Tree [.VP V [.NP [.PRO $\alpha$ ] ] ]
+               \end{tikzpicture} \right\}$ \\
+    \textbf{Choose suitable \newline
+            antecedent v,} & \ \newline such that $v$ is accessible \\
+    \textbf{Introduce in $\universe_\KK$}: & new discourse referent $u$ \\
+    \textbf{Introduce in $\conditions_\KK$}: & new condition $u = v$ \\
+    \textbf{Substitute in $\overline{\gamma}$:} & $u$ for
+      \begin{tikzpicture}[baseline={(current bounding box.center)}]
+        \Tree [.NP [.PRO $\alpha$ ] ]
+      \end{tikzpicture}
+  \end{tabular}
+  }
+}
+}
+
+\vspace{6mm}
+
+The rule for pronouns, $\crpro$, is very similar. In introduces a new kind
+of operation, in which the NP being evaluated is asking its context for a
+suitable anaphoric referent.
+
+We will leave the rule for proper nouns until~\ref{ssec:presuppositions}
+and give the two lexical insertion rules for nouns and transitive verbs
+\footnote{the latter is not present in~\cite{kamp1993discourse}. Instead,
+  the authors declare [$x$ loves $y$] to be an irreducible condition.}.
+
+\vspace{6mm}
+
+\framebox{
+\parbox{0.4\textwidth}{
+  \underline{$\crlin$}
+  
+  {\setlength\extrarowheight{3pt}
+  \begin{tabular}{p{4cm}p{6cm}}
+    \textbf{Trigerring \newline
+    configuration \newline
+    $\gamma \in \conditions_\KK$}:
+    & \begin{tikzpicture}[baseline={(current bounding box.center)}]
+        \Tree [.N($v$) $\alpha$ ]
+      \end{tikzpicture} \\
+    \textbf{Replace $\gamma$ by:} & $\alpha(v)$
+  \end{tabular}
+  }
+}
+}
+
+\vspace{6mm}
+
+\framebox{
+\parbox{0.4\textwidth}{
+  \underline{$\crlitv$}
+  
+  {\setlength\extrarowheight{3pt}
+  \begin{tabular}{p{4cm}p{6cm}}
+    \textbf{Trigerring \newline
+    configuration \newline
+    $\gamma \in \conditions_\KK$}:
+    & \begin{tikzpicture}[baseline={(current bounding box.center)},level distance=7mm]
+        \Tree [.S $x$
+                  [.VP$'$ [.VP [.V $\alpha$ ]
+                        $y$ ] ] ]
+      \end{tikzpicture} \\
+    \textbf{Replace $\gamma$ by:} & $\alpha(x, y)$
+  \end{tabular}
+  }
+}
+}
+
+\vspace{6mm}
+
+The system from~\cite{kamp1993discourse} described above can be presented
+in a manner reminiscent of operational semantics for programming languages.
+
+The terms of this language are syntactic trees containing discourse
+referents and wrapped inside DRSs. The values are just discourse referents
+and DRSs\footnote{Containing only predicates as conditions.}. We will
+define evaluation contexts $C$. These should reflect the fact the
+construction algorithm of DRT permits reduction in any of the conditions
+within a DRS.
+
+$$
+  C ::= [] \ | \ \drs{ $x_1$ \ldots\ $x_n$ }
+                { $\gamma_1$ \\ \ldots \\ $\lnot C$ \\ \ldots \\ $\gamma_m$}
+           \ | \ \drs{ $x_1$ \ldots\ $x_n$ }
+                { $\gamma_1$ \\ \ldots \\ $C \Rightarrow K$ \\ \ldots \\ $\gamma_m$}
+           \ | \ \drs{ $x_1$ \ldots\ $x_n$ }
+                { $\gamma_1$ \\ \ldots \\ $K \Rightarrow C$ \\ \ldots \\ $\gamma_m$}
+           \ | \ \drs{ $x_1$ \ldots\ $x_n$ }
+                { $\gamma_1$ \\ \ldots \\ $C \lor K$ \\ \ldots \\ $\gamma_m$}
+           \ | \ \drs{ $x_1$ \ldots\ $x_n$ }
+                { $\gamma_1$ \\ \ldots \\ $K \lor C$ \\ \ldots \\ $\gamma_m$}
+$$
+
+The reducible conditions are syntactic trees. The triggering configuration
+can be found in any part of a syntactic tree and so we define $C_\gamma$ to
+be a context that places $[]$ inside a syntactic tree. For every rule
+$A \to B_1 \ldots B_n$, there will be a production rule for the context
+$C_\gamma ::= A (B_1, \ldots, B_{i-1}, C_\gamma, B_{i+1}, \ldots, B_n)$.
+
+$$
+  C_\gamma ::= []\ |\ \leaf{$C_\gamma$} \leaf{VP} \branch{2}{S} \tree
+                 \ |\ \leaf{NP} \leaf{$C_\gamma$} \branch{2}{S} \tree
+                 \ |\ \leaf{$C_\gamma$} \leaf{NP} \branch{2}{VP} \tree
+                 \ |\ \leaf{V} \leaf{$C_\gamma$} \branch{2}{VP} \tree \ |\ \ldots
+$$
+
+The construction rule $\crid$ is then a reduction rule on these forms:
+
+$$
+  C\left[\ 
+    \drs{$x_1$ \ldots\ $x_n$}
+        {$\gamma_1$ \\
+         \ldots \\
+         $C_\gamma \left[ \leaf{a(n)} \branch{1}{DET} \leaf{N}
+           \branch{2}{$NP_{Gen=\beta}$} \leaf{VP$'$} \branch{2}{S} \tree \right]$ \\
+         \ldots \\
+         $\gamma_m$}\ \right]
+  \to_\crid
+  C\left[\ 
+    \drs{$x_1$ \ldots\ $x_n$ $u$}
+        {$\gamma_1$ \\
+         \ldots \\
+         $[$N$](u)$ \\
+         $C_\gamma \left[ \leaf{$u$} \leaf{VP$'$} \branch{2}{S} \tree \right]$ \\
+         \ldots \\
+         $\gamma_m$}\ \right]
+$$
+
+Likewise, there is an analogue for evaluating indefinite descriptions in
+object positions which differs only in the triggerring configuration. The
+reduction rules for $\crpro$, $\crlin$ and $\crlitv$ can be derived in the
+same way. Then, the DRS that corresponds to a sentence can be seen as a
+normal form of in this reduction system\footnote{The system permits
+  reductions in different conditions at the same time and is therefore not
+  confluent. Hence the indefinite article in ``\emph{a normal form}''.}.
+
+If we look at the rule that we can see a remarkable similarity to the likes
+of those seen in Chapter~\ref{chap:continuations} for $\lambda_\shift$ and
+$\lambda_\shifto$. Inside the context $C$, we have some kind of delimiting
+construction, a DRS in one case and a $\reset$ in the other. As one of the
+arguments of this construction, we have an expression buried inside a more
+limited context: $C_\gamma$, which cannot contain any more nested DRSs, and
+$F$, which cannot contain any more $\reset$s. In the case of DRT, this
+buried expression is an indefinite or a pronoun which wants to access the
+context's DRS to add (and possibly look for) discourse referents and
+conditions. In the case of $\lambda_\shift$, the buried expression is a
+$\shift$ that wants complete control over the context inside the
+$\reset$. In our analysis of $\lambda_\shift$, $\reset$ corresponded
+directly to a handler. Therefore, we will be treating DRSs as handlers in
+the coming $\banana{\lambda}$ analysis. The denotations of indefinites and
+pronouns will use operations to introduce new discourse referents and
+conditions and to query the state of discourse to resolve anaphora.
+
 
 \subsection{Anaphora}
 
 
 \subsection{Presuppositions}
+\label{ssec:presuppositions}
 
 
 \subsection{Double Negation}
