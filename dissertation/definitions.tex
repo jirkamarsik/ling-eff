@@ -273,3 +273,121 @@
 \newcommand{\universe}{\mathbf{U}}
 \newcommand{\conditions}{\mathbf{Con}}
 \newcommand{\KK}{\mathbf{K}}
+
+\newcommand{\drx}{\textrm{x}}
+\newcommand{\dry}{\textrm{y}}
+\newcommand{\dru}{\textrm{u}}
+\newcommand{\drv}{\textrm{v}}
+
+
+\let \drsvarfont = \rm
+
+
+\newcommand{\cridbox}{
+\doublebox{
+\parbox{10.7cm}{
+  \underline{$\crid$}
+  
+  {\setlength\extrarowheight{3pt}
+  \begin{tabular}{p{4cm}l}
+    \textbf{Trigerring \newline
+    configuration \newline
+    $\gamma \subseteq \overline{\gamma} \in \conditions_\KK$}:
+    & \begin{tikzpicture}[baseline={(current bounding box.center)}]
+        \Tree [.S [.NP [.DET a(n) ] N ] VP$'$ ]
+      \end{tikzpicture}
+      $\left\{ \textbf{or: }
+               \begin{tikzpicture}[baseline={(current bounding box.center)}]
+                 \Tree [.VP V [.NP [.DET a(n) ] N ] ]
+               \end{tikzpicture} \right\}$ \\
+    \textbf{Introduce in $\universe_\KK$}: & new discourse referent $u$ \\
+    \textbf{Introduce in $\conditions_\KK$}: & new condition $[N](u)$ \\
+    \textbf{Substitute in $\overline{\gamma}$:} & $u$ for
+      \begin{tikzpicture}[baseline={(current bounding box.center)}]
+        \Tree [.NP [.DET a(n) ] N ]
+      \end{tikzpicture}
+  \end{tabular}
+  }
+}
+}
+}
+
+
+\newcommand{\crprobox}{
+\framebox{
+\parbox{9.5cm}{
+  \underline{$\crpro$}
+  
+  {\setlength\extrarowheight{3pt}
+  \begin{tabular}{p{4cm}p{6cm}}
+    \textbf{Trigerring \newline
+    configuration \newline
+    $\gamma \subseteq \overline{\gamma} \in \conditions_\KK$}:
+    & \begin{tikzpicture}[baseline={(current bounding box.center)}]
+        \Tree [.S [.NP [.PRO $\alpha$ ] ] VP$'$ ]
+      \end{tikzpicture}
+      $\left\{ \textbf{or: }
+               \begin{tikzpicture}[baseline={(current bounding box.center)}]
+                 \Tree [.VP V [.NP [.PRO $\alpha$ ] ] ]
+               \end{tikzpicture} \right\}$ \\
+    \textbf{Choose suitable \newline
+            antecedent $v$,} & \ \newline such that $v$ is accessible \\
+    \textbf{Introduce in $\universe_\KK$}: & new discourse referent $u$ \\
+    \textbf{Introduce in $\conditions_\KK$}: & new condition $u = v$ \\
+    \textbf{Substitute in $\overline{\gamma}$:} & $u$ for
+      \begin{tikzpicture}[baseline={(current bounding box.center)}]
+        \Tree [.NP [.PRO $\alpha$ ] ]
+      \end{tikzpicture}
+  \end{tabular}
+  }
+}
+}
+}
+
+
+\newcommand{\crlinbox}{
+\framebox{
+\parbox{6cm}{
+  \underline{$\crlin$}
+  
+  {\setlength\extrarowheight{9pt}
+  \begin{tabular}{p{4cm}p{6cm}}
+    \textbf{Trigerring \newline
+    configuration \newline
+    $\gamma \in \conditions_\KK$}:
+    & \begin{tikzpicture}[baseline={(current bounding box.center)}]
+        \Tree [.N($v$) $\alpha$ ]
+      \end{tikzpicture} \\
+    \textbf{Replace $\gamma$ by:} & $\alpha(v)$
+  \end{tabular}
+  }
+}
+}
+}
+
+
+\newcommand{\crlitvbox}{
+\framebox{
+\parbox{6.5cm}{
+  \underline{$\crlitv$}
+  
+  {\setlength\extrarowheight{9pt}
+  \begin{tabular}{p{4cm}p{6cm}}
+    \textbf{Trigerring \newline
+    configuration \newline
+    $\gamma \in \conditions_\KK$}:
+    & \begin{tikzpicture}[baseline={(current bounding box.center)},level distance=7mm]
+        \Tree [.S $x$
+                  [.VP$'$ [.VP [.V $\alpha$ ]
+                          $y$ ] ] ]
+      \end{tikzpicture} \\
+    \textbf{Replace $\gamma$ by:} & $\alpha(x, y)$
+  \end{tabular}
+  }
+}
+}
+}
+
+
+\newcommand{\TTDL}{\operatorname{TTDL}}
+\newcommand{\sel}{\operatorname{sel}}
