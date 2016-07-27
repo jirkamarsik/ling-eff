@@ -2733,6 +2733,57 @@ DRT and TTDL. The
 \end{align*}
 
 
+\subsubsection{Algebraic Considerations}
+
+Now that we have handlers for our computations, we can study which
+computations share the same interpretations and try to derive some
+equational theory over them. Though before we do so, we will address a
+slight variation that one could pursue in modeling dynamic semantics as
+computations.
+
+Let us look back the computation that we assigned to the first sentence in
+Example~\ref{ex:man-porsche}: \emph{a man owns a Porsche}.
+
+\begin{align*}
+&\app{\op{introduce}}{\star}{(\lam{x}{ \\
+&\app{\op{assert}}{(\obj{man}(x))}{(\lam{\_}{ \\
+&\app{\op{introduce}}{\star}{(\lam{y}{ \\
+&\app{\op{assert}}{(\obj{Porsche}(y))}{(\lam{\_}{ \\
+&\etaE{(\obj{own}(x, y))}})}})}})}})}
+\end{align*}
+
+The truth-condition that corresponds to the verb is being returned by the
+computation, whereas the truth-conditions that arise from the nouns are
+expressed using $\op{assert}$. The at-issue content of this sentence
+consists of all of these conditions and therefore there is no reason to
+separate out the verb's predicate. We could thus write this instead:
+
+\begin{align*}
+&\app{\op{introduce}}{\star}{(\lam{x}{ \\
+&\app{\op{assert}}{(\obj{man}(x))}{(\lam{\_}{ \\
+&\app{\op{introduce}}{\star}{(\lam{y}{ \\
+&\app{\op{assert}}{(\obj{Porsche}(y))}{(\lam{\_}{ \\
+&\app{\op{assert}}{(\obj{own}(x, y))}{(\lam{\_}{ \\
+&\etaE{\star}})}})}})}})}})}
+\end{align*}
+
+This is a computation of type $\FF_{E_\DRT}(1)$. As before, we use a
+handler to extract the proposition that is represented by this computation.
+
+\begin{align*}
+  \TTDL' :\ &\FF_E(1) \to \gamma \to (\gamma \to o) \to o \\
+  \TTDL' = \bbanana{
+  &\onto{\op{choose}}{(\lam{\_ k e \phi}{\appp{k}{(\app{\sel}{e})}{e}{\phi}})} \\
+  &\onto{\op{introduce}}{(\lam{\_ k e \phi}{\exists x.\ \appp{k}{x}{(x \cons e)}{\phi}})} \\
+  &\onto{\op{assert}}{(\lam{p k e \phi}{p \land \appp{k}{\star}{(p \cons e)}{\phi}})} \\
+  &\onto{\eta}{(\lam{\_ e \phi}{\ap{\phi}{e}})}}
+\end{align*}
+
+The handler differs from $\TTDL$ only in the $\eta$ clause, which
+substitutes $\top$ for the returned proposition $p$ in
+$\lam{e \phi}{p \land \ap{\phi}{e}}$.
+
+
 \subsection{Presuppositions}
 \label{ssec:presuppositions}
 
