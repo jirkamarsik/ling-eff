@@ -269,6 +269,7 @@
 \newcommand{\crid}{\mathrm{CR.ID}}
 \newcommand{\crlin}{\mathrm{CR.LIN}}
 \newcommand{\crlitv}{\mathrm{CR.LITV}}
+\newcommand{\crneg}{\mathrm{CR.NEG}}
 
 \newcommand{\universe}{\mathbf{U}}
 \newcommand{\conditions}{\mathbf{Con}}
@@ -391,3 +392,33 @@
 
 \newcommand{\TTDL}{\operatorname{TTDL}}
 \newcommand{\sel}{\operatorname{sel}}
+\newcommand{\BOX}{\mathrm{BOX}}
+
+
+\newcommand{\crnegbox}{
+\framebox{
+\parbox{7cm}{
+  \underline{$\crneg$}
+  
+  {
+  \begin{tabular}{p{3cm}p{5cm}}
+    \textbf{Trigerring \newline
+    configuration \newline
+    $\gamma \subseteq \overline{\gamma} \in \conditions_\KK$}:
+    & \begin{tikzpicture}[baseline={(current bounding box.center)},level distance=7mm]
+        \Tree [.S $\dru$
+                  [.VP$'$ AUX not VP ] ]
+      \end{tikzpicture} \\ \\
+    \textbf{Replace $\overline{\gamma}$ by:}
+    & $\lnot\ \drs{\ }{\begin{tikzpicture}[baseline={(current bounding box.center)},level distance=7mm]
+                        \Tree [.S $\dru$
+                                  [.VP$'$ VP ] ]
+                      \end{tikzpicture}}$
+  \end{tabular}
+  }
+}
+}
+}
+
+
+\newcommand{\DRT}{\mathrm{DRT}}

@@ -2677,12 +2677,12 @@ Example~\ref{ex:man-porsche}:
 
 \begin{align*}
   \sem{\appp{\abs{verb}}{&\abs{fascinates}}{\abs{him}}{\abs{it}}} \\
-  \tto &\ \app{\op{choose}}{\star}{(\lam{x'}{ \\
+  \tto &\ \app{\op{choose}}{\star}{(\lam{y'}{ \\
        &\ \app{\op{introduce}}{\star}{(\lam{u}{ \\
-       &\ \app{\op{assert}}{(u = x')}{(\lam{\_}{ \\
-       &\ \app{\op{choose}}{\star}{(\lam{y'}{ \\
+       &\ \app{\op{assert}}{(u = y')}{(\lam{\_}{ \\
+       &\ \app{\op{choose}}{\star}{(\lam{x'}{ \\
        &\ \app{\op{introduce}}{\star}{(\lam{v}{ \\
-       &\ \app{\op{assert}}{(v = y')}{(\lam{\_}{ \\
+       &\ \app{\op{assert}}{(v = x')}{(\lam{\_}{ \\
        &\ \etaE{(\obj{fascinate}(u, v))}})}})}})}})}})}})}
 \end{align*}
 
@@ -2695,12 +2695,12 @@ raised to computations.
        &\ \app{\op{assert}}{(\obj{man}(x))}{(\lam{\_}{ \\
        &\ \app{\op{introduce}}{\star}{(\lam{y}{ \\
        &\ \app{\op{assert}}{(\obj{Porsche}(y))}{(\lam{\_}{ \\
-       &\ \app{\op{choose}}{\star}{(\lam{x'}{ \\
-       &\ \app{\op{introduce}}{\star}{(\lam{u}{ \\
-       &\ \app{\op{assert}}{(u = x')}{(\lam{\_}{ \\
        &\ \app{\op{choose}}{\star}{(\lam{y'}{ \\
+       &\ \app{\op{introduce}}{\star}{(\lam{u}{ \\
+       &\ \app{\op{assert}}{(u = y')}{(\lam{\_}{ \\
+       &\ \app{\op{choose}}{\star}{(\lam{x'}{ \\
        &\ \app{\op{introduce}}{\star}{(\lam{v}{ \\
-       &\ \app{\op{assert}}{(v = y')}{(\lam{\_}{ \\
+       &\ \app{\op{assert}}{(v = x')}{(\lam{\_}{ \\
        &\ \etaE{(\obj{own}(x, y) \land \obj{fascinate}(u, v))}})}})}})}})}})}})}})}})}})}})}
 \end{align*}
 
@@ -2719,18 +2719,205 @@ this computation, for now, it is just a string of symbols.
 In order to give a formal semantics to the operations that we have
 introduced for DRT, we will write a handler. The type of dynamic
 propositions, $\gamma \to (\gamma \to o) \to o$, of de Groote's TTDL will
-serve as a suitable interpretation domain. Apart from implementing a
-semantics for our operations, we will have demonstrated the link between
-DRT and TTDL. The
+serve as a suitable interpretation domain. On top of that, apart from
+implementing a semantics for our operations, we will have demonstrated the
+link between DRT and TTDL.\@ The type of the handler's input will be
+$\FF_E(o)$, where $E$ is the effect signature containing only
+$\op{choose}$, $\op{introduce}$ and $\op{assert}$.
 
 \begin{align*}
   \TTDL :\ &\FF_E(o) \to \gamma \to (\gamma \to o) \to o \\
-  \TTDL = \bbanana{
-  &\onto{\op{choose}}{(\lam{\_ k e \phi}{\appp{k}{(\app{\sel}{e})}{e}{\phi}})} \\
+  \TTDL = \bbanana{\ 
+  &\onto{\op{choose}}{(\lam{\_ k e \phi}{\appp{k}{(\sel(e))}{e}{\phi}})} \\
   &\onto{\op{introduce}}{(\lam{\_ k e \phi}{\exists x.\ \appp{k}{x}{(x \cons e)}{\phi}})} \\
   &\onto{\op{assert}}{(\lam{p k e \phi}{p \land \appp{k}{\star}{(p \cons e)}{\phi}})} \\
-  &\onto{\eta}{(\lam{p e \phi}{p \land })}}
+  &\onto{\eta}{(\lam{p e \phi}{p \land \ap{\phi}{e}})}\ }
 \end{align*}
+
+We write the handler by following the types, keeping in mind the intended
+semantics. There is a remarkable similarity between the clauses of our
+handler and the operators and semantic entries used in TTDL.\@ The $\eta$
+clause is the operation that lifts plain propositions into dynamic
+propositions~\cite{lebedeva2012expression}. The clause for $\op{choose}$ is
+(ignoring the first dummy argument) exactly the denotation assigned to
+pronouns in TTDL~\cite{de2006towards}. The clause for $\op{introduce}$ is
+the denotation of the indefinite \emph{someone}, also known as the dynamic
+existential quantifier in~\cite{lebedeva2012expression}. This is not a
+coincidence. The clauses for $\op{choose}$ and $\op{introduce}$ are both
+values of type $\iota$ written in continuation-passing style with
+observation type $\Omega = \gamma \to (\gamma \to o) \to o$, i.e.\ values
+of type $(\iota \to \Omega) \to \Omega$. TTDL uses continuation-passing
+style in the denotation of its noun phrases to account for quantification
+and so their denotations end up having the very same type. The two noun
+phrases, the pronoun and the indefinite, stand for the two major ways that
+dynamic noun phrases interact with their contexts, retrieving their
+referents from context or introducing new ones into the context. Together
+with $\op{assert}$, which lets us conjoin another proposition to the
+observed proposition, these form the three operations with which we
+characterize DRT dynamics. Our original discovery of these three operations
+with which we can characterize dynamic effects came from the realization
+that we can express all the denotations in TTDL with: reading from the
+context ($\op{choose}$, or later $\op{get}$), wrapping an existential
+quantifier over the continuation while adding the bound variable into the
+context ($\op{introduce}$) and conjoining a proposition to the continuation
+($\op{assert}$).
+
+Once we have applied the $\TTDL$ handler to a computation of type
+$\FF_E(o)$, we can extract the corresponding (simple) proposition by
+applying the result to some left context and the trivial right context
+($\lam{e}{\top}$). Since this what we will be doing most of the time, we
+can simplify the $\TTDL$ handler by assuming that $\phi$ is always equal to
+$\lam{e}{\top}$.
+
+\begin{align*}
+  \BOX :\ &\FF_E(o) \to \gamma \to o \\
+  \BOX = \bbanana{\ 
+  &\onto{\op{choose}}{(\lam{\_ k e}{\app{k}{(\sel(e))}{e}})} \\
+  &\onto{\op{introduce}}{(\lam{\_ k e}{\exists x.\ \appp{k}{x}{(x \cons e)}})} \\
+  &\onto{\op{assert}}{(\lam{p k e}{p \land \appp{k}{\star}{(p \cons e)}})} \\
+  &\onto{\eta}{(\lam{p e}{p})}\ }
+\end{align*}
+
+Getting back to Example~\ref{ex:man-porsche}, we can now apply one of these
+two handlers to get the dynamic proposition.
+
+\begin{align*}
+&\ap{\TTDL}{(\sem{\appp{\abs{verb}}{\abs{owns}}{(\ap{\abs{a}}{(\ap{\abs{noun}}{\abs{Porsche}})})}{(\ap{\abs{a}}{(\ap{\abs{noun}}{\abs{man}})})}} \andlr \sem{\appp{\abs{verb}}{\abs{fascinates}}{\abs{him}}{\abs{it}}})} \\
+&\tto \lam{e \phi}{\exists x.\ \obj{man}(x) \land (\exists y.\ \obj{Porsche}(y) \land (\exists u.\ u = \sel(e_1) \land (\exists v.\ v = \sel(e_2) \land \obj{own}(x, y) \land \obj{fascinate}(u, v) \land \ap{\phi}{e_3})))} \\
+&= \lam{e \phi}{\exists x y u v.\ \obj{man}(x) \land \obj{Porsche}(y) \land u = \sel(e_1) \land v = \sel(e_2) \land \obj{own}(x, y) \land \obj{fascinate}(u, v) \land \ap{\phi}{e_3}} \\
+&= \lam{e \phi}{\exists x y u v.\ \obj{man}(x) \land \obj{Porsche}(y) \land u = y \land v = x \land \obj{own}(x, y) \land \obj{fascinate}(u, v) \land \ap{\phi}{e_3}} \\
+&= \lam{e \phi}{\exists x y.\ \obj{man}(x) \land \obj{Porsche}(y) \land \obj{own}(x, y) \land \obj{fascinate}(y, x) \land \ap{\phi}{e_3}}
+\end{align*}
+
+where:
+\vspace{-3mm}
+\begin{align*}
+  e_1 &= \obj{Porsche}(y) \cons y \cons \obj{man}(x) \cons x \cons e \\
+  e_2 &= (u = \sel(e_1)) \cons u \cons e_1 \\
+  e_3 &= (v = \sel(e_2)) \cons v \cons e_2
+\end{align*}
+
+We have used Kamp's construction rules to compute a dynamic proposition in
+de Groote's TTDL.\@ The first line shows the result as we get it from the
+handler. On the second line, we pull out all of the existential quantifiers
+(prenex form). On the third line, we resolve the anaphora and we get a
+dynamic proposition which corresponds referent by referent, condition by
+condition to the DRS derived by Kamp and Reyle. The last line removes
+spurious variables and equalities.
+
+
+\subsubsection{Negation}
+
+In order to match the empirical coverage of the original TTDL
+from~\cite{de2006towards}, we have two more features to cover: negation and
+(universal) quantification. We will cover negation here. Quantification
+reuses the idea from negation and the $\op{scope}$ operation of
+quantification: we will see how the two connect in
+Chapter~\ref{chap:composing-effects}.
+
+\begin{figure}
+  \centering
+  \crnegbox
+  \caption{\label{fig:crneg} $\crneg$: The construction rule for negation.}
+\end{figure}
+
+The construction rule for negation, $\crneg$, is displayed in
+Figure~\ref{fig:crneg}. We are reducing a condition which is in the form of
+a negated sentence. The DRT mechanism will place the sentence in its own
+DRS, whose negation will then become the new condition that replaces the
+sentence. The dynamic effects that we have seen so far reach only into the
+nearest enclosing DRS.\@ This means that wrapping something inside a new
+DRS is significant: the reach of any dynamic effects within will be limited
+to that DRS.\@ We have also seen that this is akin to the way effects like
+$\shift$ are delimited/handled by the nearest $\reset$. It will come as no
+surprise then that our implementation of negation will use a handler for
+dynamic effects.
+
+The definition of dynamic negation in TTDL
+from~\cite{lebedeva2012expression} will be a great guide in how to proceed:
+
+\begin{align*}
+\dnot_{\TTDL} \_ &: \Omega \to \Omega \\
+\dnot_{\TTDL} A &= \lam{e \phi}{\lnot (\app{A}{e}{(\lam{e}{\top})}) \land \ap{\phi}{e}}
+\end{align*}
+
+We know that $\lam{e \phi}{M \land \ap{\phi}{e}}$ corresponds to $\etaE{M}$
+and that $\app{A}{e}{(\lam{e}{\top})}$ is $\app{\BOX}{A}{e}$. Therefore, we
+can define our dynamic negation by:
+
+\begin{align*}
+\dnot \_ &: \FF_E(o) \to \FF_E(o) \\
+\dnot A &= \etaE{(\lnot (\app{\BOX}{A}{e}))}
+\end{align*}
+
+However, there is a small catch. We have a free variable $e$ of type
+$\gamma$. This is supposed to be the context in which the new negated
+condition is to appear. This is necessary so that the anaphoric elements
+within the negated condition can refer to not only referents proper to the
+negated DRS, but also those originating in superordinate DRSs. We can
+introduce a new operation for accessing the context.
+
+$$
+\typedop{get}{1}{\gamma}
+$$
+
+Now, we can have dynamic negation as:
+
+$$
+\dnot A = \app{\op{get}}{\star}{(\lam{e}{\etaE{(\lnot (\app{\BOX}{A}{e}))}})}
+$$
+
+We can see the analogy with $\crneg$: the negation of $A$ puts $A$ inside a
+box, the box is then negated and returned as the new condition. The name
+$\BOX$ for this kind of handler was motivated exactly by this kind of
+analogy, wherein a handler is used to contain dynamic effects inside some
+scope.
+
+We have introduced a new operation into our dynamic effect signature. This
+means that we will have to extend our handlers to cover the new
+operation. However, before we do so, we note that $\op{choose}$ can be
+expressed in terms of $\op{get}$ and $\sel$:
+
+$$
+\op{choose} = \lam{\_ k}{\app{\op{get}}{\star}{(\lam{e}{\ap{k}{(\sel(e))}})}}
+$$
+
+Therefore, we will drop $\op{choose}$ and keep only $\op{get}$. We have now
+arrived at our final effect signature for DRT dynamics. This signature
+allows us to treat dynamic effects the same way as the other effects that
+we have analyzed in this chapter.
+
+\begin{align*}
+  E_\DRT = \{\ &\typedop{get}{1}{\gamma}, \\
+              &\typedop{introduce}{1}{\iota}, \\
+              &\typedop{assert}{o}{1}\ \}
+\end{align*}
+
+The closed handlers $\TTDL$ and $\BOX$ are updated to use $\op{get}$
+instead of $\op{choose}$:
+
+\begin{align*}
+  \TTDL :\ &\FF_{E_\DRT}(o) \to \gamma \to (\gamma \to o) \to o \\
+  \TTDL = \bbanana{\ 
+  &\onto{\op{get}}{(\lam{\_ k e \phi}{\appp{k}{e}{e}{\phi}})} \\
+  &\onto{\op{introduce}}{(\lam{\_ k e \phi}{\exists x.\ \appp{k}{x}{(x \cons e)}{\phi}})} \\
+  &\onto{\op{assert}}{(\lam{p k e \phi}{p \land \appp{k}{\star}{(p \cons e)}{\phi}})} \\
+  &\onto{\eta}{(\lam{p e \phi}{p \land \ap{\phi}{e}})}\ } \\ \\
+  \BOX :\ &\FF_{E_\DRT}(o) \to \gamma \to o \\
+  \BOX = \bbanana{\ 
+  &\onto{\op{get}}{(\lam{\_ k e}{\app{k}{e}{e}})} \\
+  &\onto{\op{introduce}}{(\lam{\_ k e}{\exists x.\ \appp{k}{x}{(x \cons e)}})} \\
+  &\onto{\op{assert}}{(\lam{p k e}{p \land \appp{k}{\star}{(p \cons e)}})} \\
+  &\onto{\eta}{(\lam{p e}{p})}\ }
+\end{align*}
+
+
+\subsubsection{Algebraic Considerations}
+
+As with the previous phenomena, we can study which computations have always
+equal interpretations given our choice of handlers and establish an
+equational theory. Though before we do that, we will address one dimension
+in the design of our dynamics analysis that we have omitted so far.
 
 
 \subsection{Presuppositions}
