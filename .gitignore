@@ -1,3 +1,4 @@
+*.agdai
 *.aux
 *.bak
 *.bbl
@@ -9,13 +10,22 @@
 *.maf
 *.mtc*
 *.nav
+*.ibc
+*.odt
 *.out
 *.pdf
+*.rkt~
 *.snm
+*.tns
 *.toc
 *.vrb
+\#*.*\#
 _region_.tex
 .stfolder
 paper
 dias/*-eps-converted-to.pdf
 auto/
+redex/*.ps
+fg2016/fg2016.zip
+MAlonzo/
+dist/

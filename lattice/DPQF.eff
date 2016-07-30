@@ -18,9 +18,9 @@ let rec term_to_string = function
   | Lam (v_, body) -> "(lambda (" ^ v_ ^ ") " ^ term_to_string body ^ ")"
   | Var v -> v;;
 
-let lift1 fn x = app (var fn) x;;
+let lift1 fn x = app fn x;;
 
-let lift2 fn x y = app (app (var fn) x) y;;
+let lift2 fn x y = app (app fn x) y;;
 
 
 (* UTIL *)
@@ -28,7 +28,7 @@ let lift2 fn x y = app (app (var fn) x) y;;
 let any = fold_left (fun x y -> x || y) false;;
 
 let rec list_to_term = function
-  | x :: xs -> lift2 "cons" x (list_to_term xs)
+  | x :: xs -> lift2 (var "cons") x (list_to_term xs)
   | []  -> var "empty";;
 
 
@@ -55,15 +55,15 @@ let var_gen =
 
 let forall p =
   let x = v#new_var () in
-  lift1 "forall" (lam x (p x));;
+  lift1 (var "forall") (lam x (p x));;
 
 let exists p =
   let x = v#new_var () in 
-  lift1 "exists" (lam x (p x));;
+  lift1 (var "exists") (lam x (p x));;
 
-let conj = lift2 "and";;
+let conj = lift2 (var "and");;
 
-let neg = lift1 "not";;
+let neg = lift1 (var "not");;
 
 
 (* EFFECTS (types and instances) *)
@@ -89,11 +89,11 @@ end;;
 let p = new presupposition;;
 
 type 'a focus = effect
-  operation focus_with_alts : 'a * ('a -> prop) -> 'a
+  operation focus : 'a -> 'a
 end;;
 
-let f_0 = new focus;;
-let f_2 = new focus;;
+let f_np = new focus;;
+let f_tv = new focus;;
 
 
 (* HANDLERS *)
@@ -160,22 +160,17 @@ let dimp p_thunk q_thunk =
 let mary' = var "Mary"
 let ulysses' = var "Ulysses"
 
-let book' = lift1 "book"
-let man' = lift1 "man"
-let woman' = lift1 "woman"
-let boxer' = lift1 "boxer"
-let apartment' = lift1 "apartment"
+let book' = lift1 (var "book")
+let man' = lift1 (var "man")
+let woman' = lift1 (var "woman")
+let boxer' = lift1 (var "boxer")
+let apartment' = lift1 (var "apartment")
 
-let read' = lift2 "read"
-let loved' = lift2 "loved"
-let escaped_from' = lift2 "escaped_from"
-let poss' = lift2 "poss"
-
-let sel' index refs = lift1 ("sel_" ^ index) (list_to_term (map var refs))
+let sel' index refs = lift1 (var ("sel_" ^ index)) (list_to_term (map var refs))
 
 let fetch' index = sel' index (d#get ())
 
-let eq' = lift2 "="
+let eq' = lift2 (var "=")
 
 
 (* GRAMMAR *)
@@ -217,39 +212,46 @@ let woman = woman'
 let boxer = boxer'
 let apartment = apartment'
 
-let read subj_thunk obj_thunk () =
-  with tensed_clause handle
-    read' (subj_thunk ()) (obj_thunk ())
+let poss' = lift2 (var "poss")
 
-let loved subj_thunk obj_thunk () =
-  with tensed_clause handle
-    loved' (subj_thunk ()) (obj_thunk ())
+let read () = var "read"
+let loved () = var "loved"
+let escaped_from () = var "escaped_from"
 
-let escaped_from subj_thunk obj_thunk () =
+let tv_s tv_thunk obj_thunk subj_thunk () =
   with tensed_clause handle
-    escaped_from' (subj_thunk ()) (obj_thunk ())
-
+    let subj = subj_thunk () in
+    let tv = tv_thunk () in
+    let obj = obj_thunk () in
+    lift2 tv subj obj
+  
 let _s owner_np_thunk ownee_n () =
   let owner_np = owner_np_thunk () in
   p#presuppose (fun x -> conj (ownee_n x) (poss' owner_np  x))
 
+let block w = handler
+  | p#presuppose property k -> 
+      if occurs w (property (var "_")) then
+        exists (fun x -> conj (property (var x)) (k (var x)))
+      else
+        k (p#presuppose property)
+
 let handle_focus = handler
-  | f_0#focus_with_alts (focus, alts) k ->
-    dand (fun () -> k focus) (fun () -> dforall (fun x -> dimp (fun () -> alts x) (dnot (fun () -> k x)) ())) ()
-  | f_2#focus_with_alts (focus, alts) k ->
-    dand (fun () -> k focus) (fun () -> dforall (fun x -> dimp (fun () -> alts x) (dnot (fun () -> k x)) ())) ();;
+  | f_np#focus np k -> let w = v#new_var () in
+                       let p = lam w (with block w handle (k (var w))) in
+dand (fun () -> app p np) (fun () -> dforall (fun y -> dimp (fun () -> neg (eq' y np)) (dnot (fun () -> app p y)) ())) ()
+  | f_tv#focus tv k -> let w = v#new_var  () in
+                       let p = lam w (with block w handle (k (var w))) in
+dand (fun () -> app p tv) (fun () -> dforall (fun y -> dimp (fun () -> neg (eq' y tv)) (dnot (fun () -> app p y)) ())) ()
 
 let only vp =
   fun subj_thunk () -> with handle_focus handle vp subj_thunk ()
 
-let f0 np_thunk =
-  fun () -> let x = np_thunk () in
-            f_0#focus_with_alts (x, (fun y -> neg (eq' x y)))
+let fnp np_thunk () =
+  f_np#focus (np_thunk ())
 
-let f2 tv subj_thunk obj_thunk =
-  fun () ->
-    let ftv = f_2#focus_with_alts (tv, (fun y -> neg (eq' y y))) in
-    ftv subj_thunk obj_thunk ()
+let ftv tv_thunk () =
+  f_tv#focus (tv_thunk ())
 
 let dot s1_thunk s2_thunk () =
   conj (s1_thunk ()) (s2_thunk ())
@@ -259,38 +261,39 @@ let output_refs () =
 
 
 (* EXAMPLES*)
-let sent1 = top (read mary ulysses);;
-let sent2 = top (read mary everything);;
-let sent2_ = top (read mary something);;
-let sent3 = top (read someone everything);;
-let sent4 = top (read everyone something);;
+let sent1 = top (tv_s read ulysses mary);;
+let sent2 = top (tv_s read everything mary);;
+let sent2_ = top (tv_s read something mary);;
+let sent3 = top (tv_s read everything someone);;
+let sent4 = top (tv_s read something everyone);;
 
-let sent5 = top (dot (read someone everything) (read someone everything));;
-let sent6 = top (dot (read someone everything) (read everyone something));;
-let sent7 = top (dot (read everyone something) (read someone everything));;
-let sent8 = top (dot (read everyone something) (read everyone something));;
+let sent5 = top (dot (tv_s read everything someone) (tv_s read everything someone));;
+let sent6 = top (dot (tv_s read everything someone) (tv_s read something everyone));;
+let sent7 = top (dot (tv_s read something everyone) (tv_s read everything someone));;
+let sent8 = top (dot (tv_s read something everyone) (tv_s read something everyone));;
 
-let sent85 = top (read (every man) (every book))
+let sent85 = top (tv_s read (every book) (every man))
 
-let sent9 = top (dot (dot (read someone everything) (read someone everything)) output_refs);;
-let sent10 = top (dot (dot (read someone everything) (read everyone something)) output_refs);;
-let sent11 = top (dot (dot (read everyone something) (read someone everything)) output_refs);;
-let sent12 = top (dot (dot (read everyone something) (read everyone something)) output_refs);;
+let sent9 = top (dot (dot (tv_s read everything someone) (tv_s read everything someone)) output_refs);;
+let sent10 = top (dot (dot (tv_s read everything someone) (tv_s read something everyone)) output_refs);;
+let sent11 = top (dot (dot (tv_s read something everyone) (tv_s read everything someone)) output_refs);;
+let sent12 = top (dot (dot (tv_s read something everyone) (tv_s read something everyone)) output_refs);;
 
-let sent13 = top (read mary (some book));;
-let sent14 = top (read mary (every book));;
+let sent13 = top (tv_s read (some book) mary);;
+let sent14 = top (tv_s read (every book) mary);;
 
-let sent15 = top (dot (read mary (a book)) (loved she it));;
+let sent15 = top (dot (tv_s read (a book) mary) (tv_s loved it she));;
 
-let sent16 = top (loved (every (who man (fun x -> read x (a book)))) it);;
-let sent16' = top (loved (every (who man (fun x -> read x x))) it);;
-let sent16'' = top (loved (every (who man (fun x -> read mary (a book)))) it);;
+let sent16 = top (tv_s loved it (every (who man (tv_s read (a book)))));;
+let sent16' = top (tv_s loved it (every (who man (fun x -> tv_s read x x))));;
+let sent16'' = top (tv_s loved it (every (who man (fun x -> tv_s read (a book) mary))));;
 
-let sent17 = top (dot (loved everyone mary) (read she ulysses));;
+let sent17 = top (dot (tv_s loved mary everyone) (tv_s read ulysses she));;
 
-let sent19 = top (escaped_from (a boxer) (_s he apartment));;
-let sent20 = top (escaped_from (every boxer) (_s he apartment));;
-let sent21 = top (escaped_from (every boxer) mary);;
+let sent19 = top (tv_s escaped_from (_s he apartment) (a boxer));;
+let sent20 = top (tv_s escaped_from (_s he apartment) (every boxer));;
+let sent21 = top (tv_s escaped_from mary (every boxer));;
 
-let sent22 = top (only (fun subj -> read subj (f0 ulysses)) mary);;
-let sent23 = top (only (fun subj -> (f2 read) subj ulysses) mary);;
+let sent22 = top (only (tv_s read (fnp ulysses)) mary);;
+let sent23 = top (only (tv_s (ftv read) ulysses) mary);;
+let sent24 = top (only (tv_s read (_s (fnp he) book)) (every boxer));;

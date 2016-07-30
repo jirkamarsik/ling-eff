@@ -1,0 +1,349 @@
+\documentclass{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage{pgfpages}
+\usepackage{stmaryrd}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[normalem]{ulem}
+\usepackage{appendixnumberbeamer}
+\usepackage{url}
+
+\usepackage[export]{adjustbox}
+\setbeamercovered{transparent}
+
+\hypersetup{pdfstartview={Fit}}
+\def\limp {\mathbin{{-}\mkern-3.5mu{\circ}}}
+
+\usepackage{pifont}% http://ctan.org/pkg/pifont
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+
+
+
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}
+{\hfill {\normalsize \insertframenumber{}/\inserttotalframenumber{}}}
+\hypersetup{pdfstartview={Fit}}
+
+\AtBeginSection[]
+{
+\begin{frame}{Outline}
+  \tableofcontents[currentsection]
+\end{frame}
+}
+
+
+
+\definecolor{mygreen}{RGB}{30, 176, 37}
+
+\definecolor{myColor}{rgb}{0.50,0.70,0.10}%
+\definecolor{myColor2}{rgb}{0.50,0.20,0.80}%
+%\definecolor{myColor}{rgb}{1.00,0.00,0.10}%
+%\definecolor{myGreen}{rgb}{0.00,0.60,0.00}%
+%\definecolor{myOrange}{rgb}{1.00,0.40,0.00}%
+%\definecolor{myOtherOrange}{rgb}{0.90,0.50,0.00}%
+%\definecolor{myBlue}{rgb}{0.20,0.20,0.70}%
+%\definecolor{myGray}{rgb}{0.84,0.84,0.94}%
+%\newcommand{\green}[1]{\textcolor{myGreen}{#1}}
+%\newcommand{\blue}[1]{\textcolor{myBlue}{#1}} 
+%\newcommand{\red}[1]{\textcolor{red}{#1}} 
+%\newcommand{\marron}[1]{\textcolor{brown!65!black!80!white}{#1}}
+%\newcommand{\myorange}[1]{\textcolor{myOrange}{#1}}
+%\newcommand{\myotherorange}[1]{\textcolor{myOtherOrange}{#1}}
+\newcommand{\mycolor}[1]{\textcolor{myColor}{#1}}
+\newcommand{\mycolord}[1]{\textcolor{myColor2}{#1}}
+
+
+
+\newcommand{\hastype}{\mathop{:}}
+
+\newcommand{\dand}{\mathbin{\overline{\land}}}
+\newcommand{\dnot}{\mathop{\overline{\lnot}}}
+\newcommand{\dimpl}{\mathbin{\overline{\to}}}
+\newcommand{\dexists}{\mathop{\overline{\exists}}}
+\newcommand{\dforall}{\mathop{\overline{\forall}}}
+
+\newcommand{\hsbind}{\mathbin{\texttt{>>=}}}
+\newcommand{\hsrevbind}{\mathbin{\texttt{=<<}}}
+\newcommand{\hsseq}{\mathbin{\texttt{>>}}}
+\newcommand{\occons}{\mathbin{::}}
+
+\newcommand{\statecps}[3]{\llbracket #3 \rrbracket^{#2}_{#1}}
+\newcommand{\cps}[2]{\llbracket #2 \rrbracket^{#1}}
+
+\newcommand{\sem}[1]{\llbracket #1 \rrbracket}
+\newcommand{\intens}[1]{\overline{#1}}
+
+\newcommand{\obj}[1]{\text{Obj}(#1)}
+\newcommand{\inl}[1]{\text{inl}(#1)}
+\newcommand{\inr}[1]{\text{inr}(#1)}
+\newcommand{\id}[1]{\text{id}_{#1}}
+
+\newcommand{\keyword}[1]{\texttt{#1}}
+\newcommand{\effect}[1]{\textbf{#1}}
+\newcommand{\semdom}[1]{\textbf{#1}}
+\newcommand{\handle}[2]{\keyword{with}\ #1\ \keyword{handle}\ #2}
+
+
+\newcommand{\highlight}[2]{\colorbox{#1}{$\displaystyle #2$}}
+
+
+
+
+%% \setbeamercolor{block title}{fg=ngreen,bg=white} % Colors of the block titles
+%% \setbeamercolor{block body}{fg=black,bg=white} % Colors of the body of blocks
+%% \setbeamercolor{block alerted title}{fg=white,bg=dblue!70} % Colors of the highlighted block titles
+%% \setbeamercolor{block alerted body}{fg=black,bg=dblue!10} % Colors of the body of highlighted blocks
+%% % Many more colors are available for use in beamerthemeconfposter.sty
+
+
+
+
+
+
+
+
+
+
+
+
+\title{Effects and Handlers \\ in Natural Language Semantics}
+\author{Jirka Maršík}
+\institute[LORIA, Université de Lorraine, Inria]
+{
+Équipe Sémagramme
+\\
+LORIA, UMR 7503, Université de Lorraine, CNRS, Inria, Campus Scientifique, \\
+F-54506 Vand\oe uvre-lès-Nancy, France
+}
+\date{June 7, 2016}
+
+
+
+
+
+
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \tableofcontents
+\end{frame}
+
+\section{New Results}
+
+\begin{frame}{Formal Definition of a Calculus}
+  \begin{itemize}
+  \item syntax and notation
+  \item type system
+  \item reduction semantics
+  \item basic combinators
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Proof of Fundamental Properties}
+  \begin{itemize}
+  \item Confluence
+  \item Termination
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Connection to Continuations}
+  \begin{itemize}
+  \item simulating call-by-value lambda calculus
+  \item adding delimited continuations to the simulation
+  \item adapting an existing type system of delimited continuations\ldots
+  \item and fitting it to the simulation
+  \end{itemize}
+\end{frame}
+
+\section{Thesis Plan}
+
+\begin{frame}{Timeline}
+  Content-complete manuscript:
+  \begin{itemize}
+  \item end of July
+  \end{itemize}
+  
+  Final version of manuscript:
+  \begin{itemize}
+  \item end of August
+  \end{itemize}
+  
+  Defense:
+  \begin{itemize}
+  \item end of October
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Part I --- Calculus for Effects and Handlers}
+  Chapters:
+  \begin{itemize}
+  \item Definitions \cmark
+  \item Examples \cmark
+  \item Properties \ldots
+  \item Continuations \cmark
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Chapter --- Definitions}
+  \begin{itemize}
+  \item Sketching Out the Calculus \cmark
+  \item Terms \cmark
+  \item Types and Typing Rules \cmark
+  \item Reduction Rules \cmark
+  \item Sums and Products \cmark
+  \item Common Combinators \cmark
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Chapter --- Examples}
+  \begin{itemize}
+  \item Introducing Our Running Example \cmark
+  \item Adding Errors \cmark
+  \item Enriching the Context with Variables \cmark
+  \item Summary \cmark
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Chapter --- Properties}
+  \begin{itemize}
+  \item Algebraic Properties \ldots
+  \item Subject Reduction \ldots
+  \item Confluence \cmark
+  \item Termination \ldots
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Chapter --- Continuations}
+  \begin{itemize}
+  \item Introducing Call-by-Value \cmark
+  \item Simulating Call-by-Value \cmark
+  \item Introducing Control Operators \cmark
+  \item Simulating $\texttt{shift0}$ and $\texttt{reset0}$ \cmark
+  \item Turning to $\texttt{shift}$ and $\texttt{reset}$ \cmark
+  \item Considering Types \cmark
+  \item Other Control Operators \ldots
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Part II --- Effects and Handlers in Natural Language}
+  Chapters:
+  \begin{itemize}
+  \item Introduction to Formal Semantics \ldots
+  \item Introducing the Effects \ldots
+  \item Composing the Effects \ldots
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Chapter --- Introduction to Formal Semantics}
+  \begin{itemize}
+  \item Montague Semantics
+  \item Abstract Categorial Grammars
+  \item Type-Theoretical Dynamic Logic
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Chapter --- Introducing the Effects}
+  \begin{itemize}
+  \item Deixis
+  \item Quantifiers
+  \item Dynamics
+  \item Presuppositions
+  \item Conventional Implicatures
+  \item Double Negation
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Chapter --- Composing the Effects}
+  \begin{itemize}
+  \item Extending Fragmetns with ACG Transformers
+  \item The Common Base
+  \item ACG Transformers Introducing Effects
+  \item Evaluating the Resulting Fragment
+  \end{itemize}
+\end{frame}
+
+\section{Publications}
+
+\begin{frame}{Formal Grammar}
+\begin{center}
+  Jirka Maršík and Maxime Amblard \\
+  Introducing a Calculus of Effects and Handlers \\
+  for Natural Language Semantics \\
+  Formal Grammar
+\end{center}
+\end{frame}
+
+\begin{frame}{SIGdial}
+\begin{center}
+  Stéphane Tiv, Jirka Maršík and Maxime Amblard \\
+  Modeling Dialogue with Type-Theoretical Continuation Semantics \\
+  17th Annual SIGdial Meeting on Discourse and Dialogue
+\end{center}
+\end{frame}
+
+\section{Courses}
+
+\begin{frame}{Professional Modules}
+  Before:
+  \begin{itemize}
+  \item Prévention et secours civiques niveau 1
+  \item Formation à la communication orale et corporelle en milieu
+    professionnel 
+  \item Résidentiel DCCE 1ère année
+  \item Résidentiel DCCE 2eme année
+  \end{itemize}
+  
+  This Year:
+  \begin{itemize}
+  \item Insertion professionnelle et techniques de recherche d'emploi 
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Scientific Modules}
+  Before:
+  \begin{itemize}
+  \item ESSLLI 2013
+  \item ESSLLI 2014
+  \item ESSLLI 2015
+  \item ED IAEM --- Journée d'automne, 15 octobre 2014
+  \item Lambda Calculus
+  \end{itemize}
+  
+  This Year:
+  \begin{itemize}
+  \item ESSLLI 2016
+  \item ED IAEM --- Journée d'automne, 15 octobree 2015
+  \end{itemize}
+\end{frame}
+
+\section{After PhD}
+
+\begin{frame}{The Next Step in My Career}
+  From the Void
+  
+  Role:
+  \begin{itemize}
+  \item head of digital development
+  \item developing mobile and desktop applications
+  \end{itemize}
+
+  Perks:
+  \begin{itemize}
+  \item start up (autonomy, risk taking)
+  \item functional programming (methods fresh from academia)
+  \item challenging domain (real-time computing, complex interactions)
+  \end{itemize}
+\end{frame}
+
+\end{document}

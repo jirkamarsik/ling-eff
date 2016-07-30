@@ -1,0 +1,688 @@
+\documentclass{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage{pgfpages}
+\usepackage{stmaryrd}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{xcolor}
+
+\usepackage[export]{adjustbox}
+\setbeamercovered{transparent}
+
+\hypersetup{pdfstartview={Fit}}
+\def\limp {\mathbin{{-}\mkern-3.5mu{\circ}}}
+
+\usepackage{pifont}% http://ctan.org/pkg/pifont
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}
+  {\hfill {\normalsize \insertframenumber{}/\inserttotalframenumber{}}}
+
+\definecolor{mygreen}{RGB}{30, 176, 37}
+
+\definecolor{myColor}{rgb}{0.50,0.70,0.10}%
+\definecolor{myColor2}{rgb}{0.50,0.20,0.80}%
+%\definecolor{myColor}{rgb}{1.00,0.00,0.10}%
+%\definecolor{myGreen}{rgb}{0.00,0.60,0.00}%
+%\definecolor{myOrange}{rgb}{1.00,0.40,0.00}%
+%\definecolor{myOtherOrange}{rgb}{0.90,0.50,0.00}%
+%\definecolor{myBlue}{rgb}{0.20,0.20,0.70}%
+%\definecolor{myGray}{rgb}{0.84,0.84,0.94}%
+%\newcommand{\green}[1]{\textcolor{myGreen}{#1}}
+%\newcommand{\blue}[1]{\textcolor{myBlue}{#1}} 
+%\newcommand{\red}[1]{\textcolor{red}{#1}} 
+%\newcommand{\marron}[1]{\textcolor{brown!65!black!80!white}{#1}}
+%\newcommand{\myorange}[1]{\textcolor{myOrange}{#1}}
+%\newcommand{\myotherorange}[1]{\textcolor{myOtherOrange}{#1}}
+\newcommand{\mycolor}[1]{\textcolor{myColor}{#1}}
+\newcommand{\mycolord}[1]{\textcolor{myColor2}{#1}}
+
+
+  
+\newcommand{\hastype}{\mathop{:}}
+
+\newcommand{\dand}{\mathbin{\overline{\land}}}
+\newcommand{\dnot}{\mathop{\overline{\lnot}}}
+\newcommand{\dimpl}{\mathbin{\overline{\to}}}
+\newcommand{\dexists}{\mathop{\overline{\exists}}}
+\newcommand{\dforall}{\mathop{\overline{\forall}}}
+
+\newcommand{\hsbind}{\mathbin{\texttt{>>=}}}
+\newcommand{\kleislicomp}{\mathbin{\texttt{>=>}}}
+\newcommand{\hsrevbind}{\mathbin{\texttt{=<<}}}
+\newcommand{\hsseq}{\mathbin{\texttt{>>}}}
+\newcommand{\occons}{\mathbin{::}}
+
+\newcommand{\statecps}[3]{\llbracket #3 \rrbracket^{#2}_{#1}}
+\newcommand{\cps}[2]{\llbracket #2 \rrbracket^{#1}}
+
+\newcommand{\sem}[1]{\llbracket #1 \rrbracket}
+\newcommand{\intens}[1]{\overline{#1}}
+
+\newcommand{\obj}[1]{\text{Obj}(#1)}
+\newcommand{\inl}[1]{\text{inl}(#1)}
+\newcommand{\inr}[1]{\text{inr}(#1)}
+\newcommand{\id}[1]{\text{id}_{#1}}
+
+\newcommand{\keyword}[1]{\texttt{#1}}
+\newcommand{\effect}[1]{\textbf{#1}}
+\newcommand{\semdom}[1]{\textbf{#1}}
+\newcommand{\handle}[2]{\keyword{with}\ #1\ \keyword{handle}\ #2}
+
+
+\newcommand{\highlight}[2]{\colorbox{#1}{$\displaystyle #2$}}
+
+
+
+\newcommand{\includepicture}[1]{
+    \includegraphics[scale=0.4]{dias/#1.eps}
+}
+
+\newcommand{\includepicturescale}[2]{
+    \includegraphics[scale=#2]{dias/#1.eps}
+}
+
+\newcommand{\includepicturem}[1]{
+    \includegraphics[scale=0.48]{dias/#1.eps}
+}
+
+
+
+
+%% \setbeamercolor{block title}{fg=ngreen,bg=white} % Colors of the block titles
+%% \setbeamercolor{block body}{fg=black,bg=white} % Colors of the body of blocks
+%% \setbeamercolor{block alerted title}{fg=white,bg=dblue!70} % Colors of the highlighted block titles
+%% \setbeamercolor{block alerted body}{fg=black,bg=dblue!10} % Colors of the body of highlighted blocks
+%% % Many more colors are available for use in beamerthemeconfposter.sty
+
+
+
+
+
+
+
+
+
+
+
+
+\title{Pragmatic Side Effects}
+\author{Jirka Maršík and Maxime Amblard}
+\institute[LORIA, Université de Lorraine, Inria]
+{
+  LORIA, UMR 7503, Université de Lorraine, CNRS, Inria, Campus Scientifique, \\
+  F-54506 Vand\oe uvre-lès-Nancy, France
+}
+\date{4 May, 2015}
+
+
+
+
+
+
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+
+\begin{frame}{Our Setting}
+  Context:
+  \begin{itemize}
+  \item Montague semantics, using the $\lambda$ calculus
+  \end{itemize}
+  \vfill
+
+  Objective:
+  \begin{itemize}
+  \item Increase the empirical coverage
+  \end{itemize}
+  \vfill
+
+  Challenge:
+  \begin{itemize}
+  \item multiple sentences
+    \begin{itemize}
+    \item discourse
+    \item pragmatics in semantics
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Example of Pragmasemantics}
+  \framesubtitle{de Groote -- Type-Theoretic Dynamic Logic}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \begin{block}{Montague}
+        \begin{align*}
+          \sem{s} &= o \\
+          \sem{n} &= \iota \to \sem{s} \\
+          \sem{np} &= (\iota \to \sem{s}) \to \sem{s}
+        \end{align*}
+      \end{block}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{block}{de Groote}
+         \begin{align*}
+          \sem{s} &= \gamma \to (\gamma \to o) \to o \\
+          \sem{n} &= \iota \to \sem{s} \\
+          \sem{np} &= (\iota \to \sem{s}) \to \sem{s}
+        \end{align*}
+      \end{block}
+    \end{column}
+  \end{columns}
+  \vfill
+  \pause
+  $$
+  \sem{\textit{He bought a car}} = \lambda e \phi.\ \exists
+  x. car(x)\ \land\ bought(\texttt{sel}_{he}(e), x)\ \land\ \phi (x \occons e)
+  $$
+\end{frame}
+
+
+\begin{frame}
+  \begin{center}
+    \vfill
+
+    {\huge Drawing Inspiration from Programming Languages}
+
+    \vfill
+
+    \begin{quotation}
+      There is in my opinion no important theoretical difference between
+      natural languages and the programming languages of computer
+      scientists.
+    \end{quotation}
+  \end{center}
+\end{frame}
+
+
+\begin{frame}{Side Effects and Pragmatics}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+   \begin{block}{Side Effects}
+   Account for:
+  \pause
+  \vfill
+  \begin{itemize}
+  \item a program's interaction with the world of its users
+    \begin{itemize}
+    \item e.g., makings sounds, printing documents, moving robotic limbs\ldots
+    \end{itemize}
+  \end{itemize}
+  \pause
+  \vfill
+  \begin{itemize}
+  \item non-local interactions between parts of a program
+    \begin{itemize}
+    \item e.g., writing to and reading from variables, throwing and
+      catching exceptions\ldots
+    \end{itemize}
+  \end{itemize}
+  \end{block}
+   \pause
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{block}{Pragmatics}
+        Account for:
+        \pause
+        \vfill
+        \begin{itemize}
+        \item how language fits into the world of its users
+          \begin{itemize}
+          \item e.g., asking a colleague to print some documents\ldots
+          \end{itemize}
+        \pause \vfill
+        \item phenomena that transcend the bounds of an isolated sentence
+          \begin{itemize}
+          \item e.g., the link between antecedent and pronoun, making and
+            cancelling presuppositions\ldots
+          \end{itemize}
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+  \vfill
+  \pause
+  \alert{Side effects align with pragmatics in their purpose.}
+\end{frame}
+
+
+\begin{frame}{Type Raising}
+  Side effects and pragmatics align also in their theories.
+  \pause
+  \vfill
+  Most famous example: Montague's generalized quantifiers
+  \begin{itemize}
+  \item $\sem{np} = (\iota \to o) \to o$
+  \item e.g., the meaning of a transitive verb such as \textit{bought}
+    $$ \sem{\textsc{bought}} = \lambda S O. S (\lambda x. O (\lambda y. \semdom{bought}(x, y))) $$
+  \end{itemize}
+  \vfill
+  \pause
+  In computer science, discovered as continuations
+  \begin{itemize}
+  \item $\sem{exp_{\tau}} = (\tau \to \omega) \to \omega$
+  \item e.g., applying a function $f$ to two arguments $S$ and $O$ in
+    continuation-passing style
+    $$ \lambda P. S (\lambda x. O (\lambda y. P\ (f\ x\ y))) $$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Generalizing Denotations}
+  ``Upgrading'' the types of denotations in order to keep a compositional
+  semantics seems like a common strategy.
+  \vfill
+  \begin{tabular}{llr}
+    Natural Languages & Prog. Languages & Type $\alpha$ becomes \\
+    \hline
+    Quantification & Control &
+    $(\alpha \to \omega) \to \omega$ \\
+    Anaphora & State &
+    $\gamma \to \alpha \times \gamma$ \\
+    Intensionality & Environment &
+    $\delta \to \alpha$ \\
+    Presuppositions & Exceptions &
+    $\alpha \oplus \chi$ \\
+    Questions & Non-determinism &
+    $\alpha \to o$ \\
+    Focus & &
+    $\alpha \times (\alpha \to o)$ \\
+    Expressives & Output &
+    $\alpha \times \epsilon$ \\
+    Prob. semantics & Prob. programming &
+    $[\mathbb{R} \times \alpha]$ \\
+  \end{tabular}
+\end{frame}
+
+\begin{frame}{How to Avoid Changing Denotations?}
+  Different pragmatic and semantic phenomena, all in one theory \\
+    $\rightarrow$ more and more elaborate types
+  \vfill
+  \pause
+  We often have to change our minds on what is meaning
+  \begin{itemize}
+  \item old denotations $\rightarrow$ outdated
+  \item denotations from other strands of work $\rightarrow$ incompatible
+  \end{itemize}
+  \pause
+  \vfill
+  Some solutions to this problem exist already in computer science.
+\end{frame}
+
+\begin{frame}{Our Hypotheses}
+  
+  \begin{block}{The pragmatic effects hypothesis:}
+  The integration of pragmatic phenomena into semantics can be adequately
+  (when compared to existing theories) modelled using a theory of
+  computational side effects.
+  \end{block}
+  \vfill
+  \begin{block}{The general effects hypothesis:}
+  The type generalizations proposed in formal semantics of natural language
+  (in-situ quantification, interrogatives, alternative semantics\ldots) can
+  be modelled using a theory of computational side effects.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Side Effects in Linguistics}
+  Using continuations:
+  \begin{itemize}
+  \item Chris Barker
+  \item Chung-chieh Shan
+  \end{itemize}
+  \vfill
+  \pause
+  Using monads:
+  \begin{itemize}
+  \item Simon Charlow
+  \item Lucas Champollion
+  \end{itemize}
+  \vfill
+  \pause
+  Using applicative functors:
+  \begin{itemize}
+  \item Oleg Kiselyov
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Algebraic Effects\ldots}
+
+  We will be using a framework developed in PL research.
+
+  \vfill
+  
+  In it:
+  \begin{itemize}
+  \item interacting with the context $=$ throwing a (resumable) exception
+  \item the exception contains a response for every possible outcome of an
+    operation
+  \end{itemize}
+ 
+  \pause
+  \vfill
+  
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+   Denotations are:
+  \begin{itemize}
+  \item algebraic expressions (drawn as trees)
+  \item \textcolor{mygreen}{generators} $=$ values
+  \item \textcolor{red}{operators} $=$ possible interactions with the context
+  \item arity $=$ the number of possible outcomes
+  \item type $= \mathcal{F}_{\textcolor{red}{\Sigma}}(\textcolor{mygreen}{\tau})$
+  \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \only<2>{\includepicturescale{example}{0.4}}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{\ldots and Handlers}
+  Handlers give scope and interpretation to (some of) the effects in a
+  computation.
+
+  \begin{itemize}
+  \item Practically, they are like exception handlers in programming languages.
+  \item Technically, they are catamorphisms (folds) on the algebra of effects.
+  \end{itemize}
+  
+
+  \pause
+  \vfill 
+
+  Examples:
+  \begin{itemize}
+  \item a tensed verb delimits quantification, creating a scope island
+  \item logical negation blocks referent accessibility (as in DRT or TTDL)
+  \item the common ground accomodates presuppositions if they have not been
+    yet assumed
+  \item hypotheseses can cancel presuppositions in their scope (\text{if
+    \ldots, then \ldots})
+  % \item shifted perspectives and quotation interpret speaker-dependent
+  % expressions
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Example from Computer Science}
+  \begin{adjustbox}{center}
+   \begin{tabular}{|c|c|c|} \hline
+    \textbf{3} & \visible<2->{\textbf{x + 3}} & \visible<3->{\textbf{print("hello")}} \\ \hline
+    $3$ & & \\ \hline
+    \visible<2->{$\lambda s. \left<3, s\right>$} & \visible<2->{$\lambda s. \left<s("x") + 3, s\right>$} & \\ \hline
+    \visible<3->{$\lambda s. \left<3, s, ""\right>$} & \visible<3->{$\lambda s. \left<s("x") + 3, s, ""\right>$} & \visible<3->{$\lambda s. \left<(), s, "hello"\right>$} \\ \hline
+    \visible<4->{\includepicture{3}} & & \\ \hline
+    \visible<5->{\includepicture{3}} & \visible<5->{\includepicture{x+3}} & \\ \hline
+    \visible<6->{\includepicture{3}} & \visible<6->{\includepicture{x+3}} & \visible<6->{\includepicture{print}} \\ \hline
+  \end{tabular}
+  \end{adjustbox}
+\end{frame}
+
+\begin{frame}{Example from Linguistics}
+  \begin{adjustbox}{center}
+   \begin{tabular}{|c|c|c|} \hline
+    \textbf{John} & \visible<2->{\textbf{she}} & \visible<3->{\textbf{every boy}} \\ \hline
+    $j$ & & \\ \hline
+    \visible<2->{$\lambda e \phi. \phi j (j :: e)$} & \visible<2->{$\lambda e \phi. \phi (\texttt{sel}_{she}(e)) e$} & \\ \hline
+    \visible<3->{$\lambda P e \phi. P j (j :: e) \phi$} &
+    \visible<3->{$\lambda P e \phi. P (\texttt{sel}_{she}(e)) e \phi$} &
+    \visible<3->{\begin{tabular}{@{}c@{}}$\lambda P e \phi. \phi\ [\forall x. (boy\ x) \rightarrow$ \\
+      $P\ x\ (x :: e)\ (\lambda p e'. p)]\ e$ \end{tabular}} \\ \hline
+    \visible<4->{\includepicture{john}} & & \\ \hline
+    \visible<5->{\includepicture{john_push}} & \visible<5->{\includepicture{she}} & \\ \hline
+    \visible<6->{\includepicture{john_push}} & \visible<6->{\includepicture{she}} & \visible<6->{\includepicture{everyboy}} \\ \hline
+  \end{tabular}
+  \end{adjustbox}
+\end{frame}
+
+\begin{frame}{Reaping the Benefits of Stability}
+  Consider the semantics of a relational noun like \textit{mother} in the
+  construction \textit{the mother of X}.
+
+  \pause
+
+  \begin{align*}
+    \sem{\textit{the mother of}} &= \lambda x.\ \semdom{mother}(x) \\
+    \pause
+    \sem{\textit{the mother of}} &= \lambda X e \phi.\ X\ (\lambda x e'. \phi\ (\semdom{mother}(x))\ e')\ e \\
+    \pause
+    \sem{\textit{the mother of}} &= \lambda X P e \phi.\ X\ (\lambda x e' \phi'.\ P\ (\semdom{mother}(x))\ e'\ \phi')\ e\ \phi \\
+  \end{align*}
+
+  \pause
+
+  Its denotation changes even though the meaning stays morally the same.
+\end{frame}
+
+
+
+\begin{frame}{Reaping the Benefits of Stability}
+How does it work in our system?
+\pause
+$$
+\sem{\textit{the mother of}} = \lambda X.\ X \hsbind (\lambda x. \semdom{mother}(x))
+$$
+\vfill
+\pause
+\begin{adjustbox}{center}
+  \begin{tabular}{ccc}
+    \visible<3->{\includepicturem{john_push}} & \visible<4->{\includepicturem{she}} & \visible<5->{\includepicturem{everyboy}} \\
+    & & \\
+    $\visible<3->{\Downarrow}$ & $\visible<4->{\Downarrow}$ & $\visible<5->{\Downarrow}$ \\
+    & & \\
+    \visible<3->{\includepicturem{john_mother}} & \visible<4->{\includepicturem{she_mother}} & \visible<5->{\includepicturem{everyboy_mother}} \\
+  \end{tabular}
+\end{adjustbox}
+\end{frame}
+
+\begin{frame}{Reaping the Benefits of Stability}
+  Our meaning for \textit{the mother of X} is agnostic about its
+  argument. It works with simple, quantificational or dynamic meanings of
+  \textit{X}.
+  \vfill
+  \pause
+  This also holds for more involved meanings of the relational noun.
+  \vfill
+  \only<1-2>{\vspace{58mm}}
+  \only<3>{
+  \begin{itemize}
+  \item dynamic \textit{mother}
+  \end{itemize}
+   $$
+   \sem{\textit{the mother of}} = \lambda X.\ X \hsbind \left(\lambda x. \begin{array}{l}\includepicturescale{dynamic_mother}{0.45}\end{array}\right)
+   $$
+  }
+  \only<4>{
+  \begin{itemize}
+  \item presuppositional \textit{mother}
+  \end{itemize}
+  $$
+  \sem{\textit{the mother of}} = \lambda X.\ X \hsbind \left(\lambda x. \begin{array}{l}\includepicturescale{presuppositional_mother}{0.35}\end{array}\right)
+  $$
+  \vspace{13mm}
+  }
+\end{frame}
+
+\begin{frame}{Proof of Concept}
+  \vfill
+
+  We have built a small prototype to test and explore our approach.
+  
+  \vfill
+  \begin{itemize}
+  \item in-situ quantification
+    \begin{itemize}
+    \item \textit{``Every driver bought a car.''}
+    \end{itemize}
+  \item discourse anaphora
+    \begin{itemize}
+    \item \textit{``John bought a car. He likes it.''}
+    \end{itemize}
+  \item presuppositions (of referentials)
+    \begin{itemize}
+    \item \textit{``John doesn't like my car.''}
+    \end{itemize}
+  \item their interactions
+    \begin{itemize}
+    \item e.g., binding problem
+    \item \textit{``Every driver sold his car.''}
+    \end{itemize}
+  \vfill
+  \pause
+  \item \mycolord{double negation}
+    \begin{itemize}
+    \item \textit{``Either John doesn't have a car or he keeps it in a
+      funny place.''}
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Double Negation as an Effect}
+  $$\textcolor{red}{\texttt{get\_polarity}} : 1 \to 2$$
+  \vfill
+  \begin{center}
+  \includepicturescale{double_negation}{0.4}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Stability Jeopardized}
+  $$X \dand Y = X \hsbind \left(\lambda x. Y \hsbind \left(\lambda y. \begin{array}{l}\includepicturescale{conj}{0.5}\end{array}\right)\right)$$
+  \vfill
+  \begin{adjustbox}{center}
+  $$\begin{array}{l}\includepicturescale{double_negation}{0.27}\end{array} \dand \begin{array}{l}\includepicturescale{A}{0.27}\end{array} = \begin{array}{l}\includepicturescale{double_negation_A}{0.27}\end{array}$$
+  \end{adjustbox}
+\end{frame}
+
+\begin{frame}{Stability Jeopardized}
+  $$X \dand_{DN} Y = (\texttt{unpolarize}\ X) \dand (\texttt{unpolarize}\ Y)$$ 
+  \vfill
+  \begin{adjustbox}{center}
+  $$\begin{array}{l}\includepicturescale{double_negation}{0.33}\end{array} \dand_{DN} \begin{array}{l}\includepicturescale{A}{0.33}\end{array} = \begin{array}{l}\includepicturescale{negation}{0.33}\end{array}$$
+  \end{adjustbox}
+\end{frame}
+
+\begin{frame}{Why is Double Negation Problematic?}
+  \framesubtitle{These are monads\ldots}
+
+  \begin{align*}
+    \mathcal{F} &: \text{Type} \to \text{Type} \\
+    \eta &: \alpha \to \mathcal{F}(\alpha) \\
+    (\hsbind) &: \mathcal{F}(\alpha) \to (\alpha \to \mathcal{F}(\beta)) \to \mathcal{F}(\beta)
+  \end{align*}
+  \vfill
+  \pause
+  \begin{align*}
+    (\kleislicomp) &: (\alpha \to \mathcal{F}(\beta)) \to (\beta \to \mathcal{F}(\gamma)) \to (\alpha \to \mathcal{F}(\gamma)) \\
+    f \kleislicomp g &= \lambda x.\ (f\ x) \hsbind g
+  \end{align*}
+  \vfill
+  \pause
+  \begin{align*}
+    \eta \kleislicomp f &= f \\
+    f \kleislicomp \eta &= f \\
+    f \kleislicomp (g \kleislicomp h) &= (f \kleislicomp g) \kleislicomp h
+  \end{align*}
+\end{frame}
+
+\begin{frame}{Why is Double Negation Problematic?}
+  \framesubtitle{\ldots but double negation\ldots}
+  
+  \begin{align*}
+    \mathcal{F}(\alpha) &= \alpha \times \alpha \\
+    \eta &= \lambda A. \left< A, \dnot A \right> \\
+    (\hsbind) &= \lambda M f. f (\pi_1 M)
+  \end{align*}
+  \vfill
+  \pause
+  \begin{align*}
+    \texttt{raise}_{\alpha \to \beta \to \gamma} &: (\alpha \to \beta \to \gamma) \to (\mathcal{F}(\alpha) \to \mathcal{F}(\beta) \to \mathcal{F}(\gamma)) \\
+    \texttt{raise}_{\alpha \to \beta \to \gamma} &= \lambda f X Y.\ X \hsbind (\lambda x. Y \hsbind (\lambda y. \eta\ (f\ x\ y))) \\
+    \texttt{raise}_{\alpha \to \beta \to \gamma}(\dand) &= \lambda X Y. \left< (\pi_1X) \dand (\pi_1Y), \dnot ((\pi_1 X) \dand (\pi_1 Y)) \right>
+  \end{align*}
+\end{frame}
+
+\begin{frame}{Why is Double Negation Problematic?}
+  \framesubtitle{\ldots is not a monad!}
+
+  \begin{align*}
+    f \kleislicomp \eta &= \lambda x. \left< \pi_1 (f\ x), \dnot (\pi_1 (f
+    \ x))\right> \\
+    f &= \lambda x. \left< \pi_1 (f\ x), \pi_2 (f\ x) \right>
+  \end{align*}
+  \vfill
+  \pause
+  \begin{align*}
+    f \kleislicomp \eta &\neq f
+  \end{align*}
+  \vfill
+  \pause
+  \begin{align*}
+    \mathcal{F} &: (\alpha \to \beta) \to (\mathcal{F}(\alpha) \to \mathcal{F}(\beta)) \\
+    \mathcal{F} &= \lambda f M. \left< f (\pi_1 M), \dnot (f (\pi_1 M)) \right> \\
+    \mathcal{F}(\texttt{id}_{\Omega}) &= \lambda M. \left< \pi_1 M, \dnot (\pi_1 M) \right> \\
+    \mathcal{F}(\texttt{id}_{\Omega}) &\neq \texttt{id}_{\mathcal{F}(\Omega)}
+  \end{align*}
+\end{frame}
+
+\begin{frame}{Effect on our Hypotheses}
+  \begin{block}{The pragmatic effects hypothesis:}
+  The integration of pragmatic phenomena into semantics can be adequately
+  (when compared to existing theories) modelled using a theory of
+  computational side effects.
+  
+  \uncover<2->{\begin{flushright}\textcolor{green}{\cmark}\end{flushright}}
+  \end{block}
+  \vfill
+  \begin{block}{The general effects hypothesis:}
+  The type generalizations proposed in formal semantics of natural language
+  (in-situ quantification, interrogatives, alternative semantics\ldots) can
+  be modelled using a theory of computational side effects.
+
+  \uncover<3->{\begin{flushright}\textcolor{red}{\xmark}\end{flushright}}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Summary}
+  \begin{itemize}
+  \item parallels between PLT and natural language semantics
+    \begin{itemize}
+    \item run deep and are not incidental
+    \end{itemize}
+   \vfill
+   \pause
+  \item a theory of effects could ease work on multiple phenomena
+    \begin{itemize}
+    \item our driving motivation (empirical coverage)
+    \item stable denotations help avoid generalizing to the worst case
+    \item captures parameters, mutable state, continuations, projections
+      and their filtering/cancelling both flexibly and compositionally
+      \begin{itemize}
+      \item used in PLT research and functional programming too
+      \end{itemize}
+    \end{itemize}
+    \vfill
+    \pause
+  \item next up:
+    \begin{itemize}
+    \item look for another solution to the double negation problem
+    \item keep growing the system; either it breaks and will be shown
+      insufficient or it will provide enough motivation for adoption in
+      linguistic community
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\end{document}
+
+
