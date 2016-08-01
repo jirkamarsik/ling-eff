@@ -649,7 +649,7 @@ This is a small variation of Example~\ref{ex:jones-porsche} in which
   discussion of proper nouns to~\ref{sec:presuppositions}.}.
 
 \begin{align*}
-  \sem{\appp{\abs{verb}}{&\abs{owns}}{(\ap{\abs{a}}{(\ap{\abs{noun}}{\abs{Porsche}})})}{(\ap{\abs{a}}{(\ap{\abs{noun}}{\abs{man}})})}} \\
+  \sem{\appp{\abs{trans}}{&\abs{owns}}{(\ap{\abs{a}}{(\ap{\abs{noun}}{\abs{Porsche}})})}{(\ap{\abs{a}}{(\ap{\abs{noun}}{\abs{man}})})}} \\
   \tto &\ \app{\op{introduce}}{\star}{(\lam{x}{ \\
        &\ \app{\op{assert}}{(\obj{man}(x))}{(\lam{\_}{ \\
        &\ \app{\op{introduce}}{\star}{(\lam{y}{ \\
@@ -665,7 +665,7 @@ and the object. The same goes for the second sentence in
 Example~\ref{ex:man-porsche}:
 
 \begin{align*}
-  \sem{\appp{\abs{verb}}{&\abs{fascinates}}{\abs{him}}{\abs{it}}} \\
+  \sem{\appp{\abs{trans}}{&\abs{fascinates}}{\abs{him}}{\abs{it}}} \\
   \tto &\ \app{\op{choose}}{\star}{(\lam{y'}{ \\
        &\ \app{\op{introduce}}{\star}{(\lam{u}{ \\
        &\ \app{\op{assert}}{(u = y')}{(\lam{\_}{ \\
@@ -679,7 +679,7 @@ We can compose the two using $\andlr$, the conjunction of propositions
 raised to computations.
 
 \begin{align*}
-  \sem{\appp{\abs{verb}}{&\abs{owns}}{(\ap{\abs{a}}{(\ap{\abs{noun}}{\abs{Porsche}})})}{(\ap{\abs{a}}{(\ap{\abs{noun}}{\abs{man}})})}} \andlr \sem{\appp{\abs{verb}}{\abs{fascinates}}{\abs{him}}{\abs{it}}} \\
+  \sem{\appp{\abs{trans}}{&\abs{owns}}{(\ap{\abs{a}}{(\ap{\abs{noun}}{\abs{Porsche}})})}{(\ap{\abs{a}}{(\ap{\abs{noun}}{\abs{man}})})}} \andlr \sem{\appp{\abs{trans}}{\abs{fascinates}}{\abs{him}}{\abs{it}}} \\
   \tto &\ \app{\op{introduce}}{\star}{(\lam{x}{ \\
        &\ \app{\op{assert}}{(\obj{man}(x))}{(\lam{\_}{ \\
        &\ \app{\op{introduce}}{\star}{(\lam{y}{ \\
@@ -772,7 +772,7 @@ Getting back to Example~\ref{ex:man-porsche}, we can now apply one of these
 two handlers to get the dynamic proposition.
 
 \begin{align*}
-&\ap{\TTDL}{(\sem{\appp{\abs{verb}}{\abs{owns}}{(\ap{\abs{a}}{(\ap{\abs{noun}}{\abs{Porsche}})})}{(\ap{\abs{a}}{(\ap{\abs{noun}}{\abs{man}})})}} \andlr \sem{\appp{\abs{verb}}{\abs{fascinates}}{\abs{him}}{\abs{it}}})} \\
+&\ap{\TTDL}{(\sem{\appp{\abs{trans}}{\abs{owns}}{(\ap{\abs{a}}{(\ap{\abs{noun}}{\abs{Porsche}})})}{(\ap{\abs{a}}{(\ap{\abs{noun}}{\abs{man}})})}} \andlr \sem{\appp{\abs{trans}}{\abs{fascinates}}{\abs{him}}{\abs{it}}})} \\
 &\tto \lam{e \phi}{\exists x.\ \obj{man}(x) \land (\exists y.\ \obj{Porsche}(y) \land (\exists u.\ u = \sel(e_1) \land (\exists v.\ v = \sel(e_2) \land \obj{own}(x, y) \land \obj{fascinate}(u, v) \land \ap{\phi}{e_3})))} \\
 &= \lam{e \phi}{\exists x y u v.\ \obj{man}(x) \land \obj{Porsche}(y) \land u = \sel(e_1) \land v = \sel(e_2) \land \obj{own}(x, y) \land \obj{fascinate}(u, v) \land \ap{\phi}{e_3}} \\
 &= \lam{e \phi}{\exists x y u v.\ \obj{man}(x) \land \obj{Porsche}(y) \land u = y \land v = x \land \obj{own}(x, y) \land \obj{fascinate}(u, v) \land \ap{\phi}{e_3}} \\
@@ -938,9 +938,9 @@ handler to extract the proposition that is represented by this computation.
 \begin{align*}
   \TTDL' :\ &\FF_{E_\DRT}(1) \to \gamma \to (\gamma \to o) \to o \\
   \TTDL' = \bbanana{\ 
-  &\onto{\op{choose}}{(\lam{\_ k e \phi}{\appp{k}{(\ap{\sel}{e})}{e}{\phi}})} \\
-  &\onto{\op{introduce}}{(\lam{\_ k e \phi}{\exists x.\ \appp{k}{x}{(x \cons e)}{\phi}})} \\
-  &\onto{\op{assert}}{(\lam{p k e \phi}{p \land \appp{k}{\star}{(p \cons e)}{\phi}})} \\
+  &\onto{\op{choose}}{(\lam{\_ k e \phi}{\appp{k}{(\ap{\sel}{e})}{e}{\phi}})}, \\
+  &\onto{\op{introduce}}{(\lam{\_ k e \phi}{\exists x.\ \appp{k}{x}{(x \cons e)}{\phi}})}, \\
+  &\onto{\op{assert}}{(\lam{p k e \phi}{p \land \appp{k}{\star}{(p \cons e)}{\phi}})}, \\
   &\onto{\eta}{(\lam{\_ e \phi}{\ap{\phi}{e}})}\ }
 \end{align*}
 
@@ -948,15 +948,208 @@ The handler differs from $\TTDL$ only in the $\eta$ clause, which
 substitutes $\top$ for the returned proposition $p$ in
 $\lam{e \phi}{p \land \ap{\phi}{e}}$.
 
+We can use computations of type $\FF_{E_\DRT}(1)$ as our type of dynamic
+(i.e.\ effectful) propositions. We can embed simple propositions using
+$\op{assert}!$, which has type $o \to \FF_{E_\DRT}(1)$. We can perform
+conjunction by chaining two computations,
+$M \hsbind (\lam{\_}{N}) : \FF_{E_\DRT}(1)$ for $M, N :
+\FF_{E_\DRT}(1)$. We can modify $\BOX$ to get $\BOX'$ the same way we
+modified $\TTDL$ to get $\TTDL'$. Negation will be the same as before, with
+$\eta$ being replaced $\op{assert}!$ and $\BOX$ with $\BOX'$.
+
+\begin{align*}
+  \BOX' :\ &\FF_{E_\DRT}(1) \to \gamma \to o \\
+  \BOX' = \bbanana{\ 
+  &\onto{\op{get}}{(\lam{\_ k e}{\app{k}{e}{e}})}, \\
+  &\onto{\op{introduce}}{(\lam{\_ k e}{\exists x.\ \appp{k}{x}{(x \cons e)}})}, \\
+  &\onto{\op{assert}}{(\lam{p k e}{p \land \appp{k}{\star}{(p \cons e)}})}, \\
+  &\onto{\eta}{(\lam{\_ e}{\top})}\ }
+\end{align*}
+
+$$
+\dnot A = \app{\op{get}}{\star}{(\lam{e}{\ap{\op{assert}!}{(\lnot (\app{\BOX'}{A}{e}))}})}
+$$
+
+In the lexical entries derived from the construction rules, not much will
+have to change. We will only see a difference in the lexical entry
+$\abs{trans}$ that we have introduced for the $\crlitv$ rule for transitive
+verbs (which was extrapolated from the DRT treatment
+in~\cite{kamp1993discourse}). Instead of returning the proposition as the
+result of evaluating the sentence, we add it as a condition using
+$\op{assert}!$, which is actually what the DRS construction algorithm ends
+up doing.
+
+\begin{align*}
+\abs{trans} &: V \limp NP \limp NP \limp S \\
+\sem{\abs{trans}} &= \lam{\alpha Y X}{\op{assert}! \apr (\alpha \apr X \aplr Y)}
+\end{align*}
+
+This means that we can build up our dynamic semantics using computations
+that do not return anything, only modify the context using side
+effects. This is very much in the spirit of dynamic semantics: meaning is
+context change potential.
+
+If we look closer at TTDL, we can see that the same strategy is applied
+there. Let $S$ be the state monad which maps the type $\alpha$ to the type
+$\gamma \to (\alpha \times \gamma)$. This is the monad that underlies
+state, such as the storing and retrieving of discourse referents. Its
+corresponding monad transformer $S(F)$ maps the type $\alpha$ to the type
+$\gamma \to F(\alpha \times \gamma)$. Let $C$ be the continuation monad
+which maps the type $\alpha$ to the type $(\alpha \to o) \to o$. By
+applying the $S$ monad transformer to the $C$ monad, we get a monad $S(C)$
+that maps the type $\alpha$ to the type
+$\gamma \to (\alpha \times \gamma \to o) \to o$. This monad characterizes
+computations that have read/write access to some state of type $\gamma$ and
+can manipulate their continuation of type $o$. If we look at such
+computations of return type $1$, we get a computation type
+$\gamma \to (1 \times \gamma \to o) \to o$. By the isomorphism between
+$1 \times \gamma$ and $\gamma$, this is the same as
+$\gamma \to (\gamma \to o) \to o$, which is the type $\Omega$ of dynamic
+propositions in TTDL.\@ The correspondence is not a shallow coincidence of
+types, but many of the terms of TTDL can be generated using the $\eta$ and
+$\hsbind$ of this monad.
+
+The switch from $\FF_E(o)$ to $\FF_{E \uplus DRT}(1)$ is very much like the
+one from $\FF_E((\iota \to o) \to o)$ to
+$\FF_{E \uplus \op{scope}}(\iota)$: we found a way to encode
+quantifiers/truth conditions as side effects and so we move the extra
+structure from the return type to the effect signature. The choice between
+the two is rather arbitrary. Keeping $o$ as the return type for
+computations that interpret sentences is more consistent with what we have
+been doing in Chapter~\ref{chap:introducing-effects}. On the other hand,
+using $1$ as the return type:
+
+\begin{itemize}
+\item is more uniform by not admitting both $\etaE{A}$ and
+  $\ap{\op{assert}!}{A}$
+\item which leads to nicer canonical representations and equational theory
+  in~\ref{ssec:algebraic-drt}
+\item in order to correctly treat the cancellation of presuppositions
+  in~\ref{sec:presuppositions}, we will need to add the truth-conditions
+  generated by verbs into the context using something like $\op{assert}$
+  anyway
+\end{itemize}
+
+For the remainder of this chapter, we will use the encoding that models
+sentences as computations of return type $1$.
+
 
 \subsection{Algebraic Considerations}
 \label{ssec:algebraic-drt}
 
 Now that we have handlers for our computations, we can study which
 computations share the same interpretations and try to derive some
-equational theory over them. Though before we do so, we will address a
-slight variation that one could pursue in modeling dynamic semantics as
-computations.
+equational theory over them.
+
+We will first start by looking at how $\op{get}$ behaves w.r.t.\ itself and
+the other operations.
+
+\begin{align*}
+   \app{\op{get}}{\star}{(\lam{e}{\app{\op{get}}{\star}{(\lam{e'}{M(e, e')})}})}
+&= \app{\op{get}}{\star}{(\lam{e}{M(e, e)})} \\
+   M
+&= \app{\op{get}}{\star}{(\lam{e}{M})}
+\end{align*}
+
+As with the $\op{speaker}$ getter from~\ref{sec:deixis}, we get two laws
+telling us that asking for the context is idempotent (first equation) and
+that it has no other bearing on the result of the computation (second
+equation).
+
+Since we know how $\op{assert}$ and $\op{introduce}$ modify the context, we
+can reorder $\op{get}$ w.r.t.\ these two operations:
+
+\begin{align*}
+   \app{\op{assert}}{A}{(\lam{u}{\app{\op{get}}{\star}{(\lam{e}{M(u, e)})}})}
+&= \app{\op{get}}{\star}{(\lam{e}{\app{\op{assert}}{A}{(\lam{u}{M(u, A \cons e)})}})} \\
+   \app{\op{introduce}}{\star}{(\lam{x}{\app{\op{get}}{\star}{(\lam{e}{M(x, e)})}})}
+&= \app{\op{get}}{\star}{(\lam{e}{\app{\op{introduce}}{\star}{(\lam{x}{M(x, x \cons e)})}})} \\
+\end{align*}
+
+This means we can assume that every computation of type $\FF_{E_\DRT}(1)$
+uses $\op{get}$ exactly once and does so at the very beginning, i.e.\ it is
+of the form $\app{\op{get}}{\star}{(\lam{e}{M(e)})}$ where
+$M(e) : \FF_{\{\op{implicate}, \op{assert}\}}(1)$.
+
+If we assume that relative order of discourse referents and conditions is
+not important (i.e.\ they are both separate parts, as in a DRS),
+$x \cons p \cons e = p \cons x \cons e$ for $x : \iota$, $p : o$ and
+$e : \gamma$, then we get the following equation:
+
+$$
+  \app{\op{assert}}{A}{(\lam{u}{\app{\op{introduce}}{\star}{(\lam{x}{M(u, x)})}})} 
+= \app{\op{introduce}}{\star}{(\lam{x}{\app{\op{assert}}{A}{(\lam{u}{M(u, x)})}})}
+$$
+
+This will allows us to move $\op{introduce}$ operations above $\op{assert}$
+operations so that we can have the following canonical representation for
+computations of type $\FF_{E_\DRT}(1)$:
+
+\begin{align*}
+  &\app{\op{get}}{\star}{(\lam{e}{ \\
+  &\app{\op{introduce}}{\star}{(\lam{x_1}{ \\
+  &\qquad \cdots \\
+  &\app{\op{introduce}}{\star}{(\lam{x_n}{ \\
+  &\app{\op{assert}}{c_1}{(\lam{\_}{ \\
+  &\qquad \cdots \\
+  &\app{\op{assert}}{c_m}{(\lam{\_}{ \\
+  &\etaE{\star}})}})}})}})}})}
+\end{align*}
+
+In other words, the computation examines its context $e$ and then produces
+the DRS:
+
+\vspace{2mm}
+
+\drs{$x_1$\ \ldots\ $x_n$}{$c_1$ \\ $\cdots$ \\ $c_m$}
+
+\vspace{2mm}
+
+Note that as in TTDL, discourse referents correspond to $\lambda$-binders
+in $\banana{\lambda}$ and their standard notion of $\alpha$-equivalence
+gives rise to $\alpha$-equivalence for our representations.
+
+If we were to further assume that the order in contexts does not matter at
+all (i.e.\ the discourse referents and conditions form sets, as in a DRS),
+$x \cons y \cons e = y \cons x \cons e$ and
+$p \cons q \cons e = q \cons p \cons e$ for $x, y : \iota$, $p, q : o$ and
+$e : \gamma$, then we get the following:
+
+\begin{align*}
+   \app{\op{assert}}{A}{(\lam{u_1}{\app{\op{assert}}{B}{(\lam{u_2}{M(u_1, u_2)})}})} 
+&= \app{\op{assert}}{B}{(\lam{u_2}{\app{\op{assert}}{A}{(\lam{u_1}{M(u_1, u_2)})}})} \\
+   \app{\op{introduce}}{\star}{(\lam{x}{\app{\op{introduce}}{\star}{(\lam{y}{M(x, y)})}})} 
+&= \app{\op{introduce}}{\star}{(\lam{y}{\app{\op{introduce}}{\star}{(\lam{x}{M(x, y)})}})}
+\end{align*}
+
+Since the discourse referents and conditions are (unordered) sets in the
+presentation in~\cite{kamp1993discourse}, this would make our
+representation closer to DRSs.
+
+Finally, if we assume that the conditions in a context can be seen as a big
+conjunction, $p \cons q \cons e = (p \land q) \cons e$ for $p, q : o$ and
+$e : \gamma$, then we admit the following equations:
+
+$$
+  \app{\op{assert}}{A}{(\lam{u}{\app{\op{assert}}{B}{(\lam{u'}{M(u, u')})}})} 
+= \app{\op{assert}}{(A \land B)}{(\lam{u}{M(u, u)})}
+$$
+
+which gives us a simpler canonical representation:
+
+\begin{align*}
+  &\app{\op{get}}{\star}{(\lam{e}{ \\
+  &\app{\op{introduce}}{\star}{(\lam{x_1}{ \\
+  &\qquad \cdots \\
+  &\app{\op{introduce}}{\star}{(\lam{x_n}{ \\
+  &\app{\op{assert}}{p}{(\lam{\_}{ \\
+  &\etaE{\star}})}})}})}})}
+\end{align*}
+
+This boils down a computation of type $\FF_{E_\DRT}(1)$ into a proposition
+$p$ that depends on some context $e$ and introduces the new discourse
+referents $x_1$, \ldots, $x_n$.
+
 
 \section{Presuppositions}
 \label{sec:presuppositions}

@@ -732,8 +732,8 @@ computations will be interpreted with the same value) with an eye towards
 deriving some canonical form.
 
 \begin{align*}
-  \app{\op{implicate}}{a}{(\lam{x}{\app{\op{implicate}}{b}{(\lam{y}{M(x,y)})}})}
-  &= \app{\op{implicate}}{(a \land b)}{(\lam{x}{M(x,x)})} \\
+  \app{\op{implicate}}{A}{(\lam{x}{\app{\op{implicate}}{B}{(\lam{y}{M(x,y)})}})}
+  &= \app{\op{implicate}}{(A \land B)}{(\lam{x}{M(x,x)})} \\
   M &= \app{\op{implicate}}{\top}{(\lam{x}{M})}
 \end{align*}
 
@@ -748,14 +748,14 @@ using conjunction, we can collapse two implicatures into a single
 implicature. Furthermore, implicating the tautology $\top$ has no
 observable effect. By making an appeal to the conjunction operator, we can
 make use of the equations governing the operations on propositions and
-derive equations for,e.g., the commutativity or idempotence of
+derive equations for, e.g., the commutativity or idempotence of
 $\op{implicate}$:
 
 \begin{align*}
-  \app{\op{implicate}}{a}{(\lam{x}{\app{\op{implicate}}{b}{(\lam{y}{M(x,y)})}})}
-  &= \app{\op{implicate}}{(a \land b)}{(\lam{x}{M(x,x)})} \\
-  &= \app{\op{implicate}}{(b \land a)}{(\lam{x}{M(x,x)})} \\
-  &= \app{\op{implicate}}{b}{(\lam{x}{\app{\op{implicate}}{a}{(\lam{y}{M(y,x)})}})}
+  \app{\op{implicate}}{A}{(\lam{x}{\app{\op{implicate}}{B}{(\lam{y}{M(x,y)})}})}
+  &= \app{\op{implicate}}{(A \land B)}{(\lam{x}{M(x,x)})} \\
+  &= \app{\op{implicate}}{(B \land A)}{(\lam{x}{M(x,x)})} \\
+  &= \app{\op{implicate}}{B}{(\lam{x}{\app{\op{implicate}}{A}{(\lam{y}{M(y,x)})}})}
 \end{align*}
 
 A denotation in $\FF_{\{ \typedop{implicate}{o}{1} \}}(\alpha)$ is a
@@ -1234,11 +1234,11 @@ admissible equations for $\op{scope}$. If we try to collapse two uses of
 $\op{scope}$ into a single one, we can succeed only partially:
 
 $$
-\app{\op{scope}}{f_1}{(\lam{x}{\app{\op{scope}}{f_2}{(\lam{y}{M(x,y)})}})}
-= \app{\op{scope}}{(\lam{c}{\ap{f_1}{(\lam{x}{\ap{f_2}{(\lam{y}{\ap{c}{(x,y)}})}})}})}{(\lam{(x,y)}{M(x,y)})}
+\app{\op{scope}}{F_1}{(\lam{x}{\app{\op{scope}}{F_2}{(\lam{y}{M(x,y)})}})}
+= \app{\op{scope}}{(\lam{c}{\ap{F_1}{(\lam{x}{\ap{F_2}{(\lam{y}{\ap{c}{(x,y)}})}})}})}{(\lam{(x,y)}{M(x,y)})}
 $$
 
-We can compose the two quantifiers $f_1$ and $f_2$, but then we are
+We can compose the two quantifiers $F_1$ and $F_2$, but then we are
 quantifying over pairs of individuals $(x,y)$, which is not something that
 we have planned to do with $\op{scope}$, whose output type is $\iota$, the
 type of (single) individuals. Therefore, the above would not even
