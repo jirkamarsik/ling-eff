@@ -1271,8 +1271,8 @@ undesired meaning. If we package the two operations into a single
 $\op{presuppose\_somewhere}$, then we do not have this problem.
 
 
-\subsection{Opening the Dynamic Handler}
-\label{ssec:opening-dynamic-handler}
+\subsection{Revising the Dynamic Handler}
+\label{ssec:revising-dynamic-handler}
 
 We will want to introduce the $\op{presuppose}$ operation into our dynamic
 semantics in such a way that $\op{presuppose}$ projects outside of boxes
@@ -1374,15 +1374,77 @@ $$
 \dnot A = \app{\op{get}}{\star}{(\lam{e}{\app{\BOX}{A}{e} \hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}})})}
 $$
 
+Now that we have an open version of the $\BOX$ handler, there is one change
+that we will make in how it actually functions. We will motivate it by the
+following example.
 
-\subsection{Example}
-\label{ssec:presupposition-example}
+\begin{exe}
+  \ex \label{ex:not-john-car} It is not the case that John$_1$ likes his$_1$ car.
+\end{exe}
+
+The negation will use $\op{get}$ to retrieve the current context $e$ and
+then proceed by computing
+$(\app{\BOX}{\sem{\text{John likes his car}}}{e})$. The proper noun
+\emph{John} will then use $\op{presuppose}$, which will project out of the
+$\BOX$ and introduce John into some superordinate context. But now we have
+to evaluate the pronoun \emph{his} in the context $e$ which was untouched
+by \emph{John} and we will thus fail to retrieve John and get the expected
+reading. The problem is in our definition of $\dnot A$. We want anaphoric
+expressions within $A$ to have access to referents introduced outside of
+$A$. We do this by using $\op{get}$ to recover the context $e$ in which we
+are about to evaluate $\dnot A$ and then use that context as the initial
+context when interpreting anaphora in $A$ with $\app{\BOX}{A}{e}$. While
+this works well for TTDL, in which dynamic propositions have no way to
+modify contexts other contexts than the local one, it breaks when we allow
+$\op{presuppose}$ to modify the top context.
+
+The solution is to dismiss the assumption that surrounding contexts are
+immune to change. Whenever we handle a $\op{get}$, we use another
+$\op{get}$ to gather the current state of the surrounding context and then
+combine that with the local context. This solution will actually simplify
+the definition of $\dnot$ and the type of $\BOX$, since $\BOX$ does not
+need to be seeded with its surrounding context but retrieves it itself when
+necessary. Furthermore, note that this solution was not available to us
+before we made the handler open, since it interprets computations in
+$\FF_{E_\DRT}(1)$ into computations in $\FF_{\{\typedop{get}{1}{\gamma}\}}(o)$.
+
+\begin{align*}
+  \BOX :\ &\FF_{E \uplus E_\DRT}(1) \to \FF_{E \uplus \{\typedop{get}{1}{\gamma}\}}(o) \\
+  \BOX = \lam{A}{(\ap{\banana{\ 
+  &\onto{\op{get}}{(\lam{\_ k}{\etaE{(\lam{e}{\app{\op{get}}{\star}{(\lam{e'}{\ap{k}{(e \cat e')} \apll e})}})}})}, \\
+  &\onto{\op{introduce}}{(\lam{\_ k}{\etaE{(\lam{e}{\exists \apr (\ap{\CC}{(\lam{x}{\ap{k}{x} \apll (x \cons e)})})})}})}, \\
+  &\onto{\op{assert}}{(\lam{p k}{\etaE{(\lam{e}{p \andr (\ap{k}{\star} \apll (p \cons e))})}})}, \\
+  &\onto{\eta}{(\lam{\_}{\etaE{(\lam{e}{\top})}})}\ }}{A}) \apll \nil}
+\end{align*}
+
+The $\op{get}$ now uses another $\op{get}$ to retrieve the current
+surrounding $e'$ which is then combined with the local context $e$ as the
+answer to the original $\op{get}$. In order to combine the two contexts, we
+assume that there is some operation
+$(\cat) : \gamma \to \gamma \to \gamma$. If contexts are (pairs of) lists,
+then this operation would be (pointwise) list concatenation. Since we
+always ask again for the surrounding context, we do not need the
+surrounding context as an argument to $\BOX$. Instead, we pass in $\nil$ as
+the initial local context, where $\nil : \gamma$ is a constant representing
+the empty context, e.g.\ an empty list.
+
+
+\subsection{Presupposition in Action}
+\label{ssec:presupposition-in-action}
+
+
+
+
+\subsection{Cancelling Presuppositions}
+\label{ssec:cancelling-presuppositions}
 
 
 
 
 \subsection{Presupposition Ambiguities}
 \label{ssec:presupposition-ambiguities}
+
+
 
 
 \section{Double Negation}
