@@ -763,8 +763,8 @@ $\lam{e}{\top}$.
   \BOX :\ &\FF_E(o) \to \gamma \to o \\
   \BOX = \bbanana{\ 
   &\onto{\op{choose}}{(\lam{\_ k e}{\app{k}{(\sel(e))}{e}})}, \\
-  &\onto{\op{introduce}}{(\lam{\_ k e}{\exists x.\ \appp{k}{x}{(x \cons e)}})}, \\
-  &\onto{\op{assert}}{(\lam{p k e}{p \land \appp{k}{\star}{(p \cons e)}})}, \\
+  &\onto{\op{introduce}}{(\lam{\_ k e}{\exists x.\ \app{k}{x}{(x \cons e)}})}, \\
+  &\onto{\op{assert}}{(\lam{p k e}{p \land \app{k}{\star}{(p \cons e)}})}, \\
   &\onto{\eta}{(\lam{p e}{p})}\ }
 \end{align*}
 
@@ -897,8 +897,8 @@ instead of $\op{choose}$:
   \BOX :\ &\FF_{E_\DRT}(o) \to \gamma \to o \\
   \BOX = \bbanana{\ 
   &\onto{\op{get}}{(\lam{\_ k e}{\app{k}{e}{e}})}, \\
-  &\onto{\op{introduce}}{(\lam{\_ k e}{\exists x.\ \appp{k}{x}{(x \cons e)}})}, \\
-  &\onto{\op{assert}}{(\lam{p k e}{p \land \appp{k}{\star}{(p \cons e)}})}, \\
+  &\onto{\op{introduce}}{(\lam{\_ k e}{\exists x.\ \app{k}{x}{(x \cons e)}})}, \\
+  &\onto{\op{assert}}{(\lam{p k e}{p \land \app{k}{\star}{(p \cons e)}})}, \\
   &\onto{\eta}{(\lam{p e}{p})}\ }
 \end{align*}
 
@@ -936,16 +936,16 @@ This is a computation of type $\FF_{E_\DRT}(1)$. As before, we use a
 handler to extract the proposition that is represented by this computation.
 
 \begin{align*}
-  \TTDL' :\ &\FF_{E_\DRT}(1) \to \gamma \to (\gamma \to o) \to o \\
-  \TTDL' = \bbanana{\ 
+  \TTDL :\ &\FF_{E_\DRT}(1) \to \gamma \to (\gamma \to o) \to o \\
+  \TTDL = \bbanana{\ 
   &\onto{\op{choose}}{(\lam{\_ k e \phi}{\appp{k}{(\ap{\sel}{e})}{e}{\phi}})}, \\
   &\onto{\op{introduce}}{(\lam{\_ k e \phi}{\exists x.\ \appp{k}{x}{(x \cons e)}{\phi}})}, \\
   &\onto{\op{assert}}{(\lam{p k e \phi}{p \land \appp{k}{\star}{(p \cons e)}{\phi}})}, \\
   &\onto{\eta}{(\lam{\_ e \phi}{\ap{\phi}{e}})}\ }
 \end{align*}
 
-The handler differs from $\TTDL$ only in the $\eta$ clause, which
-substitutes $\top$ for the returned proposition $p$ in
+The handler differs from the original $\TTDL$ only in the $\eta$ clause,
+which substitutes $\top$ for the returned proposition $p$ in
 $\lam{e \phi}{p \land \ap{\phi}{e}}$.
 
 We can use computations of type $\FF_{E_\DRT}(1)$ as our type of dynamic
@@ -953,21 +953,21 @@ We can use computations of type $\FF_{E_\DRT}(1)$ as our type of dynamic
 $\op{assert}!$, which has type $o \to \FF_{E_\DRT}(1)$. We can perform
 conjunction by chaining two computations,
 $M \hsbind (\lam{\_}{N}) : \FF_{E_\DRT}(1)$ for $M, N :
-\FF_{E_\DRT}(1)$. We can modify $\BOX$ to get $\BOX'$ the same way we
-modified $\TTDL$ to get $\TTDL'$. Negation will be the same as before, with
-$\eta$ being replaced $\op{assert}!$ and $\BOX$ with $\BOX'$.
+\FF_{E_\DRT}(1)$. We can modify $\BOX$ the same way we modified
+$\TTDL$. Negation will be the same as before, with $\eta$ being replaced
+$\op{assert}!$.
 
 \begin{align*}
-  \BOX' :\ &\FF_{E_\DRT}(1) \to \gamma \to o \\
-  \BOX' = \bbanana{\ 
+  \BOX :\ &\FF_{E_\DRT}(1) \to \gamma \to o \\
+  \BOX = \bbanana{\ 
   &\onto{\op{get}}{(\lam{\_ k e}{\app{k}{e}{e}})}, \\
-  &\onto{\op{introduce}}{(\lam{\_ k e}{\exists x.\ \appp{k}{x}{(x \cons e)}})}, \\
-  &\onto{\op{assert}}{(\lam{p k e}{p \land \appp{k}{\star}{(p \cons e)}})}, \\
+  &\onto{\op{introduce}}{(\lam{\_ k e}{\exists x.\ \app{k}{x}{(x \cons e)}})}, \\
+  &\onto{\op{assert}}{(\lam{p k e}{p \land \app{k}{\star}{(p \cons e)}})}, \\
   &\onto{\eta}{(\lam{\_ e}{\top})}\ }
 \end{align*}
 
 $$
-\dnot A = \app{\op{get}}{\star}{(\lam{e}{\ap{\op{assert}!}{(\lnot (\app{\BOX'}{A}{e}))}})}
+\dnot A = \app{\op{get}}{\star}{(\lam{e}{\ap{\op{assert}!}{(\lnot (\app{\BOX}{A}{e}))}})}
 $$
 
 In the lexical entries derived from the construction rules, not much will
@@ -1153,6 +1153,236 @@ referents $x_1$, \ldots, $x_n$.
 
 \section{Presuppositions}
 \label{sec:presuppositions}
+
+In our $\banana{\lambda}$ analysis of anaphora, we have completely omitted
+proper nouns, even though they are treated by DRT
+in~\cite{kamp1993discourse} and feature in
+Example~\ref{ex:jones-porsche}. This is due to the fact that proper nouns
+trigger presuppositions: \emph{Jones sleeps} presupposes that there is some
+(contextually salient) entity named Jones. These presuppositions project
+outside of entailment-cancelling operators such as negation, outside of the
+DRSs in which they are contained.
+
+\begin{exe}
+  \ex \label{ex:jones-mercedes} It is not the case that Jones owns a
+  Porsche. He owns a Mercedes.
+\end{exe}
+
+In Example~\ref{ex:jones-mercedes}, the proper noun \emph{Jones}
+contributes a discourse referent which is then picked up in the second
+sentence. This would be impossible to achieve using $\op{introduce}$, since
+that would contribute the referent only to the DRS ($\BOX$) that is being
+negated and the discourse referent would not reach the second sentence.
+
+\begin{figure}
+\centering
+\crpnbox
+\caption{\label{fig:crpn} $\crpn$: The construction rule for proper nouns.}
+\end{figure}
+
+If we look at the construction rule for proper nouns in DRT, $\crpn$,
+displayed on Figure~\ref{fig:crpn}, we will see that the discourse referent
+and the condition describing it are being inserted into the main DRS and
+not into the DRS $K$, in which the condition being reduced appears.
+
+In TTDL, this issue was resolved by adding exceptions into the lambda
+calculus used for the semantic terms~\cite{lebedeva2012expression}. The
+lexical entry for a presuppositional trigger such as a proper noun or a
+definite description throws an exception,
+$(\texttt{AbsentIndividualExc}\ P)$. This exception carries the predicate
+$P$ that describes the entity that is presupposed to exist. At the top
+level, a handler catches these exceptions and accomodates these
+presuppositions. We have seen that in $\banana{\lambda}$, dynamic
+propositions are modelled as computations and these computations already
+have a notion of throwing exceptions (effects) and handling them
+(handlers). We will introduce an operation named $\op{presuppose}$. Its
+input type will be $\iota \to o$, a predicate that describes the entity
+whose existence is presupposed. The output type will be $\iota$, the
+presupposed entity satisfying the predicate.
+
+$$
+\typedop{presuppose}{(\iota \to o)}{\iota}
+$$
+
+The type of this operation is not exactly equivalent to the exception
+$\texttt{AbsentIndividualExc}$ from~\cite{lebedeva2012expression}. As we
+have seen in Chapter~\ref{ssec:expressions-as-computations}, exceptions are
+effects that have the impossible output type $0$, which means that no
+handler will be able to resume the computation by using the
+continuation. In Lebedeva's approach, when the toplevel handler intercepts
+the exception, it accomodates the presupposition, rewinds the dynamic state
+and evaluates the sentence again, this time with a context which now
+contains the presupposed entity. This is not suitable to our approach
+because of two reasons:
+
+\begin{itemize}
+\item We will deal with many other effects besides dynamic state and
+  rewinding all of their effects in order to evaluate the sentence again in
+  a new context would be needlessly complex.
+\item This approach over-generates by licencing the reading ``He$_1$ loves
+  John's$_1$ car''. When evaluating \emph{John}, the existence of John is
+  presupposed and the sentence is evaluated again, in a context in which
+  John is accessible. However, this will allow the pronoun in subject
+  position to resolve to John and end up being bound by the object.
+\end{itemize}
+
+The effects in $\banana{\lambda}$ differ from traditional exceptions in
+that they are resumable. Besides having the input type (which is the
+message type of a traditional exception), they also have an output
+type. Handlers can then resume computation at the point of the effect by
+calling the continuation with a value of the output type. We make full use
+of this in our treatment of presuppositions by using $\iota$ as the output
+type of $\op{presuppose}$. This way, we do not have to abort the evaluation
+of the sentence, rewind all of the effects and evaluate it again; we return
+the presupposed entity immediately and the evaluation of the sentence
+continues. This strategy also avoid the over-generation mentioned above, in
+which a presupposition trigger binds a pronoun preceding it.
+
+We have shown have the $\op{presuppose}$ operation can be motivated on the
+grounds of the analysis done by Lebedeva
+in~\cite{lebedeva2012expression}. We can also look at how it ties to the
+DRT construction rule for presupposition triggers such as $\crpn$. When
+translating construction rules into computations, we have implemented the
+\textbf{Introduce in $\universe_K$} command as the $\op{introduce}$
+operation and the \textbf{Introduce in $\conditions_K$} as the
+$\op{assert}$ operation. We might therefore proceed the same way and
+translate the \textbf{Introduce into the universe of the main DRS} command
+as some operation $\typedop{introduce\_main}{\star}{\iota}$ and
+\textbf{Introduce into the condition set of the main DRS} command as
+$\typedop{assert\_main}{o}{1}$. However, by looking at the construction
+rules of presupposition triggers, we see that they tend to use the two
+operations in tandem: first introduce a new discourse referent and then
+some condition(s) describing it. Therefore, we can fuse the two into a
+single operation $\typedop{presuppose}{(\iota \to o)}{\iota}$, which
+introduces and outputs a new discourse referent $x$ while at the same it
+introduces the condition $P(x)$, where $P$ is its argument.
+
+Besides lowering the number of basic operations that we have to introduce,
+this also has an advantage when we start to consider ambiguous ways of
+accomodating presuppositions
+(\ref{ssec:presupposition-ambiguities}). Suppose we have two operations,
+$\op{introduce\_somewhere}$ and $\op{assert\_somewhere}$, that let us
+introduce discourse referents and conditions into arbitrary DRSs on the
+projection line\footnote{A \emph{projection line} is a path in the
+  accessibility tree from a sub-DRS to the root of the
+  tree~\cite{van1992presupposition}.}. We might then end up accomodating
+the discourse referent and the condition in different DRS, yielding an
+undesired meaning. If we package the two operations into a single
+$\op{presuppose\_somewhere}$, then we do not have this problem.
+
+
+\subsection{Opening the Dynamic Handler}
+\label{ssec:opening-dynamic-handler}
+
+We will want to introduce the $\op{presuppose}$ operation into our dynamic
+semantics in such a way that $\op{presuppose}$ projects outside of boxes
+(DRSs, applications of the $\BOX$ handler). This means that applying the
+$\BOX$ handler to a computation should yield a computation free of
+$\op{get}$, $\op{introduce}$ and $\op{assert}$ but still possibly using
+$\op{presuppose}$: $\BOX$ will be an open handler for $\op{get}$,
+$\op{introduce}$ and $\op{assert}$. The open handler will be more complex,
+since where before we had continuations which returned simple propositions,
+or rather functions from contexts to propositions, we will now have
+continuations which return computations.
+
+\begin{align*}
+  \BOX :\ &\FF_{E_\DRT}(1) \to \gamma \to o \\
+  \BOX = \bbanana{\ 
+  &\onto{\op{get}}{(\lam{\_ k e}{\app{k}{e}{e}})}, \\
+  &\onto{\op{introduce}}{(\lam{\_ k e}{\exists x.\ \app{k}{x}{(x \cons e)}})}, \\
+  &\onto{\op{assert}}{(\lam{p k e}{p \land \app{k}{\star}{(p \cons e)}})}, \\
+  &\onto{\eta}{(\lam{\_ e}{\top})}\ } \\
+  \\
+  \BOX :\ &\FF_{E \uplus E_\DRT}(1) \to \gamma \to \FF_E(o) \\
+  \BOX = \lam{A e}{(\ap{\banana{\ 
+  &\onto{\op{get}}{(\lam{\_ k}{\etaE{(\lam{e}{\ap{k}{e} \apll e})}})}, \\
+  &\onto{\op{introduce}}{(\lam{\_ k}{\etaE{(\lam{e}{\exists \apr (\ap{\CC}{(\lam{x}{\ap{k}{x} \apll (x \cons e)})})})}})}, \\
+  &\onto{\op{assert}}{(\lam{p k}{\etaE{(\lam{e}{p \andr (\ap{k}{\star} \apll (p \cons e))})}})}, \\
+  &\onto{\eta}{(\lam{\_}{\etaE{(\lam{e}{\top})}})}\ }}{A}) \apll e} \\
+  \\
+  \_ \apll \_ &: \FF_E(\alpha \to \FF_E(\beta)) \to \alpha \to \FF_E(\beta) \\
+  F \apll x &= F \hsbind (\lam{f}{\ap{f}{x}})
+\end{align*}
+
+We include the closed $\BOX$ handler for comparison. At the heart of the
+open $\BOX$ handler, we have a $\banana{}$ of type $\FF_{E \uplus
+  E_\DRT}(1) \to \FF_E(\gamma \to \FF_E(o))$. This $\banana{}$ differs from
+the closed $\bbanana{}$ in the following ways:
+
+\begin{itemize}
+\item Since the interpretations are no longer functions (type
+  $\gamma \to o$), but computations that produce functions (type
+  $\FF_E(\gamma \to \FF_E(o))$), we start all the clauses with
+  $\etaE{(\lam{e}{\ldots})}$ instead of $\lam{e}{\ldots}$
+\item When we apply the continuation $k$ to the output (the context $e$ in
+  $\op{get}$, the referent $x$ in $\op{introduce}$ and the trivial $\star$
+  in $\op{assert}$), we now get a computation (type
+  $\FF_E(\gamma \to \FF_E(o))$) instead of a function (type
+  $\gamma \to o$). We need to first evaluate the computation to get a
+  function and then apply that function to the new context. For that
+  purpose, we define the $\apll$ combinator below.
+\item The proposition that is the result of applying the continuation to
+  the output and to the new context is now a computation (type $\FF_E(o)$)
+  instead of a simple proposition (type $o$). In the $\op{assert}$ clause,
+  if we want to conjoin a proposition $p$ to this proposition, we need to
+  use the $\andr$ operator, which takes a computation as its right
+  argument. In the $\op{introduce}$ clause, we have an impure predicate
+  $\lam{x}{\ap{k}{x} \apll (x \cons e)}$ of type $\iota \to \FF_E(o)$. We
+  use $\CC$ to push the effects out and get a computation that returns a
+  pure predicate, type $\FF_E(\iota \to o)$. We can then apply the
+  existential quantifier under the $\FF_E$ type wrapper using $\apr$.
+\end{itemize}
+
+After having interpreted the $A : \FF_{E \uplus E_\DRT}(1)$ using the
+$\banana{}$, we get a computation of type $\FF_E(\gamma \to \FF_E(o))$. In
+order to apply it to an $e : \gamma$, we use the $\apll$ combinator one
+last time.
+
+The handler above is much more complicated than any we have seen so far in
+this manuscript. However, note that:
+
+\begin{itemize}
+\item The translation from the closed $\BOX$ handler was mechanical. The
+  open $\BOX$ handler does not include any ad hoc features built in to make
+  it compatible with presuppositions.
+\item The cost of replacing the simpler closed handler with the open
+  handler is a price we would have to pay anyway if we wanted to use this
+  handler in a setting that involved other effects (such as quantification,
+  deixis, conventional implicature); it is not limited to adding support
+  for presuppositions. E.g., in Chapter~\ref{chap:composing-effects}, we
+  will deal almost exclusively with open handlers.
+\item The $\BOX$ handlers are by far the largest handlers in our
+  analyses. Furthermore, open handlers that thread some mutable state
+  throughout the computation are slightly awkward to write (as testified by
+  all the uses of $\apll$) in pure languages without using some syntactic
+  sugar, such as parameterized handlers that can automatically thread some
+  parameter from operation to operation as
+  in~\cite{kammar2013handlers,kiselyov2015freer}.
+\end{itemize}
+
+The open $\BOX$ handler outputs computations of propositions instead of
+simple propositions, which is something we have to take into account when
+using it in, e.g., negation:
+
+$$
+\dnot A = \app{\op{get}}{\star}{(\lam{e}{\op{assert}! \apr (\notr (\app{\BOX}{A}{e}))})}
+$$
+
+or, without the $\apr$ and $\notr$ syntactic sugar:
+
+$$
+\dnot A = \app{\op{get}}{\star}{(\lam{e}{\app{\BOX}{A}{e} \hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}})})}
+$$
+
+
+\subsection{Example}
+\label{ssec:presupposition-example}
+
+
+
+
+\subsection{Presupposition Ambiguities}
+\label{ssec:presupposition-ambiguities}
 
 
 \section{Double Negation}

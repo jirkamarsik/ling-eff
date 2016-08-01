@@ -2,10 +2,12 @@
 \newcommand{\kleisli}{\mathbin{>\!=\!\!>}}
 
 \newcommand{\opl}[1]{\mathbin{\ll\!\!#1}}
+\newcommand{\opll}[1]{\mathbin{\lll\!\!#1}}
 \newcommand{\opr}[1]{\mathbin{#1\!\!\gg}}
 \newcommand{\oplr}[1]{\mathbin{\ll\!\!#1\!\!\gg}}
 
 \newcommand{\apl}{\opl{\cdot}}
+\newcommand{\apll}{\opll{\cdot}}
 \newcommand{\apr}{\opr{\cdot}}
 \newcommand{\aplr}{\oplr{\cdot}}
 \newcommand{\eql}{\opl{=}}
@@ -392,7 +394,7 @@
 
 \newcommand{\TTDL}{\operatorname{TTDL}}
 \newcommand{\sel}{\operatorname{sel}}
-\newcommand{\BOX}{\mathrm{BOX}}
+\newcommand{\BOX}{\mathrm{box}}
 
 
 \newcommand{\crnegbox}{
@@ -421,3 +423,36 @@
 }
 
 \newcommand{\DRT}{\mathrm{DRT}}
+
+
+\newcommand{\crpnbox}{
+\doublebox{
+\parbox{10cm}{
+  \underline{$\crpn$}
+  
+  {\setlength\extrarowheight{3pt}
+  \begin{tabular}{p{5cm}l}
+    \textbf{Trigerring \newline
+    configuration \newline
+    $\gamma \subseteq \overline{\gamma} \in \conditions_\KK$}:
+    & \begin{tikzpicture}[baseline={(current bounding box.center)}]
+        \Tree [.S [.NP [.PN $\alpha$ ] ] VP$'$ ]
+      \end{tikzpicture}
+      $\left\{ \textbf{or: }
+               \begin{tikzpicture}[baseline={(current bounding box.center)}]
+                 \Tree [.VP V [.NP [.PN $\alpha$ ] ] ]
+               \end{tikzpicture} \right\}$ \\
+    \textbf{Introduce into the universe of the main DRS}:
+    & new discourse referent $u$ \\
+    \textbf{Introduce into the condition set of the main DRS}:
+    & new condition $\alpha(u)$ \\
+    \textbf{Substitute in $\overline{\gamma}$:} & $u$ for
+      \begin{tikzpicture}[baseline={(current bounding box.center)}]
+        \Tree [.NP [.PN $\alpha$ ] ]
+      \end{tikzpicture}
+  \end{tabular}
+  }
+}
+}
+}
+
