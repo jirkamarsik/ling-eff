@@ -427,8 +427,9 @@ DRSs. It is these operations that we will include in our effect
 signature. Consider the construction rule of pronouns and the corresponding
 representation as a $\banana{\lambda}$ computation.
 
-\vspace{3mm}
+\vspace{6mm}
 
+\hspace{-5mm}
 \begin{minipage}{0.63\textwidth}
 \crprobox
 \end{minipage}
@@ -448,7 +449,7 @@ representation as a $\banana{\lambda}$ computation.
 \end{align*}
 \end{minipage}
 
-\vspace{3mm}
+\vspace{6mm}
 
 Let $\alpha$ be a third-person singular pronoun\footnote{Since we ignore
   gender, we can think of $\alpha$ as \emph{the} third-person singular
@@ -511,8 +512,9 @@ $$
 We can do the same kind of analysis/translation for the $\crid$ rule for
 indefinite descriptions.
 
-\vspace{3mm}
+\vspace{6mm}
 
+\hspace{-10mm}
 \begin{minipage}{0.72\textwidth}
 \cridbox
 \end{minipage}
@@ -532,7 +534,7 @@ indefinite descriptions.
 \end{align*}
 \end{minipage}
 
-\vspace{3mm}
+\vspace{6mm}
 
 The $\crid$ rule evaluates a noun phrase which is composed of the
 indefinite article followed by some noun $N$. This construction is
@@ -561,25 +563,25 @@ For completeness, we will also give translations for the $\crlin$ and
 $\crlitv$ rules, even though they do not have any dynamic effects of their
 own.
 
-\vspace{3mm}
+\vspace{6mm}
 
 \begin{minipage}{0.5\textwidth}
 \crlinbox
 \end{minipage}
 \begin{minipage}{0.5\textwidth}
 \begin{align*}
-\abs{noun} &: CN \limp N \\
+\abs{common} &: CN \limp N \\
 \sem{CN} &= \iota \to o \\
 \sem{N} &= \FF_E(\iota \to o)
 \end{align*}
 \begin{align*}
-\sem{\abs{noun}} &= \lam{\alpha}{\etaE{(\lam{v}{\alpha(v)})}} \\
-                 &= \lam{\alpha}{\etaE{\alpha}} \\
-                 &= \eta
+\sem{\abs{common}} &= \lam{\alpha}{\etaE{(\lam{v}{\alpha(v)})}} \\
+                   &= \lam{\alpha}{\etaE{\alpha}} \\
+                   &= \eta
 \end{align*}
 \end{minipage}
 
-\vspace{3mm}
+\vspace{6mm}
 
 We, as well as Kamp and Reyle, assume that behind every common noun
 $\alpha$ lies a set of individuals, a predicate $\alpha$. The lexical
@@ -596,7 +598,7 @@ is a noun $N$ is to provide an injection of type $N \limp
 CN$. Homomorphically, its denotation will be an injection from
 $\iota \to o$ to $\FF_E(\iota \to o)$, the constructor $\eta$.
 
-\vspace{3mm}
+\vspace{6mm}
 
 \begin{minipage}{0.5\textwidth}
 \crlitvbox
@@ -616,7 +618,7 @@ $\iota \to o$ to $\FF_E(\iota \to o)$, the constructor $\eta$.
 \end{align*}
 \end{minipage}
 
-\vspace{3mm}
+\vspace{6mm}
 
 With $\crlitv$, the idea behind the DRT/$\banana{\lambda}$ analogy is the
 same as with $\crlin$. Behind every (extensional transitive) verb $\alpha$
@@ -649,7 +651,7 @@ This is a small variation of Example~\ref{ex:jones-porsche} in which
   discussion of proper nouns to~\ref{sec:presuppositions}.}.
 
 \begin{align*}
-  \sem{\appp{\abs{trans}}{&\abs{owns}}{(\ap{\abs{a}}{(\ap{\abs{noun}}{\abs{Porsche}})})}{(\ap{\abs{a}}{(\ap{\abs{noun}}{\abs{man}})})}} \\
+  \sem{\appp{\abs{trans}}{&\abs{owns}}{(\ap{\abs{a}}{(\ap{\abs{common}}{\abs{Porsche}})})}{(\ap{\abs{a}}{(\ap{\abs{common}}{\abs{man}})})}} \\
   \tto &\ \app{\op{introduce}}{\star}{(\lam{x}{ \\
        &\ \app{\op{assert}}{(\obj{man}(x))}{(\lam{\_}{ \\
        &\ \app{\op{introduce}}{\star}{(\lam{y}{ \\
@@ -679,7 +681,7 @@ We can compose the two using $\andlr$, the conjunction of propositions
 raised to computations.
 
 \begin{align*}
-  \sem{\appp{\abs{trans}}{&\abs{owns}}{(\ap{\abs{a}}{(\ap{\abs{noun}}{\abs{Porsche}})})}{(\ap{\abs{a}}{(\ap{\abs{noun}}{\abs{man}})})}} \andlr \sem{\appp{\abs{trans}}{\abs{fascinates}}{\abs{him}}{\abs{it}}} \\
+  \sem{\appp{\abs{trans}}{&\abs{owns}}{(\ap{\abs{a}}{(\ap{\abs{common}}{\abs{Porsche}})})}{(\ap{\abs{a}}{(\ap{\abs{common}}{\abs{man}})})}} \andlr \sem{\appp{\abs{trans}}{\abs{fascinates}}{\abs{him}}{\abs{it}}} \\
   \tto &\ \app{\op{introduce}}{\star}{(\lam{x}{ \\
        &\ \app{\op{assert}}{(\obj{man}(x))}{(\lam{\_}{ \\
        &\ \app{\op{introduce}}{\star}{(\lam{y}{ \\
@@ -772,7 +774,7 @@ Getting back to Example~\ref{ex:man-porsche}, we can now apply one of these
 two handlers to get the dynamic proposition.
 
 \begin{align*}
-&\ap{\TTDL}{(\sem{\appp{\abs{trans}}{\abs{owns}}{(\ap{\abs{a}}{(\ap{\abs{noun}}{\abs{Porsche}})})}{(\ap{\abs{a}}{(\ap{\abs{noun}}{\abs{man}})})}} \andlr \sem{\appp{\abs{trans}}{\abs{fascinates}}{\abs{him}}{\abs{it}}})} \\
+&\ap{\TTDL}{(\sem{\appp{\abs{trans}}{\abs{owns}}{(\ap{\abs{a}}{(\ap{\abs{common}}{\abs{Porsche}})})}{(\ap{\abs{a}}{(\ap{\abs{common}}{\abs{man}})})}} \andlr \sem{\appp{\abs{trans}}{\abs{fascinates}}{\abs{him}}{\abs{it}}})} \\
 &\tto \lam{e \phi}{\exists x.\ \obj{man}(x) \land (\exists y.\ \obj{Porsche}(y) \land (\exists u.\ u = \sel(e_1) \land (\exists v.\ v = \sel(e_2) \land \obj{own}(x, y) \land \obj{fascinate}(u, v) \land \ap{\phi}{e_3})))} \\
 &= \lam{e \phi}{\exists x y u v.\ \obj{man}(x) \land \obj{Porsche}(y) \land u = \sel(e_1) \land v = \sel(e_2) \land \obj{own}(x, y) \land \obj{fascinate}(u, v) \land \ap{\phi}{e_3}} \\
 &= \lam{e \phi}{\exists x y u v.\ \obj{man}(x) \land \obj{Porsche}(y) \land u = y \land v = x \land \obj{own}(x, y) \land \obj{fascinate}(u, v) \land \ap{\phi}{e_3}} \\
@@ -780,7 +782,7 @@ two handlers to get the dynamic proposition.
 \end{align*}
 
 where:
-\vspace{-3mm}
+\vspace{-1mm}
 \begin{align*}
   e_1 &= \obj{Porsche}(y) \cons y \cons \obj{man}(x) \cons x \cons e \\
   e_2 &= (u = \sel(e_1)) \cons u \cons e_1 \\
@@ -917,8 +919,8 @@ Example~\ref{ex:man-porsche}: \emph{a man owns a Porsche}.
 &\etaE{(\obj{own}(x, y))}})}})}})}})}
 \end{align*}
 
-The truth-condition that corresponds to the verb is being returned by the
-computation, whereas the truth-conditions that arise from the nouns are
+The truth condition that corresponds to the verb is being returned by the
+computation, whereas the truth conditions that arise from the nouns are
 expressed using $\op{assert}$. The at-issue content of this sentence
 consists of all of these conditions and therefore there is no reason to
 separate out the verb's predicate. We could thus write this instead:
@@ -955,7 +957,7 @@ conjunction by chaining two computations,
 $M \hsbind (\lam{\_}{N}) : \FF_{E_\DRT}(1)$ for $M, N :
 \FF_{E_\DRT}(1)$. We can modify $\BOX$ the same way we modified
 $\TTDL$. Negation will be the same as before, with $\eta$ being replaced
-$\op{assert}!$.
+with $\op{assert}!$.
 
 \begin{align*}
   \BOX :\ &\FF_{E_\DRT}(1) \to \gamma \to o \\
@@ -981,7 +983,7 @@ up doing.
 
 \begin{align*}
 \abs{trans} &: V \limp NP \limp NP \limp S \\
-\sem{\abs{trans}} &= \lam{\alpha Y X}{\op{assert}! \apr (\alpha \apr X \aplr Y)}
+\sem{\abs{trans}} &= \lam{\alpha Y X}{(\alpha \apr X \aplr Y) \hsbind \op{assert}!}
 \end{align*}
 
 This means that we can build up our dynamic semantics using computations
@@ -1069,7 +1071,9 @@ can reorder $\op{get}$ w.r.t.\ these two operations:
 This means we can assume that every computation of type $\FF_{E_\DRT}(1)$
 uses $\op{get}$ exactly once and does so at the very beginning, i.e.\ it is
 of the form $\app{\op{get}}{\star}{(\lam{e}{M(e)})}$ where
-$M(e) : \FF_{\{\op{implicate}, \op{assert}\}}(1)$.
+$M(e) : \FF_{\{\op{implicate}, \op{assert}\}}(1)$\footnote{When writing
+  effect signatures in subscripts, we will often omit the types of
+  operations, which are presumed to be constant.}.
 
 If we assume that relative order of discourse referents and conditions is
 not important (i.e.\ they are both separate parts, as in a DRS),
@@ -1191,7 +1195,7 @@ lexical entry for a presuppositional trigger such as a proper noun or a
 definite description throws an exception,
 $(\texttt{AbsentIndividualExc}\ P)$. This exception carries the predicate
 $P$ that describes the entity that is presupposed to exist. At the top
-level, a handler catches these exceptions and accomodates these
+level, a handler catches these exceptions and accommodates these
 presuppositions. We have seen that in $\banana{\lambda}$, dynamic
 propositions are modelled as computations and these computations already
 have a notion of throwing exceptions (effects) and handling them
@@ -1210,8 +1214,8 @@ have seen in Chapter~\ref{ssec:expressions-as-computations}, exceptions are
 effects that have the impossible output type $0$, which means that no
 handler will be able to resume the computation by using the
 continuation. In Lebedeva's approach, when the toplevel handler intercepts
-the exception, it accomodates the presupposition, rewinds the dynamic state
-and evaluates the sentence again, this time with a context which now
+the exception, it accommodates the presupposition, rewinds the dynamic
+state and evaluates the sentence again, this time with a context which now
 contains the presupposed entity. This is not suitable to our approach
 because of two reasons:
 
@@ -1259,13 +1263,13 @@ introduces the condition $P(x)$, where $P$ is its argument.
 
 Besides lowering the number of basic operations that we have to introduce,
 this also has an advantage when we start to consider ambiguous ways of
-accomodating presuppositions
+accommodating presuppositions
 (\ref{ssec:presupposition-ambiguities}). Suppose we have two operations,
 $\op{introduce\_somewhere}$ and $\op{assert\_somewhere}$, that let us
 introduce discourse referents and conditions into arbitrary DRSs on the
 projection line\footnote{A \emph{projection line} is a path in the
   accessibility tree from a sub-DRS to the root of the
-  tree~\cite{van1992presupposition}.}. We might then end up accomodating
+  tree~\cite{van1992presupposition}.}. We might then end up accommodating
 the discourse referent and the condition in different DRS, yielding an
 undesired meaning. If we package the two operations into a single
 $\op{presuppose\_somewhere}$, then we do not have this problem.
@@ -1365,12 +1369,6 @@ simple propositions, which is something we have to take into account when
 using it in, e.g., negation:
 
 $$
-\dnot A = \app{\op{get}}{\star}{(\lam{e}{\op{assert}! \apr (\notr (\app{\BOX}{A}{e}))})}
-$$
-
-or, without the $\apr$ and $\notr$ syntactic sugar:
-
-$$
 \dnot A = \app{\op{get}}{\star}{(\lam{e}{\app{\BOX}{A}{e} \hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}})})}
 $$
 
@@ -1383,7 +1381,7 @@ following example.
 \end{exe}
 
 The negation will use $\op{get}$ to retrieve the current context $e$ and
-then proceed by computing
+then proceed by evaluating the expression
 $(\app{\BOX}{\sem{\text{John likes his car}}}{e})$. The proper noun
 \emph{John} will then use $\op{presuppose}$, which will project out of the
 $\BOX$ and introduce John into some superordinate context. But now we have
@@ -1406,10 +1404,10 @@ the definition of $\dnot$ and the type of $\BOX$, since $\BOX$ does not
 need to be seeded with its surrounding context but retrieves it itself when
 necessary. Furthermore, note that this solution was not available to us
 before we made the handler open, since it interprets computations in
-$\FF_{E_\DRT}(1)$ into computations in $\FF_{\{\typedop{get}{1}{\gamma}\}}(o)$.
+$\FF_{E_\DRT}(1)$ into computations in $\FF_{\{\op{get}\}}(o)$.
 
 \begin{align*}
-  \BOX :\ &\FF_{E \uplus E_\DRT}(1) \to \FF_{E \uplus \{\typedop{get}{1}{\gamma}\}}(o) \\
+  \BOX :\ &\FF_{E \uplus E_\DRT}(1) \to \FF_{E \uplus \{\op{get}\}}(o) \\
   \BOX = \lam{A}{(\ap{\banana{\ 
   &\onto{\op{get}}{(\lam{\_ k}{\etaE{(\lam{e}{\app{\op{get}}{\star}{(\lam{e'}{\ap{k}{(e \cat e')} \apll e})}})}})}, \\
   &\onto{\op{introduce}}{(\lam{\_ k}{\etaE{(\lam{e}{\exists \apr (\ap{\CC}{(\lam{x}{\ap{k}{x} \apll (x \cons e)})})})}})}, \\
@@ -1428,17 +1426,179 @@ surrounding context as an argument to $\BOX$. Instead, we pass in $\nil$ as
 the initial local context, where $\nil : \gamma$ is a constant representing
 the empty context, e.g.\ an empty list.
 
+As we no longer need to supply the initial surrounding context, dynamic
+negation becomes simpler:
+
+$$
+\dnot A = \ap{\BOX}{A} \hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}})
+$$
+
 
 \subsection{Presupposition in Action}
 \label{ssec:presupposition-in-action}
 
+With $\op{presuppose}$ in place, we can now translate the DRT construction
+rule for proper nouns, $\crpn$, into $\banana{\lambda}$:
 
+\vspace{6mm}
+
+\hspace{-1cm}
+\begin{minipage}{0.69\textwidth}
+\crpnbox
+\end{minipage}
+\begin{minipage}{0.31\textwidth}
+\vspace{-4mm}
+\begin{align*}
+\abs{proper} &: PN \limp NP \\
+\sem{PN} &= \iota \to o \\
+\sem{NP} &= \FF_E(\iota)
+\end{align*}
+\vspace{2mm}
+\begin{align*}
+  \sem{\abs{proper}} =
+  \lam{\alpha}{&\app{\op{presuppose}}{&(\lam{u}{ \\
+               \\
+               &\alpha(u)})}{&(\lam{u}{ \\
+               \\ \\
+               & \ap{\eta}{u}})}}
+\end{align*}
+\end{minipage}
+
+\vspace{6mm}
+
+We map the introduction of a discourse referent and a condition into the
+main DRS into the $\op{presuppose}$ operation. As with the lexical
+insertion rules for common nouns and transitive verbs, this rule is
+parameterized by a lexical item, this time a proper noun. In DRT, proper
+nouns are described using predicates and so we introduce an abstract atomic
+type $PN$ for proper nouns whose interpretation $\sem{PN}$ is the type of
+predicates. The definition of $\abs{proper}$ above is expanded in order to
+parallel the construction. We can actually make it a lot shorter:
+
+\begin{align*}
+  \sem{\abs{proper}}
+  &= \lam{\alpha}{\app{\op{presuppose}}{(\lam{u}{\alpha(u)})}{(\lam{u}{\ap{\eta}{u}})}} \\
+  &= \lam{\alpha}{\app{\op{presuppose}}{\alpha}{(\lam{u}{\ap{\eta}{u}})}} \\
+  &= \lam{\alpha}{\ap{\op{presuppose}!}{\alpha}} \\
+  &= \op{presuppose}!
+\end{align*}
+
+We will also need a handler to give a meaning to the $\op{presuppose}$
+operation. The meaning behind is $\op{presuppose}$ is clear: it will
+introduce a discourse referent and a condition.
+
+\begin{align*}
+  \accommodate &: \FF_{E \uplus \{\op{presuppose}\}}(\alpha) \to \FF_E(\alpha) \\
+  \accommodate &= \banana{\onto{\op{presuppose}}{(\lam{P k}{\app{\op{introduce}}{\star}{(\lam{x}{\app{\op{assert}}{(\ap{P}{x})}{(\lam{\_}{\ap{k}{x}})}})}})}}
+\end{align*}
+
+The accommodate handler turns presupposed content into asserted
+content. The place we want to do that is usually on the level of the
+topmost DRS.\@ We can define a combinator which corresponds to the idea of
+a top DRS.
+
+\begin{align*}
+  \TOP &: \FF_{E \uplus E_\DRT \uplus \{\op{presuppose}\}}(1) \to \FF_{E \uplus \{\op{get}\}}(o) \\
+  \TOP &= \BOX \circ \accommodate
+\end{align*}
+
+We can now deal with Example~\ref{ex:jones-mercedes}. We start by computing
+the denotation of the first sentence.
+
+\begin{align*}
+  \sem{S_1} =
+     &\ \sem{\appp{\abs{trans}}{\abs{owns}}{(\ap{\abs{a}}{(\ap{\abs{common}}{\abs{Porsche}})})}{(\ap{\abs{proper}}{\abs{Jones}})}} \\
+\tto &\ \app{\op{presuppose}}{\obj{Jones}}{(\lam{x}{ \\
+     &\ \app{\op{introduce}}{\star}{(\lam{y}{ \\
+     &\ \app{\op{assert}}{(\obj{Porsche}(y))}{(\lam{\_}{ \\
+     &\ \app{\op{assert}}{(\obj{own}(x, y))}{(\lam{\_}{ \\
+     &\ \etaE{\star}})}})}})}})}
+\end{align*}
+
+Wrapping a dynamic negation over this will resolve all the $\op{introduce}$
+and $\op{assert}$ operations but the $\op{presuppose}$ will prevail.
+
+\begin{align*}
+&\dnot\ \sem{S_1} \\
+\tto &\ \ap{\BOX}{\sem{S_1}} \hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}})\\
+\tto &\ \app{\op{presuppose}}{\obj{Jones}}{(\lam{x}{ \\
+     &\ \etaE{(\exists y.\ \obj{Porsche}(y) \land \obj{own}(x, y))}})} \hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}}) \\
+\tto &\ \app{\op{presuppose}}{\obj{Jones}}{(\lam{x}{ \\
+     &\ \app{\op{assert}}{(\lnot (\exists y.\ \obj{Porsche}(y) \land \obj{own}(x, y)))}{(\lam{\_}{ \\
+     &\ \etaE{\star}})}})}
+\end{align*}
+
+We now turn to the second sentence in Example~\ref{ex:jones-mercedes},
+whose meaning is derived below.
+
+\begin{align*}
+  \sem{S_2} =
+     &\ \sem{\appp{\abs{trans}}{\abs{owns}}{(\ap{\abs{a}}{(\ap{\abs{common}}{\abs{Mercedes}})})}{\abs{he}}} \\
+\tto &\ \app{\op{get}}{}{(\lam{e}{ \\
+     &\ \app{\op{introduce}}{\star}{(\lam{y}{ \\
+     &\ \app{\op{assert}}{(\obj{Mercedes}(y))}{(\lam{\_}{ \\
+     &\ \app{\op{assert}}{(\obj{own}(\sel(e), y))}{(\lam{\_}{ \\
+     &\ \etaE{\star}})}})}})}})}
+\end{align*}
+
+Dynamic propositions of type $\FF_{E_\DRT}(1)$ are conjoined by chaining
+their computations. By chaining the two computations, we get a meaning for
+the whole discourse in Example~\ref{ex:jones-mercedes}.
+
+\begin{align*}
+  \sem{\text{not $S_1$. $S_2$}} = &\ (\dnot\ \sem{S_1}) \hsbind (\lam{\_}{\sem{S_2}}) \\
+\tto &\ \app{\op{presuppose}}{\obj{Jones}}{(\lam{x}{ \\
+     &\ \app{\op{assert}}{(\lnot (\exists y.\ \obj{Porsche}(y) \land \obj{own}(x, y)))}{(\lam{\_}{ \\
+     &\ \app{\op{get}}{}{(\lam{e}{ \\
+     &\ \app{\op{introduce}}{\star}{(\lam{y}{ \\
+     &\ \app{\op{assert}}{(\obj{Mercedes}(y))}{(\lam{\_}{ \\
+     &\ \app{\op{assert}}{(\obj{own}(\sel(e), y))}{(\lam{\_}{ \\
+     &\ \etaE{\star}})}})}})}})}})}})}
+\end{align*}
+
+We can now embed this in the top-level box.
+
+\begin{align*}
+  \ap{\TOP}{\sem{\text{not $S_1$. $S_2$}}} = &\ \ap{\BOX}{(\ap{\accommodate}{\sem{\text{not $S_1$. $S_2$}}})} \\
+\tto \ap{\BOX}{(
+     &\ \app{\op{introduce}}{\star}{(\lam{x}{ \\
+     &\ \app{\op{assert}}{(\obj{Jones}(x))}{(\lam{\_}{ \\
+     &\ \app{\op{assert}}{(\lnot (\exists y.\ \obj{Porsche}(y) \land \obj{own}(x, y)))}{(\lam{\_}{ \\
+     &\ \app{\op{get}}{}{(\lam{e}{ \\
+     &\ \app{\op{introduce}}{\star}{(\lam{y}{ \\
+     &\ \app{\op{assert}}{(\obj{Mercedes}(y))}{(\lam{\_}{ \\
+     &\ \app{\op{assert}}{(\obj{own}(\sel(e), y))}{(\lam{\_}{ \\
+     &\ \etaE{\star}})}})}})}})}})}})}})}\ )} \\
+\tto &\ \app{\op{get}}{\star}{(\lam{e}{ \\
+     &\ \etaE{(\exists x.\
+          \obj{Jones}(x) \land
+          \lnot (\exists y.\ \obj{Porsche}(y) \land \obj{own}(x, y)) \land
+          (\exists y.\ \obj{Mercedes}(y) \land \obj{own}(\sel(e'), y)))}})}
+\end{align*}
+
+where
+
+$$
+e' = \lnot (\exists y.\ \obj{Porsche}(y) \land \obj{own}(x, y)) \cons
+     \obj{Jones}(x) \cons x \cons e
+$$
+
+By assuming that $x$ is \emph{the} salient antecedent for the pronoun or by
+evaluating in the empty context $\nil$, we get the intended reading.
+
+\begin{align*}
+  &\ap{\banana{\onto{\op{get}}{(\lam{\_ k}{\ap{k}{\nil}})}}}{(\ap{\TOP}{\sem{\text{not $S_1$. $S_2$}}})} \\
+  &\tto \etaE{(\exists x.\
+          \obj{Jones}(x) \land
+          \lnot (\exists y.\ \obj{Porsche}(y) \land \obj{own}(x, y)) \land
+          (\exists y.\ \obj{Mercedes}(y) \land \obj{own}(x, y)))}
+\end{align*}
 
 
 \subsection{Cancelling Presuppositions}
 \label{ssec:cancelling-presuppositions}
 
-
+It has been observed that not every presupposition projects.
 
 
 \subsection{Presupposition Ambiguities}

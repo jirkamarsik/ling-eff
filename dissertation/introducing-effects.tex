@@ -700,8 +700,8 @@ a proposition. This will be another question of interpreting operation
 symbols and so we will use a handler.
 
 \begin{align*}
-  \accommodate &: \FF_{\{\typedop{implicate}{o}{1}\}}(o) \to o \\
-  \accommodate &= \bbanana{\onto{\op{implicate}}{(\lam{i k}{i \land \ap{k}{\star}})}}
+  \withImplicatures &: \FF_{\{\typedop{implicate}{o}{1}\}}(o) \to o \\
+  \withImplicatures &= \bbanana{\onto{\op{implicate}}{(\lam{i k}{i \land \ap{k}{\star}})}}
 \end{align*}
 
 This handler applies only to computations that produce propositions. It
@@ -711,14 +711,14 @@ simpler (no need to mention computation types inside the handler). In
 Chapter~\ref{chap:composing-effects}, we will introduce an open handler
 which does the same but works inside arbitrary effect signatures.
 
-If we apply the $\accommodate$ handler to the denotations
+If we apply the $\withImplicatures$ handler to the denotations
 of~\eqref{ex:either-or} and~\eqref{ex:if-not}, then we can verify that we
 get propositions that do entail the intended implicatures.
 
 \begin{align*}
-  & \ap{\accommodate}{\sem{\app{\abs{either-or}}{(\app{\abs{loves}}{\abs{Jane}}{\abs{John}})}{(\app{\abs{loves}}{\abs{John}}{(\app{\abs{appos}}{(\ap{\abs{best-friend}}{\abs{John}})}{\abs{Mary}})})}}} \nonumber \\
+  & \ap{\withImplicatures}{\sem{\app{\abs{either-or}}{(\app{\abs{loves}}{\abs{Jane}}{\abs{John}})}{(\app{\abs{loves}}{\abs{John}}{(\app{\abs{appos}}{(\ap{\abs{best-friend}}{\abs{John}})}{\abs{Mary}})})}}} \nonumber \\
   & \tto (\obj{m} = \ap{\obj{best-friend}}{\obj{j}}) \land (\app{\obj{love}}{\obj{j}}{\obj{s}} \lor \app{\obj{love}}{\obj{m}}{\obj{j}}) \\
-  & \ap{\accommodate}{\sem{\app{\abs{if-then}}{(\ap{\abs{not-the-case}}{(\app{\abs{loves}}{\abs{Sarah}}{\abs{John}})})}{(\app{\abs{loves}}{\abs{John}}{\abs{Mary}})}}} \nonumber \\
+  & \ap{\withImplicatures}{\sem{\app{\abs{if-then}}{(\ap{\abs{not-the-case}}{(\app{\abs{loves}}{\abs{Sarah}}{\abs{John}})})}{(\app{\abs{loves}}{\abs{John}}{\abs{Mary}})}}} \nonumber \\
   & \tto (\app{\obj{love}}{\obj{s}}{\obj{j}}) \land (\lnot(\app{\obj{love}}{\obj{j}}{\obj{s}}) \to \app{\obj{love}}{\obj{m}}{\obj{j}})
 \end{align*}
 
@@ -727,7 +727,7 @@ get propositions that do entail the intended implicatures.
 \label{ssec:algebraic-ci}
 
 As in~\ref{ssec:algebraic-deixis}, we will look for equations that are
-admissible w.r.t.\ the $\accommodate$ handler (equations such equivalent
+admissible w.r.t.\ the $\withImplicatures$ handler (equations such equivalent
 computations will be interpreted with the same value) with an eye towards
 deriving some canonical form.
 
@@ -743,7 +743,7 @@ deixis\footnote{The output type of $\op{implicate}$ is the unit type $1$
   they are guaranteed to be equal. For simplicity, we could also assume
   that $M$ is fresh for $x$ and $y$.}. Here, $M$ ranges over computations
 of type $\FF_{\{ \typedop{implicate}{o}{1} \}}(\alpha)$. Since we know that
-our only handler, $\accommodate$, ends up combining all the implicatures
+our only handler, $\withImplicatures$, ends up combining all the implicatures
 using conjunction, we can collapse two implicatures into a single
 implicature. Furthermore, implicating the tautology $\top$ has no
 observable effect. By making an appeal to the conjunction operator, we can

@@ -830,14 +830,14 @@ $v$ is bound to $x$, the value of $X$.
 We notice that $\op{get}$ is used in $\lete$ and $\vare$ but it is not
 mentioned in other parts of the fragment. $\op{error}$ is used in $\dive$
 (through $\dbze$) and in $\trye$ and again it is absent in the rest of the
-fragment. Compare this with the approach that models $exp$ as $\gamma \to
-\NN + 1$. In all of the entries, we abstract over a variable of type
-$\gamma$ for the current environment and we explicitly pass it around. We
-also do explicit case analysis on all intermediate results and we wrap all
-our results in $\inl$. Furthermore, changing the type $exp$ to accomodate
-$\lete$ and $\vare$ forced us to change the definitions of $\dive$,
-$\trye$, $\sume$, $\prode$ and $\lite$ (i.e.\ all the other constructions
-in our fragment).
+fragment. Compare this with the approach that models $exp$ as
+$\gamma \to \NN + 1$. In all of the entries, we abstract over a variable of
+type $\gamma$ for the current environment and we explicitly pass it
+around. We also do explicit case analysis on all intermediate results and
+we wrap all our results in $\inl$. Furthermore, changing the type $exp$ to
+accommodate $\lete$ and $\vare$ forced us to change the definitions of
+$\dive$, $\trye$, $\sume$, $\prode$ and $\lite$ (i.e.\ all the other
+constructions in our fragment).
 
 We could mitigate both of these problems using the same technique we have
 seen in~\ref{ssec:refactoring-with-monads}. We can find a monad whose type
