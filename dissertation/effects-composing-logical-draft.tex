@@ -20,12 +20,12 @@ definitions are given in the lexicon $\mathcal{L}_L$ shown below:
 
 \begin{align*}
   \dnot &: \mathcal{F}(o) \to \mathcal{F}(o) \\
-  \dand, \dimpl, \dor &: \mathcal{F}(o) \to \mathcal{F}(o) \to \mathcal{F}(o) \\
+  \dand, \dimp, \dor &: \mathcal{F}(o) \to \mathcal{F}(o) \to \mathcal{F}(o) \\
   \dexists, \dforall &: (\iota \to \mathcal{F}(o)) \to \mathcal{F}(o) \\
   \dnot &= \mathrm{raise_{o \to o}}(\lnot) = \lambda X.\ X \hsbind (\lambda x.\ \eta\ (\lnot x)) \\
   \dand &= \mathrm{raise_{o \to o \to o}}(\land) = \lambda X Y.\ X \hsbind (\lambda x.\ Y \hsbind (\lambda y.\ \eta\ (x \land y))) \\
   \dexists &= \mathcal{F}(\exists) \circ \mathcal{C} = \lambda P.\ (\mathcal{C}\ P) \hsbind (\lambda p.\ \eta\ (\exists\ p)) \\
-  \dimpl &= \lambda X Y.\ \dnot\ (X \dand (\dnot Y)) \\
+  \dimp &= \lambda X Y.\ \dnot\ (X \dand (\dnot Y)) \\
   \dor &= \lambda X Y.\ \dnot\ ((\dnot X) \dand (\dnot Y)) \\
   \dforall &= \lambda P.\ \dnot\ (\dexists\ (\lambda x.\ \dnot\ (P\ x)))
 \end{align*}

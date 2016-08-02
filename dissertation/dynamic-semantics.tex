@@ -953,11 +953,11 @@ $\lam{e \phi}{p \land \ap{\phi}{e}}$.
 We can use computations of type $\FF_{E_\DRT}(1)$ as our type of dynamic
 (i.e.\ effectful) propositions. We can embed simple propositions using
 $\op{assert}!$, which has type $o \to \FF_{E_\DRT}(1)$. We can perform
-conjunction by chaining two computations,
+dynamic conjunction $M \dand N$ by chaining two computations,
 $M \hsbind (\lam{\_}{N}) : \FF_{E_\DRT}(1)$ for $M, N :
 \FF_{E_\DRT}(1)$. We can modify $\BOX$ the same way we modified
-$\TTDL$. Negation will be the same as before, with $\eta$ being replaced
-with $\op{assert}!$.
+$\TTDL$. Dynamic negation will be the same as before, with $\eta$ being
+replaced with $\op{assert}!$.
 
 \begin{align*}
   \BOX :\ &\FF_{E_\DRT}(1) \to \gamma \to o \\
@@ -1598,13 +1598,80 @@ evaluating in the empty context $\nil$, we get the intended reading.
 \subsection{Cancelling Presuppositions}
 \label{ssec:cancelling-presuppositions}
 
-It has been observed that not every presupposition projects.
+It has been observed that not every presupposition projects. A
+presupposition can be blocked or cancelled in certain contexts. The
+sentence ``John's car is cheap'' presupposes that there is someone named
+John who owns a car. However, if we put this sentence into a conditional
+context as in Example~\ref{ex:cancel}, the presupposition that John owns a
+car disappears.
 
+\begin{exe}
+  \ex \label{ex:cancel} If John owns a car, then his car is cheap.
+\end{exe}
 
-\subsection{Presupposition Ambiguities}
-\label{ssec:presupposition-ambiguities}
+Lebedeva~\cite{lebedeva2012expression} solves this in TTDL by making the
+presupposition triggers first search the context for their referent. If the
+necessary referent is present in an accessible context, then it is
+retrieved and no presupposition is triggered. We can do the same in our
+setting. Let $\selP : (\iota \to o) \to \gamma \to (\iota + 1)$ be a
+function that retrieves from a context of type $\gamma$ the salient
+individual that satisfies the predicate of type $\iota \to o$, if such an
+individual exists in the context. Otherwise, it returns $\ap{\inr}{\star}$.
 
+\begin{align*}
+  \find &: (\iota \to o) \to \FF_{E \uplus \{\op{get}, \op{presuppose}\}}(\iota) \\
+  \find &= \lam{P}{\app{\op{get}}{\star}{(\lam{e}{\case{\app{\selP}{P}{e}}{x}{\etaE{x}}{\_}{\ap{\op{presuppose}!}{P}}})}}
+\end{align*}
 
+$\find$ examines its context and searches it for an individual satisfying
+the predicate. If no such individual is found, it triggers a
+presupposition. The type of $\find$ is (almost\footnote{The type of
+  $\op{presuppose}!$ is
+  $(\iota \to o) \to \FF_{E \uplus \{\op{presuppose}\}}(\iota)$. However,
+  $\find$ relies not only on $\op{presuppose}$, but also on $\op{get}$. In
+  most contexts, both are available and so the two are interchangeable.})
+the same as that of $\op{presuppose}!$ and so we can replace all uses of
+$\op{presuppose}!$ with $\find$ to get the correct behavior w.r.t.\
+cancelling of presuppositions.
+
+\begin{align*}
+  \abs{proper} &: PN \limp NP \\
+  \lex{proper}{\find} \\
+  \abs{poss} &: NP \limp N \limp NP \\
+  \lex{poss}{\lam{X N}{X \hsbind (\lam{x}{N \hsbind (\lam{n}{\ap{\find}{(\lam{y}{\ap{n}{y} \land \obj{own}(x, y)})}})})}}
+\end{align*}
+
+The final part of the puzzle is how to make the context of the antecedent
+(\emph{John owns a car}) available in the consequent (\emph{his car is
+  cheap}). DRT has special accessibility rules for implications, but
+in~\ref{sec:intro-drt}, we have seen how to translate DRT implications into
+negations and conjunctions while preserving accessibility\footnote{The same
+  technique is applied in the TTDL of~\cite{lebedeva2012expression}.}. We
+will use the same strategy to correctly deal with accessibility in
+conditional utterances.
+
+\begin{align*}
+  \abs{if-then} &: S \limp S \limp S \\
+  \lex{if-then}{\lam{A B}{A \dimp B}} \\
+  &= \lam{A B}{\dnot (A \dand \dnot B)} \\
+  &= \lam{A B}{\dnot (A \hsbind (\lam{\_}{\dnot B}))}
+\end{align*}
+
+The dynamic implication used in $\sem{\abs{if-then}}$ explains how
+conditionals can filter presuppositions. A new box is opened using the
+outer negation. Into that box, $A$ will introduce new discourse referents
+and truth conditions. These will then be able available to $B$, which might
+resolve the some of $B$'s presuppositions. Since the whole conditional is
+inside a box due to the dynamic negation, the filtering effect will subside
+after the consequent, i.e.\ dynamic implication is externally
+static~\cite{groenendijk1991dynamic}.
+
+In Example~\ref{ex:cancel}, the sentence in the antecedent introduces John
+($x$, $\obj{John}(x)$) and a car ($y$, $\obj{car}(y)$) and the fact that
+John owns the car ($\obj{own}(x, y)$). The sentence in the consequent then
+has access to this context and can resolve \emph{his} to $x$ and then
+retrieve $y$ using $\selP$, thus preventing the generation of a
+presupposition.
 
 
 \section{Double Negation}

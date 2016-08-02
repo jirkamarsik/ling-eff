@@ -86,7 +86,7 @@ where, $\mathcal{L}_{Q'}$, the changes we propose to the lexicon, are as
 follows:
 
 \begin{align*}
-  \lex{every}{\lambda N.\ SCOPE\ (\lambda k.\ \mathrm{SL}\ (\dforall\ (\lambda x.\ (N \apl x) \dimpl (k\ x))))}\ \eta \\
+  \lex{every}{\lambda N.\ SCOPE\ (\lambda k.\ \mathrm{SL}\ (\dforall\ (\lambda x.\ (N \apl x) \dimp (k\ x))))}\ \eta \\
   \sem{\abs{some}} := \sem{\abs{a}} &:= \lambda N.\ SCOPE_P\ (\lambda k.\ \mathrm{SL}\ (\dexists\ (\lambda x.\ (N \apl x) \dand (k\ x))))\ \eta \\
   \mathrm{SI} &= \mathcal{L}(\mathrm{SI}) \circ \mathrm{SL} \\
   \mathrm{SL} &: \mathcal{F}(o) \to \mathcal{F}(o) \\
@@ -100,7 +100,7 @@ We will now look again at the sentence ``Every man loves a woman''. First
 off, we will introduce some handy shortcuts:
 
 \begin{align*}
-c_1 &= \lambda k. \dforall\ (\lambda x.\ (\eta\ (\obj{man}\ x)) \dimpl (k\ x)) \\
+c_1 &= \lambda k. \dforall\ (\lambda x.\ (\eta\ (\obj{man}\ x)) \dimp (k\ x)) \\
 c_2 &= \lambda k.\ \dexists\ (\lambda x.\ (\eta\ (\obj{woman}\ x)) \dand
 (k\ x)) \\
 \sem{\abs{every}\ \abs{man}} &= SCOPE\ (\mathrm{SL} \circ c_1)\ \eta \\
@@ -183,28 +183,28 @@ c_2 &= \lambda k.\ \dexists\ (\lambda x.\ (\eta\ (\obj{woman}\ x)) \dand
   & \sem{\abs{every}\ (\abs{who}\ (\abs{knows}\ (\abs{a}\ \abs{cat}))\ \abs{man})} \\
 \rightarrow^*\ & SCOPE\ (\lambda k.\ \mathrm{SL}\ ((\dforall x.\
   \eta\ (\obj{man}\ x \land (\exists y.\ \obj{cat}\ y \land
-  \obj{know}\ x\ y)) \dimpl (k\ x))) \\
+  \obj{know}\ x\ y)) \dimp (k\ x))) \\
   & \hspace{25mm} + SCOPE_P\ c_{cat}\ (\lambda y.\ \dforall x.\ (\eta\ (\obj{man}\ x
-  \land \obj{know}\ x\ y)) \dimpl (k\ x)))\ \eta \\
+  \land \obj{know}\ x\ y)) \dimp (k\ x)))\ \eta \\
 \rightarrow^*\ & SCOPE\ (\lambda k.\ (\mathrm{SL}\ (\dforall x.\
   \eta\ (\obj{man}\ x \land (\exists y.\ \obj{cat}\ y \land
-  \obj{know}\ x\ y)) \dimpl (k\ x))) \\
+  \obj{know}\ x\ y)) \dimp (k\ x))) \\
   & \hspace{18mm} + (\mathrm{SL}\ (SCOPE_P\ c_{cat}\ (\lambda y.\ \dforall
-  x.\ (\eta\ (\obj{man}\ x \land \obj{know}\ x\ y)) \dimpl (k\ x))))\ \eta \\
+  x.\ (\eta\ (\obj{man}\ x \land \obj{know}\ x\ y)) \dimp (k\ x))))\ \eta \\
 \rightarrow^*\ & SCOPE\ (\lambda k.\ (\mathrm{SL}\ (\dforall x.\
   \eta\ (\obj{man}\ x \land (\exists y.\ \obj{cat}\ y \land
-  \obj{know}\ x\ y)) \dimpl (k\ x))) \\
+  \obj{know}\ x\ y)) \dimp (k\ x))) \\
   & \hspace{18mm} + (c_{cat}\ (\lambda y.\ (\mathrm{SL}\ (\dforall
-  x.\ (\eta\ (\obj{man}\ x \land \obj{know}\ x\ y)) \dimpl (k\ x))))) \\
+  x.\ (\eta\ (\obj{man}\ x \land \obj{know}\ x\ y)) \dimp (k\ x))))) \\
   & \hspace{18mm} + (SCOPE_P\ c_{cat}\ (\lambda y.\ \mathrm{SL}\ (\dforall
-  x.\ (\eta\ (\obj{man}\ x \land \obj{know}\ x\ y)) \dimpl (k\ x)))))\ \eta \\
+  x.\ (\eta\ (\obj{man}\ x \land \obj{know}\ x\ y)) \dimp (k\ x)))))\ \eta \\
 \rightarrow^*\ & SCOPE\ (\lambda k.\ (\mathrm{SL}\ (\dforall x.\
   \eta\ (\obj{man}\ x \land (\exists y.\ \obj{cat}\ y \land
-  \obj{know}\ x\ y)) \dimpl (k\ x))) \\
+  \obj{know}\ x\ y)) \dimp (k\ x))) \\
   & \hspace{18mm} + (\mathrm{SL}\ (\dexists y.\ (\eta\ (\obj{cat}\ y)) \dand (\mathrm{SL}\ \dforall
-  x.\ (\eta\ (\obj{man}\ x \land \obj{know}\ x\ y)) \dimpl (k\ x)))) \\
+  x.\ (\eta\ (\obj{man}\ x \land \obj{know}\ x\ y)) \dimp (k\ x)))) \\
   & \hspace{18mm} + (SCOPE_P\ c_{cat}\ (\lambda y.\ \mathrm{SL}\ (\dforall
-  x.\ (\eta\ (\obj{man}\ x \land \obj{know}\ x\ y)) \dimpl (k\ x)))))\ \eta \\
+  x.\ (\eta\ (\obj{man}\ x \land \obj{know}\ x\ y)) \dimp (k\ x)))))\ \eta \\
 \end{align*}
 
 \begin{align*}

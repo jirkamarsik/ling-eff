@@ -63,7 +63,7 @@ items (signature $\Sigma^a_Q$):
 Now we can add/change the pertinant entries in the lexicon (lexicon $\mathcal{L}_Q$):
 
 \begin{align*}
-  \lex{every}{\lambda N.\ SCOPE\ (\lambda k.\ \dforall\ (\lambda x.\ (N \apl x) \dimpl (k\ x)))\ \eta} \\
+  \lex{every}{\lambda N.\ SCOPE\ (\lambda k.\ \dforall\ (\lambda x.\ (N \apl x) \dimp (k\ x)))\ \eta} \\
   \sem{\abs{some}} := \sem{\abs{a}} &:= \lambda N.\ SCOPE\ (\lambda k.\ \dexists\ (\lambda x.\ (N \apl x) \dand (k\ x)))\ \eta \\
   \mathrm{SI} &: \mathcal{F}(o) \to \mathcal{F}(o) \\
   \mathrm{SI} &= [\mathcal{H}\ (SCOPE\ (\lambda c k.\ c\ k))] \\
