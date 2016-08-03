@@ -770,6 +770,14 @@ $\lam{e}{\top}$.
   &\onto{\eta}{(\lam{p e}{p})}\ }
 \end{align*}
 
+The handler is called $\BOX$ to stress the analogy to DRSs, which are
+customarily drawn as boxes. The crucial common point is that putting
+something in a box means that any truth conditions or discourse referents
+that it introduces are contained within the box. Throughout this chapter,
+we will refer to applications of this handler as boxes, DRSs or
+contexts\footnote{Since the handler acts as something that provides and
+  regulates access to a (left) TTDL context.}.
+
 Getting back to Example~\ref{ex:man-porsche}, we can now apply one of these
 two handlers to get the dynamic proposition.
 
@@ -989,7 +997,7 @@ up doing.
 This means that we can build up our dynamic semantics using computations
 that do not return anything, only modify the context using side
 effects. This is very much in the spirit of dynamic semantics: meaning is
-context change potential.
+context change potential~\cite{sep-dynamic-semantics}.
 
 If we look closer at TTDL, we can see that the same strategy is applied
 there. Let $S$ be the state monad which maps the type $\alpha$ to the type
@@ -1191,7 +1199,7 @@ not into the DRS $K$, in which the condition being reduced appears.
 
 In TTDL, this issue was resolved by adding exceptions into the lambda
 calculus used for the semantic terms~\cite{lebedeva2012expression}. The
-lexical entry for a presuppositional trigger such as a proper noun or a
+lexical entry for a presupposition trigger such as a proper noun or a
 definite description throws an exception,
 $(\texttt{AbsentIndividualExc}\ P)$. This exception carries the predicate
 $P$ that describes the entity that is presupposed to exist. At the top
@@ -1348,7 +1356,14 @@ this manuscript. However, note that:
 \begin{itemize}
 \item The translation from the closed $\BOX$ handler was mechanical. The
   open $\BOX$ handler does not include any ad hoc features built in to make
-  it compatible with presuppositions.
+  it compatible with presuppositions. The only changes we made to the
+  handler was adding $\eta$, $\CC$ and replacing operators with versions
+  that can act on computations ($\apr$ and $\apll$ for application, $\andr$
+  for conjunction). In an impure calculus with call-by-value semantics in
+  which a distinction between the types $\alpha$ and $\FF_E(\alpha)$ does
+  not exist, neither $\eta$ nor the $\somelr$ operators would be needed;
+  the only meaningful operator would be $\CC$, which pushes effects out of
+  a function body.
 \item The cost of replacing the simpler closed handler with the open
   handler is a price we would have to pay anyway if we wanted to use this
   handler in a setting that involved other effects (such as quantification,
@@ -1641,6 +1656,10 @@ cancelling of presuppositions.
   \lex{poss}{\lam{X N}{X \hsbind (\lam{x}{N \hsbind (\lam{n}{\ap{\find}{(\lam{y}{\ap{n}{y} \land \obj{own}(x, y)})}})})}}
 \end{align*}
 
+The possessive construction \emph{X's N} uses $\find$ to behave either as a
+bound pronoun, using $\selP$ to retrieve its referent from the context, or
+if there is no suitable referent, it behaves as a presupposition trigger.
+
 The final part of the puzzle is how to make the context of the antecedent
 (\emph{John owns a car}) available in the consequent (\emph{his car is
   cheap}). DRT has special accessibility rules for implications, but
@@ -1672,6 +1691,56 @@ John owns the car ($\obj{own}(x, y)$). The sentence in the consequent then
 has access to this context and can resolve \emph{his} to $x$ and then
 retrieve $y$ using $\selP$, thus preventing the generation of a
 presupposition.
+
+Instead of using $\find$ in the lexical entry of every presupposition
+trigger, there is also an alternative realization that is more in the
+spirit of $\banana{\lambda}$. We can change the semantics of
+$\op{presuppose}$ from ``introduce a new top-level discourse referent
+satisfying the predicate'' to ``find a salient individual satisfying the
+predicate''. If the context can satisfy the $\op{presuppose}$ operation by
+binding the presupposition trigger to an existing discourse referent, it
+might choose to do so. This way, all presupposition triggers consistently
+use $\op{presuppose}$. The cancelling then happens at the level of a $\BOX$
+(a DRS) which might decide to satisfy the presupposition by supplying an
+existing discourse referent.
+
+\begin{align*}
+  \useFind &: \FF_{E \uplus \{\op{presuppose}\}}(\alpha) \to \FF_{E \uplus \{\op{get}, \op{presuppose}\}}(\alpha) \\
+  \useFind &= \banana{\onto{\op{presuppose}}{(\lam{P k}{\ap{\find}{P} \hsbind k})}} \\
+  \DBOX &: \FF_{E \uplus E_\DRT \uplus \{\op{presuppose}\}}(1) \to \FF_{E \uplus \{\op{get}, \op{presuppose}\}}(o) \\
+  \DBOX &= \BOX \circ \useFind
+\end{align*}
+
+We define a handler for $\op{presuppose}$ called $\useFind$ that tries to
+cancel the presupposition by looking into the current context for a
+possible referent. In case there is no such referent, the presupposition is
+propagated on. Since $\useFind$ can be defined on its own, we can define
+the new $\BOX$ that cancels presuppositions, $\DBOX$, by composing the old
+$\BOX$ with $\useFind$. The $\useFind$ handler which is included in $\DBOX$
+handles some uses of $\op{presuppose}$ and propagates other. This captures
+the reality that some contexts cancel some presuppositions. If we use the
+$\DBOX$ handler, we can now use $\op{presuppose}$ in the lexical entries of
+presupposition triggers without having to remember to use $\find$ in order
+to consistently get the correct prediction w.r.t.\ the cancellation of
+presuppositions.
+
+\begin{align*}
+  \abs{proper} &: PN \limp NP \\
+  \lex{proper}{\op{presuppose}!} \\
+  \abs{poss} &: NP \limp N \limp NP \\
+  \lex{poss}{\lam{X N}{X \hsbind (\lam{x}{N \hsbind (\lam{n}{\ap{\op{presuppose}!}{(\lam{y}{\ap{n}{y} \land \obj{own}(x, y)})}})})}}
+\end{align*}
+
+
+\subsection{Ambiguous Accommodation}
+\label{ssec:ambiguous-accommodation}
+
+Presuppositions do not have to always accommodate at the top
+level. Consider the following example from~\cite{sep-presupposition}.
+
+\begin{exe}
+  \ex \label{ex:wilma} ($c_0$) Maybe ($c_1$) Wilma thinks that ($c_2$) her husband is having an affair.
+\end{exe}
 
 
 \section{Double Negation}
