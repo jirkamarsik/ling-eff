@@ -1716,13 +1716,14 @@ cancel the presupposition by looking into the current context for a
 possible referent. In case there is no such referent, the presupposition is
 propagated on. Since $\useFind$ can be defined on its own, we can define
 the new $\BOX$ that cancels presuppositions, $\DBOX$, by composing the old
-$\BOX$ with $\useFind$. The $\useFind$ handler which is included in $\DBOX$
-handles some uses of $\op{presuppose}$ and propagates other. This captures
-the reality that some contexts cancel some presuppositions. If we use the
-$\DBOX$ handler, we can now use $\op{presuppose}$ in the lexical entries of
-presupposition triggers without having to remember to use $\find$ in order
-to consistently get the correct prediction w.r.t.\ the cancellation of
-presuppositions.
+$\BOX$ with $\useFind$\footnote{We also replace all uses of $\BOX$ with
+  $\DBOX$, i.e.\ the one in dynamic negation.}. The $\useFind$ handler
+which is included in $\DBOX$ handles some uses of $\op{presuppose}$ and
+propagates other. This captures the reality that some contexts cancel some
+presuppositions. If we use the $\DBOX$ handler, we can now use
+$\op{presuppose}$ in the lexical entries of presupposition triggers without
+having to remember to use $\find$ in order to consistently get the correct
+prediction w.r.t.\ the cancellation of presuppositions.
 
 \begin{align*}
   \abs{proper} &: PN \limp NP \\
@@ -1740,6 +1741,101 @@ level. Consider the following example from~\cite{sep-presupposition}.
 
 \begin{exe}
   \ex \label{ex:wilma} ($c_0$) Maybe ($c_1$) Wilma thinks that ($c_2$) her husband is having an affair.
+\end{exe}
+
+The NP \emph{her husband} presupposes that Wilma is married. If the
+sentence is uttered in a context in which it was not yet established that
+Wilma is married, the fact will need to be accomodated somewhere. We can do
+so in the global context $c_0$, which would mean interpreting the sentence
+as ``\emph{Wilma is married and maybe she thinks that her husband is having
+  an affair}''. However, we can also accommodate the presupposition in the
+intermediate context $c_1$ to get the interpretation ``\emph{Maybe Wilma is
+  married and she thinks that her husband is having an affair}''. Finally,
+we can even accommodate the presupposition in the local context $c_2$ to
+get ``\emph{Maybe Wilma thinks that she is married and her husband is
+  having an affair}''. 
+
+If we look at the different possible accommodation sites in
+Example~\ref{ex:wilma}, we remark that they are all lexically
+generated. There is the possible context/accommodation site $c_1$ in the
+argument of the modal operator \emph{maybe} and there is $c_2$ in the
+argument of the attitude verb \emph{think}. At these points, we would like
+to be able to interrupt presuppositions and accommodate them. In
+$\banana{\lambda}$, this would mean applying a $\op{presuppose}$ handler to
+these arguments. However, at the same time, we want to also have the
+reading in which the presupposition projects
+out.
+
+In~\ref{ssec:quantifier-ambiguity}, we dealt with ambiguity by changing the
+syntax, moving quantifiers into their scope using $\abs{QR}$. This would
+not be suitable for presuppositions since they can be accommodated in
+positions which do not correspond to sentences (e.g.\ the restrictor of a
+quantificational noun phrase). This time, instead of having a different
+abstract term for every possible reading, we will make it so that a single
+object term (i.e.\ denotation) will represent multiple readings, as when
+using underspecified representations. Our denotations are computations and
+we want the denotations to evaluate to multiple different values. This is a
+feature of nondeterministic computations and we can implement
+nondeterminism using effects.
+
+$$
+\typedop{amb}{1}{2}
+$$
+
+The $\op{amb}$ operation allows us to branch into two different
+computations. We can imagine this as asking an oracle or flipping a
+coin. We give no input and we receive a Boolean: either $\true$
+($\ap{\inl}{\star}$) or $\false$ ($\ap{\inr}{\star}$). A handler for
+$\op{amb}$ might then consult some oracle, flip (pseudo-)random coins,
+collect all the possibilities in a list or a set or just return one of the
+results by always answering $\true$. If we look back to the algebraic
+formulation of $\banana{\lambda}$ computations given in
+Chapter~\ref{chap:definitions}, we find that $\op{amb}$ corresponds to a
+single binary operation on computations. This algebraic notation will
+actually be more useful then the computational one we usually use and so we
+introduce the following:
+
+\begin{align*}
+  \_+\_ &: \FF_E(\alpha) \to \FF_E(\alpha) \to \FF_E(\alpha) \\
+  M + N &= \app{\op{amb}}{\star}{(\lam{b}{\ifte{b}{M}{N}})}
+\end{align*}
+
+provided that $\typedop{amb}{1}{2} \in E$.
+
+We can now write a handler that tries both projecting a presupposition and
+accommodating it.
+
+\begin{align*}
+  \maybeAccommodate &: \FF_{E \uplus \{\op{presuppose}\}}(\alpha) \to
+                      \FF_{E \uplus \{\op{presuppose},\op{amb}\}}(\alpha) \\
+  \maybeAccommodate &= \banana{\onto{\op{presuppose}}{(\lam{P k}{
+    (\app{\op{presuppose}}{P} +
+     \app{\op{introduce}}{\star}{(\lam{x}{\ap{\op{assert}!}{(\ap{P}{x})}})})
+       \hsbind k})}}
+\end{align*}
+
+Now we need to include this handler into the lexical entries of our
+grammar, wherever presuppositions can be accommodated. Here, we can follow
+existing analyses. Projective DRT~\cite{venhuizen2013parsimonious} lets
+presupposed content accommodate within DRSs on the projection
+line. Lebedeva's use of exceptions for presuppositions in
+TTDL~\cite{lebedeva2012expression} employs an exception handler that allows
+for accommodation at every dynamic negation, which is the operation with
+which all DRSs in TTDL are constructed. We can achieve the same result in
+our $\banana{\lambda}$ analysis by including the $\maybeAccommodate$ in the
+$\DBOX$ handler:
+
+\begin{align*}
+  \DBOX &: \FF_{E \uplus E_\DRT \uplus \{\op{presuppose}\}}(1) \to \FF_{E \uplus \{\op{get}, \op{presuppose}, \op{amb}\}}(o) \\
+  \DBOX &= \BOX \circ \maybeAccommodate \circ \useFind
+\end{align*}
+
+Now, if our semantics for the modal operator \emph{maybe} and the attitude
+verb \emph{think} uses boxes, then we get as denotation a nondeterministic
+computation that yields the three reading mentioned above.
+
+\begin{exe}
+  \ex \label{ex:german-wash} Do Germans?
 \end{exe}
 
 
