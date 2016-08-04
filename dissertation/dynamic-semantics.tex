@@ -1819,11 +1819,11 @@ grammar, wherever presuppositions can be accommodated. Here, we can follow
 existing analyses. Projective DRT~\cite{venhuizen2013parsimonious} lets
 presupposed content accommodate within DRSs on the projection
 line. Lebedeva's use of exceptions for presuppositions in
-TTDL~\cite{lebedeva2012expression} employs an exception handler that allows
-for accommodation at every dynamic negation, which is the operation with
-which all DRSs in TTDL are constructed. We can achieve the same result in
-our $\banana{\lambda}$ analysis by including the $\maybeAccommodate$ in the
-$\DBOX$ handler:
+TTDL~\cite{lebedeva2012expression} employs an exception handler
+($\mathrm{iacc}$) that allows for accommodation at every point where a
+discourse referent is being bound (i.e.\ at every dynamic existential
+quantification). We can achieve the same result in our $\banana{\lambda}$
+analysis by including the $\maybeAccommodate$ in the $\DBOX$ handler:
 
 \begin{align*}
   \DBOX &: \FF_{E \uplus E_\DRT \uplus \{\op{presuppose}\}}(1) \to \FF_{E \uplus \{\op{get}, \op{presuppose}, \op{amb}\}}(o) \\
@@ -1831,12 +1831,82 @@ $\DBOX$ handler:
 \end{align*}
 
 Now, if our semantics for the modal operator \emph{maybe} and the attitude
-verb \emph{think} uses boxes, then we get as denotation a nondeterministic
-computation that yields the three reading mentioned above.
+verb \emph{think} uses boxes, then we get as denotation of
+Example~\ref{ex:wilma} a nondeterministic computation that yields the three
+readings mentioned above. If we look back at those three readings,
+\cite{sep-presupposition} states that while they are all possible, the
+first reading (global accommodation at $c_0$) is strongly preferred to the
+other readings. This is generalized to the following empirically motivated
+principle:
+
+\begin{quote}
+PGA (Preference for Global Accommodation): Global accommodation is
+preferred to non-global accommodation.
+\flushright{\cite{sep-presupposition}, 5.1}
+\end{quote}
+
+If it were only for this principle, we might wonder why we bothered with
+allowing accommodation in any DRS on the projection line instead of always
+accommodating globally. However, there are other forces which push in the
+opposite direction and impose constraints on presupposition projection. The
+one that we will tend to in this section is the effect of variable
+binding. A proposition being presupposed cannot escape the scope of a
+binder that binds one of its variables. In~\cite{sep-presupposition}, this
+is illustrated on the following example.
 
 \begin{exe}
-  \ex \label{ex:german-wash} Do Germans?
+  \ex \label{ex:most-germans-wash} Most Germans wash their car on Saturday.
 \end{exe}
+
+The expression \emph{their car} triggers the presupposition of the
+existence of a car belonging to the referent of \emph{their}. We could
+accommodate this presupposition locally, in the nucleus of the quantifier
+\emph{most Germans}, giving the reading ``\emph{Most Germans have a car and
+  they wash it on Saturday.}''. We could also accommodate it in the
+restrictor of that quantifier (which is accessible from, i.e.\ on the
+projection line from, the nucleus), giving us ``\emph{Most Germans who have
+  a car wash it on Saturday.}''.
+
+However, we cannot get the global accommodation reading. The problem is
+that the referent of \emph{their} is a variable being quantified over by
+the quantifier \emph{most Germans}. If this variable is $x$, then the
+presupposition being triggered is the existence of an individual satisfying
+$\lam{y}{\obj{car}(y) \land \obj{own}(x, y)}$. This predicate contains a
+free variable $x$, which means that for every different value $x$, we
+actually have a different predicate that identifies a different car. The
+solution in theories that implement accommodation, such as van der Sandt's
+DRT approach~\cite{van1992presupposition} and Lebedeva's extension of
+TTDL~\cite{lebedeva2012expression}, is to reflect this logical
+impossibility into a linguistic constraint. Presupposed material cannot
+project out of a binder that binds some part of that material.
+
+We will look at how a similar example turns out in our system.
+
+\begin{exe}
+  \ex \label{ex:man-angry} ($c_0$) If ($c_1$) a man gets angry, ($c_2$) his
+  children get frightened.
+\end{exe}
+
+Example~\ref{ex:man-angry}, taken from~\cite{van1992presupposition}, is
+similar in nature to Example~\ref{ex:most-germans-wash}. We have a
+presupposition trigger which can be accommodated in a local context ($c_2$)
+and in an intermediate context ($c_1$), but not in the global context
+($c_0$) because of a bound variable. Furthermore,
+Example~\ref{ex:man-angry} is built out of lexical items we have already
+covered (with the sole exception being the verb phrases \emph{get A}).
+
+\begin{align*}
+  \abs{children-of} &: NP \limp NP \\
+  \lex{children-of}{\lam{X}{X \hsbind (\lam{x}{\ap{\op{presuppose}!}{(\lam{y}{\obj{children}(y, x)})}})}}
+\end{align*}
+
+\begin{align*}
+\sem{S_2} = &\ \sem{\ap{\abs{get-frightened}}{(\ap{\abs{children-of}}{\abs{he}})}} \\
+\tto &\ \app{\op{get}}{\star}{(\lam{e}{ \\
+     &\ \app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(e))})}{(\lam{y}{ \\
+     &\ \app{\op{assert}}{(\obj{frightened}(y))}{(\lam{\_}{ \\
+     &\ \etaE{\star}})}})}})}
+\end{align*}
 
 
 \section{Double Negation}

@@ -5,3 +5,4 @@
 * Read DNDRT paper
 * Look at some of the earlier work form Giorgolo and Asudeh
 * Read the whole SEP chapter on Presuppositions
+* and van der Sandt 1992
