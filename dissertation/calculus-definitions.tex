@@ -1410,7 +1410,7 @@ symbols is given below\footnote{The types and effect signatures in the
   &\pi_1 = \lam{P}{\ap{\pi_1}{P}} \\
   &\op{op} : \alpha \to (\beta \to \FF_E(\gamma)) \to \FF_E(\gamma) &
   &\pi_2 : (\alpha \times \beta) \to \beta \\
-  &\op{op} = \lam{p c}{\app{\op{op}}{p}{c}} &
+  &\op{op} = \lam{p c}{\app{\op{op}}{p}{(\lam{x}{\ap{c}{x}})}} &
   &\pi_2 = \lam{P}{\ap{\pi_2}{P}} \\
   &\cibanana : \FF_E(\gamma) \to \FF_{E'}(\delta) &
   &\inl : \alpha \to (\alpha + \beta) \\

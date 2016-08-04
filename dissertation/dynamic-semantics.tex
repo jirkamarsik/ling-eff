@@ -1308,12 +1308,14 @@ continuations which return computations.
   \BOX :\ &\FF_{E \uplus E_\DRT}(1) \to \gamma \to \FF_E(o) \\
   \BOX = \lam{A e}{(\ap{\banana{\ 
   &\onto{\op{get}}{(\lam{\_ k}{\etaE{(\lam{e}{\ap{k}{e} \apll e})}})}, \\
-  &\onto{\op{introduce}}{(\lam{\_ k}{\etaE{(\lam{e}{\exists \apr (\ap{\CC}{(\lam{x}{\ap{k}{x} \apll (x \cons e)})})})}})}, \\
+  &\onto{\op{introduce}}{(\lam{\_ k}{\etaE{(\lam{e}{\dexists x.\ \ap{k}{x} \apll (x \cons e)})}})}, \\
   &\onto{\op{assert}}{(\lam{p k}{\etaE{(\lam{e}{p \andr (\ap{k}{\star} \apll (p \cons e))})}})}, \\
   &\onto{\eta}{(\lam{\_}{\etaE{(\lam{e}{\top})}})}\ }}{A}) \apll e} \\
   \\
   \_ \apll \_ &: \FF_E(\alpha \to \FF_E(\beta)) \to \alpha \to \FF_E(\beta) \\
-  F \apll x &= F \hsbind (\lam{f}{\ap{f}{x}})
+  F \apll x &= F \hsbind (\lam{f}{\ap{f}{x}}) \\
+  \dexists &: (\iota \to \FF_E(o)) \to  \FF_E(o) \\
+  \dexists P &= \exists \apr (\ap{\CC}{P})
 \end{align*}
 
 We include the closed $\BOX$ handler for comparison. At the heart of the
@@ -1342,7 +1344,9 @@ the closed $\bbanana{}$ in the following ways:
   $\lam{x}{\ap{k}{x} \apll (x \cons e)}$ of type $\iota \to \FF_E(o)$. We
   use $\CC$ to push the effects out and get a computation that returns a
   pure predicate, type $\FF_E(\iota \to o)$. We can then apply the
-  existential quantifier under the $\FF_E$ type wrapper using $\apr$.
+  existential quantifier under the $\FF_E$ type wrapper using $\apr$. We
+  write this way of applying the existential quantifier to an effectful
+  predicate $P$ as $\dexists P$.
 \end{itemize}
 
 After having interpreted the $A : \FF_{E \uplus E_\DRT}(1)$ using the
@@ -1425,7 +1429,7 @@ $\FF_{E_\DRT}(1)$ into computations in $\FF_{\{\op{get}\}}(o)$.
   \BOX :\ &\FF_{E \uplus E_\DRT}(1) \to \FF_{E \uplus \{\op{get}\}}(o) \\
   \BOX = \lam{A}{(\ap{\banana{\ 
   &\onto{\op{get}}{(\lam{\_ k}{\etaE{(\lam{e}{\app{\op{get}}{\star}{(\lam{e'}{\ap{k}{(e \cat e')} \apll e})}})}})}, \\
-  &\onto{\op{introduce}}{(\lam{\_ k}{\etaE{(\lam{e}{\exists \apr (\ap{\CC}{(\lam{x}{\ap{k}{x} \apll (x \cons e)})})})}})}, \\
+  &\onto{\op{introduce}}{(\lam{\_ k}{\etaE{(\lam{e}{\dexists x.\ \ap{k}{x} \apll (x \cons e)})}})}, \\
   &\onto{\op{assert}}{(\lam{p k}{\etaE{(\lam{e}{p \andr (\ap{k}{\star} \apll (p \cons e))})}})}, \\
   &\onto{\eta}{(\lam{\_}{\etaE{(\lam{e}{\top})}})}\ }}{A}) \apll \nil}
 \end{align*}
@@ -1809,9 +1813,8 @@ accommodating it.
   \maybeAccommodate &: \FF_{E \uplus \{\op{presuppose}\}}(\alpha) \to
                       \FF_{E \uplus \{\op{presuppose},\op{amb}\}}(\alpha) \\
   \maybeAccommodate &= \banana{\onto{\op{presuppose}}{(\lam{P k}{
-    (\app{\op{presuppose}}{P} +
-     \app{\op{introduce}}{\star}{(\lam{x}{\ap{\op{assert}!}{(\ap{P}{x})}})})
-       \hsbind k})}}
+    \app{\op{presuppose}}{P}{k} +
+    \app{\op{introduce}}{\star}{(\lam{x}{\app{\op{assert}}{(\ap{P}{x})}{k}})}})}}
 \end{align*}
 
 Now we need to include this handler into the lexical entries of our
@@ -1874,8 +1877,9 @@ presupposition being triggered is the existence of an individual satisfying
 $\lam{y}{\obj{car}(y) \land \obj{own}(x, y)}$. This predicate contains a
 free variable $x$, which means that for every different value $x$, we
 actually have a different predicate that identifies a different car. The
-solution in theories that implement accommodation, such as van der Sandt's
-DRT approach~\cite{van1992presupposition} and Lebedeva's extension of
+solution to this \emph{binding problem} in theories that implement
+accommodation, such as van der Sandt's DRT
+approach~\cite{van1992presupposition} and Lebedeva's extension of
 TTDL~\cite{lebedeva2012expression}, is to reflect this logical
 impossibility into a linguistic constraint. Presupposed material cannot
 project out of a binder that binds some part of that material.
@@ -1892,17 +1896,51 @@ similar in nature to Example~\ref{ex:most-germans-wash}. We have a
 presupposition trigger which can be accommodated in a local context ($c_2$)
 and in an intermediate context ($c_1$), but not in the global context
 ($c_0$) because of a bound variable. Furthermore,
-Example~\ref{ex:man-angry} is built out of lexical items we have already
-covered (with the sole exception being the verb phrases \emph{get A}).
+Example~\ref{ex:man-angry} is built out of constructions we have already
+covered and so we are ready to compute the denotation. We do not analyze
+the construction \emph{$X$'s children} as a possessive
+($\app{\abs{poss}}{X}{\abs{children}}$), which would refer to some children
+owned by $X$. Since \emph{children} is a relational noun, we assume a
+binary relation $\obj{children}(y, x)$ expressing that $y$ are children of
+$x$. We then analyze \emph{$X$'s children} as $\ap{\abs{children-of}}{X}$
+where the semantics of $\abs{children-of}$ makes use of the relation
+$\obj{children}$. For the construction \emph{$X$ gets $A$}, where $A$ is an
+adjective, we introduce the abstract constant $\abs{get}$.
 
 \begin{align*}
   \abs{children-of} &: NP \limp NP \\
-  \lex{children-of}{\lam{X}{X \hsbind (\lam{x}{\ap{\op{presuppose}!}{(\lam{y}{\obj{children}(y, x)})}})}}
+  \lex{children-of}{\lam{X}{X \hsbind (\lam{x}{\ap{\op{presuppose}!}{(\lam{y}{\obj{children}(y, x)})}})}} \\
+  \abs{get} &: ADJ \limp NP \limp S \\
+  \sem{ADJ} &= \iota \to o \\
+  \lex{get}{\lam{a X}{X \hsbind (\lam{x}{\ap{\op{assert}!}{(\ap{a}{x})}})}}
 \end{align*}
+
+We can now compute the denotation of Example~\ref{ex:man-angry}, starting
+with the consequent $S_2$: \emph{his children get frightened}.
+
+\begin{align*}
+  \sem{S_2}
+  &= \sem{\app{\abs{get}}{\abs{frightened}}{(\ap{\abs{children-of}}{\abs{he}})}} \\
+  &\tto 
+    \begin{aligned}[t]
+      (&\app{\op{get}}{\star}{(\lam{e}{ \\
+       &\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(e))})}{(\lam{y}{ \\
+       &\app{\op{assert}}{(\obj{frightened}(y))}{(\lam{\_}{ \\
+       &\etaE{\star}})}})}})})
+    \end{aligned}
+\end{align*}
+
+The structure of Example~\ref{ex:man-angry} is
+$\app{\abs{if-then}}{S_1}{S_2}$ where $S_1$ and $S_2$ are the antecedent
+and consequent, respectively. Its semantics,
+$\sem{\app{\abs{if-then}}{S_1}{S_2}}$, is
+$S_1 \dimp S_2 = \dnot (\sem{S_1} \dand \dnot \sem{S_2})$. Our next step
+will be computing $\dnot \sem{S_2}$. Dynamic negation is defined by boxing
+and then asserting the negation of the boxed proposition. We start by
+boxing $\sem{S_2}$, i.e.\ evaluating $\ap{\DBOX}{\sem{S_2}}$.
 
 \begin{align*}
   \ap{\DBOX}{\sem{S_2}}
-  &= \ap{\DBOX}{\sem{\ap{\abs{get-frightened}}{(\ap{\abs{children-of}}{\abs{he}})}}} \\
   &\tto \ap{\DBOX}{
     \begin{aligned}[t]
       (&\app{\op{get}}{\star}{(\lam{e}{ \\
@@ -1949,13 +1987,418 @@ covered (with the sole exception being the verb phrases \emph{get A}).
     \end{aligned}} \\
   &\tto
     \begin{aligned}[t]
-      (&\app{\op{get}}{\star}{(\lam{e}{ \\
-       &\quad \begin{aligned}[t]
-           (&\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(e))})}{(\lam{y}{ \\
-            &\etaE{(\obj{frightened}(y))}})})
-           \end{aligned} \\
-       &+ (\etaE{(\exists y.\ \obj{children}(y, \sel(e)) \land \obj{frightened}(y))})})})
+      &\app{\op{get}}{\star}{(\lam{e}{ \\
+      &\quad \begin{aligned}[t]
+          (&\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(e))})}{(\lam{y}{ \\
+           &\etaE{(\obj{frightened}(y))}})})
+         \end{aligned} \\
+      &+ (\etaE{(\exists y.\ \obj{children}(y, \sel(e)) \land \obj{frightened}(y))})})}
+    \end{aligned}
+\end{align*}
+
+$\DBOX$ is composed of $\BOX$, $\maybeAccommodate$ and $\useFind$. We apply
+all of these handlers in turn. We start with $\useFind$, where we assume
+that the sentence is uttered in a context in which the existence of
+\emph{his children} was not established. This means that $\selP$ will not
+find a referent within $e$ and the presupposition will not be cancelled. We
+also rely on the idempotence of $\op{get}$ to collapse the two $\op{get}$s
+into one and so $\useFind$ ends up having no effect. Next up is
+$\maybeAccommodate$ that tries both projecting the presupposition and
+accommodating it using $\op{introduce}$ and $\op{assert}$. Finally $\BOX$
+translates the dynamic propositions that use into simple propositions. We
+have one proposition with a presupposition projecting out of it and another
+one in which the presupposition was accommodated using an existential
+quantifier. The dynamic negation will negate these propositions and wrap
+them in $\op{assert}$:
+
+\begin{align*}
+  \dnot \sem{S_2}
+  &= \ap{\DBOX}{\sem{S_2}} \hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}}) \\
+  &\tto 
+    \begin{aligned}[t]
+      &\app{\op{get}}{\star}{(\lam{e}{ \\
+      &\quad \begin{aligned}[t]
+          (&\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(e))})}{(\lam{y}{ \\
+           &\etaE{(\obj{frightened}(y))}})})
+         \end{aligned} \\
+      &+ (\etaE{(\exists y.\ \obj{children}(y, \sel(e)) \land \obj{frightened}(y))}) \\
+      &\hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}})})}
+       \end{aligned} \\
+  &\tto 
+    \begin{aligned}[t]
+      &\app{\op{get}}{\star}{(\lam{e}{ \\
+      &\quad \begin{aligned}[t]
+          (&\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(e))})}{(\lam{y}{ \\
+           &\app{\op{assert}}{(\lnot (\obj{frightened}(y)))}{(\lam{\_}{ \\
+           &\etaE{\star}})}})})
+         \end{aligned} \\
+      &+ \begin{aligned}[t]
+          (&\app{\op{assert}}{(\lnot (\exists y.\ \obj{children}(y, \sel(e)) \land \obj{frightened}(y)))}{(\lam{\_}{ \\
+           &\etaE{\star}})}))
+         \end{aligned}}}
+    \end{aligned}
+\end{align*}
+
+We now turn to the antecedent $S_1$: \emph{a man gets angry}.
+
+\begin{align*}
+  \sem{S_1}
+  &= \sem{\app{\abs{get}}{\abs{angry}}{(\ap{\abs{a}}{(\ap{\abs{common}}{\abs{man}})})}} \\
+  &\tto \begin{aligned}[t]
+      &\app{\op{introduce}}{\star}{(\lam{x}{ \\
+      &\app{\op{assert}}{(\obj{man}(x))}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\obj{angry}(x))}{(\lam{\_}{ \\
+      &\etaE{\star}})}})}})}
+    \end{aligned}
+\end{align*}
+
+The denotation of Example~\ref{ex:man-angry} is
+$\dnot (\sem{S_1} \dand \dnot \sem{S_2})$ and so we have to compute
+$\sem{S_1} \dand \dnot \sem{S_2}$ and then the dynamic negation of the
+result.
+
+\begin{align*}
+  \sem{S_1} \dand \dnot \sem{S_2}
+  &= \sem{S_1} \hsbind (\lam{\_}{\dnot \sem{S_2}}) \\
+  &\tto \begin{aligned}[t]
+      &\app{\op{introduce}}{\star}{(\lam{x}{ \\
+      &\app{\op{assert}}{(\obj{man}(x))}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\obj{angry}(x))}{(\lam{\_}{ \\
+      &\app{\op{get}}{\star}{(\lam{e}{ \\
+      &\quad \begin{aligned}[t]
+          (&\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(e))})}{(\lam{y}{ \\
+           &\app{\op{assert}}{(\lnot (\obj{frightened}(y)))}{(\lam{\_}{ \\
+           &\etaE{\star}})}})})
+         \end{aligned} \\
+      &+ \begin{aligned}[t]
+          (&\app{\op{assert}}{(\lnot (\exists y.\ \obj{children}(y, \sel(e)) \land \obj{frightened}(y)))}{(\lam{\_}{ \\
+           &\etaE{\star}})})))))
+         \end{aligned}}}}}}}}}
+    \end{aligned}
+\end{align*}
+
+We start computing $\dnot (\sem{S_1} \dand \dnot \sem{S_2})$ by boxing
+$\sem{S_1} \dand \dnot \sem{S_2}$:
+
+\begin{align*}
+  &\ap{\DBOX}{(\sem{S_1} \dand \dnot \sem{S_2})} \\
+  &\tto \ap{\DBOX}{(\begin{aligned}[t]
+      &\app{\op{introduce}}{\star}{(\lam{x}{ \\
+      &\app{\op{assert}}{(\obj{man}(x))}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\obj{angry}(x))}{(\lam{\_}{ \\
+      &\app{\op{get}}{\star}{(\lam{e}{ \\
+      &\quad \begin{aligned}[t]
+          (&\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(e))})}{(\lam{y}{ \\
+           &\app{\op{assert}}{(\lnot (\obj{frightened}(y)))}{(\lam{\_}{ \\
+           &\etaE{\star}})}})})
+         \end{aligned} \\
+      &+ \begin{aligned}[t]
+          (&\app{\op{assert}}{(\lnot (\exists y.\ \obj{children}(y, \sel(e)) \land \obj{frightened}(y)))}{(\lam{\_}{ \\
+           &\etaE{\star}})}))))))
+         \end{aligned}}}}}}}}}
+    \end{aligned}} \\
+  &\tto \ap{\BOX}{(\ap{\maybeAccommodate}{(\begin{aligned}[t]
+      &\app{\op{introduce}}{\star}{(\lam{x}{ \\
+      &\app{\op{assert}}{(\obj{man}(x))}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\obj{angry}(x))}{(\lam{\_}{ \\
+      &\app{\op{get}}{\star}{(\lam{e}{ \\
+      &\quad \begin{aligned}[t]
+          (&\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(e))})}{(\lam{y}{ \\
+           &\app{\op{assert}}{(\lnot (\obj{frightened}(y)))}{(\lam{\_}{ \\
+           &\etaE{\star}})}})})
+         \end{aligned} \\
+      &+ \begin{aligned}[t]
+          (&\app{\op{assert}}{(\lnot (\exists y.\ \obj{children}(y, \sel(e)) \land \obj{frightened}(y)))}{(\lam{\_}{ \\
+           &\etaE{\star}})})))))))
+         \end{aligned}}}}}}}}}
+    \end{aligned}}} \\
+  &\tto \ap{\BOX}{(\begin{aligned}[t]
+      &\app{\op{introduce}}{\star}{(\lam{x}{ \\
+      &\app{\op{assert}}{(\obj{man}(x))}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\obj{angry}(x))}{(\lam{\_}{ \\
+      &\app{\op{get}}{\star}{(\lam{e}{ \\
+      &\quad \begin{aligned}[t]
+          (&\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(e))})}{(\lam{y}{ \\
+           &\app{\op{assert}}{(\lnot (\obj{frightened}(y)))}{(\lam{\_}{ \\
+           &\etaE{\star}})}})})
+         \end{aligned} \\
+      &+ \begin{aligned}[t]
+          (&\app{\op{introduce}}{\star}{(\lam{y}{ \\
+           &\app{\op{assert}}{(\obj{children}(y, \sel(e)))}{(\lam{\_}{ \\
+           &\app{\op{assert}}{(\lnot (\obj{frightened}(y)))}{(\lam{\_}{ \\
+           &\etaE{\star}})}})}})})
+         \end{aligned} \\
+      &+ \begin{aligned}[t]
+          (&\app{\op{assert}}{(\lnot (\exists y.\ \obj{children}(y, \sel(e)) \land \obj{frightened}(y)))}{(\lam{\_}{ \\
+           &\etaE{\star}})}))))))
+         \end{aligned}}}}}}}}}
+    \end{aligned}} \\
+  &\approx \ap{\BOX}{(\begin{aligned}[t]
+      &\app{\op{get}}{\star}{(\lam{e}{ \\
+      &\app{\op{introduce}}{\star}{(\lam{x}{ \\
+      &\app{\op{assert}}{(\obj{man}(x))}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\obj{angry}(x))}{(\lam{\_}{ \\
+      &\quad \begin{aligned}[t]
+          (&\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(\obj{angry}(x) \cons \obj{man}(x) \cons x \cons e))})}{(\lam{y}{ \\
+           &\app{\op{assert}}{(\lnot (\obj{frightened}(y)))}{(\lam{\_}{ \\
+           &\etaE{\star}})}})})
+         \end{aligned} \\
+      &+ \begin{aligned}[t]
+          (&\app{\op{introduce}}{\star}{(\lam{y}{ \\
+           &\app{\op{assert}}{(\obj{children}(y, \sel(\obj{angry}(x) \cons \obj{man}(x) \cons x \cons e)))}{(\lam{\_}{ \\
+           &\app{\op{assert}}{(\lnot (\obj{frightened}(y)))}{(\lam{\_}{ \\
+           &\etaE{\star}})}})}})})
+         \end{aligned} \\
+      &+ \begin{aligned}[t]
+          (&\app{\op{assert}}{(\lnot (\exists y.\ \obj{children}(y, \sel(\obj{angry}(x) \cons \obj{man}(x) \cons x \cons e)) \land \obj{frightened}(y)))}{(\lam{\_}{ \\
+           &\etaE{\star}})}))))))
+         \end{aligned}}}}}}}}}
+    \end{aligned}}
+\end{align*}
+
+We skip $\useFind$, since, as before, it does not cancel any
+presupposition. Then $\maybeAccommodate$ will take the presupposition and
+consider the two alternatives: projecting this presupposition further down
+the projection line or accommodating it here, in the antecedent. In the
+last step, we commute $\op{get}$ with $\op{introduce}$ and $\op{assert}$
+using the equations from~\ref{ssec:algebraic-drt}. This makes it more
+obvious that $x$ is one of the available discourse referents for the
+pronoun \emph{his} in the consequent. Assuming that this pronoun will
+actually resolve to $x$ and not to some other referent (i.e.\
+$\sel(\obj{angry}(x) \cons \obj{man}(x) \cons x \cons e) = x$), then the
+argument to $\op{presuppose}$ will be $\lam{y}{\obj{children}(y, x)}$, in
+which $x$ occurs free.
+
+The computation is nondeterministic and uses $\op{amb}$ ($+$) to split into
+three possible interpretations:
+
+\begin{itemize}
+\item projecting the presupposition out of the conditional (the way of
+  global accommodation)
+\item accommodating the presupposition at the level of the entire
+  conditional (intermediate accommodation)
+\item accommodating the presupposition already at the level of the
+  consequent of the conditional (local accommodation)
+\end{itemize}
+
+We continue by applying the $\BOX$ handler.
+
+\begin{align*}
+   &\ap{\BOX}{(\begin{aligned}[t]
+      &\app{\op{get}}{\star}{(\lam{e}{ \\
+      &\app{\op{introduce}}{\star}{(\lam{x}{ \\
+      &\app{\op{assert}}{(\obj{man}(x))}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\obj{angry}(x))}{(\lam{\_}{ \\
+      &\quad \begin{aligned}[t]
+          (&\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, x)})}{(\lam{y}{ \\
+           &\app{\op{assert}}{(\lnot (\obj{frightened}(y)))}{(\lam{\_}{ \\
+           &\etaE{\star}})}})})
+         \end{aligned} \\
+      &+ \begin{aligned}[t]
+          (&\app{\op{introduce}}{\star}{(\lam{y}{ \\
+           &\app{\op{assert}}{(\obj{children}(y, x))}{(\lam{\_}{ \\
+           &\app{\op{assert}}{(\lnot (\obj{frightened}(y)))}{(\lam{\_}{ \\
+           &\etaE{\star}})}})}})})
+         \end{aligned} \\
+      &+ \begin{aligned}[t]
+          (&\app{\op{assert}}{(\lnot (\exists y.\ \obj{children}(y, x) \land \obj{frightened}(y)))}{(\lam{\_}{ \\
+           &\etaE{\star}})}))))))
+         \end{aligned}}}}}}}}}
+    \end{aligned}} \\
+   &\ttoffrom \begin{aligned}[t]
+      &\begin{aligned}[t]
+         \ap{\BOX}{(&\app{\op{introduce}}{\star}{(\lam{x}{ \\
+                    &\app{\op{assert}}{(\obj{man}(x))}{(\lam{\_}{ \\
+                    &\app{\op{assert}}{(\obj{angry}(x))}{(\lam{\_}{ \\
+                    &\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, x)})}{(\lam{y}{ \\
+                    &\app{\op{assert}}{(\lnot (\obj{frightened}(y)))}{(\lam{\_}{ \\
+                    &\etaE{\star}})}})}})}})}})})}
+       \end{aligned} \\
+      &+ \etaE{(\exists x.\ \obj{man}(x) \land \obj{angry}(x) \land
+                \exists y.\ \obj{children}(y, x) \land
+                \lnot (\obj{frightened}(y)))} \\
+      &+ \etaE{(\exists x.\ \obj{man}(x) \land \obj{angry}(x) \land
+                \lnot (\exists y.\ \obj{children}(y, x) \land \obj{frightened}(y)))}
     \end{aligned} \\
+   &\tto \begin{aligned}[t]
+      &\dexists x.\ \begin{aligned}[t]
+          &\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, x)})}{(\lam{y}{ \\
+          &\etaE{(\obj{man}(x) \land \obj{angry}(x) \land \lnot (\obj{frightened}(y)))}})}
+        \end{aligned} \\
+      &+ \etaE{(\exists x.\ \obj{man}(x) \land \obj{angry}(x) \land
+                \exists y.\ \obj{children}(y, x) \land
+                \lnot (\obj{frightened}(y)))} \\
+      &+ \etaE{(\exists x.\ \obj{man}(x) \land \obj{angry}(x) \land
+                \lnot (\exists y.\ \obj{children}(y, x) \land \obj{frightened}(y)))}
+    \end{aligned}
+\end{align*}
+
+As a result, we get two propositions and one stuck computation. The two
+propositions will (after negation) gives us the intermediate accommodation
+reading and the local accommodation reading, whereas the stuck computation
+represents the impossibility of the global accommodation reading. The term
+$\dexists x.\ \app{\op{presuppose}}{(\lam{y}{\obj{children}(y,
+    x)})}{M_\petitc}$ is stuck, because when we expand $\dexists$, it
+becomes
+$\exists \apr
+(\ap{\CC}{(\lam{x}{\app{\op{presuppose}}{(\lam{y}{\obj{children}(y,
+        x)})}{M_\petitc}})})$. There is no rule in $\banana{\lambda}$ to
+reduce $\ap{\CC}{(\lam{x}{\app{\op{presuppose}}{M_\petitp}{M_\petitc}})}$
+when $x$ occurs free in $M_\petitp$ and the $\banana{\lambda}$ denotational
+semantics would assign $\bot$ to this expression.
+
+We finish computing the denotation of Example~\ref{ex:man-angry} by
+wrapping up the dynamic negation: negating and asserting the propositions.
+
+\begin{align*}
+  \sem{\app{\abs{if-then}}{S_1}{S_2}}
+  &= \dnot (\sem{S_1} \dand \dnot \sem{S_2}) \\
+  &= \ap{\DBOX}{(\sem{S_1} \dand \dnot \sem{S_2})} \hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}}) \\
+  &\tto \begin{aligned}[t]
+    &(\dexists x.\ \begin{aligned}[t]
+         &\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, x)})}{(\lam{y}{ \\
+         &\etaE{(\obj{man}(x) \land \obj{angry}(x) \land \lnot (\obj{frightened}(y)))}})}
+       \end{aligned} \\
+    &+ \etaE{(\exists x.\ \obj{man}(x) \land \obj{angry}(x) \land
+              \exists y.\ \obj{children}(y, x) \land
+              \lnot (\obj{frightened}(y)))} \\
+    &+ \etaE{(\exists x.\ \obj{man}(x) \land \obj{angry}(x) \land
+              \lnot (\exists y.\ \obj{children}(y, x) \land
+              \obj{frightened}(y)))})
+    \end{aligned} \\
+  &\qquad \hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}}) \\
+  &\tto \begin{aligned}[t]
+     &((\dexists x.\ \begin{aligned}[t]
+         &\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, x)})}{(\lam{y}{ \\
+         &\etaE{(\obj{man}(x) \land \obj{angry}(x) \land \lnot (\obj{frightened}(y)))}})}) \\
+         &\hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}})) \\
+       \end{aligned} \\
+     &+ (\begin{aligned}[t]
+           &\etaE{(\exists x.\ \obj{man}(x) \land \obj{angry}(x) \land
+                   \exists y.\ \obj{children}(y, x) \land
+                   \lnot (\obj{frightened}(y)))} \\
+           &\hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}}))
+         \end{aligned} \\
+     &+ (\begin{aligned}[t]
+           &\etaE{(\exists x.\ \obj{man}(x) \land \obj{angry}(x) \land
+                  \lnot (\exists y.\ \obj{children}(y, x) \land
+                  \obj{frightened}(y)))} \\
+           &\hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}}))
+         \end{aligned}
+    \end{aligned} \\
+  &\tto \begin{aligned}[t]
+     &((\dexists x.\ \begin{aligned}[t]
+         &\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, x)})}{(\lam{y}{ \\
+         &\etaE{(\obj{man}(x) \land \obj{angry}(x) \land \lnot (\obj{frightened}(y)))}})}) \\
+         &\hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}})) \\
+       \end{aligned} \\
+     &+ (\ap{\op{assert}!}
+          {(\lnot (\exists x.\ \obj{man}(x) \land \obj{angry}(x) \land
+                   \exists y.\ \obj{children}(y, x) \land
+                   \lnot (\obj{frightened}(y))))}) \\
+     &+ (\ap{\op{assert}!}
+          {(\lnot (\exists x.\ \obj{man}(x) \land \obj{angry}(x) \land
+                   \lnot (\exists y.\ \obj{children}(y, x) \land
+                   \obj{frightened}(y))))}) \\
+   \end{aligned} \\
+  &= \begin{aligned}[t]
+     &((\dexists x.\ \begin{aligned}[t]
+         &\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, x)})}{(\lam{y}{ \\
+         &\etaE{(\obj{man}(x) \land \obj{angry}(x) \land \lnot (\obj{frightened}(y)))}})}) \\
+         &\hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}})) \\
+       \end{aligned} \\
+     &+ (\ap{\op{assert}!}
+          {(\forall x y.\ (\obj{man}(x) \land \obj{angry}(x) \land
+                          \obj{children}(y, x)) \to \obj{frightened}(y))}) \\
+     &+ (\ap{\op{assert}!}
+          {(\forall x.\ (\obj{man}(x) \land \obj{angry}(x)) \to (\exists y.\ \obj{children}(y, x) \land \obj{frightened}(y)))})
+   \end{aligned}
+\end{align*}
+
+In the steps above, we pass $\hsbind$ operator through the $\op{amb}$
+operation symbol, which is represented by $+$. We then perform the negation
+and assertion on the two successful computations. We also change the
+resulting propositions into equivalent but more readable ones. The
+resulting denotation is a nondeterministic computation that can either
+produce the intermediate accommodation reading (``\emph{If a man who has
+  children gets angry, then his children get frightened}''), the local
+accommodation reading (``\emph{If a man gets angry, then he also has
+  children who get frightened}'') or get stuck. The PGA principle holds
+here since the intermediate accommodation reading is preferred to the local
+accommodation one.
+
+We can write a handler that will recover the reading where the
+presupposition projects as far as possible without getting blocked by a
+binding. Our operation symbol for nondeterminism was called $\op{amb}$
+because of its similarity to McCarthy's $amb$ operator for writing
+ambiguous (i.e.\ nondeterministic)
+functions~\cite{mccarthy1961basis,abelson1996structure}. The expression
+$C[amb(x,y)]$ reduces to either $C[x]$ or $C[y]$, provided that the
+resulting expression successfully produces a value. This kind of choice
+operator is sometimes called ``angelic'' because it watches out for us by
+making choices that will lead to a successful evaluation. This is the kind
+of oversight we need in our choice operator as well. Consider the
+$\op{presuppose}$ clause of the $\maybeAccommodate$ handler:
+
+$$
+  \maybeAccommodate = \banana{\onto{\op{presuppose}}{(\lam{P k}{
+    \app{\op{presuppose}}{P}{k} +
+    \app{\op{introduce}}{\star}{(\lam{x}{\app{\op{assert}}{(\ap{P}{x})}{k}})}})}}
+$$
+
+Both $\app{\op{presuppose}}{P}{k}$ and
+$\app{\op{introduce}}{\star}{(\lam{x}{\app{\op{assert}}{(\ap{P}{x})}{k}})}$
+are well-defined expressions, but if in some larger context we decide to
+choose, e.g., the former, we might end up with a stuck calculation. This
+was the case in the denotation of Example~\ref{ex:man-angry}: we decided
+twice to project the presupposition and later, when we applied the $\BOX$
+handler, we were stuck.
+
+The $amb$ operator can be implemented in Scheme using
+continuations~\cite{sitaram1998teach} and so we should be able to do the
+same using effects and handlers in $\banana{\lambda}$. We will give $amb$
+the following semantics: $C[amb(x, y)]$ reduces to $C[x]$ if $C[x]$ reduces
+to a value; otherwise, $C[amb(x, y)]$ reduces to $y$. Our choice operator
+will be left-leaning, preferring to take the first choice but accepting the
+second if the first one leads to a failure. This way, we can encode a
+notion of preference into the choices. As when implementing $\shift$ in
+Chapter~\ref{chap:continuations}, we will use an operation for the $amb$
+operator, the $\op{amb}$ operation symbol, written using $+$, and a handler
+to delimit the context $C$ whose result must be a value.
+
+\begin{align*}
+  \search &: \FF_{E \uplus \{\op{amb}\}}(\alpha) \to \FF_E(\alpha) \\
+  \search &= \banana{\onto{\op{amb}}{(\lam{\_ k}{\ap{k}{\true};\ \ap{k}{\false}})}}
+\end{align*}
+
+In the above, we use a new construction $M;\ N$. The idea behind $M;\ N$ is
+that $M;\ N$ should reduce to $N$ if $M$ is stuck; otherwise, it should
+reduce to $M$. We will give a formal definition shortly.
+
+If we apply this handler to the denotation of Example~\ref{ex:man-angry},
+we will get the inteded reading: the one in which the presupposition
+projects as widely as possible without violating binding\footnote{If we
+  wanted to retrieve all admissible readings, we could write a handler that
+  would use the $M;\ N$ construction to build a list containing all the
+  non-stuck solutions.}.
+
+\begin{align*}
+  \ap{\search}{\sem{\app{\abs{if-then}}{S_1}{S_2}}}
+  &\ttoffrom \ap{\search}{(\begin{aligned}[t]
+     &((\dexists x.\ \begin{aligned}[t]
+         &\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, x)})}{(\lam{y}{ \\
+         &\etaE{(\obj{man}(x) \land \obj{angry}(x) \land \lnot (\obj{frightened}(y)))}})}) \\
+         &\hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}})) \\
+       \end{aligned} \\
+     &+ (\ap{\op{assert}!}
+          {(\forall x y.\ (\obj{man}(x) \land \obj{angry}(x) \land
+                          \obj{children}(y, x)) \to \obj{frightened}(y))}) \\
+     &+ (\ap{\op{assert}!}
+          {(\forall x.\ (\obj{man}(x) \land \obj{angry}(x)) \to (\exists y.\ \obj{children}(y, x) \land \obj{frightened}(y)))}))
+   \end{aligned}} \\
+  &\tto \ap{\op{assert}!}
+           {(\forall x y.\ (\obj{man}(x) \land \obj{angry}(x) \land
+                            \obj{children}(y, x)) \to \obj{frightened}(y))}
 \end{align*}
 
 
