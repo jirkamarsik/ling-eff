@@ -1901,11 +1901,61 @@ covered (with the sole exception being the verb phrases \emph{get A}).
 \end{align*}
 
 \begin{align*}
-\sem{S_2} = &\ \sem{\ap{\abs{get-frightened}}{(\ap{\abs{children-of}}{\abs{he}})}} \\
-\tto &\ \app{\op{get}}{\star}{(\lam{e}{ \\
-     &\ \app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(e))})}{(\lam{y}{ \\
-     &\ \app{\op{assert}}{(\obj{frightened}(y))}{(\lam{\_}{ \\
-     &\ \etaE{\star}})}})}})}
+  \ap{\DBOX}{\sem{S_2}}
+  &= \ap{\DBOX}{\sem{\ap{\abs{get-frightened}}{(\ap{\abs{children-of}}{\abs{he}})}}} \\
+  &\tto \ap{\DBOX}{
+    \begin{aligned}[t]
+      (&\app{\op{get}}{\star}{(\lam{e}{ \\
+       &\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(e))})}{(\lam{y}{ \\
+       &\app{\op{assert}}{(\obj{frightened}(y))}{(\lam{\_}{ \\
+       &\etaE{\star}})}})}})})
+    \end{aligned}} \\
+  &= \ap{\BOX}{(\ap{\maybeAccommodate}{(\ap{\useFind}{
+    \begin{aligned}[t]
+      (&\app{\op{get}}{\star}{(\lam{e}{ \\
+       &\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(e))})}{(\lam{y}{ \\
+       &\app{\op{assert}}{(\obj{frightened}(y))}{(\lam{\_}{ \\
+       &\etaE{\star}})}})}})})
+    ))\end{aligned}}}} \\
+  &\tto \ap{\BOX}{(\ap{\maybeAccommodate}{
+    \begin{aligned}[t]
+      (&\app{\op{get}}{\star}{(\lam{e}{ \\
+       &\app{\op{get}}{\star}{(\lam{e}{ \\
+       &\casenl{\app{\selP}{(\lam{y}{\obj{children}(y, \sel(e))})}{e}}{y}{\etaE{y}}{\_}{\ap{\op{presuppose}!}{(\lam{y}{\obj{children}(y, \sel(e))})}} \hsbind (\lam{y}{ \\
+       &\app{\op{assert}}{(\obj{frightened}(y))}{(\lam{\_}{ \\
+       &\etaE{\star}})}})})}})})
+    )\end{aligned}}} \\
+  &\approx \ap{\BOX}{(\ap{\maybeAccommodate}{
+    \begin{aligned}[t]
+      (&\app{\op{get}}{\star}{(\lam{e}{ \\
+       &\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(e))})}{(\lam{y}{ \\
+       &\app{\op{assert}}{(\obj{frightened}(y))}{(\lam{\_}{ \\
+       &\etaE{\star}})}})}})})
+    )\end{aligned}}} \\
+  &\tto \ap{\BOX}{
+    \begin{aligned}[t]
+      (&\app{\op{get}}{\star}{(\lam{e}{ \\
+       &\quad \begin{aligned}[t]
+           (&\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(e))})}{(\lam{y}{ \\
+            &\app{\op{assert}}{(\obj{frightened}(y))}{(\lam{\_}{ \\
+            &\etaE{\star}})}})})
+           \end{aligned} \\
+       &+ \begin{aligned}[t]
+           (&\app{\op{introduce}}{\star}{(\lam{y}{ \\
+            &\app{\op{assert}}{(\obj{children}(y, \sel(e)))}{(\lam{\_}{ \\
+            &\app{\op{assert}}{(\obj{frightened}(y))}{(\lam{\_}{ \\
+            &\etaE{\star}})}})}})})})})
+          \end{aligned}
+    \end{aligned}} \\
+  &\tto
+    \begin{aligned}[t]
+      (&\app{\op{get}}{\star}{(\lam{e}{ \\
+       &\quad \begin{aligned}[t]
+           (&\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(e))})}{(\lam{y}{ \\
+            &\etaE{(\obj{frightened}(y))}})})
+           \end{aligned} \\
+       &+ (\etaE{(\exists y.\ \obj{children}(y, \sel(e)) \land \obj{frightened}(y))})})})
+    \end{aligned} \\
 \end{align*}
 
 

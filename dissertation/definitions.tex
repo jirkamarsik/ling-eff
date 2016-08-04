@@ -116,6 +116,9 @@
 \newcommand{\inl}{\operatorname{inl}}
 \newcommand{\inr}{\operatorname{inr}}
 \newcommand{\case}[5]{\text{\textbf{case} $#1$ \textbf{of} $\{ \ap{\inl}{#2} \to #3;\ \ap{\inr}{#4} \to #5 \}$}}
+\newcommand{\casenl}[5]{\text{\textbf{case} $#1$ \textbf{of}} \\
+  &\qquad \{\ap{\inl}{#2} \to #3; \\
+  &\qquad \ \ap{\inr}{#4} \to #5 \}}
 \newcommand{\casemon}[5]{\text{\textbf{case} $#1$ \textbf{of} $\{ \inl(#2) \to #3;\ \inr(#4) \to #5 \}$}}
 \newcommand{\absurd}[1]{\text{\textbf{case} $#1$ \textbf{of} \{\,\}}}
 
