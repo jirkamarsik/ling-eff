@@ -2401,6 +2401,12 @@ projects as widely as possible without violating binding\footnote{If we
                             \obj{children}(y, x)) \to \obj{frightened}(y))}
 \end{align*}
 
+We will now give a formal semantics to the $M;\ N$ construction. Giving a
+reduction rule would be hard since the stuck redex can be buried within the
+term $M$. Simply checking whether $M$ contains a stuck redex is also not
+sufficient since that redex might disappear through some other reduction
+and it might not be part of the normal form.
+
 
 \section{Double Negation}
 \label{sec:double-negation}

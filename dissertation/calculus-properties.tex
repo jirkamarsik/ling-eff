@@ -997,9 +997,13 @@ compare it to the reduction semantics introduced in~\ref{sec:reductions}.
 \end{observation}
 
 \begin{proof}
-  To prove so for the $\beta$ rule is a matter of proving a lemma stating
-  that $\sem{M}(\subst{e}{x}{\sem{N}(e)}) = \sem{\subst{M}{x}{N}}(e)$,
-  which follows from the compositionality of our interpretation. For all
+  The property relies on two facts: that our denotational semantics is
+  compositional, which means that the context closure of reduction rules
+  preserves denotations, and that every individual reduction preserves
+  denotations. To prove so for the $\beta$ rule is a matter of proving a
+  lemma stating that
+  $\sem{M}(\subst{e}{x}{\sem{N}(e)}) = \sem{\subst{M}{x}{N}}(e)$, which
+  follows from the compositionality of the denotational semantics. For all
   the other rules, it suffices to use the definition of interpretation
   (Definition~\ref{def:denotations}) to calculate the denotation of both
   the left-hand side and the right-hand side and verify that they are the
