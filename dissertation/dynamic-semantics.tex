@@ -2371,9 +2371,13 @@ to delimit the context $C$ whose result must be a value.
   \search &= \banana{\onto{\op{amb}}{(\lam{\_ k}{\ap{k}{\true};\ \ap{k}{\false}})}}
 \end{align*}
 
-In the above, we use a new construction $M;\ N$. The idea behind $M;\ N$ is
-that $M;\ N$ should reduce to $N$ if $M$ is stuck; otherwise, it should
-reduce to $M$. We will give a formal definition shortly.
+In the above, we use a new construction $M;\ N$. The $amb$ operator
+considers the result of a decision inside some context and then checks
+whether the result is a success or not in order to decide. The provisioning
+of the context is handled by $\search$, whereas checking whether a
+computation is stuck is done by the $M;\ N$ construction. The idea behind
+$M;\ N$ i s that $M;\ N$ should reduce to $N$ if $M$ is stuck; otherwise,
+it should reduce to $M$. We will give a formal definition shortly.
 
 If we apply this handler to the denotation of Example~\ref{ex:man-angry},
 we will get the inteded reading: the one in which the presupposition
@@ -2384,7 +2388,7 @@ projects as widely as possible without violating binding\footnote{If we
 
 \begin{align*}
   \ap{\search}{\sem{\app{\abs{if-then}}{S_1}{S_2}}}
-  &\ttoffrom \ap{\search}{(\begin{aligned}[t]
+  &\tto \ap{\search}{(\begin{aligned}[t]
      &((\dexists x.\ \begin{aligned}[t]
          &\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, x)})}{(\lam{y}{ \\
          &\etaE{(\obj{man}(x) \land \obj{angry}(x) \land \lnot (\obj{frightened}(y)))}})}) \\
@@ -2396,16 +2400,69 @@ projects as widely as possible without violating binding\footnote{If we
      &+ (\ap{\op{assert}!}
           {(\forall x.\ (\obj{man}(x) \land \obj{angry}(x)) \to (\exists y.\ \obj{children}(y, x) \land \obj{frightened}(y)))}))
    \end{aligned}} \\
+  &\tto \begin{aligned}[t]
+     &((\dexists x.\ \begin{aligned}[t]
+         &\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, x)})}{(\lam{y}{ \\
+         &\etaE{(\obj{man}(x) \land \obj{angry}(x) \land \lnot (\obj{frightened}(y)))}})}) \\
+         &\hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}})); \\
+       \end{aligned} \\
+     &(\ap{\op{assert}!}
+        {(\forall x y.\ (\obj{man}(x) \land \obj{angry}(x) \land
+                        \obj{children}(y, x)) \to \obj{frightened}(y))}); \\
+     &(\ap{\op{assert}!}
+        {(\forall x.\ (\obj{man}(x) \land \obj{angry}(x)) \to (\exists y.\ \obj{children}(y, x) \land \obj{frightened}(y)))})
+   \end{aligned} \\
   &\tto \ap{\op{assert}!}
-           {(\forall x y.\ (\obj{man}(x) \land \obj{angry}(x) \land
-                            \obj{children}(y, x)) \to \obj{frightened}(y))}
+          {(\forall x y.\ (\obj{man}(x) \land \obj{angry}(x) \land
+                           \obj{children}(y, x)) \to \obj{frightened}(y))}
 \end{align*}
 
-We will now give a formal semantics to the $M;\ N$ construction. Giving a
-reduction rule would be hard since the stuck redex can be buried within the
-term $M$. Simply checking whether $M$ contains a stuck redex is also not
-sufficient since that redex might disappear through some other reduction
-and it might not be part of the normal form.
+
+\subsubsection{Identifying Stuck Computations}
+
+We will now give a formal semantics to the $M;\ N$ construction. We will
+specify the reduction relation as a reduction rule (i.e.\ using pattern
+matching) because stuck computations are not easy to distinguish. The stuck
+redex can be buried deep within the term $M$ and even if $M$ contains a
+stuck redex, it is possible that this redex might disappear through some
+other reduction and therefore not cause the resulting computation to get
+stuck. Instead of identifying stuck computations syntactically, we will use
+our denotational semantics from~\ref{ssec:denotational-semantics}, which
+already identifies stuck computations with $\bot$.
+
+\begin{definition}
+  For every $\banana{\lambda}$ type $\tau$, we define a predicate
+  ``\demph{is $\bot$-less}'' on the domain of $\tau$, $\sem{\tau}$.
+
+  By induction on the structure of type $\tau$:
+
+  \begin{itemize}
+  \item $x \in \sem{\nu}$ is $\bot$-less if $x \neq \bot$
+  \item $f \in \sem{\alpha \to \beta}$ is $\bot$-less if $f \neq \bot$ and
+    for every $\bot$-less $x \in \sem{\alpha}$, $f(x)$ is $\bot$-less
+  \item $e \in \sem{\FF_E(\gamma)}$, by induction on the structure of $e$
+    \begin{itemize}
+    \item $\bot$ is not $\bot$-less
+    \item $\eta(x)$ is $\bot$-less if $x$ is $\bot$-less
+    \item $\op{op}(p, c)$ is $\bot$-less if $p$ is $\bot$-less and for
+      every $x \in \sem{\beta}$, $c(x)$ is $\bot$-less
+      ($\typedop{op}{\alpha}{\beta} \in E$)
+    \end{itemize}
+  \end{itemize}
+\end{definition}
+
+\begin{definition}
+  For $\Gamma \vdash M;\ N : \tau$, the \demph{interpretation
+    $\sem{M;\ N}$} is defined as the following function from $\sem{\Gamma}$
+  to $\sem{\tau}$:
+
+  $$
+  \sem{M;\ N}(e) = \begin{cases}
+    \sem{M}(e), & \text{if $\sem{M}(e)$ is $\bot$-less} \\
+    \sem{N}(e), & \text{otherwise}
+  \end{cases}
+  $$
+\end{definition}
 
 
 \section{Double Negation}
