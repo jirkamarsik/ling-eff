@@ -2371,19 +2371,19 @@ to delimit the context $C$ whose result must be a value.
   \search &= \banana{\onto{\op{amb}}{(\lam{\_ k}{\ap{k}{\true};\ \ap{k}{\false}})}}
 \end{align*}
 
-In the above, we use a new construction $M;\ N$. The $amb$ operator
+In the above, we use a new construction $M; N$. The $amb$ operator
 considers the result of a decision inside some context and then checks
 whether the result is a success or not in order to decide. The provisioning
 of the context is handled by $\search$, whereas checking whether a
-computation is stuck is done by the $M;\ N$ construction. The idea behind
-$M;\ N$ i s that $M;\ N$ should reduce to $N$ if $M$ is stuck; otherwise,
-it should reduce to $M$. We will give a formal definition shortly.
+computation is stuck is done by the $M; N$ construction. The idea behind
+$M; N$ is that $M; N$ should reduce to $N$ if $M$ is stuck; otherwise, it
+should reduce to $M$. We will give a formal definition shortly.
 
 If we apply this handler to the denotation of Example~\ref{ex:man-angry},
 we will get the inteded reading: the one in which the presupposition
 projects as widely as possible without violating binding\footnote{If we
   wanted to retrieve all admissible readings, we could write a handler that
-  would use the $M;\ N$ construction to build a list containing all the
+  would use the $M; N$ construction to build a list containing all the
   non-stuck solutions.}.
 
 \begin{align*}
@@ -2420,15 +2420,32 @@ projects as widely as possible without violating binding\footnote{If we
 
 \subsubsection{Identifying Stuck Computations}
 
-We will now give a formal semantics to the $M;\ N$ construction. We will
-specify the reduction relation as a reduction rule (i.e.\ using pattern
-matching) because stuck computations are not easy to distinguish. The stuck
-redex can be buried deep within the term $M$ and even if $M$ contains a
-stuck redex, it is possible that this redex might disappear through some
+We will now give a formal semantics to the $M; N$ construction. We will
+specify the reduction relation as a reduction rule using pattern matching
+because stuck computations are not easy to distinguish syntactically. The
+stuck redex can be buried deep within the term $M$ and even if $M$ contains
+a stuck redex, it is possible that this redex might disappear through some
 other reduction and therefore not cause the resulting computation to get
 stuck. Instead of identifying stuck computations syntactically, we will use
 our denotational semantics from~\ref{ssec:denotational-semantics}, which
-already identifies stuck computations with $\bot$.
+already identifies stuck computations with $\bot$. However, the
+constructors for computation types are not strict. If their arguments are
+$\bot$, the results do not have to be (e.g.\ if $\sem{M}(e) = \bot$, then
+$\sem{\etaE{M}}(e) = \eta(\bot) \neq \bot$). We will consider a computation
+successful if it does not contain $\bot$, a notion we define formally as
+being $\bot$-less. But first, we give the typing rule for $M; N$
+expressions.
+
+\begin{definition}
+  The \demph{types of $M; N$} are given by the following inference rule:
+
+   \begin{prooftree}
+    \AxiomC{$\Gamma \vdash M : \alpha$}
+    \AxiomC{$\Gamma \vdash N : \alpha$}
+    \RightLabel{$[;]$}
+    \BinaryInfC{$\Gamma \vdash M; N : \alpha$}
+  \end{prooftree}
+\end{definition}
 
 \begin{definition}
   For every $\banana{\lambda}$ type $\tau$, we define a predicate
@@ -2452,17 +2469,363 @@ already identifies stuck computations with $\bot$.
 \end{definition}
 
 \begin{definition}
-  For $\Gamma \vdash M;\ N : \tau$, the \demph{interpretation
-    $\sem{M;\ N}$} is defined as the following function from $\sem{\Gamma}$
-  to $\sem{\tau}$:
+  For $\Gamma \vdash M; N : \tau$, the \demph{interpretation $\sem{M; N}$}
+  is defined as the following function from $\sem{\Gamma}$ to $\sem{\tau}$:
 
   $$
-  \sem{M;\ N}(e) = \begin{cases}
+  \sem{M; N}(e) = \begin{cases}
     \sem{M}(e), & \text{if $\sem{M}(e)$ is $\bot$-less} \\
     \sem{N}(e), & \text{otherwise}
   \end{cases}
   $$
 \end{definition}
+
+We now have a denotational semantics for $M; N$. We can use this
+denotational semantics to produce a reduction semantics for the
+construction.
+
+\begin{definition}
+  We define a binary \demph{reduction relation $R_;$} on the terms of
+  $\banana{\lambda}$. We write $\to_;$ for its context closure\footnote{The
+    notion of evaluation context being expanded to include
+    $C ::= C; M\ |\ M; C$.}.
+  
+  \begin{itemize}
+  \item $(M; N) \; R_; \; M$ if for every $\Gamma$ and $\tau$ such that
+    $\Gamma \vdash M; N : \tau$ and for every $e \in \sem{\Gamma}$,
+    $\sem{M}(e)$ is $\bot$-less
+  \item $(M; N) \; R_; \; N$ if for every $\Gamma$ and $\tau$ such that
+    $\Gamma \vdash M; N : \tau$ and for every $e \in \sem{\Gamma}$,
+    $\sem{M}(e)$ is not $\bot$-less
+  \end{itemize}
+\end{definition}
+
+Adding the $\to_;$ reduction relation into the reduction relation $\to$ of
+$\banana{\lambda}$ preserves subject reduction
+(Property~\ref{prop:subject-reduction}) since $M; N : \alpha$ always
+reduces to either $M : \alpha$ or $N : \alpha$. It also preserves the
+soundness of our denotational semantics
+(Property~\ref{prop:denotation-soundness}) because soundness relies on two
+properties: the compositionality of the denotational semantics, which we
+preserve, and the fact that the individual reduction rules preserve
+denotations, which the $\to_;$ rule does by definition. The new
+construction and its reduction rule also preserve confluence and
+termination, as we will show below, and therefore strong normalization.
+
+\begin{notation}
+  The \demph{$\calc^;$ calculus} is the $\calc$ calculus with the $M; N$
+  construction and its reduction rule, $\to_;$.
+\end{notation}
+
+\begin{lemma}\label{lem:semibanana-termination}
+  (\demph{Termination of $\calc^;$})
+
+  The reduction relation $\to$ of $\calc^;$ is terminating.
+\end{lemma}
+
+\begin{proof}
+  We consider $\calc$ with the $M; N$ construction and the following two
+  reduction rules.
+
+  \begin{align*}
+    M; N &\to M \\
+    M; N &\to N
+  \end{align*}
+
+  This calculus, which we will call $\calc^{;\to}$, is not confluent but,
+  as we will show below, it is terminating. Since the reduction relation of
+  $\calc^;$ is a subset of the reduction relation of $\calc^{;\to}$, then
+  the reduction relation of $\calc^;$ will turn out to be terminating as
+  well.
+
+  For every type $\alpha$, we add a binary function symbol $(;_\alpha)$ of
+  type $\alpha \To \alpha \To \alpha$ and typed versions of the two
+  reduction rules above to the IDTS $\labidts$ from~\ref{sec:termination},
+  forming a new IDTS $\overline{\calc^{;\to}_\tau}$. Since we have added no
+  constructor symbols and the right-hand sides of the new reduction rules
+  use no function symbols (and therefore are not recursive), we still
+  validate the General Schema and Theorem~\ref{thm:labidts-termination}
+  holds for $\overline{\calc^{;\to}_\tau}$. From its
+  Corollary~\ref{cor:intcalc-termination}, we know that $\calc^{;\to}$
+  without $\eta$-reduction, $\calc^{;\to}_{-\eta}$, terminates.
+
+  We now need to show that adding $\eta$-reduction still preserves
+  termination. The original proof stood on Lemma~\ref{lem:eta-exchange},
+  which states that we can delay $\eta$-reduction until the very end of
+  evaluation and which relies on the idea that $\eta$-reduction never opens
+  up a new redex which would neccessitate the use of another rule. This is
+  still the case since $\eta$-reduction cannot make appear a new $;$-redex
+  without actually inserting a new $;$. This holds because the two
+  reduction rules for $M; N$ given above do not look at their arguments and
+  reduce unconditionally.
+\end{proof}
+
+To prove that $\calc^;$ is confluent, we prove that $\to_;$ is confluent
+and that $\to_;$ and the reduction relation of $\calc$ commute. We prove
+the latter using Lemma~\ref{lem:commutativity}, as we did for $\to_\eta$
+and $\intcalc$ in Lemma~\ref{lem:eta-commutes}, and for the former we use
+the following lemma, which comes from Proposition~1.0.2
+in~\cite{klop1992term}.
+
+\begin{lemma}\label{lem:subcommutativity}
+  $\to$ is confluent iff $\tto$ is subcommutative, i.e.\ if for all
+  $a, b, c$ such that $a \to b$ and $a \to c$, there exists a $d$ such that
+  $b \to^= d$ and $c \to^= d$.
+\end{lemma}
+
+\begin{lemma}\label{lem:semicolon-confluent}
+  The $\to_;$ reduction relation is confluent.
+\end{lemma}
+
+\begin{proof}
+  We will proceed by proving that $\to_;$ is subcommutative (i.e.\ that
+  $\forall a, b, c.\ (a \to_; b \land a \to_; c) \To \exists d.\ (b \to_;^=
+  d \land c \to_;^= d)$) using structural induction on the term $a$, as
+  in~\ref{lem:eta-commutes}. We will consider the relative positions of the
+  redex in the reductions $a \to_; b$ and $a \to_; c$.
+
+  \begin{enumerate}
+  \item If both reductions occurred within a proper subterm of $a$, then we
+    use the induction hypothesis and the context closure of $\to_;$ (see
+    the analogous proof of~\ref{lem:eta-commutes} for technical details).
+
+  \item If the reductions occurred in non-overlapping subterms, then we can
+    take the common reduct $d$ as the term in which both subterms have been
+    reduces.
+
+  \item If the redex in $a \to_; b$ is the entire term $a$ and the redex in
+    $a \to_; c$ is a proper subterm of $a$:
+
+    Then $a = M; N$ for some $M$ and $N$. We split the proof based on
+    whether the redex $R$ of $a \to_; c$ is a subterm of $M$ or $N$ and
+    whether $b$ is equal to $M$ or $N$.
+    \begin{itemize}
+    \item $b = M$ and $M = C[R]$ with $R \to_; R'$ ($c = C[R']; N$)
+
+      We will choose $d = C[R']$. Since $R \to_; R'$ and $\to_;$ is closed
+      on contexts, we have that $b = M = C[R] \to_; C[R'] = d$. Since
+      $\to_;$ preserves denotations, then $\sem{R} = \sem{R'}$ and by
+      compositionality of denotations,
+      $\sem{M} = \sem{C[R]} = \sem{C[R']}$. Because of $M; N \to_; M$, we
+      know that for every $e$, $\sem{M}(e)$ is $\bot$-less and therefore so
+      is $\sem{C[R']}(e)$. Since $\sem{C[R']}(e)$ is $\bot$-less for all
+      $e$, $c = C[R']; N \to_; C[R'] = d$.
+
+    \item $b = N$ and $M = C[R]$ with $R \to_; R'$ ($c = C[R']; N$)
+
+      We will choose $d = N$. We immediately have $b = N \to_;^= N = d$. By
+      the same argument is in the previous case, we have that
+      $\sem{C[R]} = \sem{C[R']}$. For $M; N$ to have reduced to $N$,
+      $\sem{M}(e)$ must have \emph{not} been $\bot$-less for any $e$, the
+      same being the case for $\sem{C[R']}(e)$. Because $\sem{C[R'](e)}$ is
+      not $\bot$-less for any $e$, we have $c = C[R']; N \to_; N = d$.
+
+    \item $b = M$ and $N = C[R]$ with $R \to_; R'$ ($c = M; C[R']$)
+
+      We will choose $d = M$. This case is symmetric to the previous one
+      where we have $M; N$ reducing to one branch and the inner reduction
+      happening in the abandoned branch.
+
+    \item $b = N$ and $N = C[R]$ with $R \to_; R'$ ($c = M; C[R']$)
+
+      We will choose $d = C[R']$. This case is symmetric to the first one
+      in which the inner reduction ($R \to_; R'$) happens in the chosen
+      branch ($M$ in the first case, $N$ in this one).
+    \end{itemize}
+
+  \item If the redex in $a \to_; c$ is the entire term $a$ and the redex in
+    $a \to_; b$ is a proper subterm of $a$:
+
+    Symmetric to the previous case.
+
+  \item If the redex in both $a \to_; b$ and $a \to_; c$ is the entire term
+    $a$, then $b = c$ and we their common reduct is $d = b = c$. If $b$ and
+    $c$ were different, i.e. $M; N \to_; M$ and at the same time
+    $Ml N \to_; N$, then $\sem{M}(e)$ would have to be simultaneously both
+    $\bot$-less and not $\bot$-less for every $e$, which is a
+    contradiction.
+  \end{enumerate}
+\end{proof}
+
+\begin{lemma}\label{lem:semicolon-commutes}
+  The reduction relation $\to_\calc$ of $\calc$ commutes with $\to_;$.
+\end{lemma}
+
+\begin{proof}
+  As in the proof of Lemma~\ref{lem:eta-commutes}, we will make us of
+  Hindley's Lemma~\ref{lem:commutativity}. We will be proving that for
+  every $\calc^;$ terms $a,b,c$ such that $a \to_\calc b$ and $a \to_; c$,
+  there exists a $d$ such that $b \tto_; d$ and $c \to_\calc^= d$. The
+  proof will be analogous to the one of Lemma~\ref{lem:eta-commutes},
+  proceeding by induction on the structure of $a$ and considering the
+  relative positions of the redexes in the reductions $a \to_\calc b$ and
+  $a \to_; c$.
+
+  \begin{itemize}
+  \item If both reductions occur in a proper subterm of $a$, then we use
+    the induction hypothesis and the context closure of the two relations.
+
+  \item If the reductions occur in non-overlapping subterms of $a$, then
+    the common reduct $d$ is a term in which both subterms have been
+    reduced.
+
+  \item If the redex in $a \to_\calc b$ is the entire term $a$ and the
+    redex in $a \to_; c$ is some proper subterm of $a$:
+
+    Let $l \to r$ be the $\calc$ rule used in $a \to_\calc b$. None of the
+    left-hand sides of the reduction rules in $\calc$ contain the $M; N$
+    operator and so the $;$-redex in $a$ must be matched by some
+    metavariable in $l$. Let $M$ be that metavariable. We decompose the
+    left-hand side $l$ into $L(M)$ and the right-hand side $r$ into
+    $R(M)$. We have $a = L(a')$, $b = R(a')$ and $a' \to_; a''$ with
+    $c = L(a'')$ for some $a'$ and $a''$. Our common reduct $d$ will be
+    $R(a'')$. For $b$, we have $b = R(a') \tto_; R(a'') = d$ by
+    $a \to_; a'$ and the context closure of $to_;$. Note that $R(a')$ might
+    correspond might contain multiple copies of $a'$ or maybe even no
+    copies of $a'$ (as is the case when rules copy or delete terms). No
+    matter the number of copies, we always have $R(a') \tto_; R(a'')$,
+    because $\tto_;$ is reflexive and transitive. For $c$, we have
+    $c = L(a'') \to_\calc R(a'') = d$ because $L(a'') \to R(a'')$ is an
+    instance of the $\calc$ rule $l \to r$.
+  \end{itemize}
+
+  \item If the redex in $a \to_; c$ is the entire term $a$ and the redex in
+    $a \to_\calc b$ is some proper subterm of $a$:
+
+    Let $a = M; N$. We proceed the same way as in case 3 in the proof of
+    Lemma~\ref{lem:semicolon-confluent}. We have an outer $;$-reduction and
+    an inner denotation-preserving reduction. Performing the inner
+    reduction $a \to_\calc b$ first does not change the denotation and so
+    we can still apply the $;$-reduction $b \to_; d$. Performing the outer
+    reduction $a \to_; c$ first either throws away the redex for the
+    $\calc$ reduction and so we have $c = d$, or it preserves it whole and
+    then we can still perform the reduction $c \to_\calc d$.
+
+  \item $a$ is at the same time $\calc$-redex and a $;$-redex. This is
+    impossible because there is no rule in $\calc$ whose left-hand side is
+    headed by the $M; N$ construction, as is the case in every $;$-redex.
+\end{proof}
+
+\begin{corollary}\label{cor:semibanana-confluence}
+  \demph{Confluence of $\calc^;$}
+  
+  The reduction relation of $\calc^;$ is confluent.
+\end{corollary}
+
+\begin{proof}
+  Corollary of Lemma~\ref{lem:semicolon-confluent},
+  Lemma~\ref{lem:semicolon-commutes} and the Lemma of Hindley-Rosen.
+\end{proof}
+
+\begin{theorem}
+  \demph{Strong normalization of $\calc^;$}
+
+  $\calc^;$ is strongly normalizing, i.e.\ there are no infinite reduction
+  chains in $\calc^;$ and all maximal reduction chains originating in a
+  $\calc^;$ term $M$ terminate in the same term, the normal form of $M$.
+\end{theorem}
+
+\begin{proof}
+  Corollary of Lemma~\ref{lem:semibanana-termination} and
+  Corollary~\ref{cor:semibanana-confluence}.
+\end{proof}
+
+
+\subsection{Comparison with TTDL}
+\label{ssec:comparison-ttdl}
+
+The $\CC$ construction introduced partiality to $\calc$. With the $M; N$
+construction in our calculus, we now have a way to react to partiality, to
+avoid stuck terms. We have seen how to use that feature together with
+effects and handlers to implement McCarthy's ambiguous operator $amb$ and
+then use that to implement the presupposition accommodation strategy used
+in Lebedeva's extension of TTDL~\cite{lebedeva2012expression}, which
+projects presupposition as widely as possible without breaking variable
+binding. Our solution improves in some aspects on Lebedeva's work:
+
+\begin{itemize}
+\item The underlying calculus is strongly normalizing.
+
+  Lebedeva extends the simply-typed lambda-calculus with (unrestricted)
+  exceptions and the resulting calculus is non-terminating, as shown by
+  Lillibridge's encoding of recursive types (and thereby the untyped lambda
+  calculus)~\cite{lillibridge1995exceptions}. Our first attempt at
+  formalizing $\calc$ actually had the same deficiency and we were able to
+  encode recursive types using Lillibridge's method\footnote{The
+    non-terminating $\calc$ assumed a global effect signature $E$ and used
+    computations types $\FF(\alpha)$ which all shared the effect signature
+    $E$ (i.e.\ every $\FF(\alpha)$ was implicitly $\FF_E(\alpha)$). This
+    was problematic because one could use the type $\FF(\alpha)$ somewhere
+    in the type of one of the operations in $E$. This created a loop where
+    $E$ explicitly referenced $\FF(\alpha)$ which implicitly referenced $E$
+    and it is this loop which is exploited by Lillibridge's encoding of
+    recursive types. This no longer works in the version of $\calc$
+    presented in this manuscript since the type $\FF_E(\alpha)$ now has to
+    explicitly mention $E$ and if $E$ contains $\FF_E(\alpha)$, then it
+    leads to an infinite type. This was sufficient to make Lillibridge's
+    encoding impossible since we have proven $\calc$ terminating
+    in~\ref{sec:termination}.}. Furthermore, when Lebedeva sketched out a
+  possible solution to the binding problem, she defined a recursive
+  function which was then part of the lexical semantic entries\footnote{The
+    function in question is the $\mathrm{iacc}$ handler for intermediate
+    accommodation from Definition~6.29. This handler is part of the
+    definition of dynamic negation, which is an operator used by the
+    lexical entries for the determiner \emph{every} or the conditional
+    construction \emph{if \ldots, then}.}. This is also problematic since
+  general recursion precludes termination. Our calculus gets around this by
+  relying on inductive types to provide a limited form of recursion which
+  can be proven terminating.
+
+  The $\calc$ calculus, as it is presented in this manuscript, is
+  terminating and strongly normalizing, while still allowing us to
+  implement the accommodation strategy used by van der
+  Sandt~\cite{van1992presupposition}, Projective
+  DRT~\cite{venhuizen2013parsimonious} and
+  Lebedeva~\cite{lebedeva2012expression}.
+
+\item Our analysis fixes a bug which allowed presupposition triggers to
+  bind pronouns preceding them.
+
+  The exceptions used in Lebedeva's extension of the simply-typed lambda
+  calculus are not resumable. If a referential noun phrase triggers a
+  presupposition about the existence of its referent, the evaluation of the
+  sentence is restarted with the presupposed referent now in the
+  context. However, this overgenerates by allowing any anaphoric
+  expressions in the same sentence to bind to that referent, even those
+  expressions which precede the presupposition trigger.
+
+  \begin{exe}
+    \ex[*]{He$_1$ loves John's$_1$ car.}
+  \end{exe}
+
+  The operations in effects and handlers are resumable exceptions. Since we
+  can resume the interpretation of a sentence after accommodating the
+  presupposition, we do not have to restart the evaluation of the sentence
+  and therefore we avoid the above situation.
+
+\item We treat presuppositions using the same formal apparatus as dynamics
+  and anaphora.
+
+  Lebedeva uses terms to encode dynamic propositions, following de Groote's
+  schema~\cite{de2006towards}. The terms and their types correspond to a
+  monad of state and continuations. When this theory is then extended to
+  cover presuppositions, instead of augmenting the monad to include another
+  effect, the underlying lambda calculus is replaced by an impure calculus
+  with order of evaluation, exceptions and handlers.
+
+  Our approach is based on and heavily inspired by Lebedeva's use of
+  exception mechanisms to treat presupposition but instead of using a term
+  encoding for dynamicity and side effects, such as exceptions for
+  presupposition, we use a free monad for everything\footnote{Not only for
+    dynamicity and presuppositions, but also for quantification,
+    conventional implicature and deixis.}. Our free monad is a term
+  encoding of a computation, much like de Groote's original approach was a
+  term encoding of a dynamic proposition, which means that our calculus has
+  no fixed order of evaluation (i.e.\ is pure). The free monad lets us
+  combine both the dynamic effects of manipulating a state and a
+  continuation together and the effect of throwing exceptions for
+  presuppositions in a single encoding with relative ease.
+\end{itemize}
 
 
 \section{Double Negation}

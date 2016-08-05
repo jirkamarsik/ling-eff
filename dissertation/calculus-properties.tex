@@ -990,11 +990,11 @@ This was the entire definition of our denotational semantics\footnote{We
   pairs and variants (modulo the treatment of $\bot$).}. We will now
 compare it to the reduction semantics introduced in~\ref{sec:reductions}.
 
-\begin{observation}\label{obs:denotation-soundness}
+\begin{property}\label{prop:denotation-soundness}
   (Soundness of reduction w.r.t.\ denotations)
 
   Whenever $M \to N$ in $\banana{\lambda}$, then $\sem{M} = \sem{N}$.
-\end{observation}
+\end{property}
 
 \begin{proof}
   The property relies on two facts: that our denotational semantics is
@@ -2092,9 +2092,16 @@ relations. Using the Lemma of Hindley-Rosen (Point~2 in Exercises~1.0.8
 in~\cite{klop1992term}), we can show that this union is confluent by
 showing that the two reduction relations commute together.
 
-We will not even need to know the definition of commuting reductions, since
-we will base our proof on an other result due to Hindley (Point~3 in
-Exercises~1.0.8 in~\cite{klop1992term}).
+\begin{definition}
+  Let $\to_1$ and $\to_2$ be two reduction relations on the same set of
+  terms $A$. $\to_1$ and $\to_2$ \demph{commute} if for every $a,b,c \in A$
+  such that $a \tto_1 b$ and $a \tto_2 c$, there exists a $d \in A$ such
+  that $b \tto_2 d$ and $c \tto_1 d$.
+\end{definition}
+
+Instead of using the definition of commuting reduction relations directly,
+we will a lemma due to Hindley (Point~3 in Exercises~1.0.8
+in~\cite{klop1992term}).
 
 \begin{lemma}\label{lem:commutativity}
   Let $\to_1$ and $\to_2$ be two reduction relations on the same set of
@@ -3465,7 +3472,7 @@ $$
 
 The semantic label maps must be weakly monotonic. That is a condition that
 our maps satisfy: whenever we have $M \to^* N$, then
-by~\ref{obs:denotation-soundness} the denotations $\sem{M}$ and $\sem{N}$
+by~\ref{prop:denotation-soundness} the denotations $\sem{M}$ and $\sem{N}$
 will be equal, therefore $\sem{M} \ge \sem{N}$.
 
 We have now built up enough structure to correctly label our IDTS with
