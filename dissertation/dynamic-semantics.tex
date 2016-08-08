@@ -1639,7 +1639,7 @@ individual exists in the context. Otherwise, it returns $\ap{\inr}{\star}$.
 
 \begin{align*}
   \find &: (\iota \to o) \to \FF_{E \uplus \{\op{get}, \op{presuppose}\}}(\iota) \\
-  \find &= \lam{P}{\app{\op{get}}{\star}{(\lam{e}{\case{\app{\selP}{P}{e}}{x}{\etaE{x}}{\_}{\ap{\op{presuppose}!}{P}}})}}
+  \find &= \lam{P}{\app{\op{get}}{\star}{(\lam{e}{\case{\selP(P, e)}{x}{\etaE{x}}{\_}{\ap{\op{presuppose}!}{P}}})}}
 \end{align*}
 
 $\find$ examines its context and searches it for an individual satisfying
@@ -1736,6 +1736,224 @@ prediction w.r.t.\ the cancellation of presuppositions.
   \lex{poss}{\lam{X N}{X \hsbind (\lam{x}{N \hsbind (\lam{n}{\ap{\op{presuppose}!}{(\lam{y}{\ap{n}{y} \land \obj{own}(x, y)})}})})}}
 \end{align*}
 
+We can now compute the denotation of Example~\ref{ex:cancel}, starting with
+the denotation of the consequent, $S_2$: \emph{his car is cheap}.
+
+\begin{align*}
+  \sem{S_2}
+  &= \sem{\ap{\abs{is-cheap}}{(\app{\abs{poss}}{\abs{he}}{(\ap{\abs{common}}{\abs{car}})})}} \\
+  &\tto \begin{aligned}[t]
+    &\app{\op{get}}{\star}{(\lam{e}{ \\
+    &\app{\op{presuppose}}{(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e), y)})}{(\lam{y}{ \\
+    &\app{\op{assert}}{(\obj{cheap}(y))}{\lam{\_}{ \\
+    &\etaE{\star}}}})}})}
+    \end{aligned}
+\end{align*}
+
+The meaning of Example~\ref{ex:cancel} is equal to
+$\sem{\app{\abs{if-then}}{S_1}{S_2}} = \sem{S_1} \dimp \sem{S_2} =
+\dnot(\sem{S_1} \dand \dnot \sem{S_2})$, where $S_1$ is the antecedent and
+$S_2$ is the consequent. To proceed, we will now compute the dynamic
+negation of $\sem{S_2}$, starting with $\ap{\DBOX}{\sem{S_2}}$.
+
+\begin{align*}
+  \ap{\DBOX}{\sem{S_2}}
+  &= \ap{\BOX}{(\ap{\useFind}{\sem{S_2}})} \\
+  &\tto \ap{\BOX}{(\begin{aligned}[t]
+     &\app{\op{get}}{\star}{(\lam{e}{ \\
+     &\app{\op{get}}{\star}{(\lam{e}{ \\
+     &(\casenl{\selP(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e), y)}, e)}
+       {x}{\etaE{x}}
+       {\_}{\ap{\op{presuppose}!}{(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e), y)})}}) \hsbind (\lam{y}{ \\
+     &\app{\op{assert}}{(\obj{cheap}(y))}{(\lam{y}{ \\
+     &\etaE{\star}})}})})}})})
+     \end{aligned}} \\
+  &\rightsquigarrow \begin{aligned}[t]
+     &\app{\op{get}}{\star}{(\lam{e}{ \\
+     &(\casenl{\selP(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e), y)}, e)}
+       {x}{\etaE{x}}
+       {\_}{\ap{\op{presuppose}!}{(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e), y)})}}) \hsbind (\lam{y}{ \\
+     &\etaE{(\obj{cheap}(y))}})})}
+     \end{aligned}
+\end{align*}
+
+We see that the meaning $\ap{\DBOX}{\sem{S_2}}$ is anaphoric, it uses
+$\op{get}$ to find an antecedent for \emph{his} and \emph{his
+  car}. Furthermore, depending on the retrieved context $e$, it might
+trigger a presupposition about the existence of \emph{his car}. In reducing
+the expression, we ahve also allowed ourselves to collapse the two
+successive uses of $\op{get}$, since we have derived an equation for
+dynamic computations that tells us that $\op{get}$ is idempotent under the
+handlers we use (see~\ref{ssec:algebraic-drt}), hence the use of the
+$\rightsquigarrow$. To finish computing $\dnot \sem{S_2}$, we take
+$\ap{\DBOX}{S_2}$, replace the final $\eta$ with an $\op{assert}!$ and
+negate its argument.
+
+\begin{align*}
+  \dnot \sem{S_2}
+  &= \ap{\DBOX}{\sem{S_2}} \hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}}) \\
+  &\tto \begin{aligned}[t]
+    &\app{\op{get}}{\star}{(\lam{e}{ \\
+    &(\casenl{\selP(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e), y)}, e)}
+      {x}{\etaE{x}}
+      {\_}{\ap{\op{presuppose}!}{(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e), y)})}}) \hsbind (\lam{y}{ \\
+    &\app{\op{assert}}{(\lnot (\obj{cheap}(y)))}{\lam{\_}{ \\
+    &\etaE{\star}}}})})}
+    \end{aligned}
+\end{align*}
+
+We now move to up to the antecedent $S_1$: \emph{John owns a car}.
+
+\begin{align*}
+  \sem{S_1}
+  &= \sem{\appp{\abs{trans}}{\abs{owns}}{(\ap{\abs{a}}{(\ap{\abs{common}}{\abs{car}})})}{(\ap{\abs{proper}}{\abs{John}})}} \\
+  &\tto \begin{aligned}[t]
+      &\app{\op{presuppose}}{\obj{John}}{(\lam{x}{ \\
+      &\app{\op{introduce}}{\star}{(\lam{y}{ \\
+      &\app{\op{assert}}{(\obj{car}(y))}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\obj{own}(x, y))}{(\lam{\_}{ \\
+      &\etaE{\star}})}})}})}})}
+    \end{aligned}
+\end{align*}
+
+We can now compute the conjunction of $\sem{S_1}$ and $\dnot \sem{S_2}$ and
+observe how the context of $\sem{S_1}$ cancels the presupposition in
+$\dnot \sem{S_2}$.
+
+\begin{align*}
+  \sem{S_1} \dand \dnot \sem{S_2}
+  &= \sem{S_1} \hsbind (\lam{\_}{\sem{S_2}}) \\
+  &\tto \begin{aligned}[t]
+      &\app{\op{presuppose}}{\obj{John}}{(\lam{x}{ \\
+      &\app{\op{introduce}}{\star}{(\lam{y}{ \\
+      &\app{\op{assert}}{(\obj{car}(y))}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\obj{own}(x, y))}{(\lam{\_}{ \\
+      &\app{\op{get}}{\star}{(\lam{e}{ \\
+      &(\casenl{\selP(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e), y)}, e)}
+        {x}{\etaE{x}}
+        {\_}{\ap{\op{presuppose}!}{(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e), y)})}}) \hsbind (\lam{y}{ \\
+      &\app{\op{assert}}{(\lnot (\obj{cheap}(y)))}{\lam{\_}{ \\
+      &\etaE{\star}}}})})}})}})}})}})}
+    \end{aligned} \\
+  &\approx \begin{aligned}[t]
+      &\app{\op{presuppose}}{\obj{John}}{(\lam{x}{ \\
+      &\app{\op{get}}{\star}{(\lam{e}{ \\
+      &\app{\op{introduce}}{\star}{(\lam{y}{ \\
+      &\app{\op{assert}}{(\obj{car}(y))}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\obj{own}(x, y))}{(\lam{\_}{ \\
+      &(\casenl{\selP(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e'), y)}, e')}
+        {x}{\etaE{x}}
+        {\_}{\ap{\op{presuppose}!}{(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e'), y)})}}) \hsbind (\lam{y}{ \\
+      &\app{\op{assert}}{(\lnot (\obj{cheap}(y)))}{\lam{\_}{ \\
+      &\etaE{\star}}}})})}})}})}})}})}
+    \end{aligned}
+\end{align*}
+
+where
+
+$$
+e' = \obj{own}(x, y) \cons \obj{car}(y) \cons y \cons e
+$$
+
+We compose the two dynamic propositions by concatenating their effects. We
+then make use of our equations from ~\ref{ssec:algebraic-drt} to move
+$\op{get}$ above the $\op{introduce}$ and $\op{assert}$ to make it clear
+that the context $e'$ that is given as argument to $\sel$ and $\selP$
+contains the necessary material. We do not move $\op{get}$ above
+$\op{presuppose}$ since we cannot predict how $\op{presuppose}$ will modify
+the context: if the presupposition gets cancelled and bound by an existing
+discourse referent, it does not modify the context, but if it is novel and
+gets accommodated, then it introduces a new discourse referent into the
+context. However, in all cases we can assume that after performing
+$\ap{\op{presuppose}}{P}$, the context for the subsequent dynamic
+operations will contain some referent $x$ satisfying the predicate
+$P$. Assuming that the context $e$, and therefore by extension $e'$,
+contains the discourse referent $x$ and the condition $John(x)$, $\sel(e')$
+can choose the $x$ as the antecedent for \emph{his}. We can now compute the
+denotation of the noun phrase \emph{his car} in this context and see that
+the presupposition is cancelled.
+
+\begin{align*}
+  &\casenl{\selP(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e'), y)}, e')}
+          {x}{\etaE{x}}
+          {\_}{\ap{\op{presuppose}!}{(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e'), y)})}} \\
+=\ &\casenl{\selP(\lam{y}{\obj{car}(y) \land \obj{own}(x, y)}, e')}
+          {x}{\etaE{x}}
+          {\_}{\ap{\op{presuppose}!}{(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e'), y)})}} \\
+=\ &\casenl{\ap{\inl}{y}}
+          {x}{\etaE{x}}
+          {\_}{\ap{\op{presuppose}!}{(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e'), y)})}} \\
+\to_{\beta.+1}\ &\etaE{y}
+\end{align*}
+
+We can plug this result back into the computation for $\sem{S_1} \dand
+\dnot \sem{S_2}$:
+
+\begin{align*}
+  &\sem{S_1} \dand \dnot \sem{S_2} \\
+  &\tto \begin{aligned}[t]
+      &\app{\op{presuppose}}{\obj{John}}{(\lam{x}{ \\
+      &\app{\op{get}}{\star}{(\lam{e}{ \\
+      &\app{\op{introduce}}{\star}{(\lam{y}{ \\
+      &\app{\op{assert}}{(\obj{car}(y))}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\obj{own}(x, y))}{(\lam{\_}{ \\
+      &\etaE{y} \hsbind (\lam{y}{ \\
+      &\app{\op{assert}}{(\lnot (\obj{cheap}(y)))}{\lam{\_}{ \\
+      &\etaE{\star}}}})})}})}})}})}})}
+    \end{aligned} \\
+  &\to_{\eta.\hsbind} \begin{aligned}[t]
+      &\app{\op{presuppose}}{\obj{John}}{(\lam{x}{ \\
+      &\app{\op{introduce}}{\star}{(\lam{y}{ \\
+      &\app{\op{assert}}{(\obj{car}(y))}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\obj{own}(x, y))}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\lnot (\obj{cheap}(y)))}{\lam{\_}{ \\
+      &\etaE{\star}}}})}})}})}})}
+    \end{aligned}
+\end{align*}
+
+We use the $\to_{\eta.\hsbind}$ that we derived in
+Proposition~\ref{prop:bind-rules} and we also drop the $\op{get}$ since we
+no longer use the context $e$ (an equation from~\ref{ssec:algebraic-drt}
+admissible under our handlers). The denotation of Example~\ref{ex:cancel}
+is then the dynamic negation of this computation.
+
+\begin{align*}
+  \sem{\app{\abs{if-then}}{S_1}{S_2}}
+  &= \sem{S_1} \dimp \sem{S_2} \\
+  &= \dnot (\sem{S_1} \dand \dnot \sem{S_2}) \\
+  &\tto \begin{aligned}[t]
+    &\app{\op{get}}{\star}{(\lam{e}{ \\
+    &(\casenl{\selP(\obj{John}, e)}
+       {x}{\etaE{x}}
+       {\_}{\ap{\op{presuppose}!}{\obj{John}}}) \hsbind (\lam{x}{ \\
+    &\app{\op{assert}}{(\lnot (\exists y.\ \obj{car}(y) \land \obj{own}(x, y) \land \lnot (\obj{cheap}(y))))}{(\lam{\_}{ \\
+    &\etaE{\star}})}})})}
+    \end{aligned}
+\end{align*}
+
+Note that the resulting denotation is still accessing the context to
+determine whether it will presuppose the existence of John or whether it
+will retrieve John from some (potentially hypothetical) context. This means
+our solution is compositional and if we were to place this denotation
+inside the following context, the presupposition of there being some
+salient John will be cancelled:
+
+\begin{exe}
+  \ex If there is a poor man called John, then if John owns a car, his car
+  is cheap.
+\end{exe}
+
+If we consider the sentence in an empty, ``out of the blue'' context, into
+which John will need to be accommodated, we get the intended reading.
+
+\begin{align*}
+  \EMPTY &: \FF_{E \uplus \{\op{get}\}}(\alpha) \to \FF_E(\alpha) \\
+  \EMPTY &= \banana{\onto{\op{get}}{(\lam{\_ k}{\ap{k}{\nil}})}} \\
+  \ap{\EMPTY}{(\ap{\TOP}{\sem{\app{\abs{if-then}}{S_1}{S_2}}})}
+  &\tto \etaE{(\exists x.\ \obj{John}(x) \land \lnot (\exists y.\ \obj{car}(y) \land \obj{own}(x, y) \land \lnot (\obj{cheap}(y))))} \\
+  &= \etaE{(\exists x.\ \obj{John}(x) \land (\forall y.\ (\obj{car}(y) \land \obj{own}(x, y)) \to \obj{cheap}(y)))}
+\end{align*}
+
 
 \subsection{Ambiguous Accommodation}
 \label{ssec:ambiguous-accommodation}
@@ -1757,7 +1975,7 @@ intermediate context $c_1$ to get the interpretation ``\emph{Maybe Wilma is
   married and she thinks that her husband is having an affair}''. Finally,
 we can even accommodate the presupposition in the local context $c_2$ to
 get ``\emph{Maybe Wilma thinks that she is married and her husband is
-  having an affair}''. 
+  having an affair}''.
 
 If we look at the different possible accommodation sites in
 Example~\ref{ex:wilma}, we remark that they are all lexically
@@ -1959,7 +2177,7 @@ boxing $\sem{S_2}$, i.e.\ evaluating $\ap{\DBOX}{\sem{S_2}}$.
     \begin{aligned}[t]
       (&\app{\op{get}}{\star}{(\lam{e}{ \\
        &\app{\op{get}}{\star}{(\lam{e}{ \\
-       &\casenl{\app{\selP}{(\lam{y}{\obj{children}(y, \sel(e))})}{e}}{y}{\etaE{y}}{\_}{\ap{\op{presuppose}!}{(\lam{y}{\obj{children}(y, \sel(e))})}} \hsbind (\lam{y}{ \\
+       &\casenl{\selP(\lam{y}{\obj{children}(y, \sel(e))}, e)}{y}{\etaE{y}}{\_}{\ap{\op{presuppose}!}{(\lam{y}{\obj{children}(y, \sel(e))})}} \hsbind (\lam{y}{ \\
        &\app{\op{assert}}{(\obj{frightened}(y))}{(\lam{\_}{ \\
        &\etaE{\star}})}})})}})})
     )\end{aligned}}} \\
@@ -2830,4 +3048,328 @@ binding. Our solution improves in some aspects on Lebedeva's work:
 
 \section{Double Negation}
 \label{sec:double-negation}
+
+We now turn our attention to another extension of TTDL.\@ In his
+thesis~\cite{qian2014accessibility}, Sai Qian considers examples such as
+the following one from Barbara Partee~\cite{roberts1989modal}:
+
+\begin{exe}
+  \ex \label{ex:bathroom} Either there's no bathroom$_1$ in the house, or
+  it's$_1$ in a funny place.
+\end{exe}
+
+The bathroom mentioned in the first clause is embedded under a negation but
+nevertheless, we can still access it in the second clause. If we look at
+the disjunction $A \dor B$ in DRT and TTDL, it has the same truth
+conditions and accessibility characteristics as
+$\dnot (\dnot A \dand \dnot B)$. This is how TTDL defines dynamic
+disjunction. If we take the meaning of \emph{there's no bathroom} to be
+$\dnot A'$ where $A'$ is the meaning of \emph{there is a bathroom}, then
+the meaning of Example~\ref{ex:bathroom} comes out as:
+
+$$
+\dnot A' \dor B = \dnot (\dnot (\dnot A') \dand \dnot B)
+$$
+
+In classical logic, we may use the law of double negation to go from
+$\dnot (\dnot A')$ to $A'$.
+
+$$
+\dnot (\dnot (\dnot A') \dand \dnot B) = \dnot (A' \dand \dnot B) = A' \dimp B
+$$
+
+If we do so, the dynamic contributions of $A'$ will no longer be blocked by
+a negation and will become accessible to any anaphoric pronouns in $B$. As
+we see above, the sentence ends up being paraphrased as ``\emph{if there's
+  a bathroom, then it's in a funny place}''.
+
+In order for this line of reasoning to hold within the framework, we would
+need the law of double negation to hold. However, that is not the case in
+neither DRT nor TTDL.\@ For DRT, this problem is addressed by Krahmer and
+Muskens in Double Negation DRT (DN-DRT)~\cite{krahmer1995negation} and for
+TTDL with a very similar strategy by Qian in Double Negation TTDL
+(DN-TTDL)~\cite{qian2014accessibility}.
+
+The DN-TTDL approach is an instance of the following general strategy. Let
+us imagine we have some set $A$ (e.g.\ the set of DRSs or TTDL dynamic
+propositions) and a function $f : A \to A$ (e.g.\ negation) that we would
+like to adapt into some involution $g$\footnote{An \emph{involution} is a
+  function which is its own inverse, i.e.\ $g(g(x)) = x$.}. Applying $g$ to
+a value once should have the same (or somehow similar) effect as applying
+$f$ once (i.e.\ $g$ should simulate/extend $f$). Furthermore, applying $g$
+twice must act as the identity function. We can consider an extended domain
+$A \times A$ and for each value $x \in A$ pairs $i(x)$ of the form
+$\left<x, f(x)\right>$. The swapping operation
+$\lambda \left<a, b\right>.\ \left<b, a\right>$ is then just the function
+$g$ we were looking for. We have the following:
+
+\begin{align*}
+\pi_1(i(x)) &= x \\
+\pi_1(g(i(x))) &= f(x) \\
+\pi_1(g(g(i(x)))) &= \pi_1(i(x)) = x
+\end{align*}
+
+The first equation shows us that the $i$ injection is a right inverse to
+the $\pi_1$ projection. The second equation shows us that using $g$ in the
+extended domain $A \times A$ is exactly like using $f$ in the original
+domain $A$. Finally, the third equation shows us that $g$ is an involution.
+
+This is exactly the approach adopted by Qian
+in~\cite{qian2014accessibility}. The original domain is the type of dynamic
+propositions $\Omega = \gamma \to (\gamma \to o) \to o$ and the function
+$f$ is TTDL's dynamic negation. The domain of DN-TTDL is defined as the
+type $\Omega \times \Omega$, propositions are injected from TTDL to DN-TTDL
+using $i(x) = \left<x, f(x)\right>$ and DN-TTDL dynamic negation works by
+swapping the two elements of the pair. We can conceive of this pair as the
+positive and negative representation of a proposition, the second item of
+the pair always being a negated form of the first one.
+
+DN-DRT~\cite{krahmer1995negation} adopts a similar strategy. Two
+interpretation functions are given: one for positive readings and another
+for negative readings. Negation becomes a new constructor for DRSs, its
+positive interpretation being the negative interpretation of its argument
+and its negative interpretation being the positive interpretation of its
+argument. Therefore, every DRSs has two interpretation and negation is
+implemented as exchanging these two interpretations.
+
+
+\subsection{Double Negation as an Effect}
+
+Our methodology is built on the assumption that the phenomena that we treat
+using effects have a projective nature. If a certain construction does not
+play a role in the phenomenon, it should transfer any operations related to
+this phenomenon from its arguments up to its context. For example:
+
+\begin{itemize}
+\item An indefinite noun phrase like \emph{a man} introduces a new
+  discourse referent $x$ along with the condition $\obj{man}(x)$. If this
+  NP becomes an argument of a verb, then the verb applies itself to the
+  NP's referent and transfers these dynamic effects up to the nearest
+  enclosing box. The meaning of \emph{a man sleeps} still introduces a new
+  discourse referent $x$ along with the condition $\obj{man}(x)$ while also
+  introducing the condition $\obj{sleep}(x)$. Since the verb had no
+  interaction with dynamicity, all of the NP's effects were preserved.
+\item An anaphoric pronoun such as \emph{he} accesses the context to find
+  its antecedent $x$. Applying the predicate \emph{sleeps} preserves this
+  context dependence and yields a computation that also starts by accessing
+  the context to find an antecedent $x$ and then producing the proposition
+  $\obj{sleep}(x)$. Deictic and intensional meanings access some external
+  information to find their referents as well and they behave the same in
+  these scenarios.
+\item A definite description such as \emph{the king of France} presupposes
+  the existence of a king of France $x$ and again, we can compute the
+  meaning of \emph{the king of France is bald} by applying the predicate
+  $\obj{bald}$ to the referent $x$ while still presupposing the existence
+  of the king of France $x$.
+\end{itemize}
+
+Lexical items that want to interact with a certain phenomenon, a certain
+level of meaning, do so by either signalling an operation or handling
+one. The entries of all the other lexical items which are not involved in
+this phenomenon do not have to be modified in any way and they project
+these requests automatically. As we have seen in the last two chapters, for
+many phenomena this is the case. This way, semantics of deictic NPs are not
+affected by the existence of anaphoric NPs or presuppositional NPs, and
+neither of these affect the semantics of simple predicates (e.g.\
+extensional transitive verbs denoting relations on individuals such as
+\emph{loves}).
+
+Now when we look at the treatment of double negation as an effect, it does
+not follow the same pattern. The change in types in TTDL is from $\Omega$
+to $\Omega \times \Omega$. If we want to treat this as an effect, we can
+look at monads which employ similar types. Two come to mind: the writer
+monad that maps the type $\alpha$ to $\alpha \times \Omega$ and the reader
+monad that maps the type $\alpha$ to $2 \to \alpha$.
+
+
+\subsubsection{Polarity Sensitivity --- Reader Monad}
+
+In the reader monad approach, we look at the type $\Omega \times \Omega$ as
+a family of dynamic propositions of type $\Omega$ indexed by the type $2$
+(i.e.\ $\Omega \times \Omega \simeq 2 \to \Omega$). These computations live
+in some context in which they have access to a polarity of type $2$ and
+based on that polarity, they should either return a positive version of
+themselves or a negative one. The corresponding operation would be
+something like $\typedop{get\_polarity}{1}{2}$. We will see that such an
+approach is problematic.
+
+Let us look at the VP ``\emph{trusts nobody}'' whose meaning is a function
+from individuals to polarity-sensitive propositions, that when given an
+individual $x$ will ask for the polarity and if it is positive, return
+``\emph{$x$ trusts nobody}'', and if it is negative, return ``\emph{$x$
+  trusts somebody}''. If we then embed this VP inside the sentence
+``\emph{I met a man who trusts nobody}'', the resulting meaning would ask
+for the polarity and if it is positive, then return the meaning of
+``\emph{I met a man who trusts nobody}'', and if it is negative, then
+return ``\emph{I met a man who trusts somebody}'', which is not the desired
+negation of the sentence. We do not get the correct meaning by ignoring the
+$\op{get\_polarity}$ operation and applying the meaning of the context
+``\emph{I met a man who $[]$}'' to (either of) the results.
+
+If a proposition occurs in some context which is not a negation, then it
+appears with positive polarity and we should apply a handler which signals
+that. However, we would have to include this handler in \emph{all} lexical
+entries that embed other propositions as arguments, which would defeat the
+point of our method. Futhermore, if we would end up implementing negation
+as a handler that switches polarity, then we would be obliged to also
+change \emph{all} lexical entries that produce propositions so that they do
+not forget to ask for polarity. The $\eta$ injection of the reader monad
+maps a dynamic proposition $A$ to a function $\lam{p}{A}$, which ignores
+the polarity $p$ and assigns the dynamic proposition $A$ to both. This is
+clearly not what we want as it ends up making every dynamic proposition
+equal to its negation.
+
+
+\subsubsection{Providing Negations --- Writer Monad}
+
+The writer monad is about computations outputting something: in our case
+they would be outputting their suggested negations, as in the technique for
+building up involutions using pairs shown above. This would correspond to
+some operation $\typedop{negative}{\Omega}{1}$ with which a proposition
+would suggest to its context a preferred negation that ought to be used if
+someone would try to negate it.
+
+In this case, the VP ``\emph{trusts nobody}'' would be a function from
+individuals $x$ to dynamic propositions ``\emph{$x$ trusts nobody}'' that
+would suggest ``\emph{$x$ trusts somebody}'' as their negation. If we then
+look at the complex sentence ``\emph{I met a man who trusts nobody}'', its
+meaning would be a computation that produces the meaning of ``\emph{I met a
+  man $x$ who trusts nobody}'' but also suggests that ``\emph{$x$ trusts
+  somebody}'' is its negation. Again, it becomes incorrect to ignore the
+$\op{negative}$ effect in constructions that embed
+propositions. Furthermore, what would be the semantics if a proposition
+used the $\op{negative}$ effect multiple times? The writer monad expects
+the type of the material being to form a monoid, which would be difficult
+to arrange in our case.
+
+
+\subsection{DN-TTDL Is Not Monadic}
+
+So far, we have tried taking existing monads which superficially look like
+DN-TTDL (i.e.\ they use the same types) and we have seen that neither
+models the semantics of DN-TTDL faithfully, forcing us to explicitly
+introduce handlers in all lexical entries that work with propositions,
+forfeiting the benefit of using $\banana{\lambda}$ computations in the
+first place. In this and the next subsection, we will try to find out why
+monads and effects are not a good fit for DN-TTDL.
+
+We will start by showing that the constructions in DN-TTDL are not
+monadic. We have seen the definition in~\ref{ssec:monad}: we need to
+provide a functor $F$ and the combinators $\eta$ and $\hsbind$.
+
+\begin{align*}
+  F(\Omega) &= \Omega \times \Omega \\
+  \etaE{A} &= \left< A, \dnot A \right> \\
+  A \hsbind f &= \ap{f}{(\ap{\pi_1}{A})}
+\end{align*}
+
+This captures the idea behind the DN-TTDL approach:
+
+\begin{itemize}
+\item the type of propositions is generalized to become the type of pairs
+  of positive and negative propositions,
+\item older values (simple dynamic propositions) are lifted by creating
+  pairs in which the second item corresponds to the dynamic negation of the
+  original value
+\item if we want to apply a function $f$ on some DN-TTDL proposition, we
+  extract its positive variant and use that as the argument of $f$
+\end{itemize}
+
+We can check that our translation is faithful by trying to use the two
+operations above to automatically raise operators such as dynamic
+conjunction into the new double-negation theory. We can reuse the general
+monadic lifting functions from~\ref{sec:lifting-semantics}.
+
+\begin{align*}
+  \liftl_{\alpha \limp \beta \limp \gamma} &: (\sem{\alpha} \to \sem{\beta} \to \sem{\gamma}) \to (F(\sem{\alpha}) \to F(\sem{\beta}) \to F(\sem{\gamma})) \\
+  \ap{\liftl_{\alpha \limp \beta \limp \gamma}}{f}
+     &= \lam{X Y}{X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\etaE{(\app{f}{x}{y})}})})} \\
+     &= \lam{X Y}{\left< \app{f}{(\ap{\pi_1}{X})}{(\ap{\pi_1}{Y})}, \dnot (\app{f}{(\ap{\pi_1}{X})}{(\ap{\pi_1}{Y})}) \right>} \\
+  \ap{\liftl_{S \limp S \limp S}}{(\dand)}
+     &= \lam{X Y}{\left< (\ap{\pi_1}{X}) \dand (\ap{\pi_1}{Y}), \dnot ((\ap{\pi_1}{X}) \dand (\ap{\pi_1}{Y})) \right>}
+\end{align*}
+
+By applying $\liftl_{S \limp S \limp S}$ to dynamic conjunction, we arrive
+at the extended definition of conjunction used introduced by Qian
+in~\cite{qian2014accessibility}. Thus we manage to derive from the general
+monadic lifting function and the two lines that define $\eta$ and $\hsbind$
+for this monad the same operator that Qian introduced in his thesis. This
+seems to suggest that this translation is indeed a faithful one.
+
+However, there are two problems with the ``monad'' we just
+introduced. First of all, $\eta$ is not general and is only applicable to
+values of type $\Omega$ (dynamic propositions). It begs the question what
+would be the interpretation of types such as $F(\iota)$, i.e.\ what is the
+negation of an individual. Secondly, even if we ignore this and just stay
+in the domain of dynamic propositions, permitting only types $F(\Omega)$,
+we run into a more severe problem. The ``monad'' that we proposed actually
+does not satisfy the right identity law~\eqref{law:monad-right-id}.
+
+$$
+X \hsbind \eta = X
+$$
+ 
+The reason is simple. The $\hsbind$ operator forgets about the negative
+form of $X$ and then $\eta$ replaces that negative form with the default
+one produced by dynamic negation. The two terms are thus not equal, since
+the one on the left replaces the proposed negative form $X$ with the
+default dynamic negation.
+
+
+\subsection{DN-TTDL Is Not Functorial}
+
+The problem lies with the fact that the ``monad'' proposed above does not
+only break the monad right identity, but it also breaks the functor laws.
+
+\begin{align*}
+  \texttt{fmap}\ id &= id \\
+  \texttt{fmap}\ (f \circ g) &= \texttt{fmap}\ f \circ \texttt{fmap}\ g
+\end{align*}
+
+The $\texttt{fmap}$ derived from Sai's construction, which raises unary
+functions from simple values to monadic values, is very much like $raise_2$
+in that looks only at the positive variant of its argument and then it
+reintroduces a negative variant using dynamic negation. The law which is
+problematic is the identity law, since mapping the identity function over a
+pair of propositions is not an identity, but something that replaces the
+negative variant of its argumant with a dynamic negation of the positive
+variant.
+
+We can make an informal argument that such strategy would not work in our
+approach either, since our representations of computations are based on a
+monad and we use $\texttt{fmap}$ and the other $raise_n$ operators, which
+assume functoriality.
+
+Let us imagine a computation $A$ of a proposition that explicitly suggests
+some alternative negative variant $A_n$ via an effect. If such a
+proposition is to be embedded in some other construction (e.g.\ as a
+relative clause), we would like that the result not suggest that $A_n$ is
+still its negative variant. We would therefore like it to have a $raise_1$
+(a.k.a.\ $\texttt{fmap}$) which strips any suggested negative variants
+present in the value being mapped over. However, this means that
+$\texttt{fmap}\ id$ is no longer the identity function, but a function that
+erases the suggested negative variants off of propositions. This is in
+contradiction with the functor laws by which our representation is bound.
+
+
+%% We can show that the kind of behavior implemented in Sai's thesis is
+%% impossible to recreate in our framework under the following assumptions:
+
+%% \begin{itemize}
+%% \item we want to keep the stability condition (i.e.\ existing denotations
+%%   should be raised by using the generic monad operations ($\hsbind$,
+%%   $\texttt{pure}$ or those of the underlying (applicative) functor,
+%%   $\otimes$ and $\texttt{fmap}$))
+%% \item we want double negation to be treated as an effect (i.e.\ the
+%%   denotations of sentences should still be computations of propositions,
+%%   the denotation should signal any alternative negative forms via an
+%%   effect)
+%% \end{itemize}
+
+%% Now take as a counter-example any operator in our gramamar that wants to
+%% act on a sentence meaning, besides negation of course. We can take the
+%% standard meaning of a relative pronoun as an example. The relative pronoun
+%% will, together with a common noun $n$ and a relative clause $R$, form a new
+%% predicate. This predicate will take an individual $x$ and state that $R(x)$
+
 

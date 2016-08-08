@@ -130,7 +130,7 @@ First, we will prove the correct typing for $\hsbind$.
 
 Next, we will prove the validity of two reduction rules for $\hsbind$.
 
-\begin{proposition}
+\begin{proposition}\label{prop:bind-rules}
   The following reductions are derivable in $\banana{\lambda}$:
 
   \vspace{2mm}
@@ -1518,9 +1518,12 @@ the combinator $\aplr$ introduced in~\ref{ssec:composing-functions}.
   laws:
 
   \begin{align}
-    (X \hsbind f) \hsbind g &= X \hsbind (\lam{x}{f(x) \hsbind g}) & \text{(Associativity)} \\
-    \eta(x) \hsbind f &= f(x) & \text{(Left identity)} \\
-    X \hsbind \eta &= X & \text{(Right identity)}
+    (X \hsbind f) \hsbind g &= X \hsbind (\lam{x}{f(x) \hsbind g})
+    & \label{law:monad-assoc} \text{(Associativity)} \\
+    \eta(x) \hsbind f &= f(x)
+    & \label{law:monad-left-id} \text{(Left identity)} \\
+    X \hsbind \eta &= X
+    & \label{law:monad-right-id} \text{(Right identity)}
   \end{align}
 \end{definition}
 
