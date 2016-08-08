@@ -14,10 +14,20 @@ analysis (presented in~\cite{marsik2014algebraic}), we will follow a novel
 strategy in this exposition. We will start with DRT, more specifically its
 presentation in Kamp and Reyle's canonical
 textbook~\cite{kamp1993discourse} and show how to translate it into
-$\banana{\lambda}$ computations. We will then interpret those computations
-as TTDL dynamic propositions.
+$\banana{\lambda}$ computations (\ref{sec:banana-drt}). We will then
+interpret those computations as TTDL dynamic propositions.
 
-TODO: Speak about presuppositions.
+Afterwards, we will have our first taste of combining different effects. We
+will enhance our theory of dynamics with a treatment of presupposition
+covering projection, cancellation and accommodation. Our analysis will be
+based on Lebedeva's extension of TTDL~\cite{lebedeva2012expression}, which
+uses exceptions and exception handlers to handle presupposition projection
+and accommodation. We will see a variation of this approach in terms of
+effects and handlers in Section~\ref{sec:presuppositions}.
+
+Finally, we consider one more extension of TTDL, Qian's double-negation
+TTDL. This will be an example of a negative result. We will see why and how
+Qian's DN-TTDL evades an analysis in $\calc$ (\ref{sec:double-negation}).
 
 \minitoc
 
@@ -3315,61 +3325,209 @@ one produced by dynamic negation. The two terms are thus not equal, since
 the one on the left replaces the proposed negative form $X$ with the
 default dynamic negation.
 
+In our method, we model denotations as $\banana{\lambda}$ computations and
+$\banana{\lambda}$ computations form a monad, i.e.\ for any effect
+signature, $\left<\FF_E, \eta, \hsbind\right>$ is a monad. Likewise, all of
+the phenomena we treat have a monadic structure as well: Barker's
+continuization uses the continuation monad~\cite{barker2002continuations},
+de Groote and Lebedeva's TTDL uses a combination of the state monad and the
+continuation monad~\cite{de2006towards,lebedeva2012expression}
+(see~\ref{ssec:truth-conditions-as-side-effects}), de Groote and Kanazawa's
+intensionalization uses the reader monad~\cite{de2013note}, Giorgolo and
+Asudeh's implementation of Potts' conventional implicature analysis uses
+the writer monad~\cite{giorgolo2011multidimensional}. The fact that the
+structure used by Qian~\cite{qian2014accessibility} is not a monad could be
+a reason why its implementation using $\banana{\lambda}$ effects is
+difficult.
+
+We have shown that DN-TTDL is not monadic, but there are also other
+abstractions which have weaker laws than monads and which are still
+useful. The applicative functors (see~\ref{ssec:applicative-functor}) that
+are used in Oleg Kiselyov's Applicative Abstract Categorial
+Grammars~\cite{kiselyov2015applicative,kiselyov2015swing} are one such
+example. However, as we will show next, DN-TTDL also violates the laws of
+functors, which are even weaker than those of applicative functors.
+
 
 \subsection{DN-TTDL Is Not Functorial}
 
-The problem lies with the fact that the ``monad'' proposed above does not
-only break the monad right identity, but it also breaks the functor laws.
+A functor $F$ maps types $\alpha$ to types $F(\alpha)$ and functions
+$f : \alpha \to beta$ to functions $F(f) : F(\alpha) \to F(\beta)$. The
+functor underlying the almost-monad from the previous subsection is the
+following:
 
 \begin{align*}
-  \texttt{fmap}\ id &= id \\
-  \texttt{fmap}\ (f \circ g) &= \texttt{fmap}\ f \circ \texttt{fmap}\ g
+  F(\Omega) &= \Omega \times \Omega \\
+  F(f) &= \lam{X}{\left< \ap{f}{(\ap{\pi_1}{X})}, \dnot(\ap{f}{(\ap{\pi_1}{X})}) \right>}
 \end{align*}
 
-The $\texttt{fmap}$ derived from Sai's construction, which raises unary
-functions from simple values to monadic values, is very much like $raise_2$
-in that looks only at the positive variant of its argument and then it
-reintroduces a negative variant using dynamic negation. The law which is
-problematic is the identity law, since mapping the identity function over a
-pair of propositions is not an identity, but something that replaces the
-negative variant of its argumant with a dynamic negation of the positive
-variant.
+Same as for the monad, this is still applicable only to functions whose
+return type is $\Omega$. However, even if we ignore this, we find out that
+this structure does not satisfy the laws of a functor. Functors have to
+adhere to two laws: homomorphism w.r.t.\ to function composition and
+homomorphism w.r.t.\ to identities. It is the latter which this structure
+fails. Consider the identity law of functors \eqref{law:functor-identity}:
 
-We can make an informal argument that such strategy would not work in our
-approach either, since our representations of computations are based on a
-monad and we use $\texttt{fmap}$ and the other $raise_n$ operators, which
-assume functoriality.
+\begin{align*}
+  F(\id_A) &= id_{F(A)}
+\end{align*}
 
-Let us imagine a computation $A$ of a proposition that explicitly suggests
-some alternative negative variant $A_n$ via an effect. If such a
-proposition is to be embedded in some other construction (e.g.\ as a
-relative clause), we would like that the result not suggest that $A_n$ is
-still its negative variant. We would therefore like it to have a $raise_1$
-(a.k.a.\ $\texttt{fmap}$) which strips any suggested negative variants
-present in the value being mapped over. However, this means that
-$\texttt{fmap}\ id$ is no longer the identity function, but a function that
-erases the suggested negative variants off of propositions. This is in
-contradiction with the functor laws by which our representation is bound.
+If we try to elaborate $F(\id_\Omega)$ with this structure, we find that it
+does not correspond to an identity:
+
+\begin{align*}
+  F(\id_\Omega) &= \lam{X}{\left< \ap{\pi_1}{X}, \dnot(\ap{\pi_1}{X}) \right>} \\
+  \id_{F(\Omega)} &= \lam{X}{\left< \ap{\pi_1}{X}, \ap{\pi_2}{X} \right>} \\
+  F(\id_\Omega) &\neq \id_{F(\Omega)}
+\end{align*}
+
+Therefore, the structure in DN-TTDL is not a functor and by extension
+neither an applicative functor.
+
+The failure in the functor identity law highlights why this kind of
+strategy is incompatible with our approach. It is exactly because of the
+fact that the negative variants of propositions are not things that project
+--- if $A_\petitn$ is the negative variant of $A$, that does not mean that
+$A_\petitn$ is the negative variant of $A \land B$ --- that this structure
+breaks the functor laws. In order to stop the projection of the proposed
+negative variant out of a context, the functor forgets the old negative
+variant and replaces it with a new one. However, this kind of behavior that
+suppresses this extra information is non-functorial, since if we apply the
+functor to the identity function, we get a function that forgets the extra
+annotation (the negative variant) and therefore we do not have an identity
+function.
+
+When we say that this solution to the double negation problem is
+incompatible with our approach, we mean that we cannot find effects that
+implement this kind of functionality. However, this does not mean we cannot
+combine our technique of using $\banana{\lambda}$ computations with the
+technique proposed by Qian~\cite{qian2014accessibility}. We have seen how
+to implement TTDL in $\banana{\lambda}$, on which DN-TTDL is built. We can
+therefore use the DN-TTDL schema by replacing the TTDL implementation using
+our $\banana{\lambda}$ implementation. The downside is that we have to then
+always work with pairs of computations of propositions everywhere, which is
+a heavy price to pay for the offered empirical coverage increase.
 
 
-%% We can show that the kind of behavior implemented in Sai's thesis is
-%% impossible to recreate in our framework under the following assumptions:
+\section{Summary}
+\label{sec:summary-dynamic-semantics}
 
-%% \begin{itemize}
-%% \item we want to keep the stability condition (i.e.\ existing denotations
-%%   should be raised by using the generic monad operations ($\hsbind$,
-%%   $\texttt{pure}$ or those of the underlying (applicative) functor,
-%%   $\otimes$ and $\texttt{fmap}$))
-%% \item we want double negation to be treated as an effect (i.e.\ the
-%%   denotations of sentences should still be computations of propositions,
-%%   the denotation should signal any alternative negative forms via an
-%%   effect)
-%% \end{itemize}
+In this chapter, we have seen how to implement dynamic semantics in the
+$\banana{\lambda}$ framework. Our goal was to motivate a core set of
+operations which characterize dynamic meanings. In order to do that, we
+have taken DRT, a well-established theory of dynamic semantics, and shown
+how its canonical formulation in Kamp and Reyle's
+textbook~\cite{kamp1993discourse} can be seen as a collection of effectful
+programs~(\ref{sec:drt-as-pl}). This validated our intuition that dynamic
+semantics can be suitably modelled as effectful computation and also shown
+us what effect signature to choose and how to use those effects to give
+denotations to lexical items in our grammar~(\ref{sec:banana-drt}). In
+translating the DRT fragment into an ACG+$\calc$ fragment, we have made it
+compositional by showing that what DRT actually composes are instructions
+on how to build DRSs. We have then connected our analysis to de Groote's
+Type-Theoretic Dynamic Logic~\cite{de2006towards}, another compositional
+theory of dynamic semantics using ACGs and continuations, by interpreting
+the computations as dynamic propositions. Finally, inspired by the
+algebraic effects
+literature\cite{hyland2006combining,plotkin2009handlers,pretnar2010logic,plotkin2013handling},
+we have given a system of equations which derives DRSs as the canonical
+forms of dynamic computations (a collection variables accessible to
+subsequent formulas coupled with a collection of simple propositions about
+those variables)~(\ref{ssec:algebraic-drt}).
 
-%% Now take as a counter-example any operator in our gramamar that wants to
-%% act on a sentence meaning, besides negation of course. We can take the
-%% standard meaning of a relative pronoun as an example. The relative pronoun
-%% will, together with a common noun $n$ and a relative clause $R$, form a new
-%% predicate. This predicate will take an individual $x$ and state that $R(x)$
+After having introduced anaphora, we moved onto another effect that is
+closely related: presuppositions~(\ref{sec:presuppositions}). Our
+treatment of presuppositions, which was in the style of
+Lebedeva~\cite{lebedeva2012expression} and van der
+Sandt~\cite{van1992presupposition}, was built on top of our dynamic
+semantics and was the first time we got to see how to combine side
+effects from different phenomena. We first started with changing the
+dynamic effects handler from a closed handler into an open
+handler~(\ref{ssec:revising-dynamic-handler}). While this involved some
+complicated $\lambda$ terms, this is a price we will have to pay only
+once. Now that we have an open handler for dynamics, we can combine dynamics
+with other effects with much less effort. Then we took the following steps
+to integrate presuppositions into our dynamic semantics:
 
+\begin{enumerate}
+\item \label{item:fixbug} We have fixed a bug in the dynamics handler
+  ($\BOX$) which relied on the assumption that the contents of DRSs higher
+  up on the projection line than the closest immediate DRS will not change;
+  an assumption that would be invalidated by the introduction of
+  presuppositions~(\ref{ssec:revising-dynamic-handler}). While without
+  fixing this, our analysis was undergenerating, Lebedeva's
+  analysis~\cite{lebedeva2012expression} suffers from a similar bug and is
+  overgenerating (licensing the reading ``He$_1$ loves John's$_1$ car'').
+  
+\item \label{item:presuppose-op} We introduced a new operation
+  $\typedop{presuppose}{(\iota \to o)}{\iota}$ and used it in lexical
+  entries such as $\abs{proper}$ for proper names and $\abs{poss}$ for
+  possessive constructions.
 
+\item \label{item:accommodate-handler} We introduced a handler for
+  $\op{presuppose}$ called $\accommodate$ and we added it a handler
+  representing the top-level DRS. At this point, we could analyze
+  discourses such as Example~\ref{ex:jones-mercedes}, repeated below, which
+  were not covered by the original TTDL~\cite{de2006towards} and which
+  motivated the use of exceptions in Lebedeva's
+  extension~\cite{lebedeva2012expression}.
+
+  \begin{exe}
+    \exr{ex:jones-mercedes} It is not the case that Jones owns a
+    Porsche. He owns a Mercedes.
+  \end{exe}
+
+\item \label{item:maybe-accommodate} We introduced a new handler,
+  $\maybeAccommodate$ that tried resolving presuppositions by looking up
+  the referent in the context instead of always presupposing its existence,
+  as in~\cite{lebedeva2012expression}. This let us analyze cases such as
+  Example~\ref{ex:cancel} without projecting a presupposition.
+
+  \begin{exe}
+    \exr{ex:cancel} If John owns a car, then his car is cheap.
+  \end{exe}
+
+\item \label{item:nondet-accommodation} We enriched the $\BOX$ handler with
+  a clause for nondeterministically accommodating presuppositions. This
+  allowed us to account for the ambiguity inherent in the accommodation of
+  presuppositions, such as in Example~\ref{ex:wilma}:
+
+  \begin{exe}
+    \exr{ex:wilma} ($c_0$) Maybe ($c_1$) Wilma thinks that ($c_2$) her husband is having an affair.
+  \end{exe}
+
+\item \label{item:pga-amb} We have encoded the Preference for Global
+  Accommodation principle and its binding problem constraint by introducing
+  an operator to $\banana{\lambda}$ for identifying stuck computations and
+  by writing a handler for nondeterministic choice that gave it the
+  semantics of McCarthy's $amb$ operator~\cite{mccarthy1961basis}. With
+  this, we analyzed Example~\ref{ex:man-angry}:
+
+  \begin{exe}
+    \exr{ex:man-angry} ($c_0$) If ($c_1$) a man gets angry, ($c_2$) his
+    children get frightened.
+  \end{exe}
+\end{enumerate}
+
+Notably, we did not need to touch the dynamic denotations that we have
+developed in~\ref{sec:banana-drt} in order to make them
+presupposition-compatible. We only modified dynamic negation, $\dnot$, by
+adding new clauses to the $\BOX$ handler to implement the interaction
+between DRSs and presuppositions. Our objective was to have empirical
+parity with Lebedeva's analysis~\cite{lebedeva2012expression}, while using
+the mechanism to implement both dynamics and presuppositions ($\calc$
+computations) and without having to use a calculus with a non-standard
+evaluation order. In this, we have succeeded\footnote{We have not covered
+  the interplay of quantification and dynamics, which TTDL studies as
+  well. This will be the subject of Chapter~\ref{chap:composing-effects}.}
+and we have also shown an example in which we can overcome an empirical
+limitation of Lebedeva's approach.
+
+Finally, we addressed another extension of TTDL, Qian's
+DN-TTDL~\cite{qian2014accessibility}. We have analyzed his proposal and
+shown that it is out of the scope of our approach as it involves a
+non-functorial structure at its core. While we cannot translate Qian's
+technique into effects and handlers, we can use his technique directly to
+model propositions as pairs of computations. As this would be a heavy
+change to our fragment, we avoid this technique in the rest of the
+manuscript.
