@@ -3332,7 +3332,7 @@ the phenomena we treat have a monadic structure as well: Barker's
 continuization uses the continuation monad~\cite{barker2002continuations},
 de Groote and Lebedeva's TTDL uses a combination of the state monad and the
 continuation monad~\cite{de2006towards,lebedeva2012expression}
-(see~\ref{ssec:truth-conditions-as-side-effects}), de Groote and Kanazawa's
+(see~\ref{ssec:truth-conditions-side-effects}), de Groote and Kanazawa's
 intensionalization uses the reader monad~\cite{de2013note}, Giorgolo and
 Asudeh's implementation of Potts' conventional implicature analysis uses
 the writer monad~\cite{giorgolo2011multidimensional}. The fact that the
@@ -3352,7 +3352,7 @@ functors, which are even weaker than those of applicative functors.
 \subsection{DN-TTDL Is Not Functorial}
 
 A functor $F$ maps types $\alpha$ to types $F(\alpha)$ and functions
-$f : \alpha \to beta$ to functions $F(f) : F(\alpha) \to F(\beta)$. The
+$f : \alpha \to \beta$ to functions $F(f) : F(\alpha) \to F(\beta)$. The
 functor underlying the almost-monad from the previous subsection is the
 following:
 
