@@ -9,3 +9,5 @@
 * Gazdar 1979 -- local accommodation as a last resort (sometimes to avoid
   triviality or contradiction)
 * $\op{op}.\hsbind$ rule is interesting -> explains projectivity
+
+* Fix relative clauses!

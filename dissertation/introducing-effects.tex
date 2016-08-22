@@ -635,8 +635,18 @@ $1$. Using this operation, we can now give denotations to expressions that
 are about to generate conventional implicatures:
 
 \begin{align*}
-  \sem{\abs{who}_{\abs{s}}} &= \lam{C X}{X \hsbind (\lam{x}{\op{implicate} \apr (\ap{C}{(\etaE{x})}) \apl (\lam{z}{\etaE{x}})})} \\
-  \lex{appos}{\lam{Y X}{X \hsbind (\lam{x}{\op{implicate} \apr (x \eqr Y) \apl (\lam{z}{\etaE{x}})})}} \\
+  \sem{\abs{who}_{\abs{s}}} &= \lam{C X}{\begin{aligned}[t]
+      &X \hsbind (\lam{x}{ \\
+      &\ap{C}{(\etaE{x})} \hsbind (\lam{i}{ \\
+      &\app{\op{implicate}}{i}{(\lam{\_}{ \\
+      &\etaE{x}})}})})
+    \end{aligned}} \\
+  \lex{appos}{\lam{Y X}{\begin{aligned}[t]
+      &X \hsbind (\lam{x}{ \\
+      &Y \hsbind (\lam{y}{ \\
+      &\app{\op{implicate}}{(x = y)}{(\lam{\_}{ \\
+      &\etaE{x}})}})})
+    \end{aligned}}} \\
   \lex{best-friend}{\lam{X}{\obj{best-friend} \apr X}}
 \end{align*}
 
@@ -646,14 +656,9 @@ implicature and once to produce the referent of the entire complex noun
 phrase. The implicature constructed by the relative clause is the clause
 with its gap filled in by an expression that refers to the same referent as
 the head noun $X$. The implicature of the appositive is a statement of
-equality between the referents of the two noun phrases\footnote{The
-  operator $\eqr$ is the variant of $=$ that expects its right-hand side
-  argument to be a computation and whose result is therefore a computation
-  too.}. The first argument that we are applying $\op{implicate}$ to in
-both entries is a computation and hence the $\apr$ and $\apl$ operators
-surrounding it. Finally, we also give the semantics to the relation noun
-``X's best friend'' by assuming that we have function
-$\obj{best-friend} : \iota \to \iota$ in the model.
+equality between the referents of the two noun phrases. Finally, we also
+give the semantics to the relational noun ``X's best friend'' by assuming
+that we have function $\obj{best-friend} : \iota \to \iota$ in the model.
 
 We will want to show that these denotations project through the operators
 that make up the logical structure of a sentence/discourse. Since the

@@ -502,6 +502,69 @@ Definition~\ref{def:semi-reduction-rule}, respectively.
 \subsection{Adding Conventional Implicature}
 \label{ssec:adding-conventional-implicature}
 
+We move to conventional implicature, which we have treated (in isolation)
+in Section~\ref{sec:conventional-implicature}. We consider conventional
+implicatures triggered by supplements: nominal appositives and
+supplementary relative clauses. We will use the same abstract constants as
+in Section~\ref{sec:conventional-implicature}, $\abs{who}_{\abs{s}}$ and
+$\abs{appos}$. The constant $\abs{who}_{\abs{s}}$ stands for the
+supplementary (appositive) use of the relativizer \emph{who}. We will use
+this opportunity to also introduce $\abs{who}_{\abs{r}}$ for the
+restrictive use of the relativizer. This will allow us to contrast their
+semantics and derive more complicated example sentences in latter sections.
+
+\begin{align*}
+  \abs{who}_{\abs{s}} &: (NP \limp S) \limp NP \limp NP \\
+  \abs{who}_{\abs{r}} &: (NP \limp S) \limp N \limp N \\
+  \abs{appos} &: NP \limp NP \limp NP
+\end{align*}
+
+We will not be adding any new predicates or operators to the object level:
+the new lexical items represent new syntactic structures and function
+words, not new concepts.
+
+\begin{align*}
+  \sem{\abs{who}_{\abs{s}}} &= \lam{C X}{\begin{aligned}[t]
+      &X \hsbind (\lam{x}{ \\
+      &\ap{\BOX}{(\ap{C}{(\etaE{x})})} \hsbind (\lam{i}{ \\
+      &\app{\op{implicate}}{i}{(\lam{\_}{ \\
+      &\etaE{x}})}})})
+    \end{aligned}} \\
+  \sem{\abs{who}_{\abs{r}}} &= \text{\TODO{Solve relative clauses!}} \\
+  \lex{appos}{\lam{Y X}{\begin{aligned}[t]
+      &X \hsbind (\lam{x}{ \\
+      &\ap{\BOX}{(\app{\eq}{(\etaE{x})}{Y})} \hsbind (\lam{i}{ \\
+      &\app{\op{implicate}}{i}{(\lam{\_}{ \\
+      &\etaE{x}})}})})
+    \end{aligned}}}
+  \\
+  \eq &: \FF_E(\iota) \to \FF_E(\iota) \to \FF_E(1) \\
+  \eq &= \lam{X Y}{X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\ap{\op{assert}!}{(x = y)}})})} \\
+  \eq &= \lam{X Y}{(X \eqlr Y) \hsbind \op{assert}!} \\
+\end{align*}
+
+The two entries differ in two ways from the ones in
+Section~\ref{sec:conventional-implicature}:
+
+\begin{itemize}
+\item The computations that calculate the propositions being implicated are
+  now in $\BOX$es. This is in part due to us treating truth conditions as
+  side effects in our treatment of dynamic semantics. Without a $\BOX$, the
+  truth conditions of the supplementary clause would project and mix with
+  the surrounding at-issue truth conditions. By using a $\BOX$, we isolate
+  the supplementary truth conditions into a proposition of type $o$ and
+  then we can use $\typedop{implicate}{o}{1}$ to project it as not
+  at-issue.
+
+  Secondly, the use of $\BOX$ encodes an interaction between anaphora 
+\end{itemize}
+
+
+\begin{align*}
+  \withImplicatures &: \FF_{\{\typedop{implicate}{o}{1}\}}(o) \to o \\
+  \withImplicatures &= \bbanana{\onto{\op{implicate}}{(\lam{i k}{i \land \ap{k}{\star}})}}
+\end{align*}
+
 
 
 
