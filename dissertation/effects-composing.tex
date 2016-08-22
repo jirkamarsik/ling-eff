@@ -1,20 +1,509 @@
 \chapter{Composing the Effects}
 \label{chap:composing-effects}
 
+In Chapters~\ref{chap:introducing-effects}
+and~\ref{chap:dynamic-semantics}, we have seen $\calc$ analyses of
+deixis~(\ref{sec:deixis}), conventional
+implicature~\ref{sec:conventional-implicature},
+quantification~(\ref{sec:quantification}), anaphora~(\ref{sec:banana-drt})
+and presupposition~(\ref{sec:presuppositions}). All of those analyses
+shared the same structure: constituents of atomic abstract type were
+interpreted as $\calc$ computations.\footnote{Note though that in
+  Chapter~\ref{chap:introducing-effects}, we had $\sem{S} = \FF_E(o)$ and
+  after the shift to dynamic semantics in
+  Chapter~\ref{chap:dynamic-semantics}, we switched to
+  $\sem{S} = \FF_E(1)$.} The fact that there is a common underlying
+structure present in all of these phenomena has already been discovered by
+the pioneers of monads in natural language
+semantics~\cite{shan2002monads,charlow2014semantics,giorgolo2015natural,barker2015monads}. However,
+the point of expressing all of these phenomena in a single framework is not
+just to have a uniform set of fragments, but to also be able to combine
+those fragments into a wider picture.
+
+Most recently, proposals for combining monads in natural language semantics
+have started
+appearing~\cite{charlow2014semantics,giorgolo2015natural,barker2015monads}. We
+can divide them into two strategies:
+
+\begin{itemize}
+\item Constructing a ``supermonad'' that combines the structural elements
+  of all the monads that we want to use.
+
+  The denotations of constituents are then all computations within this
+  monad (or their denotations are injected into this supermonad). The
+  monad's $\hsbind$ operator serves as the universal glue, allowing us to
+  combine any two meanings, regardless of the effects they use. This
+  approach was adopted by Charlow in his
+  dissertation~\cite{charlow2014semantics}.
+\item Making all the necessary components to build semantic glue lexical
+  items in the grammar.
+
+  Instead of deriving a general monad that encompasses all of the necessary
+  monadic structure, we include the $\eta$ and $\hsbind$ of every monad we
+  want to use into our grammar. Different lexical entries will use
+  different (combinations of) monads and it is one of the duties of parsing
+  to find the necessary semantic glue which combines these meanings in a
+  sound way. This approach was proposed by Giorgolo and Asudeh in their
+  ESSLLI 2015 course~\cite{giorgolo2015natural} and by Charlow in Barker's
+  ESSLLI 2015 course~\cite{barker2015monads}.
+\end{itemize}
+
+Since ACGs separate the object-level types (where we use monads and
+semantic types) from the abstract-level types (where we use linear
+implications and syntactic types and where we control the set of valid
+syntactic structures), the latter approach becomes impractical. If we
+wanted to add the monadic combinators $\eta$ and $\hsbind$ and give them
+their correct types, we would need to change the logic of the
+abstract-level type system, e.g.\ by including a modality for every
+monad. In doing this, we would no longer be working with ACGs, but with
+some other type-logical grammar formalism, and we would lose the benefit of
+existing results for ACGs (e.g.\ on the complexity of
+parsing~\cite{kanazawa2007parsing}). Our approach is an instance of the
+former method. Our ``supermonad'' is the free monad $\FF_E$
+from~\ref{ssec:monad} and~\ref{ssec:free-monad}. In contrast to the
+approach used in Charlow's dissertation~\cite{charlow2014semantics}, we
+explore the use of effects and handlers instead of monad transformers and
+we perform all computation in a formally defined object language $\calc$,
+which is an extension of the simply-typed lambda calculus.
+
+In~\ref{sec:presuppositions}, we have already seen how to combine our
+treatment of anaphora with a treatment of presuppositions. We will extend
+the fragment from Chapter~\ref{chap:dynamic-semantics} with the effects
+from Chapter~\ref{chap:introducing-effects} using the same process that we
+have used when adding presuppositions:
+
+\begin{enumerate}
+\item We will translate any closed handlers used in lexical entries into
+  open handlers. While closed handlers can often be simpler to compute
+  with, they are no longer applicable in the presence of other effects. For
+  an example of this process, look in~\ref{ssec:revising-dynamic-handler},
+  where we translate the $\BOX$ handler, which is used in entries that make
+  use of dynamic negation, into an open handler.
+\item We will update the existing entries in the grammar(s) to reflect any
+  interactions between the lexical entries and phenomena present in both
+  treatments. In the case of presupposition, we have made it so that
+  contexts can cancel
+  presuppositions~(\ref{ssec:cancelling-presuppositions}) and accommodate
+  presuppositions~(\ref{ssec:ambiguous-accommodation}) by modifying the
+  $\BOX$ (and later $\DBOX$) handler used in dynamic negation.
+\end{enumerate}
+
+
 \minitoc
 
-\section{Extending Fragments with ACG Transformers}
 
-\section{The Common Base}
-\input{effects-composing-trivial-draft}
-\input{effects-composing-from-draft}
-\input{effects-composing-logical-draft}
+\section{The Dynamic Kernel}
+
+As per the methodology described in~\ref{sec:methodology}, we will start
+with a basic ``seed'' grammar into which we will incorporate treatments of
+diverse phenomena. The grammar that we will start with will be a small
+dynamic fragment, very much like the one
+in~\ref{sec:banana-drt}.\footnote{We could have also started with a more
+  basic fragment without any effects and add dynamics separately. However,
+  adding dynamics would force us to change almost all of the fragment:
+  every individual meaning would need to add its referent to the context
+  and every propositional meaning would need to add the proposition to the
+  context. Furthermore, as we have seen
+  in~\ref{ssec:truth-conditions-side-effects}, we would also change the
+  type of sentence interpretations from $\FF_E(o)$ to $\FF_E(1)$. A very
+  similar translation from a static grammar to a dynamic one is described
+  in~\cite{lebedeva2012expression}~(Definition~4.27).} While
+in~\ref{sec:banana-drt}, we tried to keep our dynamic grammar as close to
+possible to the presentation of DRT in Kamp and Reyle's
+textbook~\cite{kamp1993discourse}, the grammar that we will use here will
+be more in line with the categorial tradition. Instead of using
+non-lexicalized rules such as $\abs{trans} : VP \limp NP \limp NP \limp S$
+and $\abs{common} : CN \limp N$ (which were standing in for the DRT
+construction rules $\crlitv$ and $\crlin$), we will be using lexicalized
+items such as $\abs{loves} : NP \limp NP \limp S$ and $\abs{man} : N$.
+
+We first give the lexical items in our grammar and their syntactic types
+(i.e.\ the abstract signature).
+
+\begin{align*}
+  \abs{she}, \abs{he}, \abs{it} &: NP \\
+  \abs{a} &: N \limp NP \\
+  \abs{man}, \abs{woman}, \abs{Porsche}, \abs{Mercedes} &: N \\
+  \abs{loves}, \abs{owns}, \abs{fascinates} &: NP \limp NP \limp S \\
+  \abs{not-the-case} &: S \limp S \\
+  \abs{and}, \abs{if-then}, \abs{either-or} &: S \limp S \limp S \\
+  \abs{\_.\_} &: D \limp S \limp D \\
+  \abs{nil} &: D
+\end{align*}
+
+This grammar is about dynamic semantics and anaphora. Therefore, it
+contains indefinites (indefinite article + common nouns) and pronouns to
+showcase the introduction and retrieval of discourse referents. It also
+contains entries for verbs which let use these noun phrases inside of
+sentences. One of the key issues of dynamic semantics is how anaphora
+interacts with logical operators. For these purposes, we include in our
+grammar lexical items corresponding to constructions that mimic the logical
+operators of negation, conjunction, implication and disjunction. Finally,
+dynamic semantics studies how anaphora works across sentences, through a
+discourse. We treat discourse as a list of sentences. We introduce an
+atomic abstract type $D$ of discourses, an empty discourse $\abs{nil} : D$
+and a discourse extension operator $\abs{\_.\_} : D \limp S \limp D$.
+
+We will now give a semantic interpretation to the abstract language
+generated by these items. First, we define the object signature that will
+be the target of our interpretation.
+
+\begin{align*}
+  \top, \bot &: o \\
+  \lnot &: o \to o \\
+  (\_ \land \_), (\_ \to \_), (\_ \lor \_) &: o \to o \to o \\
+  \exists, \forall &: (\iota \to o) \to o \\
+  \_ = \_ &: \iota \to \iota \to o \\
+  \obj{man}, \obj{woman}, \obj{Porsche}, \obj{Mercedes} &: \iota \to o \\
+  \obj{love}, \obj{own}, \obj{fascinate} &: \iota \to \iota \to o \\
+  \nil &: \gamma \\
+  \_ \cons \_ &: \iota \to \gamma \to \gamma \\
+  \_ \cons \_ &: o \to \gamma \to \gamma \\
+  \_ \cat \_ &: \gamma \to \gamma \to \gamma \\
+  \selhe, \selshe, \selit &: \gamma \to \iota
+\end{align*}
+
+We will have a type $o$ of propositions, which will be built out of
+first-order logic (FOL) formulas. We include constants for all FOL
+constructors: tautology ($\top$), contradiction ($\bot$), negation
+($\lnot$), conjunction ($\land$), implication ($\to$), disjunction
+($\lor$), existential quantification ($\exists$), universal quantification
+($\forall$), equality on terms ($=$), unary predicates (corresponding to
+common nouns) and binary predicates (corresponding to transitive verbs). We
+aim to treat anaphoric binding but not anaphora resolution, and so we
+introduce constants for operations that will perform anaphora resolution:
+the oracles $\selhe$, $\selshe$ and $\selit$.\footnote{In
+  Chapter~\ref{chap:dynamic-semantics}, we presented a simplified account
+  of DRT that omitted gender features. We add them back in a limited form
+  to make the examples more comprehensible.} The anaphora resolution
+operators work on contexts, which contain all the knowledge in the common
+grounds and all individuals available for discussion. These contexts, of
+type $\gamma$, are built up using $\nil$, $\cons$ and $\cat$, where $\cons$
+is overloaded to work both for individuals and propositions.
+
+Now that we have defined the object signature into which we want to
+interpret our abstract language, we are ready to lay down the
+lexicon. We interpret the atomic abstract types as computations:
+
+\begin{align*}
+  \sem{NP} &= \FF_E(\iota) \\
+  \sem{N} &= \FF_E(\iota \to o) \\
+  \sem{S} &= \FF_E(1) \\
+  \sem{D} &= \FF_E(1)
+\end{align*}
+
+The effect signature $E$ is the DRT effect signature
+from~\ref{ssec:dynamic-negation}
+
+\begin{align*}
+  E = \{\ &\typedop{get}{1}{\gamma}, \\
+          &\typedop{introduce}{1}{\iota}, \\
+          &\typedop{assert}{o}{1}\ \}
+\end{align*}
+
+The interpretation of the constants in our abstract signature is given
+next:
+
+\begin{align*}
+  \lex{she}{\begin{aligned}[t]
+      &\app{\op{get}}{\star}{(\lam{e}{ \\
+      &\etaE{(\selshe(e))}})}
+    \end{aligned}} \\
+  \lex{he}{\begin{aligned}[t]
+      &\app{\op{get}}{\star}{(\lam{e}{ \\
+      &\etaE{(\selhe(e))}})}
+    \end{aligned}} \\
+  &\vdots \\
+  \lex{a}{\begin{aligned}[t]
+      \lam{N}{&\app{\op{introduce}}{\star}{(\lam{x}{ \\
+              &N \hsbind (\lam {n}{ \\
+              &\app{\op{assert}}{(n(x))}{(\lam{\_}{ \\
+              &\etaE{x}})}})})}}
+    \end{aligned}} \\
+  \lex{man}{\etaE{\obj{man}}} \\
+  \lex{woman}{\etaE{\obj{woman}}} \\
+  &\vdots \\
+  \lex{loves}{\lam{O S}{(\obj{love} \apr S \aplr O) \hsbind \op{assert}!}} \\
+  \lex{owns}{\lam{O S}{(\obj{own} \apr S \aplr O) \hsbind \op{assert}!}} \\
+  &\vdots \\
+  \lex{not-the-case}{\lam{A}{\dnot A}} \\
+  \lex{and}{\lam{A B}{A \dand B}} \\
+  \lex{if-then}{\lam{A B}{A \dimp B}} \\
+  \lex{either-or}{\lam{A B}{A \dor B}} \\
+  \lex{\_.\_}{\lam{D S}{D \hsbind (\lam{\_}{S})}} \\
+  \lex{nil}{\etaE{\star}}
+\end{align*}
+
+The interpretations are almost the same as the ones given
+in~\ref{sec:banana-drt}, with the following changes:
+
+\begin{itemize}
+\item We use the simplified entry for pronouns, derived
+  in~\ref{ssec:algebraic-drt}, to which we add gender markings.
+\item We also give interpretations to the two new constants, $\_.\_$ and
+  $\abs{nil}$. We interpret the empty discourse $\abs{nil}$ as a discourse
+  which contributes nothing, a trivial computation that immediately returns
+  the dummy value $\star$. The discourse extension operator $\_.\_$ is
+  interpreted the same as the dynamic conjunction $\dand$, by chaining the
+  evaluation of its constituents.
+\end{itemize}
+
+In the interpretations, we make use of \emph{dynamic} logical operators
+that work with propositions of type $\FF_E(1)$, most of which we have seen
+in Chapter~\ref{chap:dynamic-semantics}. Below, we give the definition for
+the complete set of first-order dynamic logical operators:
+
+\begin{align*}
+  A \dand B &= A \hsbind (\lam{\_}{B}) \\
+  \dnot A &= \ap{\BOX}{A} \hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}}) \\
+  \dexists x.\,A &= \app{\op{introduce}}{\star}{(\lam{x}{A})} \\
+  A \dimp B &= \dnot (A \dand \dnot B) \\
+  A \dor B &= \dnot (\dnot A \dand \dnot B) \\
+  \dforall x.\,A &= \dnot (\dexists x.\,\dnot A)
+\end{align*}
+
+From their definitions, we can glean some of the dynamic characteristics of
+these operators:
+
+\begin{itemize}
+\item In $A \dand B$, the effects of $A$ combine with and scope over the
+  effects of $B$. The discourse referents introduced by $A$ are therefore
+  accessible in $B$, i.e.\ $\dand$ is an \emph{internally dynamic}
+  operator.
+\item The existential quantifier
+  $\dexists : (\iota \to \FF_E(1)) \to \FF_E(1)$ uses the $\op{introduce}$
+  operation to scope over its continuation. This in combination with the
+  previous fact allows us to derive the key equation of Dynamic Predicate
+  Logic~\cite{groenendijk1991dynamic}
+  $(\dexists x.\,A) \dand B = (\dexists x.\,A \dand B)$.\footnote{The
+    equation follows from a single reduction using the $\op{op}.\hsbind$
+    rule~(Property~\ref{prop:bind-rules}).}
+\item The $\dnot A$ dynamic negation uses the $\BOX$ handler to interpret
+  the dynamic operations in $A$ and therefore stop their projection. This
+  makes $\dnot$ an \emph{externally static operator} since the dynamic
+  effects of its argument do not project (i.e.\ are not accessible) out of
+  the resulting proposition.
+\item The last three operators are all headed by $\dnot$ and are therefore
+  all externally static.
+\item The left conjunct in the definition of $A \dor B$ is negated and
+  $\dor$ is therefore internally static (discourse contributions of $A$ are
+  not accessible in $B$). On the other hand, the left conjunct in the
+  definition of $A \dimp B$ is not negated and $\dimp$ is therefore
+  internally dynamic (as in the example ``\emph{If John owns a car$_1$,
+    then it$_1$ is cheap}'').
+\end{itemize}
+
+The final piece of the puzzle is the $\BOX$ handler, which we have defined
+in~\ref{ssec:revising-dynamic-handler} and which we repeat here.
+
+\begin{align*}
+  &\BOX :\FF_{E \uplus E_\DRT}(1) \to \FF_{E \uplus \{\op{get}\}}(o) \\
+  &\BOX = \lam{A}{(\ap{\begin{aligned}[t]\lban
+  &\onto{\op{get}}{(\lam{\_ k}{\etaE{(\lam{e}{\app{\op{get}}{\star}{(\lam{e'}{\ap{k}{(e \cat e')} \apll e})}})}})}, \\
+  &\onto{\op{introduce}}{(\lam{\_ k}{\etaE{(\lam{e}{\existsr x.\ \ap{k}{x} \apll (x \cons e)})}})}, \\
+  &\onto{\op{assert}}{(\lam{p k}{\etaE{(\lam{e}{p \andr (\ap{k}{\star} \apll (p \cons e))})}})}, \\
+  &\onto{\eta}{(\lam{\_}{\etaE{(\lam{e}{\top})}})}\rban}{A}) \apll \nil
+    \end{aligned}} \\
+  \\
+  &\_ \apll \_ : \FF_E(\alpha \to \FF_E(\beta)) \to \alpha \to \FF_E(\beta) \\
+  &F \apll x = F \hsbind (\lam{f}{\ap{f}{x}}) \\
+  &\existsr : (\iota \to \FF_E(o)) \to  \FF_E(o) \\
+  &\existsr P = \exists \apr (\ap{\CC}{P})
+\end{align*}
+
+We have described the evolution of this handler in
+Chapter~\ref{chap:dynamic-semantics}, so we will not go through the details
+again. We will highlight just one thing, in connection to the definition of
+$\dexists$ above. The $\dexists$ uses the $\op{introduce}$ and the
+reduction rule $\op{op}.\hsbind$ tells us that operations project out of
+computations
+($\app{\op{op}}{M_\petitp}{(\lam{x}{M_\petitc})} \hsbind N
+\to_{\op{op}.\hsbind} \app{\op{op}}{M_\petitp}{(\lam{x}{M_\petitc \hsbind
+    N})}$). The $\BOX$ handler replaces the $\op{introduce}$ operation with
+an existential quantifier. Using $\op{introduce}$ thus has the effect of
+installing an existential quantifier at the scope of the nearest enclosing
+box, much like the DRT construction rule for indefinites, $\crid$ (see
+Figure~\ref{fig:crid}), introduces a discourse referent to the enclosing
+DRS.
+
+The objective of our semantics is to assign truth-conditions to
+sentences. These truth-conditions are expressed as propositions, terms of
+type $o$. As we progress, we will be adding more and more effects to
+implement a compositional semantics for ``non-compositional'' phenomena
+such as anaphora, presupposition and implicature. We will define a handler
+that will strip away this extra structure and give us the truth-conditions
+of a sentence in some default context.
+
+\begin{align*}
+  \EMPTY &: \FF_{E \uplus \{\op{get}\}}(\alpha) \to \FF_E(\alpha) \\
+  \EMPTY &= \banana{\onto{\op{get}}{(\lam{\_ k}{\ap{k}{\nil}})}} \\
+  \TOP &: \FF_{E \uplus E_\DRT}(1) \to \FF_{E}(o) \\
+  \TOP &= \EMPTY \comp \BOX \\
+  \\
+  \cherry \comp \TOP &: \FF_{E_\DRT}(1) \to o
+\end{align*}
+
+The $\EMPTY$ handler evaluates a meaning in the empty context $\nil$,
+interpreting away the $\op{get}$ operation. On the other hand, the $\BOX$
+handler interprets away the $\op{introduce}$ and $\op{assert}$ operations
+and so by composing them, we can interpret away all the effects in
+$E_\DRT$. The resulting handler, $\TOP$, plays the role of a top-most
+(top-level) DRS: it is a box in an empty context (i.e.\ there is no other
+DRS that is accessible from this one).
+
+Furthermore, if we look at the special case of the type of $\TOP$ when
+$E = \emptyset$, we get a pure computation (type $\FF_\emptyset(o)$) as the
+result. This means we can use the $\cherry$ operator to get at the result
+directly. The $\cherry \comp \TOP$ combinator (pronounced ``cherry on
+top'') gives us a formal way to associate a proposition to the denotation
+of a sentence or discourse (remember that $\sem{S} = \sem{D} = \FF_E(1)$
+with $E$ currently being $E_\DRT$).
+
+
+\section{Adding Effects}
+\label{sec:adding-effects}
+
+We will now integrate the effects that we have seen in
+Chapters~\ref{chap:introducing-effects} and~\ref{chap:dynamic-semantics}
+into our dynamic grammar. We will start with the effect that we have
+already seen interact with anaphora in Section~\ref{sec:presuppositions}.
+
+
+\subsection{Adding Presupposition}
+\label{ssec:adding-presupposition}
+
+We will be enriching our fragment with the following referring expressions:
+proper names such as \emph{John} and \emph{Mary}, possessive constructions
+expressing ownership or other relations (\emph{$X$'s car}, \emph{$X$'s
+  children}, \emph{$X$'s best friend}\ldots) and definite descriptions
+(\emph{the car}). Here are the new entries into our abstract signature:
+
+\begin{align*}
+  \abs{John}, \abs{Mary} &: NP \\
+  \abs{poss} &: NP \limp N \limp NP \\
+  \abs{children}, \abs{best-friend} &: NP \limp NP \\
+  \abs{the} &: N \limp NP
+\end{align*}
+
+In order to give a meaning to these constructions, we will need some extra
+structure in our model. We will therefore add the following into our
+object signature:
+
+\begin{align*}
+  \obj{John}, \obj{Mary} &: \iota \to o \\
+  \obj{own}, \obj{children}, \obj{best-friend} &: \iota \to \iota \to o \\
+  \selP &: (\iota \to o) \to \gamma \to \iota
+\end{align*}
+
+We represent proper names in our models as predicates. The idea behind a
+predicate such as $\obj{John}$ is that $\ap{obj{John}}{x}$ should be true
+for any $x$ which is called John.
+
+Now we can describe how we extend our lexicon from abstract terms to object
+terms so that it covers the new constructions. The interpretation of the
+abstract types will stay the same, we will only change the effect signature
+to include the following two operations:
+
+\begin{align*}
+\op{presuppose} &: (\iota \to o) \rightarrowtail \iota \\
+\op{amb} &: 1 \rightarrowtail 2
+\end{align*}
+
+We extend the lexicon to the new constructions, using the new
+$\op{presuppose}$ operation.
+
+\begin{align*}
+  \lex{John}{\ap{\op{presuppose}!}{\obj{John}}} \\
+  \vdots \\
+  \lex{poss}{\lam{X N}{X \hsbind (\lam{x}{N \hsbind (\lam{n}{\ap{\op{presuppose}!}{(\lam{y}{\ap{n}{y} \land \app{\obj{own}}{x}{y}})}})})}} \\
+  \lex{children-of}{\lam{X}{X \hsbind (\lam{x}{\ap{\op{presuppose}!}{(\lam{y}{\app{\obj{children}}{y}{x}})}})}} \\
+  \vdots \\
+  \lex{the}{\lam{P}{P \hsbind (\lam{p}{\ap{\op{presuppose}!}{p}})}}
+\end{align*}
+
+These entries are the same as the ones we have seen in
+Section~\ref{sec:presuppositions}. Besides introducing interpretations for
+the new lexical items, we will also modify some of the existing
+interpretations or combinators to reflect the interactions between the
+existing effects and the effect being added. In this chapter, whenever we
+will revise the interpretations of existing lexical items or the
+definitions of existing combinators, we will use the $\coloneqq$ symbol and
+if the right-hand side of the definition will make use of any of the
+symbols being redefined, those symbols are meant to refer to the existing
+definition.
+
+\begin{align*}
+  \TOP &: \FF_{E \uplus E_\DRT \uplus \{\op{presuppose}, \op{amb}\}}(1) \to \FF_{E}(o) \\
+  \TOP &\coloneqq \search \comp \TOP \comp \accommodate \comp \useFind \\
+       &= \search \comp \EMPTY \comp \BOX \comp \accommodate \comp \useFind \\
+  \BOX &: \FF_{E \uplus E_\DRT \uplus \{\op{presuppose}\}}(1) \to \FF_{E \uplus \{\op{get}, \op{presuppose}, \op{amb}\}}(o) \\
+  \BOX &\coloneqq \BOX \comp \maybeAccommodate \comp \useFind \\
+\end{align*}
+
+The changes proposed above account for the following features of
+presuppositions:
+
+\begin{itemize}
+\item we add $\useFind$ to all boxes ($\BOX$), including also the topmost
+  one ($\TOP$), so that presuppositions of expressions referring to
+  entities already available in the context do not trigger presuppositions
+\item we add $\maybeAccommodate$ to the $\BOX$ handler because a
+  presupposition can be accommodated in any DRS on the projection line from
+  the point where the presupposition was triggered
+\item we add $\accommodate$ to the $\TOP$ handler because we want any
+  presuppositions that have been neither cancelled nor (locally)
+  accommodated to be accommodated at the top level
+\item we add $\search$ to the $\TOP$ handler so that the proposition that
+  we recover is the most preferred available reading of the sentence
+  (w.r.t.\ the presupposition accommodation ambiguity
+  in~\ref{ssec:ambiguous-accommodation})
+\end{itemize}
+
+Below, we give the definition of the handlers for the new $\op{presuppose}$
+which account for the ways a presupposition can be eliminated: global
+accommodation ($\accommodate$), local accommodation ($\maybeAccommodate$)
+or cancellation ($\useFind$).
+
+\begin{align*}
+  \accommodate &: \FF_{E \uplus \{\op{presuppose}\}}(\alpha) \to \FF_E(\alpha) \\
+  \accommodate &= \banana{\onto{\op{presuppose}}{(\lam{P k}{
+    \app{\op{introduce}}{\star}{(\lam{x}{\app{\op{assert}}{(\ap{P}{x})}{(\lam{\_}{\ap{k}{x}})}})}})}} \\
+  \maybeAccommodate &: \FF_{E \uplus \{\op{presuppose}\}}(\alpha) \to
+                      \FF_{E \uplus \{\op{presuppose},\op{amb}\}}(\alpha) \\
+  \maybeAccommodate &= \banana{\onto{\op{presuppose}}{(\lam{P k}{
+    \app{\op{presuppose}}{P}{k} +
+    \app{\op{introduce}}{\star}{(\lam{x}{\app{\op{assert}}{(\ap{P}{x})}{(\lam{\_}{\ap{k}{x}})}})}})}} \\
+  \useFind &: \FF_{E \uplus \{\op{presuppose}\}}(\alpha) \to \FF_{E \uplus \{\op{get}, \op{presuppose}\}}(\alpha) \\
+  \useFind &= \banana{\onto{\op{presuppose}}{(\lam{P k}{\ap{\find}{P} \hsbind k})}}
+\end{align*}
+
+These all come from Section~\ref{sec:presuppositions}, as well as the
+definitions of $\find$ and $+$ given below.
+
+\begin{align*}
+  \find &: (\iota \to o) \to \FF_{E \uplus \{\op{get}, \op{presuppose}\}}(\iota) \\
+  \find &= \lam{P}{\app{\op{get}}{\star}{(\lam{e}{\case{\selP(P, e)}{x}{\etaE{x}}{\_}{\ap{\op{presuppose}!}{P}}})}} \\
+  \_+\_ &: \FF_{E \uplus \op{amb}}(\alpha) \to \FF_{E \uplus \op{amb}}(\alpha) \to \FF_{E \uplus \op{amb}}(\alpha) \\
+  M + N &= \app{\op{amb}}{\star}{(\lam{b}{\ifte{b}{M}{N}})}
+\end{align*}
+
+Finally, we give the handler for the $\op{amb}$ effect.
+
+\begin{align*}
+  \search &: \FF_{E \uplus \{\op{amb}\}}(\alpha) \to \FF_E(\alpha) \\
+  \search &= \banana{\onto{\op{amb}}{(\lam{\_ k}{\ap{k}{\true};\ \ap{k}{\false}})}}
+\end{align*}
+
+This uses the $M; N$ notation, whose typing and reduction rules were given
+in Definition~\ref{def:semi-typing-rule} and
+Definition~\ref{def:semi-reduction-rule}, respectively.
+
+
+\subsection{Adding Conventional Implicature}
+\label{ssec:adding-conventional-implicature}
+
+
+
 
 \section{ACG Transformers Introducing Effects}
 \input{effects-composing-quantification-draft}
-\input{effects-composing-dynamics-draft}
-\subsection{Presuppositions}
-\subsection{Conventional Implicatures}
-\subsection{Deixis}
-
-\input{effects-composing-evaluating-draft}
