@@ -526,38 +526,175 @@ words, not new concepts.
 \begin{align*}
   \sem{\abs{who}_{\abs{s}}} &= \lam{C X}{\begin{aligned}[t]
       &X \hsbind (\lam{x}{ \\
-      &\ap{\BOX}{(\ap{C}{(\etaE{x})})} \hsbind (\lam{i}{ \\
-      &\app{\op{implicate}}{i}{(\lam{\_}{ \\
-      &\etaE{x}})}})})
+      &\ap{\asImplicature}{(\ap{C}{(\etaE{x})})} \hsbind (\lam{\_}{ \\
+      &\etaE{x}})})
     \end{aligned}} \\
-  \sem{\abs{who}_{\abs{r}}} &= \text{\TODO{Solve relative clauses!}} \\
+  \sem{\abs{who}_{\abs{r}}} &= \text{\TODO{Solve restrictive relative clauses!}} \\
   \lex{appos}{\lam{Y X}{\begin{aligned}[t]
       &X \hsbind (\lam{x}{ \\
-      &\ap{\BOX}{(\app{\eq}{(\etaE{x})}{Y})} \hsbind (\lam{i}{ \\
-      &\app{\op{implicate}}{i}{(\lam{\_}{ \\
-      &\etaE{x}})}})})
-    \end{aligned}}}
+      &\ap{\asImplicature}{(\app{\eq}{(\etaE{x})}{Y})} \hsbind (\lam{\_}{ \\
+      &\etaE{x}})})
+    \end{aligned}}} \\
   \\
   \eq &: \FF_E(\iota) \to \FF_E(\iota) \to \FF_E(1) \\
   \eq &= \lam{X Y}{X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\ap{\op{assert}!}{(x = y)}})})} \\
   \eq &= \lam{X Y}{(X \eqlr Y) \hsbind \op{assert}!} \\
+  \\
+  \asImplicature &: \FF_{E \uplus \{\op{assert},\op{introduce}\}}(\alpha) \to
+                    \FF_{E \uplus \{\op{implicate},\op{introduce^i}\}}(\alpha) \\
+  \asImplicature &= \banana{\onto{\op{assert}}{\op{implicate}},\
+                            \onto{\op{introduce}}{\op{introduce^i}}}
 \end{align*}
 
-The two entries differ in two ways from the ones in
-Section~\ref{sec:conventional-implicature}:
+Let us compare the entries for $\sem{\abs{who}_{\abs{s}}}$ and
+$\sem{\abs{appos}}$ with those in
+Section~\ref{sec:conventional-implicature}. The first reason for the
+difference is that we now encode truth conditions as side effects: if we
+evaluate the relative clause, its truth conditions are contributed to the
+current context. We could separate the implicated truth conditions of the
+embedded clause from the (asserted) truth conditions of the surrounding
+material by wrapping the embedded clause in a $\BOX$.
+
+$$
+\sem{\abs{who}_{\abs{s}}} \stackrel{?}{=} \lam{C X}{\begin{aligned}[t]
+    &X \hsbind (\lam{x}{ \\
+    &\ap{\BOX}{(\ap{C}{(\etaE{x})})} \hsbind (\lam{i}{ \\
+    &\app{\op{implicate}}{i}{(\lam{\_}{ \\
+    &\etaE{x}})}})})
+  \end{aligned}}
+$$
+
+However, if we do this, none of the discourse referents introduced within
+the supplement will be available in subsequent discourse. This was the
+introduction predicted for parentheticals by
+Nunberg~\cite{nunberg1990linguistics}. However, in his theory of
+conventional implicature~\cite{potts2005logic}, Potts opposes this view and
+shows examples which seem to contradict Nunberg's position. This was
+further supported by corpus studies in~\cite{anderbois2010crossing}. Here
+is an example of anaphoric binding out of an appositive:\footnote{Shown
+  in~\cite{anderbois2010crossing}, but, as far as we can tell, not from a
+  corpus.}
+
+\begin{exe}
+  \ex John, who nearly killed a woman$_1$ with his car, visited her$_1$ in
+  the hospital. \label{ex:hospital}
+\end{exe}
+
+Dynamic propositions contribute truth conditions ($\typedop{assert}{o}{1}$)
+and discourse referents ($\typedop{introduce}{1}{\iota}$) to the local
+context. In Section~\ref{sec:conventional-implicature}, we have introduced
+the operation $\typedop{implicate}{o}{1}$ which contributes the truth
+conditions of conventional implicatures to the global context. We will
+complement $\op{implicate}$ with an operation
+$\typedop{introduce^i}{1}{\iota}$ for introducing discourse referents of
+conventional implicatures to the global context. We can now move at-issue
+content into the conventional implicature layer by treating $\op{assert}$
+as $\op{implicate}$ and $\op{introduce}$ as $\op{introduce^i}$, which is
+exactly what the $\asImplicature$ handler does. If we review the lexical
+entry for $\abs{who}_{\abs{s}}$, we see that the at-issue content of the
+embedded relative clause $C$ gets treated \emph{as an implicature} in the
+embedding expression ``\emph{$X$, who $C$}''.
+
+$$
+\sem{\abs{who}_{\abs{s}}} = \lam{C X}{\begin{aligned}[t]
+    &X \hsbind (\lam{x}{ \\
+    &\ap{\asImplicature}{(\ap{C}{(\etaE{x})})} \hsbind (\lam{\_}{ \\
+    &\etaE{x}})})
+  \end{aligned}}
+$$
+
+In particular in Example~\ref{ex:hospital}, the indefinite \emph{a woman}
+in the sentence ``\emph{$x$ nearly killed a woman}'' uses the
+$\op{introduce}$ operation to establish a new discourse referent. Upon
+being used as an appositive clause, this $\op{introduce}$ turns into an
+$\op{introduce^i}$, which will project to the global context, from which it
+will be able to bind upcoming pronouns. Therefore, we get the desired
+binding in Example~\ref{ex:hospital}.
+
+Finally, the implicatures signalled by the $\op{implicate}$ and
+$\op{introduce^i}$ have to be resolved somewhere. We adopt the approach of
+Projective DRT~\cite{venhuizen2013parsimonious} by interpreting
+conventional implicatures as belonging to the topmost $\BOX$.
+
+\begin{align*}
+  \TOP &\coloneqq \TOP \circ \withImplicatures \\
+  \\
+  \withImplicatures &: \FF_{E \uplus \{\op{implicate},\op{introduce^i}\}}(\alpha) \to
+                       \FF_{E \uplus \{\op{assert},\op{introduce}\}}(\alpha) \\
+  \withImplicatures &= \banana{\onto{\op{implicate}}{\op{assert}},\
+                               \onto{\op{introduce^i}}{\op{introduce}}}
+\end{align*}
+
+
+\subsubsection{Connection to the Standalone Theory}
+
+The lexical entries and handlers introduced in this subsection have been
+quite different from the ones introduced in
+Section~\ref{sec:conventional-implicature}. This raises the issue of
+whether the analysis that was done in
+Section~\ref{sec:conventional-implicature} was extended to the dynamic case
+or redone from scratch. We will draw out the parallels between the
+original definitinos and the new ones to show that:
 
 \begin{itemize}
-\item The computations that calculate the propositions being implicated are
-  now in $\BOX$es. This is in part due to us treating truth conditions as
-  side effects in our treatment of dynamic semantics. Without a $\BOX$, the
-  truth conditions of the supplementary clause would project and mix with
-  the surrounding at-issue truth conditions. By using a $\BOX$, we isolate
-  the supplementary truth conditions into a proposition of type $o$ and
-  then we can use $\typedop{implicate}{o}{1}$ to project it as not
-  at-issue.
-
-  Secondly, the use of $\BOX$ encodes an interaction between anaphora 
+\item the most visible changes are due to us representing truth conditions
+  as side effects
+\item the important change is the treatment of $\op{introduce}$ which
+  accounts for the binding potentinal of appositives
 \end{itemize}
+
+We start with the appositive relative clause constructor.
+
+\begin{align*}
+  \sem{\abs{who}_{\abs{s}}} = \lam{C X}{
+      &X \hsbind (\lam{x}{
+ &\sem{\abs{who}_{\abs{s}}}' = \lam{C X}{
+      &X \hsbind (\lam{x}{ \\
+      &\ap{\asImplicature}{(\ap{C}{(\etaE{x})})} \hsbind (\lam{\_}{
+     &&\ap{C}{(\etaE{x})} \hsbind (\lam{i}{ \\
+      &
+     &&\app{\op{implicate}}{i}{(\lam{\_}{ \\
+      &\etaE{x}})})}
+     &&\etaE{x}})}})})}
+\end{align*}
+
+In the standalone treatment (seen on the right), we used a static grammar,
+where sentences denoted propositions. To turn the proposition into an
+implicature, all we had to was pass that proposition to the
+$\op{implicate}$ operation. In our dynamic grammar, sentences use
+$\op{assert}$ to convey their truth conditions and so we need to use a
+handler to pass these truth conditions to $\op{implicate}$, which is
+exactly what (the $\op{assert}$ clause of) the $\asImplicature$ handler
+does.
+
+Now on to nominal appositives.
+
+\begin{align*}
+  \sem{\abs{appos}} = \lam{Y X}{
+    &X \hsbind (\lam{x}{
+ &\sem{\abs{appos}}' = \lam{Y X}{
+    &X \hsbind (\lam{x}{ \\
+    &\ap{\asImplicature}{(\app{\eq}{(\etaE{x})}{Y})} \hsbind (\lam{\_}{
+   &&\app{\eq'}{(\etaE{x})}{Y} \hsbind (\lam{i}{ \\
+    &
+   &&\app{\op{implicate}}{i}{(\lam{\_}{ \\
+    &\etaE{x}})})}
+   &&\etaE{x}})}})})} \\
+  \\
+  \eq  &: \FF_E(\iota) \to \FF_E(\iota) \to \FF_E(1)
+ &\eq' &: \FF_E(\iota) \to \FF_E(\iota) \to \FF_E(o) \\
+  \eq  &= \lam{X Y}{(X \eqlr Y) \hsbind \op{assert}!}
+ &\eq' &= \lam{X Y}{X \eqlr Y}
+\end{align*}
+
+We have refactored the original interpretation $\sem{\abs{appos}}'$ so that
+the actual differences are easier to spot. Again, we see the same
+difference as in $\abs{who}_{\abs{s}}$, where we use the $\asImplicatures$
+handler. The only other difference is that the condition about the equality
+of the referents of $X$ and $Y$ is not expressed as a computation that
+produces a proposition but as a computation that uses $\op{assert}$. This
+is again due to us having switched to a dynamic grammar that treats truth
+conditions as side effects.
 
 
 \begin{align*}
