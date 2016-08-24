@@ -93,6 +93,7 @@ have used when adding presuppositions:
 
 
 \section{The Dynamic Kernel}
+\label{sec:dynamic-kernel}
 
 As per the methodology described in~\ref{sec:methodology}, we will start
 with a basic ``seed'' grammar into which we will incorporate treatments of
@@ -924,7 +925,33 @@ differences due to our use of side effects to convey truth conditions:
 \item the quoted sentence is evaluated down to a proposition using $\BOX$
 \end{itemize}
 
-Then we have an important difference between 
+Then we have an important difference in the $\abs{said}_{\abs{ds}}$ entry
+for direct speech:
+
+\begin{itemize}
+\item we want to bind the speaker to the referent of the subject, $s$,
+  using $\ap{\withSpeaker}{s}$
+\item we want to use $\BOX$ to evaluate the clause down to a proposition,
+  same as for the $\abs{said}_{\abs{is}}$ entry
+\item we do not want pronouns or other anaphoric elements within the quoted
+  sentence to be bound by referents from the quoting context and so we use
+  the $\empty$ handler (see~\ref{sec:dynamic-kernel})\footnote{A more
+    involved treatment of quotation would use anaphora to look into the
+    context for the situation in which the original sentence was produced
+    and evaluate the sentence in that context.}
+\item we do not want the presuppositions triggered by the quoted sentence
+  to be considered as presuppositions of the report and so we
+  $\accommodate$ them within scope of $\obj{say}$
+\item we also do not want the same to happen for implicatures and so we use
+  the $\withImplicatures$ to ascribe them to the person being quoted
+\end{itemize}
+
+In the end, what we want is to apply a handler for all of the effects that
+we have introduced so far. Since we have defined the composition of all
+these handlers as the combinator $\TOP$, we can use that in the lexical
+entry for $\abs{said}_{\abs{ds}}$. The intuition behind it is that a
+directly quoted sentence does not get to have any of its usual linguistic
+effects.
 
 
 \section{ACG Transformers Introducing Effects}
