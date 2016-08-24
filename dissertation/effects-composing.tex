@@ -369,8 +369,8 @@ into our dynamic grammar. We will start with the effect that we have
 already seen interact with anaphora in Section~\ref{sec:presuppositions}.
 
 
-\subsection{Adding Presupposition}
-\label{ssec:adding-presupposition}
+\section{Adding Presupposition}
+\label{sec:adding-presupposition}
 
 We will be enriching our fragment with the following referring expressions:
 proper names such as \emph{John} and \emph{Mary}, possessive constructions
@@ -499,8 +499,8 @@ in Definition~\ref{def:semi-typing-rule} and
 Definition~\ref{def:semi-reduction-rule}, respectively.
 
 
-\subsection{Adding Conventional Implicature}
-\label{ssec:adding-conventional-implicature}
+\section{Adding Conventional Implicature}
+\label{sec:adding-conventional-implicature}
 
 We move to conventional implicature, which we have treated (in isolation)
 in Section~\ref{sec:conventional-implicature}. We consider conventional
@@ -619,16 +619,16 @@ conventional implicatures as belonging to the topmost $\BOX$.
 \begin{align*}
   \TOP &\coloneqq \TOP \circ \withImplicatures \\
   \\
-  \withImplicatures &: \FF_{E \uplus \{\op{implicate},\op{introduce^i}\}}(\alpha) \to
-                       \FF_{E \uplus \{\op{assert},\op{introduce}\}}(\alpha) \\
+  \withImplicatures &: \FF_{E \uplus E_\DRT \uplus \{\op{implicate},\op{introduce^i}\}}(\alpha) \to
+                       \FF_{E \uplus E_\DRT \uplus \{\op{assert},\op{introduce}\}}(\alpha) \\
   \withImplicatures &= \banana{\onto{\op{implicate}}{\op{assert}},\
                                \onto{\op{introduce^i}}{\op{introduce}}}
 \end{align*}
 
 
-\subsubsection{Connection to the Standalone Theory}
+\subsection{Connection to the Standalone Theory}
 
-The lexical entries and handlers introduced in this subsection have been
+The lexical entries and handlers introduced in this section have been
 quite different from the ones introduced in
 Section~\ref{sec:conventional-implicature}. This raises the issue of
 whether the analysis that was done in
@@ -689,20 +689,242 @@ Now on to nominal appositives.
 
 We have refactored the original interpretation $\sem{\abs{appos}}'$ so that
 the actual differences are easier to spot. Again, we see the same
-difference as in $\abs{who}_{\abs{s}}$, where we use the $\asImplicatures$
+difference as in $\abs{who}_{\abs{s}}$, where we use the $\asImplicature$
 handler. The only other difference is that the condition about the equality
 of the referents of $X$ and $Y$ is not expressed as a computation that
 produces a proposition but as a computation that uses $\op{assert}$. This
 is again due to us having switched to a dynamic grammar that treats truth
 conditions as side effects.
 
+Finally, we look at the handler, $\withImplicatures$. The original handler
+from Section~\ref{sec:presuppositions} is given below:
 
 \begin{align*}
-  \withImplicatures &: \FF_{\{\typedop{implicate}{o}{1}\}}(o) \to o \\
-  \withImplicatures &= \bbanana{\onto{\op{implicate}}{(\lam{i k}{i \land \ap{k}{\star}})}}
+  \withImplicatures' &: \FF_{\{\typedop{implicate}{o}{1}\}}(o) \to o \\
+  \withImplicatures' &= \bbanana{\onto{\op{implicate}}{(\lam{i k}{i \land \ap{k}{\star}})}}
 \end{align*}
 
+The first step is to translate this handler into an open handler. The
+continuation $k$ will now return a computation of a proposition
+($\FF_E(o)$) and so we will use $\andr$ to conjoin the implicature $i$ to
+it.
 
+\begin{align*}
+  \withImplicatures'' &: \FF_{E \uplus \{\typedop{implicate}{o}{1}\}}(o) \to \FF_E(o) \\
+  \withImplicatures'' &= \banana{\onto{\op{implicate}}{(\lam{i k}{i \andr \ap{k}{\star}})}}
+\end{align*}
+
+Our dynamic grammar expresses truth conditions using side effects and so we
+will replace $i : o$ with $\ap{\op{assert}!}{i} : \FF_{E_\DRT}(1)$ and
+$\andr$ with $\dand$.
+
+\begin{align*}
+  \withImplicatures''' &: \FF_{E \uplus E_\DRT \uplus \{\typedop{implicate}{o}{1}\}}(\alpha)
+                      \to \FF_{E \uplus E_\DRT}(\alpha) \\
+  \withImplicatures''' &= \banana{\onto{\op{implicate}}{(\lam{i k}{(\ap{\op{assert}!}{i}) \dand \ap{k}{\star}})}} \\
+  &= \banana{\onto{\op{implicate}}{(\lam{i k}{(\app{\op{assert}}{i}{(\lam{x}{\etaE{x}})}) \hsbind (\lam{\_}{\ap{k}{\star}})})}} \\
+  &= \banana{\onto{\op{implicate}}{(\lam{i k}{\app{\op{assert}}{i}{(\lam{x}{\ap{k}{\star}})}})}} \\
+  &\approx \banana{\onto{\op{implicate}}{(\lam{i k}{\app{\op{assert}}{i}{(\lam{x}{\ap{k}{x}})}})}}\footnotemark \\
+  &= \banana{\onto{\op{implicate}}{(\lam{i k}{\app{\op{assert}}{i}{k}})}} \\
+  &= \banana{\onto{\op{implicate}}{\op{assert}}}
+\end{align*}
+
+\footnotetext{The variable $x$ is of type $1$, which has only one value,
+  $\star$. However, the set of closed normal forms of type $1$ also
+  includes stuck computations. Nevertheless, our handlers for $\op{assert}$
+  only ever return $\star$ as the output.}
+
+For comparison, this is the $\withImplicatures$ handler that we use when
+adding conventional implicatures to our dynamic grammar:
+
+\begin{align*}
+  \withImplicatures &: \FF_{E \uplus E_\DRT \uplus \{\op{implicate},\op{introduce^i}\}}(\alpha)
+                   \to \FF_{E \uplus E_\DRT}(\alpha) \\
+  \withImplicatures &= \banana{\onto{\op{implicate}}{\op{assert}},\
+                               \onto{\op{introduce^i}}{\op{introduce}}}
+\end{align*}
+
+The difference between the two is the $\op{introduce}$ operation and how we
+decide to deal with it. If we contain it locally, within the implicature,
+we get a theory à la Nunberg~\cite{nunberg1990linguistics}, where referents
+introduced in appositives are not accessible in the at-issue layer. On the
+other hand, if we project the $\op{introduce}$ operations of the
+appositives as $\op{introduce^i}$, we get a theory which licenses the
+binding in Example~\ref{ex:hospital}.
+
+
+\subsection{Connection to Layered DRT and Projective DRT}
+
+Geurts and Maier~\cite{geurts2003layered} introduced \emph{Layered DRT},
+wherein every discourse referent and condition is annotated with a
+\emph{label} that tells us to which layer of meaning this
+referent/condition belongs. The layers treated in~\cite{geurts2003layered}
+include the layers of assertions, presuppositions and implicatures. The
+idea is that thanks to these labels, it is possible to separate out the
+individual layers while still allowing binding to work from layer to layer.
+
+There is a close correspondence between our use of effects and layered
+DRT:
+
+\begin{itemize}
+\item $\op{assert}$ adds conditions to the assertion layer
+\item $\op{introduce}$ adds discourse referents to the assertion layer
+\item $\op{implicate}$ adds conditions to the implicature layer
+\item $\op{introduce^i}$ adds discourse referents to the implicature layer
+\item $\op{presuppose}$ adds discourse referents and conditions to the
+  presupposition layer
+\end{itemize}
+
+We can compare the layered DRS with the corresponding computation. Geurts
+and Maier~\cite{geurts2003layered} give the following layered DRS as the
+meaning of Example~\ref{ex:porridge}.
+
+\begin{exe}
+  \ex The porridge is warm. \label{ex:porridge}
+\end{exe}
+
+\begin{minipage}{.4\textwidth}
+  \drs{$x_\petitp$}{
+    $\obj{porridge}_\petitp(x)$ \\
+    $\obj{warm}_\petita(x)$ \\
+    $\lnot_\petiti$ \drs{}{
+      $\obj{hot}_\petiti(x)$
+    }
+  }
+\end{minipage}
+\begin{minipage}{.4\textwidth}
+  \vspace*{-4mm}
+  \begin{center}
+  \begin{align*}
+    &\app{\op{presuppose}}{\obj{porridge}}{(\lam{p}{ \\
+    &\app{\op{assert}}{(\obj{warm}(x))}{(\lam{\_}{ \\
+    &\app{\op{implicate}}{(\lnot (\obj{hot}(x)))}{(\lam{\_}{ \\
+    &\etaE{\star}})}})}})}
+  \end{align*}
+  \end{center}
+\end{minipage}
+
+However, our use of distinct operation symbols for assertions, implicatures
+and presuppositions was not motivated by the separation of these layers of
+meaning, but by their different projectional behavior. In that, our
+approach is closer to Projective DRT.\@ In Projective DRT, the DRSs are
+labelled and every discourse referent and condition is annotated with a
+pointer which either points to a label or is free. Assertions point to the
+containing DRS while conventional implicatures point to the topmost DRS.\@
+Presuppositions either to point to a local/intermediate DRS when the
+presupposition is bound (``cancelled''), or they are free, in which case
+they project and accommodate in the topmost DRS.
+
+\vspace*{3mm}
+\begin{minipage}{.4\textwidth}
+{
+  \begin{center}
+  \let \drsalignment = l
+  \shortstack{1 \\ \drs{$f \from x$}{
+    $f \from \obj{porridge}(x)$ \\
+    $1 \from \obj{warm}(x)$ \\
+    $0 \from \lnot$ \shortstack{2 \\ \drs{}{
+      $2 \from \obj{hot}(x)$
+    }}
+  }}
+  \end{center}
+}
+\end{minipage}
+\begin{minipage}{.4\textwidth}
+  \begin{center}
+  \begin{align*}
+    &\app{\op{presuppose}}{\obj{porridge}}{(\lam{p}{ \\
+    &\app{\op{assert}}{(\obj{warm}(x))}{(\lam{\_}{ \\
+    &\app{\op{implicate}}{(\lnot (\obj{hot}(x)))}{(\lam{\_}{ \\
+    &\etaE{\star}})}})}})}
+  \end{align*}
+  \end{center}
+\end{minipage}
+\vspace{5mm}
+
+The correspondence between Projective DRT and our approach is similar to
+the one with Layered DRT.\@ Material addressed to the global DRS $0$ is
+analysed as implicature ($\op{implicate}$ and $\op{introduce^i}$), material
+addressed to the DRS in which it appears is treated as assertion
+($\op{assert}$ and $\op{introduce}$) and material that is addressed to some
+free label $f$ is treated as presupposition ($\op{presuppose}$). Projective
+DRSs might also contain pointers to labels which are neither local nor
+global. These presumably correspond to bound/cancelled presuppositions,
+which our approach treats by retrieving the presupposed referent from the
+context. The pointers that appear next to discourse referents and
+conditions faithfully describe the way that our approach will project and
+accommodate them:
+
+\begin{itemize}
+\item implicatures (pointers to $0$) use $\op{implicate}$ and
+  $\op{introduce^i}$ and therefore project all the way to the $\TOP$
+  handler
+\item assertions (pointers to the enclosing DRS) use $\op{assert}$ and
+  $\op{introduce}$ and are therefore handled by the nearest enclosing
+  $\BOX$ handler
+\item presuppositions (free pointers) use $\op{presuppose}$ and can
+  therefore be bound at any $\BOX$ thanks to the $\useFind$ handler
+  (see~\ref{ssec:cancelling-presuppositions}) or accommodated at the $\TOP$
+  tahnks to the $\accommodate$ handler (or even accommodated lower due to
+  binding constraints, see~\ref{ssec:ambiguous-presuppositions})
+\end{itemize}
+
+
+\section{Adding Deixis}
+\label{sec:adding-deixis}
+
+We now move to our treatment of indexical expressions, namely of the
+first-person pronoun. We will be enriching the abstract signature with a
+new constant representing the pronoun.
+
+\begin{align*}
+  \abs{me} &: NP \\
+  \abs{said}_{\abs{is}} &: S \limp NP \limp S \\
+  \abs{said}_{\abs{ds}} &: S \limp NP \limp S
+\end{align*}
+
+To give a meaning to reported speech, we will introduce into the object
+signature a predicate $\obj{say}$:
+
+\begin{align*}
+  \obj{say} &: \iota \to o \to o
+\end{align*}
+
+Finally, we extend the lexicon, giving definitions to the new lexical
+items.
+
+\begin{align*}
+  \lex{me}{\ap{\op{speaker}!}{\star}} \\
+  \sem{\abs{said}_{\abs{is}}} &= \lam{C S}{(\obj{say} \apr S \aplr C) \hsbind \op{assert}!} \\
+  &= \lam{C S}{S \hsbind (\lam{s}{(\ap{\BOX}{C}) \hsbind (\lam{c}{\ap{\op{assert}!}{(\app{\obj{say}}{s}{c})}})})} \\
+  \sem{\abs{said}_{\abs{ds}}}
+  &= \lam{C S}{S \hsbind (\lam{s}{(\app{\TOP}{s}{C}) \hsbind (\lam{c}{\ap{\op{assert}!}{(\app{\obj{say}}{s}{c})}})})} \\
+  \\
+  \TOP &: \iota \to \FF_{E \uplus E_\DRT \uplus \{\op{presuppose}, \op{amb}, \op{implicate}, \op{introduce^i}, \op{speaker}\}}(1) \to \FF_{E}(o) \\
+  \TOP &\coloneqq \lam{s}{\TOP \comp \withSpeaker s} \\
+  \withSpeaker &: \iota \to \FF_{\{\typedop{speaker}{1}{\iota}\} \uplus E}(\alpha) \to \FF_E(\alpha) \\
+  \withSpeaker &= \lam{s}{\banana{\onto{\op{speaker}}{(\lam{\_ k}{\ap{k}{s}})}}}
+\end{align*}
+
+The semantics of $\abs{me}$ are exactly the same as the original ones in
+Section~\ref{sec:deixis} and so is the $\withSpeaker$ handler. We also
+extend the $\TOP$ handler so that it still covers all the effects in our
+grammar. However, unlike with the dynamics, where we could use the $\empty$
+handler to supply an ``out-of-the-blue'' context, it is more difficult to
+identify a default speaker. Therefore, we add an argument to $\TOP$ so that
+if someone is to recover the meaning of a sentence in our growing fragment,
+they will have to identify the speaker.
+
+Finally, we will examine the entries for reported speech. Again, we have
+differences due to our use of side effects to convey truth conditions:
+
+\begin{itemize}
+\item the propositions generated by the $\obj{say}$ predicate need to be
+  $\op{assert}$ed
+\item the quoted sentence is evaluated down to a proposition using $\BOX$
+\end{itemize}
+
+Then we have an important difference between 
 
 
 \section{ACG Transformers Introducing Effects}

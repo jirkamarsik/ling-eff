@@ -1346,19 +1346,19 @@ or rather functions from contexts to propositions, we will now have
 continuations which return computations.
 
 \begin{align*}
-  &\BOX : \FF_{E_\DRT}(1) \to \gamma \to o \\
-  &\BOX = \bbanana{\ 
+  \BOX &: \FF_{E_\DRT}(1) \to \gamma \to o \\
+  \BOX &= \lbban \begin{aligned}[t]
   &\onto{\op{get}}{(\lam{\_ k e}{\app{k}{e}{e}})}, \\
   &\onto{\op{introduce}}{(\lam{\_ k e}{\exists x.\ \app{k}{x}{(x \cons e)}})}, \\
   &\onto{\op{assert}}{(\lam{p k e}{p \land \app{k}{\star}{(p \cons e)}})}, \\
-  &\onto{\eta}{(\lam{\_ e}{\top})}\ } \\
+  &\onto{\eta}{(\lam{\_ e}{\top})} \rbban\end{aligned} \\
   \\
-  \BOX :\ &\FF_{E \uplus E_\DRT}(1) \to \gamma \to \FF_E(o) \\
-  \BOX = \lam{A e}{(\ap{\banana{\ 
+  \BOX &:\ \FF_{E \uplus E_\DRT}(1) \to \gamma \to \FF_E(o) \\
+  \BOX &= \lam{A e}{(\lban \begin{aligned}[t]
   &\onto{\op{get}}{(\lam{\_ k}{\etaE{(\lam{e}{\ap{k}{e} \apll e})}})}, \\
   &\onto{\op{introduce}}{(\lam{\_ k}{\etaE{(\lam{e}{\existsr x.\ \ap{k}{x} \apll (x \cons e)})}})}, \\
   &\onto{\op{assert}}{(\lam{p k}{\etaE{(\lam{e}{p \andr (\ap{k}{\star} \apll (p \cons e))})}})}, \\
-  &\onto{\eta}{(\lam{\_}{\etaE{(\lam{e}{\top})}})}\ }}{A}) \apll e} \\
+  &\onto{\eta}{(\lam{\_}{\etaE{(\lam{e}{\top})}})} \rban\ A) \apll e\end{aligned}} \\
   \\
   \_ \apll \_ &: \FF_E(\alpha \to \FF_E(\beta)) \to \alpha \to \FF_E(\beta) \\
   F \apll x &= F \hsbind (\lam{f}{\ap{f}{x}}) \\
