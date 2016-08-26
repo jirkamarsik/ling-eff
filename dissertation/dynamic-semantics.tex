@@ -1320,7 +1320,7 @@ introduces the condition $P(x)$, where $P$ is its argument.
 Besides lowering the number of basic operations that we have to introduce,
 this also has an advantage when we start to consider ambiguous ways of
 accommodating presuppositions
-(\ref{ssec:presupposition-ambiguities}). Suppose we have two operations,
+(\ref{ssec:ambiguous-accommodation}). Suppose we have two operations,
 $\op{introduce\_somewhere}$ and $\op{assert\_somewhere}$, that let us
 introduce discourse referents and conditions into arbitrary DRSs on the
 projection line\footnote{A \emph{projection line} is a path in the
@@ -1869,9 +1869,11 @@ We can now compute the conjunction of $\sem{S_1}$ and $\dnot \sem{S_2}$ and
 observe how the context of $\sem{S_1}$ cancels the presupposition in
 $\dnot \sem{S_2}$.
 
+\TODO{Use different variables instead of $y$.}
+
 \begin{align*}
   \sem{S_1} \dand \dnot \sem{S_2}
-  &= \sem{S_1} \hsbind (\lam{\_}{\sem{S_2}}) \\
+  &= \sem{S_1} \hsbind (\lam{\_}{\dnot \sem{S_2}}) \\
   &\tto \begin{aligned}[t]
       &\app{\op{presuppose}}{\obj{John}}{(\lam{x}{ \\
       &\app{\op{introduce}}{\star}{(\lam{y}{ \\

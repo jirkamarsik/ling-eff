@@ -935,7 +935,7 @@ for direct speech:
   same as for the $\abs{said}_{\abs{is}}$ entry
 \item we do not want pronouns or other anaphoric elements within the quoted
   sentence to be bound by referents from the quoting context and so we use
-  the $\empty$ handler (see~\ref{sec:dynamic-kernel})\footnote{A more
+  the $\EMPTY$ handler (see~\ref{sec:dynamic-kernel})\footnote{A more
     involved treatment of quotation would use anaphora to look into the
     context for the situation in which the original sentence was produced
     and evaluate the sentence in that context.}
@@ -954,5 +954,56 @@ directly quoted sentence does not get to have any of its usual linguistic
 effects.
 
 
-\section{ACG Transformers Introducing Effects}
-\input{effects-composing-quantification-draft}
+\section{Adding Quantification}
+\label{sec:adding-quantification}
+
+We finish extending our fragment by adding the last of the phenomena that
+we have studied in Chapter~\ref{chap:introducing-effects}, (in-situ)
+quantification. We add into our fragment the determiners \emph{every} and
+\emph{a},\footnote{We already have a lexical entry for the indefinite
+  article from our theory of dynamics. We include another one, which will
+  turn out to be equivalent in most situations, to parallel the one we had
+  in Section~\ref{sec:quantification}.} as well as a genitive construction
+with a relational noun\footnote{When studying presuppositions, we
+  introduced entries for genitive constructions with relational nouns that
+  had the syntactic type $NP \limp NP$. Those correspond to referring
+  expressions such as \emph{$X$'s children} or \emph{$X$'s best
+    friend}. The lexical entry $\abs{owner-of} : NP \limp N$ instead
+  corresponds to the complex noun \emph{owner of $X$}, which can appear in
+  expressions like \emph{the owner of $X$}, \emph{every owner of $X$},
+  \emph{an owner of $X$}\ldots} (\emph{owner}) so that we can experiment
+with quantifiers embedded within quantifiers.
+
+\begin{align*}
+  \abs{every}, \abs{a'} &: N \limp NP \\
+  \abs{owner-of} &: NP \limp N
+\end{align*}
+
+The object signature already contains the necessary logical material to
+interpret these new lexical items (logical operators for the quantifiers
+and the $\obj{own}$ relation for the relational noun). The type of the
+$\op{scope}$ operator is the same 
+
+$$
+\typedop{scope}{((\iota \to \FF_{E'}(1)) \to \FF_{E'}(1))}{\iota}
+$$
+
+\begin{align*}
+  \lex{every}{\lam{N}{\ap{\op{scope}!}{(\lam{c}{\dforall x.\ \ap{\SI}{(\ap{N}{x})} \dimp \ap{c}{x}})}}} \\
+  \lex{a'}{\lam{N}{\ap{\op{scope}!}{(\lam{c}{\dexists x.\ \ap{\SI}{(\ap{N}{x})} \dand \ap{c}{x}})}}} \\
+  \lex{owner-of}{\lam{Y x}{(\ap{\obj{own}}{x} \apr Y) \hsbind \op{assert}!}} \\
+  \\
+  \SI &: \FF_{E \uplus \{\op{scope}\}}(1) \to \FF_E(1) \\
+  \SI &= \banana{\onto{\op{scope}}{(\lam{c k}{\ap{c}{k}})}}
+\end{align*}
+
+
+
+
+\begin{align*}
+  \abs{QR} &: NP \limp (NP \limp S) \limp S \\
+  \lex{QR}{\lam{X k}{X \hsbind (\lam{x}{\ap{k}{(\etaE{x})}})}}
+\end{align*}
+
+
+
