@@ -509,10 +509,7 @@ implicatures triggered by supplements: nominal appositives and
 supplementary relative clauses. We will use the same abstract constants as
 in Section~\ref{sec:conventional-implicature}, $\abs{who}_{\abs{s}}$ and
 $\abs{appos}$. The constant $\abs{who}_{\abs{s}}$ stands for the
-supplementary (appositive) use of the relativizer \emph{who}. We will use
-this opportunity to also introduce $\abs{who}_{\abs{r}}$ for the
-restrictive use of the relativizer. This will allow us to contrast their
-semantics and derive more complicated example sentences in latter sections.
+supplementary (appositive) use of the relativizer \emph{who}.
 
 \begin{align*}
   \abs{who}_{\abs{s}} &: (NP \limp S) \limp NP \limp NP \\
@@ -530,7 +527,6 @@ words, not new concepts.
       &\ap{\asImplicature}{(\ap{C}{(\etaE{x})})} \hsbind (\lam{\_}{ \\
       &\etaE{x}})})
     \end{aligned}} \\
-  \sem{\abs{who}_{\abs{r}}} &= \text{\TODO{Solve restrictive relative clauses!}} \\
   \lex{appos}{\lam{Y X}{\begin{aligned}[t]
       &X \hsbind (\lam{x}{ \\
       &\ap{\asImplicature}{(\app{\eq}{(\etaE{x})}{Y})} \hsbind (\lam{\_}{ \\
@@ -805,6 +801,8 @@ meaning of Example~\ref{ex:porridge}.
   \end{center}
 \end{minipage}
 
+\vspace*{3mm}
+
 However, our use of distinct operation symbols for assertions, implicatures
 and presuppositions was not motivated by the separation of these layers of
 meaning, but by their different projectional behavior. In that, our
@@ -980,30 +978,373 @@ with quantifiers embedded within quantifiers.
 \end{align*}
 
 The object signature already contains the necessary logical material to
-interpret these new lexical items (logical operators for the quantifiers
-and the $\obj{own}$ relation for the relational noun). The type of the
-$\op{scope}$ operator is the same 
+interpret these new lexical items (logical operators and quantifiers for
+the determiners and the $\obj{own}$ relation for the relational noun). To
+account for how quantificational noun phrases take scope over their
+context, we will be using the $\op{scope}$ operator, as in
+Section~\ref{sec:quantification}.
 
 $$
 \typedop{scope}{((\iota \to \FF_{E'}(1)) \to \FF_{E'}(1))}{\iota}
 $$
 
+Its type has changed from $((\iota \to o) \to o) \rightarrowtail \iota$ to
+$((\iota \to \FF_{E'}(1)) \to \FF_{E'}(1)) \rightarrowtail \iota$ to
+reflect the change from using dynamic propositions $\FF_{E'}(1)$ instead of
+static propositions $o$. Also note that the effect signature that we refer
+to in the type of $\op{scope}$ is $E'$. Throughout this chapter, we use $E$
+to mean the effect signature containing all the effects introduced so
+far. Now, we will be adding $\op{scope}$ into the effect signature
+$E$. However, if we gave it the type
+$((\iota \to \FF_E(1)) \to \FF_E(1)) \rightarrowtail \iota$, then we would
+be giving a circular definition of $E$: $E$ is an effect signature which,
+among others, contains an effect
+$\typedop{scope}{((\iota \to \FF_E(1)) \to \FF_E(1))}{\iota}$, where $E$ is
+an effect signature which, among others, contains an effect
+$\op{scope}$\ldots. Therefore, we use a different effect signature in the
+type of $\op{scope}$, one that does not contain $\op{scope}$:
+$E' = E \setminus \{\op{scope}\}$.\footnote{Note that this is the same as
+  the $\op{shift0}$ operation used in~\ref{sec:considering-types}, where we
+  extend an existing effect signature with
+  $\typedop{shift0}{((\delta \to \FF_E(\omega)) \to
+    \FF_E(\omega))}{\delta}$.}
+
+We can now give the lexical entries for the determiners and the relational
+noun. These will follow the ones from Section~\ref{sec:quantification},
+modulo the use of dynamic propositions (dynamic logical operators and
+quantifiers, $\op{assert}$).
+
 \begin{align*}
-  \lex{every}{\lam{N}{\ap{\op{scope}!}{(\lam{c}{\dforall x.\ \ap{\SI}{(\ap{N}{x})} \dimp \ap{c}{x}})}}} \\
-  \lex{a'}{\lam{N}{\ap{\op{scope}!}{(\lam{c}{\dexists x.\ \ap{\SI}{(\ap{N}{x})} \dand \ap{c}{x}})}}} \\
-  \lex{owner-of}{\lam{Y x}{(\ap{\obj{own}}{x} \apr Y) \hsbind \op{assert}!}} \\
+  \lex{every}{\lam{N}{\ap{\op{scope}!}{(\lam{k}{\dforall x.\,\ap{\SI}{((N \apl x) \hsbind \op{assert}!)} \dimp \ap{k}{x}})}}} \\
+  \lex{a'}{\lam{N}{\ap{\op{scope}!}{(\lam{k}{\dexists x.\,\ap{\SI}{((N \apl x) \hsbind \op{assert}!)} \dand \ap{k}{x}})}}} \\
+  \lex{owner-of}{\lam{Y}{Y \hsbind (\lam{y}{\etaE{(\lam{x}{\app{\obj{own}}{x}{y}})}})}} \\
   \\
   \SI &: \FF_{E \uplus \{\op{scope}\}}(1) \to \FF_E(1) \\
-  \SI &= \banana{\onto{\op{scope}}{(\lam{c k}{\ap{c}{k}})}}
+  \SI &= \banana{\onto{\op{scope}}{(\lam{c k}{\ap{c}{k}})}} \\
+  \\
+  \TOP &\coloneqq \TOP \circ \SI
 \end{align*}
 
-
-
+We can check the types of $\sem{\abs{every}}$ and $\sem{\abs{a'}}$, namely
+their uses of $\op{scope}$. We know that the use of $\op{scope}$ is allowed
+only when its argument is guaranteed \emph{not} to use $\op{scope}$. The
+continuation $k$ that we get from $\SI$ is guaranteed to be free of
+$\op{scope}$ since $\SI$ will have handled any occurrences of $\op{scope}$
+within before passing it to our scope-taker. The denotation of the noun $N$
+can trigger its own effects, including $\op{scope}$, as in \emph{every
+  owner of a car}. We have two ways to dispense with this: having the
+quantifier embedded within the noun take scope either below or above the
+quantifier of the determiner.
 
 \begin{align*}
-  \abs{QR} &: NP \limp (NP \limp S) \limp S \\
-  \lex{QR}{\lam{X k}{X \hsbind (\lam{x}{\ap{k}{(\etaE{x})}})}}
+  \sem{\abs{every}_1} &= \lam{N}{\ap{\op{scope}!}{(\lam{k}{\dforall x.\,\ap{\SI}{((N \apl x) \hsbind \op{assert}!)} \dimp \ap{k}{x}})}} \\
+  \sem{\abs{every}_2} &= \lam{N}{\ap{\op{scope}!}{(\lam{k}{\ap{\SI}{(\dforall x.\,((N \apl x) \hsbind \op{assert}!) \dimp \ap{k}{x})}})}}
+\end{align*}
+
+We choose the entry which assigns scope that corresponds to the linear
+order of the determiners within the sentence. To account for the
+alternative readings, we will adopt the solution of quantifier raising
+from~\ref{ssec:quantifier-ambiguity}.
+
+We can also check that the new entry for the indefinite article $\abs{a'}$
+amounts to quite the same thing:\footnote{The difference being that
+  $\abs{a'}$ projects to the $\BOX$ which contains the nearest scope island
+  marker $\SI$.}
+
+\begin{align*}
+\ap{\SI}{(\ap{\sem{\abs{a'}}}{N})}
+&= \ap{\SI}{(\ap{\op{scope}!}{(\lam{k}{\dexists x.\,\ap{\SI}{((N \apl x) \hsbind \op{assert}!)} \dand \ap{k}{x}})})} \\
+&= \dexists x.\,\ap{\SI}{((N \apl x) \hsbind \op{assert}!)} \dand \etaE{x} \\
+&\approx \dexists x.\,((N \apl x) \hsbind \op{assert}!) \dand \etaE{x} \\
+&= \app{\op{introduce}}{\star}{(\lam{x}{((N \apl x) \hsbind \op{assert}!) \dand \etaE{x}})} \\
+&= \app{\op{introduce}}{\star}{(\lam{x}{(N \hsbind (\lam{n}{\ap{\op{assert}!}{(\ap{n}{x})}})) \dand \etaE{x}})} \\
+&= \app{\op{introduce}}{\star}{(\lam{x}{(N \hsbind (\lam{n}{\ap{\op{assert}!}{(\ap{n}{x})}})) \hsbind (\lam{\_}{\etaE{x}})})} \\
+&= \app{\op{introduce}}{\star}{(\lam{x}{N \hsbind (\lam{n}{\app{\op{assert}}{(\ap{n}{x})}{(\lam{\_}{\etaE{x}})}})})} \\
+&= \ap{\sem{\abs{a}}}{N}
 \end{align*}
 
 
+\subsection{Quantifier Raising --- Inverse Scope and Crossover}
+\label{ssec:crossover}
 
+The strategies that we have used in
+Subsection~\ref{ssec:quantifier-ambiguity} to deal with quantifier scope
+ambiguity was to change the order of evaluation of the quantificational
+noun phrases. This was the case both in the first approach, which
+considered adding different lexical items which evaluate their arguments in
+different orders, and in the second, final approach, which used a general
+operator $\abs{QR}$ to displace the evaluation of an $NP$.
+
+However, freely changing the order of evaluation is problematic. Consider
+the following sentence (from~\cite{shan2006explaining}):
+
+\begin{exe}
+  \ex[*]{His$_1$ mother likes every man$_1$. \label{ex:crossover}}
+\end{exe}
+
+Our strategy of generating an inverse scope reading by evaluating the
+object first and then the subject would lead us to bind the pronoun
+\emph{his} by the variable introduced by \emph{every man}. However, this is
+considered unacceptable and we would therefore like to avoid doing that in
+our model.
+
+This kind of problem represents a challenge to the fundamental assumptions
+behind our methodology. Anaphora forces us to evaluate the constituents in
+linear order, subject first and object last, so that we do not license
+cataphora from object to subject. Inverse scope forces us to evaluate the
+constituents in inverse order, object first and subject last, so that the
+object can take scope over the sentence before the subject does.
+
+In our current setting, this conflict seems impossible to resolve. However,
+we can find a solution by decomposing the action of a quantificational noun
+phrases into two steps:
+
+\begin{enumerate}
+\item The quantificational noun phrase takes scope over its matrix clause
+  \emph{without} making the variable anaphorically accessible. The
+  quantificational noun phrase is ``replaced'' by a \emph{trace}
+  computation.
+\item The trace is evaluated, making the variable anaphorically accessible.
+\end{enumerate}
+
+This strategy can be summarized by saying that even though a quantifier can
+move out and in front of a sentence, it is its original position,
+represented by a trace, which controls its anaphoric behavior.
+
+Our denotations $\sem{\abs{a'}}$ and $\sem{\abs{every}}$ use the $\dexists$
+and $\dforall$ dynamic quantifiers, where $\dforall$ is expressed in terms
+of $\dnot$ and $\dexists$. The $\dexists$ quantifier itself is defined by
+the $\op{introduce}$ operation.
+
+\begin{align*}
+  \dexists x.\,A &= \app{\op{introduce}}{\star}{(\lam{x}{A})} \\
+  \dforall x.\,A &= \dnot (\dexists x.\,\dnot A)
+\end{align*}
+
+The $\op{introduce}$ is interpreted by the $\BOX$ handler as installing an
+existential handler \emph{and} introducing the variable into the context.
+
+$$
+\BOX = \ldots \banana{\ldots,\ \onto{\op{introduce}}{(\lam{\_ k}{\etaE{(\lam{e}{\existsr x.\ \ap{k}{x} \apll (x \cons e)})}})},\ \ldots} \ldots
+$$
+
+We can decompose $\op{introduce}$ into two operations, $\op{fresh}$ and
+$\op{push}$, one to wrap an existential quantifier with a fresh variable
+over the discourse ($\op{fresh}$) and another to add an individual into the
+context ($\op{push}$).
+
+\begin{align*}
+  \op{fresh} &: 1 \rightarrowtail \iota \\
+  \op{push} &: \iota \rightarrowtail 1
+\end{align*}
+
+These two operations will replace $\op{introduce}$, which is expressible as
+their composition, and their interpretations replace the interpretation of
+$\op{introduce}$ in the $\BOX$ handler:
+
+\begin{align*}
+  \BOX &= \ldots \lban\begin{aligned}[t]
+      &\ldots, \\
+      &\onto{\op{fresh}}{(\lam{\_ k}{\etaE{(\lam{e}{\existsr x.\ \ap{k}{x} \apll e})}})}, \\
+      &\onto{\op{push}}{(\lam{x k}{\etaE{(\lam{e}{\ap{k}{\star} \apll (x \cons e)})}})}, \\
+      &\ldots\ \rban \ldots
+    \end{aligned} \\
+  \\
+  \introduce &: 1 \to (\iota \to \FF_{E \uplus \{\op{fresh},
+               \op{push}\}}(\alpha)) \to \FF_{E \uplus \{\op{fresh},
+               \op{push}\}}(\alpha) \\
+  \introduce &= \lam{\_ k}{\begin{aligned}[t]
+      &\app{\op{fresh}}{\star}{(\lam{x}{ \\
+      &\app{\op{push}}{x}{(\lam{\_}{ \\
+      &\ap{k}{x}})}})}
+    \end{aligned}}
+\end{align*}
+
+We can now adjust the dynamic quantifiers so that they only introduce a
+quantifier over the discourse without modifying the context.
+
+\begin{align*}
+  \dexists x.\,A &= \app{\op{fresh}}{\star}{(\lam{x}{A})} \\
+  \dforall x.\,A &= \dnot (\dexists x.\,\dnot A)
+\end{align*}
+
+We can now give a new meaning to the determiners \emph{every} and \emph{a}.
+
+\begin{align*}
+  \abs{every}, \abs{a'} &: N \limp QNP \\
+  \sem{QNP} &= \FF_{\{\op{scope}\}}(\FF_{E'}(\iota)) \\
+  \\
+  \lex{every}{\lam{N}{\begin{aligned}[t]
+      &\app{\op{scope}!}{(\lam{k}{\dforall x.\ \ap{\SI}{(N \apl x)} \dimp \ap{k}{x}})}{(\lam{x}{ \\
+      &\etaE{(\ap{\trace}{x})}})}
+    \end{aligned}}} \\
+  \lex{a'}{\lam{N}{\begin{aligned}[t]
+      &\app{\op{scope}!}{(\lam{k}{\dexists x.\ \ap{\SI}{(N \apl x)} \dand \ap{k}{x}})}{(\lam{x}{ \\
+      &\etaE{(\ap{\trace}{x})}})}
+    \end{aligned}}} \\
+  \\
+  \trace &: \iota \to \FF_{E'}(\iota) \\
+  \trace &= \lam{x}{\app{\op{push}}{x}{(\lam{\_}{\etaE{x}})}}
+\end{align*}
+
+We split the computations into two layers: an outer layer using the
+$\op{scope}$ effect, where the order will determine the relative scope of
+quantifiers (using the $\op{fresh}$ effect in the $\dexists$ and $\dforall$
+quantifiers), and an inner layer using all the other effects in $E'$, where
+the order will determine the behavior of other phenomena such as anaphora
+(e.g.,\ the $\op{push}$ of the QNP's trace and the $\op{get}$ of an
+anaphoric pronoun). This way, we can have a different order of evaluation
+in the two layers and get inverse scope readings without risking the
+violation of crossover constraints.
+
+We could have introduced two layers of computations into all of our NP
+meanings but this would needlessly create complexity. Instead, only the
+meanings of quantificational noun phrases (abstract type $QNP$) will have
+two layers. We can then plug these meanings into our grammars using one of
+these two lexical items:
+
+\begin{align*}
+  \abs{in-situ} &: QNP \limp NP \\
+  \lex{in-situ}{\lam{Q}{Q \hsbind (\lam{X}{X})}} \\
+  \abs{QR} &: QNP \limp (NP \limp S) \limp S \\
+  \lex{QR}{\lam{Q K}{Q \hsbind K}}
+\end{align*}
+
+$\abs{in-situ}$ collapses the two layers of effects so that the
+quantificational noun phrases becomes a single-layer computation, just like
+other NPs. With this lexical item, we recover the original readings that
+were possible with the single-layer denotations of every $\abs{every}$ and
+$\abs{a'}$ that we had at the beginning of this section.
+
+Furthermore, we can use $\abs{QR}$ to generate inverse scope (and all the
+other permutations of quantifiers
+from~\ref{ssec:quantifier-ambiguity}). $\abs{QR}$ evaluates the outer layer
+of effects before the matrix clause, allowing it to take scope. The
+computation in the inner layer, which is responsible for adding the
+quantified variable into the context and making it anaphorically
+accessible, takes the place of the QNP's trace.
+
+Using $\abs{QR}$, we can explain the inverse scope reading of
+Sentence~\ref{ex:inverse}.
+
+\begin{exe}
+  \ex A woman loves every man. \label{ex:inverse}
+\end{exe}
+
+\begin{align*}
+  &\ap{(\cherry \circ \TOP)}{\sem{\app{\abs{QR}}{(\ap{\abs{every}}{\abs{man}})}{(\lam{O}{\app{\abs{loves}}{O}{(\ap{\abs{a'}}{\abs{woman}})}})}}} \\
+  &\tto \forall y.\, \ap{\obj{man}}{y} \to (\exists x.\, \ap{\obj{woman}}{x} \land \app{\obj{love}}{x}{y})
+\end{align*}
+
+However, we cannot use the same mechanism to derive the incorrect reading
+of Sentence~\ref{ex:crossover}.
+
+\begin{align*}
+  &\ap{(\cherry \circ \TOP \circ \banana{\onto{\op{get}}{(\lam{\_ k}{\ap{k}{e}})}})}{\sem{\app{\abs{QR}}{(\ap{\abs{every}}{\abs{man}})}{(\lam{O}{\app{\abs{loves}}{O}{(\ap{\abs{mother}}{\abs{he}})}})}}} \\
+  &\tto \exists x.\, \app{\obj{mother}}{x}{(\ap{\selhe}{e})} \land (\forall y.\, \ap{\obj{man}}{y} \to \app{\obj{love}}{x}{y})\footnotemark
+\end{align*}
+\footnotetext{Note that the quantifier ranging over mothers has wider scope
+  than the one ranging over men, even though we raised the QNP \emph{every
+    man} over the whole sentence. This is because the referring expression
+  \emph{his mother} is presuppositional and is accommodated globally, above
+  the meaning of this particular sentence. The context in which the
+  operator $\selhe$ looks for an antecedent to the pronoun \emph{his} is
+  the context $(\ap{\obj{man}}{y}) \cons e$, where $e$ is the context in
+  which the sentence is being evaluated. Since adding a proposition to a
+  context is not supposed to change the set of possible antecedents, we
+  write simply $\ap{\selhe}{e}$.}
+
+We now have a grammar that is both capable of licensing inverse scope and
+respects crossover constraints. The rest of the grammar needs to be
+modified only insofar as handlers for $\op{introduce}$ need to be replaced
+with handlers for $\op{fresh}$ and $\op{push}$. The only other handler for
+$\op{introduce}$ besides $\BOX$ is the $\asImplicature$ handler.
+
+\begin{align*}
+  \asImplicature &: \FF_{E \uplus \{\op{assert},\op{fresh},\op{push}\}}(\alpha) \to
+                    \FF_{E \uplus \{\op{implicate},\op{fresh^i},\op{push^i}\}}(\alpha) \\
+  \asImplicature &= \banana{\onto{\op{assert}}{\op{implicate}},\
+                            \onto{\op{fresh}}{\op{fresh^i}},\
+                            \onto{\op{push}}{\op{push^i}}}
+\end{align*}
+
+Since we no longer use $\op{introduce}$ as a primitive operation,
+$\asImplicature$ will act on $\op{fresh}$ and $\op{push}$, turning them
+into new operations, $\typedop{fresh^i}{1}{\iota}$ and
+$\typedop{push^i}{\iota}{1}$. The converse handler, $\withImplicatures$,
+will therefore also need to be changed to treat $\op{fresh^i}$ and
+$\op{push^i}$.
+
+\begin{align*}
+  \withImplicatures &: \FF_{E \uplus E_\DRT \uplus \{\op{implicate},\op{fresh^i},\op{push^i}\}}(\alpha) \to
+                       \FF_{E \uplus E_\DRT \uplus \{\op{assert},\op{fresh},\op{push}\}}(\alpha) \\
+  \withImplicatures &= \banana{\onto{\op{implicate}}{\op{assert}},\
+                               \onto{\op{fresh^i}}{\op{fresh}},\
+                               \onto{\op{push^i}}{\op{push}}}
+\end{align*}
+
+
+\subsubsection{Connections to Other Solutions}
+
+We will draw parallels to two other approaches.
+
+In the interpretations of $\abs{every}$ and $\abs{a'}$, we introduce an
+extra layer of computation. Then instead of generalizing all other noun
+phrases to employ this extra layer, we added $\abs{in-situ}$ and $\abs{qr}$
+as lexical items into our grammar, allowing us to use quantificational noun
+phrases, which use this extra layer of computation, in contexts where an
+ordinary noun phrase was expected. The interpretation of $\abs{qr}$ is the
+$\hsbind$ operator. This is reminiscent of the way to compose different
+monads proposed by Simon Charlow during Barker's and Bumford's ESSLLI 2015
+course~\cite{barker2015monads}. The idea is that we should not try to build
+some large monad encompasses all aspects of meaning but rather build
+meanings in smaller, different monads, each meaning using only as much
+structure as it needs. The gluing together of the meanings is then
+performed by the parser which can insert $\hsbind$ for the relevant monads
+and other plumbing as necessary. This is also the kind of approach adopted
+by Giorgolo and Asudeh~\cite{giorgolo2015natural}.
+
+We also notice a similarity between our approach to inverse scope and that
+of Shan in~\cite{shan2007inverse}. Shan adopts multistage programming to
+suspend the evaluation of the context of the object until after the object
+itself has been evaluated, effectively displacing the evaluation of the
+object before the evaluation of the rest of the sentence. Our strategy is
+based on similar techniques: $\abs{QR}$ has the same effect of displacing
+evaluation and the denotations of $\abs{every}$ and $\abs{a'}$ suspend the
+evaluation of their anaphoric effects. A distinguishing sign of
+meta-programming or multistage programming are types like
+$\FF_E(\FF_E(\alpha))$, i.e.\ programs producing programs, which is exactly
+the kind of type we use for $\sem{QNP}$.
+
+
+\subsubsection{Limitations}
+
+Our treatment of inverse scope eliminates both primary crossover (the
+raised quantifier is the object, e.g.\ Sentence~\ref{ex:primary-crossover})
+and secondary crossover (the raised quantifier is embedded in the object,
+e.g.\ Sentence~\ref{ex:secondary-crossover}). Examples
+from~\cite{shan2006explaining}:
+
+\begin{exe}
+  \ex[*]{He$_1$ likes every man$_1$. \label{ex:primary-crossover}}
+  \ex[*]{He$_1$ likes every man$_1$'s mother. \label{ex:secondary-crossover}}
+\end{exe}
+
+However, there is a configuration that we can construct in our grammar in
+which a kind of crossover is permitted.
+
+\begin{exe}
+  \ex[*]{It$_1$ loves every owner of a dog$_1$. \label{ex:bad-crossover}}
+\end{exe}
+
+If we aim for the reading where there is a dog and it loves every one of
+its owners (i.e.\ we raise the QNP \emph{a dog}), then everything works
+correctly: we predict that the binding is impossible. However, if we raise
+the whole object QNP \emph{every owner of a dog} to get the reading in
+which there are possibly multiple different dogs, then we will license the
+cataphoric binding from \emph{a dog} to \emph{it}. Even though the raising
+of the object will not make the dog-owner available as an antecedent to the
+subject, we will still have evaluated the object QNP's restrictor
+\emph{owner of a dog}, which has the effect of introducing a new discourse
+referent, a dog. If we were to outlaw cases like these, we would need a
+more robust way of delaying the introduction of discourse referents.

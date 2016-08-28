@@ -859,8 +859,8 @@ With this operation $\op{scope}$, we can now give a semantics to our
 determiners:
 
 \begin{align*}
-  \lex{every}{\lam{N}{\ap{\op{scope}!}{(\lam{c}{\forall x.\ (\ap{\SI}{(N \apl x)}) \to \ap{c}{x}})}}} \\
-  \lex{a}{\lam{N}{\ap{\op{scope}!}{(\lam{c}{\exists x.\ (\ap{\SI}{(N \apl x)}) \land \ap{c}{x}})}}} \\
+  \lex{every}{\lam{N}{\ap{\op{scope}!}{(\lam{k}{\forall x.\ (\ap{\SI}{(N \apl x)}) \to \ap{k}{x}})}}} \\
+  \lex{a}{\lam{N}{\ap{\op{scope}!}{(\lam{k}{\exists x.\ (\ap{\SI}{(N \apl x)}) \land \ap{k}{x}})}}} \\
   \lex{man}{\etaE{\obj{man}}} \\
   \lex{woman}{\etaE{\obj{woman}}} \\
   \SI &= \bbanana{\onto{\op{scope}}{(\lam{c k}{\ap{c}{k}})}}
@@ -888,8 +888,8 @@ and its denotation:
 \NoChapterPrefix
 \begin{align}
 & \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{woman}})}{(\ap{\abs{every}}{\abs{man}})}} \nonumber \\
-\tto\ &\app{\op{scope}}{(\lam{c}{\forall x.\ \ap{\obj{man}}{x} \to \ap{c}{x}})}{(\lam{x}{ \nonumber \\
-      &\app{\op{scope}}{(\lam{c}{\exists y.\ \ap{\obj{woman}}{y} \land \ap{c}{y}})}{(\lam{y}{ \nonumber \\
+\tto\ &\app{\op{scope}}{(\lam{k}{\forall x.\ \ap{\obj{man}}{x} \to \ap{k}{x}})}{(\lam{x}{ \nonumber \\
+      &\app{\op{scope}}{(\lam{k}{\exists y.\ \ap{\obj{woman}}{y} \land \ap{k}{y}})}{(\lam{y}{ \nonumber \\
       &\etaE{(\app{\obj{love}}{x}{y})}})}})}
 \end{align}
 \ChapterPrefix
@@ -958,34 +958,34 @@ $Y$. We will see this in the denotation of \emph{owner of a cat}:
 \begin{align*}
 &\sem{\ap{\abs{owner-of}}{(\ap{\abs{a}}{\abs{cat}})}} \\
 &\tto \ap{\sem{\abs{owner-of}}}{(\app{\op{scope}}
-    {(\lam{c}{\exists y.\ \ap{\obj{cat}}{y} \land \ap{c}{y}})}
+    {(\lam{k}{\exists y.\ \ap{\obj{cat}}{y} \land \ap{k}{y}})}
     {(\lam{y}{\etaE{y}})})} \\
 &\tto (\lam{y x}{\app{\obj{own}}{x}{y}}) \apr (\app{\op{scope}}
-    {(\lam{c}{\exists y.\ \ap{\obj{cat}}{y} \land \ap{c}{y}})}
+    {(\lam{k}{\exists y.\ \ap{\obj{cat}}{y} \land \ap{k}{y}})}
     {(\lam{y}{\etaE{y}})}) \\
 &\tto \begin{aligned}[t]
-    &\app{\op{scope}}{(\lam{c}{\exists y.\ \ap{\obj{cat}}{y} \land \ap{c}{y}})}{(\lam{y}{ \\
+    &\app{\op{scope}}{(\lam{k}{\exists y.\ \ap{\obj{cat}}{y} \land \ap{k}{y}})}{(\lam{y}{ \\
     &\etaE{(\ap{(\lam{y x}{\app{\obj{own}}{x}{y}})}{y})}})}
   \end{aligned} \\
 &\to_\beta \begin{aligned}[t]
-    &\app{\op{scope}}{(\lam{c}{\exists y.\ \ap{\obj{cat}}{y} \land \ap{c}{y}})}{(\lam{y}{ \\
+    &\app{\op{scope}}{(\lam{k}{\exists y.\ \ap{\obj{cat}}{y} \land \ap{k}{y}})}{(\lam{y}{ \\
     &\etaE{(\lam{x}{\app{\obj{own}}{x}{y}})}})}
   \end{aligned}
 \end{align*}
 
 We can look at the result through the analogy to Cooper storage. We started
 with the meaning of \emph{a cat}, which stored the generalized quantifier
-$\lam{c}{\exists y.\ \ap{\obj{cat}}{y} \land \ap{c}{y}}$ in the storage and
+$\lam{k}{\exists y.\ \ap{\obj{cat}}{y} \land \ap{k}{y}}$ in the storage and
 whose semantic placeholder was the variable $y$. We then applied the
 function $\lam{y x}{\app{\obj{own}}{x}{y}}$ to this semantic placeholder
 and we arrived at $\lam{x}{\app{\obj{own}}{x}{y}}$ with the storage still
 holding the quantifier
-$\lam{c}{\exists y.\ \ap{\obj{cat}}{y} \land \ap{c}{y}}$.
+$\lam{k}{\exists y.\ \ap{\obj{cat}}{y} \land \ap{k}{y}}$.
 
 And so we have seen that constituents of type $N$ can have a
 quantificational effect in much the same way as other constituents, such as
 those of type $NP$. In the generalized quantifier for indefinites,
-$(\lam{c}{\exists y.\ \ap{n}{y} \land \ap{c}{y}})$, we make use of the
+$(\lam{k}{\exists y.\ \ap{n}{y} \land \ap{k}{y}})$, we make use of the
 meaning $n$ of the restrictor noun. By looking at the type of
 $\op{scope} : ((\iota \to o) \to o) \rightarrowtail \iota$, we see that we
 cannot pass a computation with quantificational effects as an argument to
@@ -1029,8 +1029,8 @@ The lexical entry that we have considered for the determiner
   indefinite article \emph{a} as well.} so far was:
 
 $$
-\sem{\abs{every}} = \lam{N}{\ap{\op{scope}!}{(\lam{c}{\forall x.\
-      (\ap{\SI}{(N \apl x)}) \to \ap{c}{x}})}}
+\sem{\abs{every}} = \lam{N}{\ap{\op{scope}!}{(\lam{k}{\forall x.\
+      (\ap{\SI}{(N \apl x)}) \to \ap{k}{x}})}}
 $$
 
 However, if we followed the analogy to $\shift$ and $\reset$ (i.e.\
@@ -1039,8 +1039,8 @@ $\op{scope}$/$\shifto$ in $\SI$/$\reset$, see
 Section~\ref{sec:turning-to-shift}), we might have tried the following:
 
 $$
-\sem{\abs{every'}} = \lam{N}{\ap{\op{scope}!}{(\lam{c}{\ap{\SI}{(N \hsbind
-        (\lam{n}{\etaE{(\forall x.\ \ap{n}{x} \to \ap{c}{x})}}))}})}}
+\sem{\abs{every'}} = \lam{N}{\ap{\op{scope}!}{(\lam{k}{\ap{\SI}{(N \hsbind
+        (\lam{n}{\etaE{(\forall x.\ \ap{n}{x} \to \ap{k}{x})}}))}})}}
 $$
 
 Here, we put the $\SI$ handler above the quantifier introduced by the
@@ -1164,16 +1164,16 @@ ACG by adding the following (unlexicalised) abstract constant:
 
 \begin{align*}
   \abs{QR} &: NP \limp (NP \limp S) \limp S \\
-  \lex{QR}{\lam{X k}{X \hsbind (\lam{x}{\ap{k}{(\etaE{x})}})}}
+  \lex{QR}{\lam{X K}{X \hsbind (\lam{x}{\ap{K}{(\etaE{x})}})}}
 \end{align*}
 
 The type of $\abs{QR}$ can also be read as a kind of type lifting operator
 on NPs: it takes an $NP$ and gives back an $(NP \limp S) \limp S$ (the
 syntactic type for quantificational noun phrases used
 in~\cite{pogodalla2007generalizing}). As for the semantics, we can regard
-it as a variation on the term $\lam{X k}{\ap{k}{X}}$: instead of passing
-$X$ directly to $k$ though, we first evaluate it to get its referent $x$
-and then we pass to $k$ a trivial computation that always this referent
+it as a variation on the term $\lam{X K}{\ap{K}{X}}$: instead of passing
+$X$ directly to $K$ though, we first evaluate it to get its referent $x$
+and then we pass to $K$ a trivial computation that always this referent
 $x$.
 
 We will demonstrate $\abs{QR}$ by deriving the object wide scope reading of
@@ -1184,9 +1184,9 @@ Sentence~\ref{ex:quantifiers}:
 \begin{align}
 & \ap{\SI}{\sem{(\app{\abs{QR}}{(\ap{\abs{a}}{\abs{woman}})}{(\lam{y}{\app{\abs{loves}}{y}{(\ap{\abs{every}}{\abs{man}})}})})}} \nonumber \\
 &\tto \ap{\SI}{(\app{\op{scope}}
-  {(\lam{c}{\exists y.\ \ap{\obj{woman}}{y} \land \ap{c}{y}})}
+  {(\lam{k}{\exists y.\ \ap{\obj{woman}}{y} \land \ap{k}{y}})}
   {(\lam{y}{\forall x.\ \etaE{(\ap{\obj{man}}{x} \rightarrow \app{\obj{love}}{x}{y})}})})} \nonumber \\
-&\tto \ap{(\lam{c}{\exists y.\ \ap{\obj{woman}}{y} \land \ap{c}{y}})}
+&\tto \ap{(\lam{k}{\exists y.\ \ap{\obj{woman}}{y} \land \ap{k}{y}})}
          {(\lam{y}{\forall x.\ \ap{\obj{man}}{x} \rightarrow \app{\obj{love}}{x}{y}})} \nonumber \\
 &\tto \exists y.\ \ap{\obj{woman}}{y} \land (\forall x.\ \ap{\obj{man}}{x} \rightarrow \app{\obj{love}}{x}{y})
 \end{align}
@@ -1244,7 +1244,7 @@ $\op{scope}$ into a single one, we can succeed only partially:
 
 $$
 \app{\op{scope}}{F_1}{(\lam{x}{\app{\op{scope}}{F_2}{(\lam{y}{M(x,y)})}})}
-= \app{\op{scope}}{(\lam{c}{\ap{F_1}{(\lam{x}{\ap{F_2}{(\lam{y}{\ap{c}{(x,y)}})}})}})}{(\lam{(x,y)}{M(x,y)})}
+= \app{\op{scope}}{(\lam{k}{\ap{F_1}{(\lam{x}{\ap{F_2}{(\lam{y}{\ap{k}{(x,y)}})}})}})}{(\lam{(x,y)}{M(x,y)})}
 $$
 
 We can compose the two quantifiers $F_1$ and $F_2$, but then we are
@@ -1256,7 +1256,7 @@ pure computations that yield individuals correspond to computations using
 $\op{scope}$.
 
 $$
-\etaE{M} = \ap{\op{scope}!}{(\lam{c}{\ap{c}{M}})}
+\etaE{M} = \ap{\op{scope}!}{(\lam{k}{\ap{k}{M}})}
 $$
 
 $M$ ranges over values of type $\iota$. This equation shows why in
@@ -1264,8 +1264,8 @@ $\banana{\lambda}$, we are not obliged to raise the denotations of our
 non-quantificational noun phrases (such as the proper names $\abs{John}$
 and $\abs{Mary}$) into generalized quantifiers: the pure individuals
 $\etaE{\obj{j}}$ and $\etaE{\obj{m}}$ behave exactly the same as the
-generalized quantifiers $\lam{c}{\ap{c}{\obj{j}}}$ and
-$\lam{c}{\ap{c}{\obj{m}}}$, respectively. This means that a sentence can
+generalized quantifiers $\lam{k}{\ap{k}{\obj{j}}}$ and
+$\lam{k}{\ap{k}{\obj{m}}}$, respectively. This means that a sentence can
 mix the lexical entries for proper nouns from~\ref{sec:lifting-semantics}
 with the new lexical entries for quantificational noun phrases from this
 section in a sound way, without violating the homomorphism property of the
@@ -1307,8 +1307,8 @@ chain from Sentence~\ref{ex:siamese} where the $y$ in the second quantifier
 is bound by the first quantifier:
 
 $$
-\app{\op{scope}}{(\lam{c}{\exists y.\ \ap{\obj{cat}}{y} \land \ap{c}{y}})}
-{(\lam{y}{\app{\op{scope}}{(\lam{c}{\forall x.\ \app{\obj{own}}{x}{y} \to \ap{c}{x}})}
+\app{\op{scope}}{(\lam{k}{\exists y.\ \ap{\obj{cat}}{y} \land \ap{k}{y}})}
+{(\lam{y}{\app{\op{scope}}{(\lam{k}{\forall x.\ \app{\obj{own}}{x}{y} \to \ap{k}{x}})}
 {(\lam{x}{\etaE{x}})}})}
 $$
 
