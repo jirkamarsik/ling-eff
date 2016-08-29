@@ -1348,3 +1348,84 @@ subject, we will still have evaluated the object QNP's restrictor
 \emph{owner of a dog}, which has the effect of introducing a new discourse
 referent, a dog. If we were to outlaw cases like these, we would need a
 more robust way of delaying the introduction of discourse referents.
+
+
+\section{Considering Restrictive Relative Clauses}
+\label{sec:relative-clauses}
+
+There is one construction that we have not treated in our grammar and those
+are restrictive relative clauses. We will sketch out possible ways of
+dealing with those along with some of the challenges.
+
+$$
+\abs{who}_{\abs{r}} : (NP \limp S) \limp N \limp N
+$$
+
+Contrary to supplementary (appositive) relative clauses, which attach to
+noun phrases and add extra information about their referent, restrictive
+relative clauses attach to nouns and narrow down the set of individuals
+under consideration, just like subsective adjectives (e.g.\ \emph{woman},
+and \emph{woman who loves books} as \emph{book-loving woman}).
+
+Supplementary relative clauses let us use the extension of any verb phrase
+as the extension of a noun: for a given verb phrase $P$, we can form the
+noun \emph{one who $P$s}. We therefore have an injection from verb phrases
+to nouns, telling us verb phrases are nouns too. The question now is
+whether the type of interpretations we use for nouns is large enough to fit
+the denotations of verb phrases.
+
+\begin{align*}
+  \sem{NP \limp S} = \sem{NP} \limp \sem{S} &= \FF_E(\iota) \to \FF_E(1) \\
+  \sem{N} &= \FF_E(\iota \to o)
+\end{align*}
+
+There are two important issues here. Firstly, the denotations of our
+sentences are computations that express their truth conditions using side
+effects. On the other hand, the denotations of our nouns are taken to be
+computations that produce predicates, pure functions from individuals to
+propositions. Secondly, the effects in the denotations $\sem{NP \limp S}$
+can depend on the individual in $\sem{NP} = \FF_E(\iota)$ whereas the
+effects in the denotations $\FF_E(\iota \to o)$ must be independent of the
+argument individual.
+
+The latter will lead us to trouble if we try fixing the former too naively:
+
+\begin{align*}
+  \sem{\abs{who}_{\abs{r}}} = \lam{K N}{\ap{\CC}{(\lam{x}{
+    &N \hsbind (\lam{n}{ \\
+    &\ap{K}{(\etaE{x})} \hsbind (\lam{\_}{ \\
+    &\etaE{(\ap{n}{x})}})})})}}
+\end{align*}
+
+Here we add the truth conditions of the relative clause to the noun by
+including the side effects of the clause in the effects of the
+noun. However, this only works when the effects of the relative clause are
+independent of the entity $x$ under consideration,\footnote{Because our use
+  of $\CC$.} which is rarely the case. For example, assuming that
+$\sem{\lam{x}{\app{\abs{loves}}{\abs{Mary}}{x}}} =
+\lam{x}{\ap{\op{assert}!}{(\app{\obj{love}}{x}{\obj{m}})}}$, the meaning of
+\emph{man who loves Mary} becomes:
+
+\begin{align*}
+& \sem{\app{\abs{who}_{\abs{r}}}{\abs{man}}{(\lam{x}{\app{\abs{loves}}{\abs{Mary}}{x}})}} \\
+& \tto \ap{\CC}{(\lam{x}{\app{\op{assert}}{(\app{\obj{love}}{x}{\obj{m}})}{(\lam{\_}{\etaE{(\ap{\obj{man}}{x})}})}})}
+\end{align*}
+
+The evaluation of $\CC$ is blocked because the operation
+$\ap{\op{assert}}{(\app{\obj{love}}{x}{\obj{m}})}$ depends on $x$. The
+truth conditions of \emph{$x$ $P$}, where $P$ is a verb phrase, will always
+depend on $x$ and so this approach will not work.
+
+However, our system already has a well-defined way for turning dynamic
+propositions into simple propositions, and that is the $\BOX$ handler.
+
+\begin{align*}
+  \sem{\abs{who}_{\abs{r}}} = \lam{K N}{\ap{\CC}{(\lam{x}{
+    &N \hsbind (\lam{n}{ \\
+    &\ap{\BOX}{(\ap{K}{(\etaE{x})})} \hsbind (\lam{p}{ \\
+    &\etaE{(\ap{n}{x} \land p)}})})})}} \\
+  \sem{\abs{who}_{\abs{r}}} = \lam{K N}{\ap{\CC}{(\lam{x}{
+    &(N \apl x) \andlr \ap{\BOX}{(\ap{K}{(\etaE{x})})}})}}
+\end{align*}
+
+By wrapping the meaning of the relative clause in a $\BOX$

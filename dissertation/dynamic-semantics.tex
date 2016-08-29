@@ -1793,8 +1793,8 @@ the denotation of the consequent, $S_2$: \emph{his car is cheap}.
   &= \sem{\ap{\abs{is-cheap}}{(\app{\abs{poss}}{\abs{he}}{(\ap{\abs{common}}{\abs{car}})})}} \\
   &\tto \begin{aligned}[t]
     &\app{\op{get}}{\star}{(\lam{e}{ \\
-    &\app{\op{presuppose}}{(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e), y)})}{(\lam{y}{ \\
-    &\app{\op{assert}}{(\obj{cheap}(y))}{\lam{\_}{ \\
+    &\app{\op{presuppose}}{(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e), z)})}{(\lam{z}{ \\
+    &\app{\op{assert}}{(\obj{cheap}(z))}{\lam{\_}{ \\
     &\etaE{\star}}}})}})}
     \end{aligned}
 \end{align*}
@@ -1811,18 +1811,18 @@ negation of $\sem{S_2}$, starting with $\ap{\DBOX}{\sem{S_2}}$.
   &\tto \ap{\BOX}{(\begin{aligned}[t]
      &\app{\op{get}}{\star}{(\lam{e}{ \\
      &\app{\op{get}}{\star}{(\lam{e'}{ \\
-     &(\casenl{\selP(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e), y)}, e')}
+     &(\casenl{\selP(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e), z)}, e')}
        {x}{\etaE{x}}
-       {\_}{\ap{\op{presuppose}!}{(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e), y)})}}) \hsbind (\lam{y}{ \\
-     &\app{\op{assert}}{(\obj{cheap}(y))}{(\lam{y}{ \\
+       {\_}{\ap{\op{presuppose}!}{(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e), z)})}}) \hsbind (\lam{z}{ \\
+     &\app{\op{assert}}{(\obj{cheap}(z))}{(\lam{\_}{ \\
      &\etaE{\star}})}})})}})})
      \end{aligned}} \\
   &\approx \begin{aligned}[t]
      &\app{\op{get}}{\star}{(\lam{e}{ \\
-     &(\casenl{\selP(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e), y)}, e)}
+     &(\casenl{\selP(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e), z)}, e)}
        {x}{\etaE{x}}
-       {\_}{\ap{\op{presuppose}!}{(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e), y)})}}) \hsbind (\lam{y}{ \\
-     &\etaE{(\obj{cheap}(y))}})})}
+       {\_}{\ap{\op{presuppose}!}{(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e), z)})}}) \hsbind (\lam{z}{ \\
+     &\etaE{(\obj{cheap}(z))}})})}
      \end{aligned}
 \end{align*}
 
@@ -1843,10 +1843,10 @@ negate its argument.
   &= \ap{\DBOX}{\sem{S_2}} \hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}}) \\
   &\tto \begin{aligned}[t]
     &\app{\op{get}}{\star}{(\lam{e}{ \\
-    &(\casenl{\selP(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e), y)}, e)}
+    &(\casenl{\selP(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e), z)}, e)}
       {x}{\etaE{x}}
-      {\_}{\ap{\op{presuppose}!}{(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e), y)})}}) \hsbind (\lam{y}{ \\
-    &\app{\op{assert}}{(\lnot (\obj{cheap}(y)))}{\lam{\_}{ \\
+      {\_}{\ap{\op{presuppose}!}{(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e), z)})}}) \hsbind (\lam{z}{ \\
+    &\app{\op{assert}}{(\lnot (\obj{cheap}(z)))}{\lam{\_}{ \\
     &\etaE{\star}}}})})}
     \end{aligned}
 \end{align*}
@@ -1869,8 +1869,6 @@ We can now compute the conjunction of $\sem{S_1}$ and $\dnot \sem{S_2}$ and
 observe how the context of $\sem{S_1}$ cancels the presupposition in
 $\dnot \sem{S_2}$.
 
-\TODO{Use different variables instead of $y$.}
-
 \begin{align*}
   \sem{S_1} \dand \dnot \sem{S_2}
   &= \sem{S_1} \hsbind (\lam{\_}{\dnot \sem{S_2}}) \\
@@ -1880,10 +1878,10 @@ $\dnot \sem{S_2}$.
       &\app{\op{assert}}{(\obj{car}(y))}{(\lam{\_}{ \\
       &\app{\op{assert}}{(\obj{own}(x, y))}{(\lam{\_}{ \\
       &\app{\op{get}}{\star}{(\lam{e}{ \\
-      &(\casenl{\selP(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e), y)}, e)}
+      &(\casenl{\selP(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e), z)}, e)}
         {x}{\etaE{x}}
-        {\_}{\ap{\op{presuppose}!}{(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e), y)})}}) \hsbind (\lam{y}{ \\
-      &\app{\op{assert}}{(\lnot (\obj{cheap}(y)))}{\lam{\_}{ \\
+        {\_}{\ap{\op{presuppose}!}{(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e), z)})}}) \hsbind (\lam{z}{ \\
+      &\app{\op{assert}}{(\lnot (\obj{cheap}(z)))}{\lam{\_}{ \\
       &\etaE{\star}}}})})}})}})}})}})}
     \end{aligned} \\
   &\approx \begin{aligned}[t]
@@ -1892,10 +1890,10 @@ $\dnot \sem{S_2}$.
       &\app{\op{introduce}}{\star}{(\lam{y}{ \\
       &\app{\op{assert}}{(\obj{car}(y))}{(\lam{\_}{ \\
       &\app{\op{assert}}{(\obj{own}(x, y))}{(\lam{\_}{ \\
-      &(\casenl{\selP(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e'), y)}, e')}
+      &(\casenl{\selP(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e'), z)}, e')}
         {x}{\etaE{x}}
-        {\_}{\ap{\op{presuppose}!}{(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e'), y)})}}) \hsbind (\lam{y}{ \\
-      &\app{\op{assert}}{(\lnot (\obj{cheap}(y)))}{\lam{\_}{ \\
+        {\_}{\ap{\op{presuppose}!}{(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e'), z)})}}) \hsbind (\lam{z}{ \\
+      &\app{\op{assert}}{(\lnot (\obj{cheap}(z)))}{\lam{\_}{ \\
       &\etaE{\star}}}})})}})}})}})}})}
     \end{aligned}
 \end{align*}
@@ -1925,15 +1923,15 @@ denotation of the noun phrase \emph{his car} in this context and see that
 the presupposition is cancelled.
 
 \begin{align*}
-  &\casenl{\selP(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e'), y)}, e')}
+  &\casenl{\selP(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e'), z)}, e')}
           {x}{\etaE{x}}
-          {\_}{\ap{\op{presuppose}!}{(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e'), y)})}} \\
-=\ &\casenl{\selP(\lam{y}{\obj{car}(y) \land \obj{own}(x, y)}, e')}
+          {\_}{\ap{\op{presuppose}!}{(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e'), z)})}} \\
+=\ &\casenl{\selP(\lam{z}{\obj{car}(z) \land \obj{own}(x, z)}, e')}
           {x}{\etaE{x}}
-          {\_}{\ap{\op{presuppose}!}{(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e'), y)})}} \\
+          {\_}{\ap{\op{presuppose}!}{(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e'), z)})}} \\
 =\ &\casenl{\ap{\inl}{y}}
           {x}{\etaE{x}}
-          {\_}{\ap{\op{presuppose}!}{(\lam{y}{\obj{car}(y) \land \obj{own}(\sel(e'), y)})}} \\
+          {\_}{\ap{\op{presuppose}!}{(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e'), z)})}} \\
 \to_{\beta.+1}\ &\etaE{y}
 \end{align*}
 
@@ -1948,8 +1946,8 @@ We can plug this result back into the computation for $\sem{S_1} \dand
       &\app{\op{introduce}}{\star}{(\lam{y}{ \\
       &\app{\op{assert}}{(\obj{car}(y))}{(\lam{\_}{ \\
       &\app{\op{assert}}{(\obj{own}(x, y))}{(\lam{\_}{ \\
-      &\etaE{y} \hsbind (\lam{y}{ \\
-      &\app{\op{assert}}{(\lnot (\obj{cheap}(y)))}{\lam{\_}{ \\
+      &\etaE{y} \hsbind (\lam{z}{ \\
+      &\app{\op{assert}}{(\lnot (\obj{cheap}(z)))}{\lam{\_}{ \\
       &\etaE{\star}}}})})}})}})}})}})}
     \end{aligned} \\
   &\to_{\eta.\hsbind} \begin{aligned}[t]
