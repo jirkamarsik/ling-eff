@@ -360,10 +360,6 @@ top'') gives us a formal way to associate a proposition to the denotation
 of a sentence or discourse (remember that $\sem{S} = \sem{D} = \FF_E(1)$
 with $E$ currently being $E_\DRT$).
 
-
-\section{Adding Effects}
-\label{sec:adding-effects}
-
 We will now integrate the effects that we have seen in
 Chapters~\ref{chap:introducing-effects} and~\ref{chap:dynamic-semantics}
 into our dynamic grammar. We will start with the effect that we have
@@ -419,7 +415,7 @@ $\op{presuppose}$ operation.
   \lex{poss}{\lam{X N}{X \hsbind (\lam{x}{N \hsbind (\lam{n}{\ap{\op{presuppose}!}{(\lam{y}{\ap{n}{y} \land \app{\obj{own}}{x}{y}})}})})}} \\
   \lex{children-of}{\lam{X}{X \hsbind (\lam{x}{\ap{\op{presuppose}!}{(\lam{y}{\app{\obj{children}}{y}{x}})}})}} \\
   \vdots \\
-  \lex{the}{\lam{P}{P \hsbind (\lam{p}{\ap{\op{presuppose}!}{p}})}}
+  \lex{the}{\lam{N}{N \hsbind (\lam{n}{\ap{\op{presuppose}!}{n}})}}
 \end{align*}
 
 These entries are the same as the ones we have seen in
@@ -513,7 +509,6 @@ supplementary (appositive) use of the relativizer \emph{who}.
 
 \begin{align*}
   \abs{who}_{\abs{s}} &: (NP \limp S) \limp NP \limp NP \\
-  \abs{who}_{\abs{r}} &: (NP \limp S) \limp N \limp N \\
   \abs{appos} &: NP \limp NP \limp NP
 \end{align*}
 
@@ -1063,6 +1058,20 @@ amounts to quite the same thing:\footnote{The difference being that
 &= \ap{\sem{\abs{a}}}{N}
 \end{align*}
 
+Quantificational noun phrases using the $\op{scope}$ effect take scope over
+all the material up to the nearest enclosing $\SI$ handler. We should
+therefore modify some of the existing constructions in our grammar to use
+$\SI$ to designate scope islands. Notably, we will make it so that every
+tensed clause acts as a scope island by including $\SI$ in the lexical
+entries of tensed verbs.
+
+\begin{align*}
+  \sem{\abs{loves}} &:= \lam{O S}{\ap{\SI}{(\app{\sem{\abs{loves}}}{O}{S})}} \\
+  \sem{\abs{owns}} &:= \lam{O S}{\ap{\SI}{(\app{\sem{\abs{owns}}}{O}{S})}} \\
+  \sem{\abs{said}_{\abs{is}}} &:= \lam{C S}{\ap{\SI}{(\app{\sem{\abs{said}_{\abs{is}}}}{C}{S})}} \\
+  \sem{\abs{said}_{\abs{ds}}} &:= \lam{C S}{\ap{\SI}{(\app{\sem{\abs{said}_{\abs{ds}}}}{C}{S})}}
+\end{align*}
+
 
 \subsection{Quantifier Raising --- Inverse Scope and Crossover}
 \label{ssec:crossover}
@@ -1407,7 +1416,7 @@ $\sem{\lam{x}{\app{\abs{loves}}{\abs{Mary}}{x}}} =
 \emph{man who loves Mary} becomes:
 
 \begin{align*}
-& \sem{\app{\abs{who}_{\abs{r}}}{\abs{man}}{(\lam{x}{\app{\abs{loves}}{\abs{Mary}}{x}})}} \\
+& \sem{\app{\abs{who}_{\abs{r}}}{(\lam{x}{\app{\abs{loves}}{\abs{Mary}}{x}})}{\abs{man}}} \\
 & \tto \ap{\CC}{(\lam{x}{\app{\op{assert}}{(\app{\obj{love}}{x}{\obj{m}})}{(\lam{\_}{\etaE{(\ap{\obj{man}}{x})}})}})}
 \end{align*}
 
@@ -1428,4 +1437,180 @@ propositions into simple propositions, and that is the $\BOX$ handler.
     &(N \apl x) \andlr \ap{\BOX}{(\ap{K}{(\etaE{x})})}})}}
 \end{align*}
 
-By wrapping the meaning of the relative clause in a $\BOX$
+By wrapping the meaning of the relative clause in a $\BOX$, its truth
+conditions ($\op{assert}$ and $\op{introduce}$) are contained within the
+the proposition that the noun maps to and they do not block the $\CC$
+operator. However, adding the $\BOX$ in the entry for $\abs{who}_{\abs{r}}$
+does have its repercussions.\footnote{We have seen that the $\BOX$ handler
+  corresponds to the boundary of a DRS.\@ We note that DRT does not
+  instruct us to wrap the relative clause in a DRS and we can therefore
+  expect our theory to diverge w.r.t.\ accessibility.} It will lead to the
+blocking of anaphoric binding from the noun, as in the
+Sentence~\ref{ex:donkey-sentence}.
+
+\begin{exe}
+  \ex Every farmer who owns a donkey$_1$ beats it$_1$. \label{ex:donkey-sentence}
+\end{exe}
+
+Our entry for $\sem{\abs{who}_{\abs{r}}}$ gives the following meaning to
+the noun \emph{farmer who owns a donkey}:
+
+\begin{align*}
+& \sem{\app{\abs{who}_{\abs{r}}}{(\lam{x}{\app{\abs{owns}}{(\ap{\abs{a}}{\abs{donkey}})}{x}})}{\abs{farmer}}} \\
+& \tto \etaE{(\lam{x}{\ap{\obj{man}}{x} \land (\exists y.\, \ap{\obj{donkey}}{y} \land \app{\obj{own}}{x}{y})})}
+\end{align*}
+
+The result is a pure computation that is not going to introduce any
+referents into the discourse (because all of the $\op{introduce}$
+operations were captured by $\BOX$) and therefore it is not going to be
+able to license the anaphoric binding to the pronoun \emph{it}.
+
+We have seen that by not using $\BOX$ evaluation gets stuck because the
+$\op{assert}$ operations that carry the truth conditions of the relative
+clause are not independent of the argument to which the noun's extension is
+applied. On the other hand, by using $\BOX$, the $\op{introduce}$
+operations that introduce new discourse referents are blocked and cannot
+license the kind of anaphora that we see in
+Sentence~\ref{ex:donkey-sentence}. We can find the middle ground between
+the two by only handling $\op{assert}$ to get the truth conditions and
+letting $\op{introduce}$ project outside of the noun.
+
+\begin{align*}
+  \withAssertions &: \FF_{E \uplus \{\op{assert}\}}(1) \to \FF_E(o) \\
+  \withAssertions &= \lban \begin{aligned}[t]
+      &\onto{\op{assert}}{(\lam{p k}{p \andr \ap{k}{\star}})}, \\
+      &\onto{\eta}{(\lam{\_}{\top})} \, \rban
+    \end{aligned} \\
+  \sem{\abs{who}_{\abs{r}}} &= \lam{K N}{\ap{\CC}{(\lam{x}{(N \apl x) \andlr \ap{\withAssertions}{(\ap{K}{(\etaE{x})})}})}}
+\end{align*}
+
+Now, if we reexamine the meaning of the noun \emph{farmer who owns a
+  donkey} under the new interpretation of $\abs{who}_{\abs{r}}$, we find
+that the new discourse referent projects outside of the noun and will
+therefore be able to bind the pronoun in Sentence~\ref{ex:donkey-sentence}:
+
+\begin{align*}
+& \sem{\app{\abs{who}_{\abs{r}}}{(\lam{x}{\app{\abs{owns}}{(\ap{\abs{a}}{\abs{donkey}})}{x}})}{\abs{farmer}}} \\
+& \tto \begin{aligned}[t]
+    &\app{\op{introduce}}{\star}{(\lam{y}{ \\
+    &\etaE{(\lam{x}{\ap{\obj{man}}{x} \land \ap{\obj{donkey}}{y} \land \app{\obj{own}}{x}{y}})}})}\end{aligned}
+\end{align*}
+
+In the rest of this section, we will discuss two topics related to
+restrictive relative clauses. First, we will outline an analysis which
+chooses a richer type of interpretations for nouns so that the lexical
+entry for the relativizer will be less ad-hoc. Then, we will discuss how
+relative clauses and other kinds of complex nouns interact with
+presuppositions and definite descriptions.
+
+
+\subsection{A Different Interpretation for Nouns}
+\label{ssec:different-nouns}
+
+At the start of this section, we showed the challenge that is posed by
+folding in the meanings of sentence into meanings of nouns when the two are
+interpreted completely differently:
+
+\begin{align*}
+  \sem{NP \limp S} &= \FF_E(\iota) \to \FF_E(1) \\
+  \sem{N} &= \FF_E(\iota \to o)
+\end{align*}
+
+By changing the type of interpretations of nouns so that truth conditions
+are expressed as side effects and the effects can depend on the individual
+argument, then there is no conflict any more and the lexical entry for
+$\abs{who}_{\abs{r}}$ becomes trivial:
+
+\begin{align*}
+  \sem{NP \limp S} &= \FF_E(\iota) \to \FF_E(1) \\
+  \sem{N} &= \iota \to \FF_E(1) \\
+  \\
+  \sem{\abs{who}_{\abs{r}}} &= \lam{k n x}{\ap{n}{x} \dand \ap{k}{(\etaE{x})}}
+\end{align*}
+
+The schema underlying the use of computation types in such a grammar could
+be expressed the following way. Let the type of extensions
+$\sem{A}_\petitv$ of an atomic abstract type $A$ be of the form
+$a_1 \to \cdots \to a_n \to b$, where $a_i$ are atomic object types. Then
+we will use the type $a_1 \to \cdots \to a_n \to \FF_E(b)$ as the
+interpretation $\sem{A}_\petitc$ of the atomic abstract type $A$. This
+means that the interpretations are call-by-value functions, taking $n$
+values as arguments and then producing a computation.
+
+\begin{align*}
+  \sem{S}_\petitc &= \FF_E(o) \\
+  \sem{NP}_\petitc &= \FF_E(\iota) \\
+  \sem{N}_\petitc &= \iota \to \FF_E(o)
+\end{align*}
+
+Then, if we adopt the use of side effects to encode truth conditions, as in
+our dynamic grammar, we get the following:
+
+\begin{align*}
+  \sem{S} &= \FF_E(1) \\
+  \sem{NP} &= \FF_E(\iota) \\
+  \sem{N} &= \iota \to \FF_E(1)
+\end{align*}
+
+If we were to adopt this schema universally, we could also adapt the
+lifting operators and prove their conservativity by slightly modifying the
+proof of Observation~\ref{obs:conservativity-lifting}.
+
+\begin{align*}
+  \liftl_\alpha &: \sem{\alpha}_\petitv \to \sem{\alpha}_\petitc \\
+  \liftl_{S}(p) &= \etaE{p} \\
+  \liftl_{NP}(x) &= \etaE{x} \\
+  \liftl_{N}(n) &= \lam{x}{\etaE{(\ap{n}{x})}} \\
+  \liftl_{S \limp \beta}(f) &= \lam{P}{P \hsbind (\lam{p}{\liftl_\beta(\ap{f}{p})})} \\
+  \liftl_{NP \limp \beta}(f) &= \lam{X}{X \hsbind (\lam{x}{\liftl_\beta(\ap{f}{x})})} \\
+  \liftl_{N \limp \beta}(f) &= \lam{N}{(\ap{\CC}{N}) \hsbind (\lam{n}{\liftl_\beta(\ap{f}{n})})}
+\end{align*}
+
+Finally, we could integrate this type of noun interpretations and the
+simpler lexical entry for the relativizer by adjusting the grammar that we
+have been building up during this chapter.
+
+\centerline{
+\begin{minipage}{\linewidth}
+\begin{align*}
+  \lex{man}{\lam{x}{\ap{\op{assert}!}{(\ap{\obj{man}}{x})}}}
+& \lex{man}{\etaE{\obj{man}}} \\
+  \lex{woman}{\lam{x}{\ap{\op{assert}!}{(\ap{\obj{woman}}{x})}}}
+& \lex{woman}{\etaE{\obj{woman}}} \\
+& \vdots & & \vdots \\
+  \lex{a}{\lam{N}{\app{\op{introduce}}{\star}{N}}}
+& \lex{a}{\begin{aligned}[t]
+     \lam{N}{&\app{\op{introduce}}{\star}{(\lam{x}{ \\
+             &N \hsbind (\lam {n}{ \\
+             &\app{\op{assert}}{(n(x))}{(\lam{\_}{ \\
+             &\etaE{x}})}})})}}
+  \end{aligned}} \\
+  \lex{every}{\lam{N}{\ap{\op{scope}!}{(\lam{k}{\dforall x.\,\ap{\SI}{(\ap{N}{x})} \dimp \ap{k}{x}})}}}
+& \lex{every}{\lam{N}{\ap{\op{scope}!}{(\lam{k}{\dforall x.\,\ap{\SI}{((N \apl x) \hsbind \op{assert}!)} \dimp \ap{k}{x}})}}} \\
+  \lex{a'}{\lam{N}{\ap{\op{scope}!}{(\lam{k}{\dexists x.\,\ap{\SI}{(\ap{N}{x})} \dand \ap{k}{x}})}}}
+& \lex{a'}{\lam{N}{\ap{\op{scope}!}{(\lam{k}{\dexists x.\,\ap{\SI}{((N \apl x) \hsbind \op{assert}!)} \dand \ap{k}{x}})}}} \\
+  \lex{owner-of}{\lam{Y x}{(\ap{\obj{own}}{x} \apr Y) \hsbind \op{assert}!}}
+& \lex{owner-of}{\lam{Y}{Y \hsbind (\lam{y}{\etaE{(\lam{x}{\app{\obj{own}}{x}{y}})}})}}
+\end{align*}
+\end{minipage}
+}
+\vspace{5mm}
+
+These are all the changes that need to be made to the grammar,
+\emph{except} for the entries having to do with presuppositions
+($\abs{poss}$ and $\abs{the}$), which we will deal with next.
+
+
+\subsection{Relative Clauses and Presuppositions}
+\label{ssec:relative-clauses-presuppositions}
+
+While changing the semantics of nouns and introducing restrictive relative
+clauses, we have so far ignored their interaction with presupposition
+triggers that depend on them. We will now give the semantics to these
+referring expressions and observe some of the deficiencies, one of which we
+will resolve.
+
+\begin{align*}
+  \lex{poss}{\lam{X N}{X \hsbind (\lam{x}{\ap{\CC}{(\BOX \circ N)} \hsbind (\lam{n}{\ap{\op{presuppose}!}{(\lam{y}{\ap{n}{y} \land \app{\obj{own}}{x}{y}})}})})}} \\
+  \lex{the}{\lam{N}{\ap{\CC}{(\BOX \circ N)} \hsbind (\lam{n}{\ap{\op{presuppose}!}{n}})}}
+\end{align*}
