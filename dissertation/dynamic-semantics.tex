@@ -3034,14 +3034,13 @@ binding. Our solution improves in some aspects on Lebedeva's work:
     in~\ref{sec:termination}.}. Furthermore, when Lebedeva sketched out a
   possible solution to the binding problem, she defined a recursive
   function which was then part of the lexical semantic entries\footnote{The
-    function in question is the $\mathrm{iacc}$ handler for intermediate
+    function in question is the $\textsf{iacc}$ handler for intermediate
     accommodation from Definition~6.29. This handler is part of the
-    definition of dynamic negation, which is an operator used by the
-    lexical entries for the determiner \emph{every} or the conditional
-    construction \emph{if \ldots, then}.}. This is also problematic since
-  general recursion precludes termination. Our calculus gets around this by
-  relying on inductive types to provide a limited form of recursion which
-  can be proven terminating.
+    definition of the dynamic existential quantifier, which is the only
+    operator using which new variables are introduced.}. This is also
+  problematic since general recursion precludes termination. Our calculus
+  gets around this by relying on inductive types to provide a limited form
+  of recursion which can be proven terminating.
 
   The $\calc$ calculus, as it is presented in this manuscript, is
   terminating and strongly normalizing, while still allowing us to

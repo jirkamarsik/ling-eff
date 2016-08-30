@@ -1159,10 +1159,10 @@ $\op{introduce}$ in the $\BOX$ handler:
       &\ldots\ \rban \ldots
     \end{aligned} \\
   \\
-  \introduce &: 1 \to (\iota \to \FF_{E \uplus \{\op{fresh},
-               \op{push}\}}(\alpha)) \to \FF_{E \uplus \{\op{fresh},
-               \op{push}\}}(\alpha) \\
-  \introduce &= \lam{\_ k}{\begin{aligned}[t]
+  \op{introduce} &: 1 \to (\iota \to \FF_{E \uplus \{\op{fresh},
+                    \op{push}\}}(\alpha)) \to \FF_{E \uplus \{\op{fresh},
+                    \op{push}\}}(\alpha) \\
+  \op{introduce} &= \lam{\_ k}{\begin{aligned}[t]
       &\app{\op{fresh}}{\star}{(\lam{x}{ \\
       &\app{\op{push}}{x}{(\lam{\_}{ \\
       &\ap{k}{x}})}})}
@@ -1607,10 +1607,91 @@ These are all the changes that need to be made to the grammar,
 While changing the semantics of nouns and introducing restrictive relative
 clauses, we have so far ignored their interaction with presupposition
 triggers that depend on them. We will now give the semantics to these
-referring expressions and observe some of the deficiencies, one of which we
-will resolve.
+referring expressions, observe some of their deficiencies and propose
+solutions.\footnote{Below, we use the interpretation of nouns introduced
+  in~\ref{ssec:different-nouns}. However, we could draw similar conclusions
+  for the interpretation of nouns used in the rest of this chapter.}
 
 \begin{align*}
-  \lex{poss}{\lam{X N}{X \hsbind (\lam{x}{\ap{\CC}{(\BOX \circ N)} \hsbind (\lam{n}{\ap{\op{presuppose}!}{(\lam{y}{\ap{n}{y} \land \app{\obj{own}}{x}{y}})}})})}} \\
-  \lex{the}{\lam{N}{\ap{\CC}{(\BOX \circ N)} \hsbind (\lam{n}{\ap{\op{presuppose}!}{n}})}}
+  \lex{poss}{\lam{X N}{\begin{aligned}[t]
+      &X \hsbind (\lam{x}{ \\
+      &\ap{\CC}{(\BOX \circ N)} \hsbind (\lam{n}{ \\
+      &\ap{\op{presuppose}!}{(\lam{y}{\ap{n}{y} \land \app{\obj{own}}{x}{y}})}})})
+    \end{aligned}}} \\
+  \lex{the}{\lam{N}{\begin{aligned}[t]
+      &\ap{\CC}{(\BOX \circ N)} \hsbind (\lam{n}{ \\
+      &\ap{\op{presuppose}!}{n}})
+    \end{aligned}}}
 \end{align*}
+
+The $\op{presuppose}$ operation accepts \emph{static properties}, functions
+of type $\iota \to o$, as arguments. Our noun is a \emph{dynamic
+  property}\footnote{Terminology due to~\cite{lebedeva2012expression}.}, a
+function of type $\iota \to \FF_E(1)$. To go from dynamic to static, we can
+use the $\BOX$ handler to cast the $\op{introduce}$ and $\op{assert}$
+operations down to propositions. Note that the same strategy is employed by
+Lebedeva in~\cite{lebedeva2012expression} (Equations~(5.14) and~(5.22)):
+
+\begin{align*}
+  \widetilde{\textsf{sel}} &= \lam{\textbf{P} e}{\app{\textsf{sel}}{(\lam{x}{\appp{\textbf{P}}{(\lam{e}{x})}{e}{(\lam{e}{\top})}})}{e}} \\
+  \widetilde{\sem{the}} &= \lam{\textbf{N} \textbf{P}}{\ap{\textbf{P}}{(\ap{\widetilde{\textsf{sel}}}{\textbf{N}})}}
+\end{align*}
+
+The entry for the definite article uses the dynamic operator
+$\textsf{sel}$, on which our $\find$ operator is based. The $\textsf{sel}$
+operator is made compatible with dynamic properties in
+$\widetilde{\textsf{sel}}$. This is done by applying a context $e$ and the
+trivial continuation $\lam{e}{\top}$ to the dynamic proposition
+$\ap{\textbf{P}}{(\lam{e}{x})}$.\footnote{This is equivalent to the use of
+  the $\BOX$ handler in our approach.}
+
+However, this solution can be lacking when the dynamic property which is
+the denotation of the noun introduces new discourse referents itself (e.g.\
+\emph{the man who owns a dog}).
+
+\begin{align*}
+& \sem{\ap{\abs{the}}{(\app{\abs{who}_{\abs{r}}}{(\lam{x}{\app{\abs{owns}}{(\ap{\abs{a}}{\abs{dog}})}{x}})}{\abs{man}})}} \\
+& \tto \ap{\op{presuppose}!}{(\lam{x}{\exists y.\, \ap{\obj{man}}{x} \land
+  \ap{\obj{dog}}{y} \land \app{\obj{own}}{x}{y}})}
+\end{align*}
+
+If we were to accommodate such a presupposition, we would introduce at the
+global level a new discourse referent satisfying the above
+condition. However, the binding potential of the NP \emph{a dog} would have
+already been wasted by the use of $\BOX$ (or in the case of TTDL, the use
+of $\lam{e}{\top}$). This means that we would not be able to account for
+the binding in Sentence~\ref{ex:presupposition-binding}.
+
+\begin{exe}
+  \ex The man who owns a dog$_1$ loves it$_1$. \label{ex:presupposition-binding}
+\end{exe}
+
+Before we address this issue, we turn to another similar problem. We will
+consider a very similar situation, but instead of introducing a discourse
+referent, the relative clause will trigger a presupposition where the
+description of the presupposed individual will contain a variable bound by
+the relative clause. For example, in \emph{the man$_1$ who loves his$_1$
+  dog}, the genitive construction \emph{his$_1$ dog} is a presupposition
+trigger but the presupposition cannot project outside of the relative
+clause because the variable $1$ has scope only over the relative clause. If
+we were to calculate the meaning of \emph{the man$_1$ who loves his$_1$
+  dog} in the TTDL of~\cite{lebedeva2012expression}, we would get the
+following:
+
+\begin{align*}
+& \sem{\textit{the man$_1$ who loves his$_1$ dog}} \\
+& = \lam{\textbf{P} e \phi}{\appp{\textbf{P}}{(\app{\textsf{sel}}{(\lam{x}{\ap{\textsf{raise}}{(\ap{\texttt{AbsentIndividualExc}}{(\lam{y}{\ap{\obj{dog}}{y} \land \app{\obj{poss}}{x}{y}})})}})}{e})}{e}{\phi}}
+\end{align*}
+
+At this point, we would get stuck since the exception cannot propagate
+outside of the lambda abstraction $\lambda x$, because $x$ is bound within
+the exception's message,
+$\lam{y}{\ap{\obj{dog}}{y} \land \app{\obj{poss}}{x}{y}}$.\footnote{This
+  kind of stuck term is very similar to the
+  $\ap{\CC}{(\lam{x}{\app{\op{presuppose}}{(\lam{y}{\ap{\obj{dog}}{y} \land
+          \app{\obj{poss}}{x}{y}})}{M_\petitc}})}$ in $\calc$.} However, in
+TTDL we can fix this by using the same intermediate accommodation handler
+as is used in the dynamic existential quantifier to solve the binding
+problem.\footnote{The $\textsf{iacc}$ handler that we mentioned
+  in~\ref{ssec:comparison-ttdl}, defined in~\cite{lebedeva2012expression},
+  Definition~6.29.}
