@@ -1752,7 +1752,7 @@ Sentence~\ref{ex:presupposition-binding2}.
 \end{exe}
 
 
-\subsubsection{Sketching a Solution --- Presupposing Dynamic Propositions}
+\subsubsection{Sketching a Solution --- Dynamic Presuppositions}
 
 If we want the dynamic effects of definite descriptions to have
 discourse-wide scope, then we should move their whole evaluation, not just
@@ -1767,8 +1767,8 @@ $$
 However, we have to be careful about the effect signature $E^*$ used
 above. From the discussion in Section~\ref{sec:adding-quantification}, we
 know that $E^*$ cannot include
-$\typedop{presuppose}{(\iota \to \FF_{E*}(1))}{\iota}$ because then
-$E^*$ is not well-defined. For similar reasons, $E^*$ cannot contain
+$\typedop{presuppose}{(\iota \to \FF_{E^*}(1))}{\iota}$ because then $E^*$
+is not well-defined. For similar reasons, $E^*$ cannot contain
 $\typedop{scope}{((\iota \to \FF_{E'}(1)) \to \FF_{E'}(1))}{\iota}$,
 because $\op{presuppose} \in E'$.
 
@@ -1901,7 +1901,7 @@ $\abs{the}$ as well as the other presupposition triggers.
                   \to \FF_{E \uplus \{\op{get}\}}(\iota \to \FF_{E^*}(1)) \\
   \packageProperty &= \lam{P}{\begin{aligned}[t]
       &\app{\op{get}}{\star}{(\lam{e}{ \\
-      &\ap{\CC}{(\lam{x}{\ap{\splitDRT}{(\app{\inTheContext}{e}{(\ap{\SI}{(\ap{\maybeAccommodate}{(\ap{P}{x})})})})}})}})}
+      &\ap{\CC}{(\lam{x}{\ap{\splitDRT}{(\app{\inTheContext}{e}{(\ap{\maybeAccommodate}{(\ap{\SI}{(\ap{P}{x})})})})}})}})}
     \end{aligned}} \\
   \\
   \lex{the}{\lam{N}{\begin{aligned}[t]
@@ -1910,12 +1910,110 @@ $\abs{the}$ as well as the other presupposition triggers.
     \end{aligned}}} \\
   \lex{poss}{\lam{X N}{\begin{aligned}[t]
       &X \hsbind (\lam{x}{ \\
-      &\ap{\packageProperty}{(\lam{y}{\app{\op{push}}{y}{(\lam{\_}{\ap{N}{y} \dand \ap{\op{assert}!}{(\app{\obj{own}}{x}{y})}})}})} \hsbind (\lam{N'}{ \\
+      &\ap{\packageProperty}{(\lam{y}{\app{\op{push}}{y}{(\lam{\_}{\app{\op{assert}}{(\app{\obj{own}}{x}{y})}{(\lam{\_}{\ap{N}{y}})}})}})} \hsbind (\lam{N'}{ \\
       &\ap{\op{presuppose}!}{N'}})})
     \end{aligned}}} \\
   \lex{children-of}{\lam{X}{\begin{aligned}[t]
-      &\ap{\packageProperty}{(\lam{y}{(\ap{\obj{children}}{y} \apr X) \hsbind \op{assert}!})} \hsbind (\lam{N'}{ \\
-      &\ap{\op{presuppose}!}{N'}})
-    \end{aligned}}} \\
-  &\vdots
+      &X \hsbind (\lam{x}{ \\
+      &\ap{\packageProperty}{(\lam{y}{\ap{\op{assert}!}{(\app{\obj{children}}{y}{x})}})} \hsbind (\lam{N'}{ \\
+      &\ap{\op{presuppose}!}{N'}})})
+    \end{aligned}}}
 \end{align*}
+
+Finally, since we changed the type (and therefore also the intended
+semantics) of the $\op{presuppose}$ operation, we will also have to modify
+its handlers ($\accommodate$, $\maybeAccommodate$ and $\useFind$)
+accordingly.
+
+\begin{align*}
+  \accommodate &: \FF_{E \uplus \{\op{presuppose}\}}(\alpha) \to \FF_{E \uplus E^*}(\alpha) \\
+  \accommodate &= \banana{\onto{\op{presuppose}}{(\lam{P k}{
+    \app{\op{introduce}}{\star}{(\lam{x}{(\ap{P}{x}) \hsbind (\lam{\_}{\ap{k}{x}})})}})}} \\
+  \maybeAccommodate &: \FF_{E \uplus \{\op{presuppose}\}}(\alpha) \to
+                      \FF_{E \uplus E^* \uplus \{\op{presuppose},\op{amb}\}}(\alpha) \\
+  \maybeAccommodate &= \banana{\onto{\op{presuppose}}{(\lam{P k}{
+    \app{\op{presuppose}}{P}{k} +
+    \app{\op{introduce}}{\star}{(\lam{x}{(\ap{P}{x}) \hsbind (\lam{\_}{\ap{k}{x}})})}})}} \\
+  \useFind &: \FF_{E \uplus \{\op{presuppose}\}}(\alpha) \to \FF_{E \uplus \{\op{get}, \op{presuppose}\}}(\alpha) \\
+  \useFind &= \banana{\onto{\op{presuppose}}{(\lam{P k}{\ap{\find}{P} \hsbind k})}} \\
+  \\
+  \find &: (\iota \to \FF_{E^*}(1)) \to \FF_{E \uplus \{\op{get}, \op{presuppose}\}}(\iota) \\
+  \find &= \lam{P}{\app{\op{get}}{\star}{(\lam{e}{\case{\app{\selP}{(\cherry \circ \TOP \circ P)}{e}}{x}{\etaE{x}}{\_}{\ap{\op{presuppose}!}{P}}})}}
+\end{align*}
+
+In $\accommodate$ and $\maybeAccommodate$, the instead of asserting
+$\ap{P}{x}$, we evaluate it, letting it have its dynamic effects at
+wherever the presupposition is being accomodated. The $\useFind$ handler
+will work the same way as before but use a new definition for $\find$ which
+works on dynamic predicates of type $\iota \to \FF_{E^*}(1)$. $\find$ will
+map this dynamic predicate to a static one using $\cherry \circ \TOP$. The
+use of $\TOP$ blocks any effects in the predicate $P$. This is can be
+intuitively understood as the listener considering whether there exists
+some $x$ such that $\ap{P}{x}$ without committing the effects of $P$ to the
+common ground.
+
+With all of this heavy machinery in place, we now have a system that can
+deal with sentence like Sentence~\ref{ex:presupposition-binding} and
+Sentence~\ref{ex:presupposition-binding2}. The noun phrases \emph{the man
+  who owns a dog} and \emph{the man who loves his dog} both trigger
+presuppositions with dynamic content. This content is then accommodated
+globally and all the new discourse referents are available in subsequent
+discourse.
+
+\begin{exe}
+  \exr{ex:presupposition-binding} The man who owns a dog$_1$ loves
+  it$_1$.
+  \exr{ex:presupposition-binding2} The man$_1$ who loves his$_1$ dog$_2$
+  treats it$_2$ well.
+\end{exe}
+
+\begin{align*}
+& \sem{\ap{\abs{the}}{(\app{\abs{who}_{\abs{r}}}{(\lam{x}{\app{\abs{owns}}{(\ap{\abs{a}}{\abs{dog}})}{x}})}{\abs{man}})}} \\
+& \leadsto \ap{\op{presuppose}!}{(\lam{x}{\begin{aligned}[t]
+    &\app{\op{push}}{x}{(\lam{\_}{ \\
+    &\app{\op{assert}}{(\ap{\obj{man}}{x})}{(\lam{\_}{ \\
+    &\app{\op{introduce}}{\star}{(\lam{y}{ \\
+    &\app{\op{assert}}{(\ap{\obj{dog}}{y})}{(\lam{\_}{ \\
+    &\app{\op{assert}}{(\app{\obj{own}}{x}{y})}{(\lam{\_}{ \\
+    &\etaE{\star}})}})}})}})}})})
+  \end{aligned}}}
+& & \approx \ap{\op{presuppose}!}{(\lam{x}{\begin{aligned}[t]
+    &\app{\op{assert}}{(\ap{\obj{man}}{x})}{(\lam{\_}{ \\
+    &\app{\op{introduce}}{\star}{(\lam{y}{ \\
+    &\app{\op{assert}}{(\ap{\obj{dog}}{y})}{(\lam{\_}{ \\
+    &\app{\op{assert}}{(\app{\obj{own}}{x}{y})}{(\lam{\_}{ \\
+    &\etaE{\star}})}})}})}})})
+  \end{aligned}}} \\
+  \\
+& \sem{\ap{\abs{the}}{(\app{\abs{who}_{\abs{r}}}{(\lam{x}{\app{\abs{loves}}{(\app{\abs{poss}}{\abs{he}}{\abs{dog}})}{x}})}{\abs{man}})}} \\
+& \leadsto \ap{\op{presuppose}!}{(\lam{x}{\begin{aligned}[t]
+    &\app{\op{push}}{x}{(\lam{\_}{ \\
+    &\app{\op{assert}}{(\ap{\obj{man}}{x})}{(\lam{\_}{ \\
+    &\app{\op{introduce}}{\star}{(\lam{y}{ \\
+    &\app{\op{assert}}{(\ap{\obj{dog}}{y})}{(\lam{\_}{ \\
+    &\app{\op{get}}{\star}{(\lam{e}{ \\
+    &\app{\op{assert}}{(\app{\obj{own}}{(\ap{\selhe}{e})}{y})}{(\lam{\_}{ \\
+    &\app{\op{assert}}{(\app{\obj{love}}{x}{y})}{(\lam{\_}{ \\
+    &\etaE{\star}})}})}})}})}})}})}})})
+  \end{aligned}}}
+& & \approx \ap{\op{presuppose}!}{(\lam{x}{\begin{aligned}[t]
+    &\app{\op{assert}}{(\ap{\obj{man}}{x})}{(\lam{\_}{ \\
+    &\app{\op{introduce}}{\star}{(\lam{y}{ \\
+    &\app{\op{assert}}{(\ap{\obj{dog}}{y})}{(\lam{\_}{ \\
+    &\app{\op{assert}}{(\app{\obj{own}}{x}{y})}{(\lam{\_}{ \\
+    &\app{\op{assert}}{(\app{\obj{love}}{x}{y})}{(\lam{\_}{ \\
+    &\etaE{\star}})}})}})}})}})})
+  \end{aligned}}}
+\end{align*} 
+
+We also derive the intended readings behind
+Sentences~\ref{ex:presupposition-every-narrow},
+\ref{ex:presupposition-every-wide}, \ref{ex:every-presupposition}
+and~\ref{ex:binding-in-presupposition}, but that was already the case
+before delving into dynamic presuppositions.
+
+
+\section{Summary}
+\label{sec:composing-summary}
+
+
