@@ -7,6 +7,10 @@
 \newcommand{\opr}[1]{\mathbin{#1\!\!\gg}}
 \newcommand{\oplr}[1]{\mathbin{\ll\!\!#1\!\!\gg}}
 
+\newcommand{\cons}{\mathbin{::}}
+\newcommand{\cat}{\mathbin{+\mkern-10mu+}}
+\newcommand{\nil}{\mathrm{nil}}
+
 \newcommand{\apl}{\opl{\cdot}}
 \newcommand{\apll}{\opll{\cdot}}
 \newcommand{\apr}{\opr{\cdot}}
@@ -25,10 +29,13 @@
 \newcommand{\orlr}{\oplr{\lor}}
 \newcommand{\notr}{\opr{\lnot}}
 \newcommand{\somelr}{\oplr{\_}}
+\newcommand{\consl}{\opl{\cons}}
+\newcommand{\consr}{\opr{\cons}}
+\newcommand{\conslr}{\oplr{\cons}}
+\newcommand{\catl}{\opl{\cat}}
+\newcommand{\catr}{\opr{\cat}}
+\newcommand{\catlr}{\oplr{\cat}}
 
-\newcommand{\cons}{\mathbin{::}}
-\newcommand{\cat}{\mathbin{+\mkern-10mu+}}
-\newcommand{\nil}{\mathrm{nil}}
 
 
 \newcommand{\abs}[1]{\textsc{#1}}
@@ -206,6 +213,9 @@
 \newcommand{\maybeAccommodate}{\operatorname{maybeAccommodate}}
 \newcommand{\EMPTY}{\operatorname{empty}}
 \newcommand{\asImplicature}{\operatorname{asImplicature}}
+\newcommand{\inTheContext}{\operatorname{inTheContext}}
+\newcommand{\splitDRT}{\operatorname{splitDRT}}
+\newcommand{\packageProperty}{\operatorname{packageProperty}}
 
 \newcommand{\calc}{{\banana{\lambda}}}
 \newcommand{\intcalc}{{\banana{\lambda}_{-\eta}}}

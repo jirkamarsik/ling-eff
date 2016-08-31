@@ -1017,7 +1017,7 @@ quantifiers, $\op{assert}$).
   \SI &: \FF_{E \uplus \{\op{scope}\}}(1) \to \FF_E(1) \\
   \SI &= \banana{\onto{\op{scope}}{(\lam{c k}{\ap{c}{k}})}} \\
   \\
-  \TOP &\coloneqq \TOP \circ \SI
+  \TOP &\coloneqq \lam{s}{\ap{\TOP}{s} \circ \SI}
 \end{align*}
 
 We can check the types of $\sem{\abs{every}}$ and $\sem{\abs{a'}}$, namely
@@ -1241,9 +1241,18 @@ Sentence~\ref{ex:inverse}.
 \end{exe}
 
 \begin{align*}
-  &\ap{(\cherry \circ \TOP)}{\sem{\app{\abs{QR}}{(\ap{\abs{every}}{\abs{man}})}{(\lam{O}{\app{\abs{loves}}{O}{(\ap{\abs{a'}}{\abs{woman}})}})}}} \\
+  &\ap{(\cherry \circ \TOP\footnotemark)}{\sem{\app{\abs{QR}}{(\ap{\abs{every}}{\abs{man}})}{(\lam{O}{\app{\abs{loves}}{O}{(\ap{\abs{a'}}{\abs{woman}})}})}}} \\
   &\tto \forall y.\, \ap{\obj{man}}{y} \to (\exists x.\, \ap{\obj{woman}}{x} \land \app{\obj{love}}{x}{y})
 \end{align*}
+
+\footnotetext{After adding deixis, the type of $\TOP$ became
+  $\iota \to \FF_E(1) \to \FF_\emptyset(o)$. However, we will often look at
+  sentences which are not indexical. In such cases, we will overload $\TOP$
+  to also mean ``the $\TOP$ handler without the $\withSpeaker$ handler'',
+  type $\FF_E(1) \to \FF_{\{\op{speaker}\}}(o)$. This means will not be
+  obliged to provide a referent for the speaker. On the other hand, the
+  resulting computation might use the $\op{speaker}$ effect if the sentence
+  is indexical.}
 
 However, we cannot use the same mechanism to derive the incorrect reading
 of Sentence~\ref{ex:crossover}.
@@ -1689,9 +1698,224 @@ the exception's message,
 $\lam{y}{\ap{\obj{dog}}{y} \land \app{\obj{poss}}{x}{y}}$.\footnote{This
   kind of stuck term is very similar to the
   $\ap{\CC}{(\lam{x}{\app{\op{presuppose}}{(\lam{y}{\ap{\obj{dog}}{y} \land
-          \app{\obj{poss}}{x}{y}})}{M_\petitc}})}$ in $\calc$.} However, in
-TTDL we can fix this by using the same intermediate accommodation handler
-as is used in the dynamic existential quantifier to solve the binding
-problem.\footnote{The $\textsf{iacc}$ handler that we mentioned
-  in~\ref{ssec:comparison-ttdl}, defined in~\cite{lebedeva2012expression},
-  Definition~6.29.}
+          \app{\obj{poss}}{x}{y}})}{(\lam{y}{M_\petitc(y)})}})}$ in
+  $\calc$.} However, in TTDL we can fix this by using the same intermediate
+accommodation handler as is used in the dynamic existential quantifier to
+solve the binding problem.\footnote{The $\textsf{iacc}$ handler that we
+  mentioned in~\ref{ssec:comparison-ttdl}, defined
+  in~\cite{lebedeva2012expression}, Definition~6.29.} In our approach, the
+handler responsible for intermediate accommodation, $\maybeAccommodate$, is
+part of the $\BOX$ handler and so evaluation does not get stuck and the
+presupposition is accommodated. Nevertheless, to get the intended reading
+of the above noun phrase, we will have to make the argument to the property
+anaphorically accessible within the noun:\footnote{In the presentation of
+  TTDL in Lebedeva's thesis~\cite{lebedeva2012expression}, adding the
+  condition $\ap{\obj{man}}{x}$ to the context suffices to make $x$
+  accessible. In our setting, we make a distinction between adding a fact
+  to the common ground using $\op{assert}$ versus introducing a new
+  discourse referent for discussion using $\op{push}$ or $\op{introduce}$
+  (this lets us give a (partial) account of crossover constraints).}
+
+\begin{align*}
+  \lex{the}{\lam{N}{\begin{aligned}[t]
+      &\ap{\CC}{(\lam{x}{\ap{\BOX}{(\app{\op{push}}{x}{(\lam{\_}{\ap{N}{x}})})}})} \hsbind (\lam{n}{ \\
+      &\ap{\op{presuppose}!}{n}})
+    \end{aligned}}}
+\end{align*}
+
+We can now use this entry to compute the meaning of the noun phrase
+\emph{the man$_1$ who loves his$_1$ dog}. When presenting the result, we
+use the $\EMPTY$ and $\search$ handlers to filter out the irrelevant
+branches (looking for the antecedent of \emph{his dog} in the context and
+trying to project outside of the relative clause).
+
+\begin{align*}
+& \ap{\search}{(\ap{\EMPTY}{\sem{\ap{\abs{the}}{(\app{\abs{who}_{\abs{r}}}{(\lam{x}{\app{\abs{loves}}{(\app{\abs{poss}}{\abs{he}}{\abs{dog}})}{x}})}{\abs{man}})}}})} \\
+& \tto \ap{\op{presuppose}!}{(\lam{x}{\exists y.\, \ap{\obj{dog}}{y} \land
+  \app{\obj{own}}{x}{y} \land \ap{\obj{man}}{x} \land \app{\obj{love}}{x}{y}})}
+\end{align*}
+
+We have solved the problem of the definite description \emph{the $N$ who
+  $P$s} where $P$ triggers a presupposition dependent on $N$. However,
+there is still the same issue that we encountered at the beginning of this
+subsection. When we accommodate the presupposition triggered by the
+definite description \emph{the man who loves his dog}, we introduce the man
+as a discourse referent. However, the scope of the quantifier ranging over
+dogs will be limited to the proposition
+$\exists y.\, \ap{\obj{dog}}{y} \land \app{\obj{own}}{x}{y} \land
+\ap{\obj{man}}{x} \land \app{\obj{love}}{x}{y}$. This means that we will
+not be able to explain the anaphoric binding in
+Sentence~\ref{ex:presupposition-binding2}.
+
+\begin{exe}
+  \ex The man$_1$ who loves his$_1$ dog$_2$ treats it$_2$ well. \label{ex:presupposition-binding2}
+\end{exe}
+
+
+\subsubsection{Sketching a Solution --- Presupposing Dynamic Propositions}
+
+If we want the dynamic effects of definite descriptions to have
+discourse-wide scope, then we should move their whole evaluation, not just
+their results, to the global context. We can change the type of
+$\op{presuppose}$ so that we are not signalling the presupposition of
+static properties but of dynamic ones.
+
+$$
+\typedop{presuppose}{(\iota \to \FF_{E^*}(1))}{\iota}
+$$
+
+However, we have to be careful about the effect signature $E^*$ used
+above. From the discussion in Section~\ref{sec:adding-quantification}, we
+know that $E^*$ cannot include
+$\typedop{presuppose}{(\iota \to \FF_{E*}(1))}{\iota}$ because then
+$E^*$ is not well-defined. For similar reasons, $E^*$ cannot contain
+$\typedop{scope}{((\iota \to \FF_{E'}(1)) \to \FF_{E'}(1))}{\iota}$,
+because $\op{presuppose} \in E'$.
+
+We can dispose of the $\op{presuppose}$ effects by evaluating them and
+accommodating them using $\op{introduce}$ and $\op{assert}$ should they
+depend on the argument of the property (e.g.\ \emph{the man who is talking
+  to Peter} should presuppose the existence of a salient individual called
+Peter and \emph{the man$_1$ who is talking to his$_1$ friend} should, when
+accommodated, introduce two individuals, a man and his friend).
+
+The $\op{scope}$ effect can be eliminated either by evaluating it (i.e.\
+projecting it) or by handling it with $\SI$. Handling it would give us
+narrow scope w.r.t.\ the presupposition, whereas projecting it would give
+us wider scope. We find that both are possible: narrow scope in
+Sentence~\ref{ex:presupposition-every-narrow} and wide scope in
+Sentence~\ref{ex:presupposition-every-wide}. We will therefore choose
+narrow scope by default, since in that case we can always derive the wider
+scope by quantifier raising with $\abs{QR}$.
+
+\begin{exe}
+  \ex The owner of every book ever published by Springer must be very
+  rich. \label{ex:presupposition-every-narrow}
+  \ex Mary sent an email to the representative of every
+  country. \label{ex:presupposition-every-wide}
+\end{exe}
+
+Coming at it from a different angle, we can start looking at the effects
+that we \emph{need} to have in $E^*$. Our dynamic properties need to convey
+truth conditions ($\op{assert}$) and introduce discourse referents
+($\op{introduce}$, or rather its parts: $\op{fresh}$ and $\op{push}$).
+
+Next we look at what to do with the anaphoric operation $\op{get}$. If we
+were not to evaluate the $\op{get}$ operation at the point where the
+presupposition is triggered but rather project as part of the presupposed
+material and evaluate in the global context (or some other accommodation
+site), then we would not be able to derive the reading of
+Sentence~\ref{ex:every-presupposition}. If we were to evaluate \emph{$x$ is
+  the sound of their voice} in the global context, we could no longer bind
+the pronoun \emph{their} to its intended antecedent. On the other hand, we
+cannot evaluate the $\op{get}$ operations without evaluating the
+$\op{introduce}$ operations (which we do not want to do since we want to
+evaluate them at accommodation-time) because otherwise we would break
+anaphoric binding \emph{within} the dynamic proposition being
+presupposed. For example, in Sentence~\ref{ex:binding-in-presupposition},
+we would need to evaluate the $\op{introduce}$ operation of the indefinite
+\emph{a car} in order for the $\op{get}$ operation used by the pronoun to
+be able to bind to the car.
+
+\begin{exe}
+  \ex Everyone$_1$ hates the sound of their$_1$
+  voice. \label{ex:every-presupposition}
+  \ex John met the woman who stole a car$_1$ by hacking into its$_1$
+  computer. \label{ex:binding-in-presupposition}
+\end{exe}
+
+We can deal with this by preserving the $\op{get}$ operations in the
+material being presupposed (so that internal anaphoric binding will work
+correctly) but making sure that they have access to all the referents
+available at the point of triggering the presupposition. For this kind of
+manipulation, we introduce the $\inTheContext$ handler, which for any
+context $e$ and computation $X$ will yield the computation
+$\app{\inTheContext}{e}{X}$ that, when evaluated, will have access to the
+material in the context $e$.
+
+\begin{align*}
+  \inTheContext &: \gamma \to \FF_{E \uplus \{\op{get}\}}(\alpha)
+                          \to \FF_{E \uplus \{\op{get}\}}(\alpha) \\
+  \inTheContext &= \lam{e}{\banana{\onto{\op{get}}{(\lam{\_ k}{\app{\op{get}}{\star}{(\lam{e'}{\ap{k}{(e \cat e')}})}})}}}
+\end{align*}
+
+Finally, we have the rest of the other effects, such as $\op{speaker}$ and
+$\op{implicate}$. We could either evaluate them at the point where the
+presupposition is triggered or include them into the set of effects $E^*$
+that is projected with the presupposition. Note that if we include them in
+$E^*$, then they might get evaluated twice: once when the argument to
+$\op{presuppose}$ is evaluated down to a static property to be used with
+$\selP$ to search for an existing referent satisfying the definite
+description, and then, if the referent does not exist, a second time to
+accommodate the presupposition and evaluate all of its dynamic effects in
+the global context. If we include these effects into the dynamic property
+that is given to $\op{presuppose}$ as an argument, then these should be
+idempotent so that repeated evaluation does not interfere with the
+semantics, or we should take special care of them when doing multiple
+evaluations. Both $\op{speaker}$ and $\op{implicate}$ are idempotent, so we
+are not limited by this factor. However, we still want to keep $E^*$ as
+simple as possible and so we will evaluate these effects at the point where
+the presupposition is triggered.
+
+This means that the effect signature $E^*$ in
+$\typedop{presuppose}{(\iota \to \FF_{E^*}(1))}{\iota}$ will be the $E_\DRT$
+effect signature from Chapter~\ref{chap:dynamic-semantics}, though with
+$\op{introduce}$ replaced with $\op{fresh}$ and $\op{push}$ due to the
+changes we made in~\ref{ssec:crossover}.
+
+\begin{align*}
+  E^* = \{\ &\typedop{get}{1}{\gamma}, \\
+            &\typedop{fresh}{1}{\iota}, \\
+            &\typedop{push}{\iota}{1}, \\
+            &\typedop{assert}{o}{1}\ \}
+\end{align*}
+
+Now our intention is to handle or evaluate the effects of the noun in the
+definite description with the exception of the effects in $E^*$. This means
+that we want to split the computation of the noun's meaning into two
+layers: one using the effects in $E \setminus E^*$ and another using the
+effects in $E^*$. We can write a handler for this.\footnote{This amounts to
+  reordering all of the operations in a computation so that the ones in
+  $E \setminus E^*$ go before those in $E^*$. This is not always possible
+  since some of the operations from $E \setminus E^*$ might depend on the
+  results of some of the operations in $E^*$. We can therefore expect the
+  handler to make use of $\CC$, our partial operator for messing around
+  with evaluation and functional dependencies.}
+
+\begin{align*}
+  \splitDRT &: \FF_{E \uplus E^*}(\alpha) \to \FF_E(\FF_{E^*}(\alpha)) \\
+  \splitDRT &= \lban \begin{aligned}[t]
+      &\onto{\op{get}}{(\lam{x k}{\ap{\op{get}}{x} \apr (\ap{\CC}{k})})}, \\
+      &\onto{\op{fresh}}{(\lam{x k}{\ap{\op{fresh}}{x} \apr (\ap{\CC}{k})})}, \\
+      &\onto{\op{push}}{(\lam{x k}{\ap{\op{push}}{x} \apr (\ap{\CC}{k})})}, \\
+      &\onto{\op{asssert}}{(\lam{x k}{\ap{\op{assert}}{x} \apr (\ap{\CC}{k})})}, \\
+      &\onto{\eta}{(\lam{x}{\etaE{(\etaE{x})}})}\ \rban
+    \end{aligned}
+\end{align*}
+
+We can now finally give an interpretation to the definite article
+$\abs{the}$ as well as the other presupposition triggers.
+
+\begin{align*}
+  \packageProperty &: (\iota \to \FF_{E \uplus E^*}(1))
+                  \to \FF_{E \uplus \{\op{get}\}}(\iota \to \FF_{E^*}(1)) \\
+  \packageProperty &= \lam{P}{\begin{aligned}[t]
+      &\app{\op{get}}{\star}{(\lam{e}{ \\
+      &\ap{\CC}{(\lam{x}{\ap{\splitDRT}{(\app{\inTheContext}{e}{(\ap{\SI}{(\ap{\maybeAccommodate}{(\ap{P}{x})})})})}})}})}
+    \end{aligned}} \\
+  \\
+  \lex{the}{\lam{N}{\begin{aligned}[t]
+      &\ap{\packageProperty}{(\lam{x}{\app{\op{push}}{x}{(\lam{\_}{\ap{N}{x}})}})} \hsbind (\lam{N'}{ \\
+      &\ap{\op{presuppose}!}{N'}})
+    \end{aligned}}} \\
+  \lex{poss}{\lam{X N}{\begin{aligned}[t]
+      &X \hsbind (\lam{x}{ \\
+      &\ap{\packageProperty}{(\lam{y}{\app{\op{push}}{y}{(\lam{\_}{\ap{N}{y} \dand \ap{\op{assert}!}{(\app{\obj{own}}{x}{y})}})}})} \hsbind (\lam{N'}{ \\
+      &\ap{\op{presuppose}!}{N'}})})
+    \end{aligned}}} \\
+  \lex{children-of}{\lam{X}{\begin{aligned}[t]
+      &\ap{\packageProperty}{(\lam{y}{(\ap{\obj{children}}{y} \apr X) \hsbind \op{assert}!})} \hsbind (\lam{N'}{ \\
+      &\ap{\op{presuppose}!}{N'}})
+    \end{aligned}}} \\
+  &\vdots
+\end{align*}
