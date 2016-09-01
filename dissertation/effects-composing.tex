@@ -92,7 +92,7 @@ have used when adding presuppositions:
 \minitoc
 
 
-\section{The Dynamic Kernel}
+\section{Dynamic Kernel}
 \label{sec:dynamic-kernel}
 
 As per the methodology described in~\ref{sec:methodology}, we will start
@@ -109,7 +109,7 @@ in~\ref{sec:banana-drt}.\footnote{We could have also started with a more
   type of sentence interpretations from $\FF_E(o)$ to $\FF_E(1)$. A very
   similar translation from a static grammar to a dynamic one is described
   in~\cite{lebedeva2012expression}~(Definition~4.27).} While
-in~\ref{sec:banana-drt}, we tried to keep our dynamic grammar as close to
+in~\ref{sec:banana-drt}, we tried to keep our dynamic grammar as close as
 possible to the presentation of DRT in Kamp and Reyle's
 textbook~\cite{kamp1993discourse}, the grammar that we will use here will
 be more in line with the categorial tradition. Instead of using
@@ -178,7 +178,7 @@ the oracles $\selhe$, $\selshe$ and $\selit$.\footnote{In
   of DRT that omitted gender features. We add them back in a limited form
   to make the examples more comprehensible.} The anaphora resolution
 operators work on contexts, which contain all the knowledge in the common
-grounds and all individuals available for discussion. These contexts, of
+ground and all individuals available for discussion. These contexts, of
 type $\gamma$, are built up using $\nil$, $\cons$ and $\cat$, where $\cons$
 is overloaded to work both for individuals and propositions.
 
@@ -218,7 +218,7 @@ next:
   \lex{a}{\begin{aligned}[t]
       \lam{N}{&\app{\op{introduce}}{\star}{(\lam{x}{ \\
               &N \hsbind (\lam {n}{ \\
-              &\app{\op{assert}}{(n(x))}{(\lam{\_}{ \\
+              &\app{\op{assert}}{(\ap{n}{x})}{(\lam{\_}{ \\
               &\etaE{x}})}})})}}
     \end{aligned}} \\
   \lex{man}{\etaE{\obj{man}}} \\
@@ -273,8 +273,8 @@ these operators:
   operator.
 \item The existential quantifier
   $\dexists : (\iota \to \FF_E(1)) \to \FF_E(1)$ uses the $\op{introduce}$
-  operation to scope over its continuation. This in combination with the
-  previous fact allows us to derive the key equation of Dynamic Predicate
+  operation to scope over its continuation. This, in combination with the
+  previous fact, allows us to derive the key equation of Dynamic Predicate
   Logic~\cite{groenendijk1991dynamic}
   $(\dexists x.\,A) \dand B = (\dexists x.\,A \dand B)$.\footnote{The
     equation follows from a single reduction using the $\op{op}.\hsbind$
@@ -315,17 +315,17 @@ in~\ref{ssec:revising-dynamic-handler} and which we repeat here.
 We have described the evolution of this handler in
 Chapter~\ref{chap:dynamic-semantics}, so we will not go through the details
 again. We will highlight just one thing, in connection to the definition of
-$\dexists$ above. The $\dexists$ uses the $\op{introduce}$ and the
-reduction rule $\op{op}.\hsbind$ tells us that operations project out of
-computations
+$\dexists$ above. The $\dexists$ uses the $\op{introduce}$ operation and
+the reduction rule $\op{op}.\hsbind$ tells us that operations project out
+of computations
 ($\app{\op{op}}{M_\petitp}{(\lam{x}{M_\petitc})} \hsbind N
 \to_{\op{op}.\hsbind} \app{\op{op}}{M_\petitp}{(\lam{x}{M_\petitc \hsbind
     N})}$). The $\BOX$ handler replaces the $\op{introduce}$ operation with
 an existential quantifier. Using $\op{introduce}$ thus has the effect of
 installing an existential quantifier at the scope of the nearest enclosing
-box, much like the DRT construction rule for indefinites, $\crid$ (see
-Figure~\ref{fig:crid}), introduces a discourse referent to the enclosing
-DRS.
+$\BOX$, much like the DRT construction rule for indefinites, $\crid$ (see
+Figure~\ref{fig:crid}), introduces a discourse referent to the nearest
+enclosing DRS.
 
 The objective of our semantics is to assign truth-conditions to
 sentences. These truth-conditions are expressed as propositions, terms of
@@ -346,19 +346,19 @@ of a sentence in some default context.
 
 The $\EMPTY$ handler evaluates a meaning in the empty context $\nil$,
 interpreting away the $\op{get}$ operation. On the other hand, the $\BOX$
-handler interprets away the $\op{introduce}$ and $\op{assert}$ operations
+handler interprets away the $\op{introduce}$ and $\op{assert}$ operations,
 and so by composing them, we can interpret away all the effects in
 $E_\DRT$. The resulting handler, $\TOP$, plays the role of a top-most
-(top-level) DRS: it is a box in an empty context (i.e.\ there is no other
-DRS that is accessible from this one).
+(top-level) DRS: it is a $\BOX$ in an $\EMPTY$ context (i.e.\ there is no
+other DRS that is accessible from this one).
 
 Furthermore, if we look at the special case of the type of $\TOP$ when
 $E = \emptyset$, we get a pure computation (type $\FF_\emptyset(o)$) as the
-result. This means we can use the $\cherry$ operator to get at the result
-directly. The $\cherry \comp \TOP$ combinator (pronounced ``cherry on
-top'') gives us a formal way to associate a proposition to the denotation
-of a sentence or discourse (remember that $\sem{S} = \sem{D} = \FF_E(1)$
-with $E$ currently being $E_\DRT$).
+result. This means we can use the $\cherry$ operator to get at the
+resulting proposition directly. The $\cherry \comp \TOP$ combinator
+(pronounced ``cherry on top'') gives us a formal way to associate a
+proposition to the denotation of a sentence or discourse (remember that
+$\sem{S} = \sem{D} = \FF_E(1)$ with $E$ currently being $E_\DRT$).
 
 We will now integrate the effects that we have seen in
 Chapters~\ref{chap:introducing-effects} and~\ref{chap:dynamic-semantics}
@@ -366,8 +366,8 @@ into our dynamic grammar. We will start with the effect that we have
 already seen interact with anaphora in Section~\ref{sec:presuppositions}.
 
 
-\section{Adding Presupposition}
-\label{sec:adding-presupposition}
+\section{Adding Presuppositions}
+\label{sec:adding-presuppositions}
 
 We will be enriching our fragment with the following referring expressions:
 proper names such as \emph{John} and \emph{Mary}, possessive constructions
@@ -393,13 +393,13 @@ object signature:
 \end{align*}
 
 We represent proper names in our models as predicates. The idea behind a
-predicate such as $\obj{John}$ is that $\ap{obj{John}}{x}$ should be true
+predicate such as $\obj{John}$ is that $\ap{\obj{John}}{x}$ should be true
 for any $x$ which is called John.
 
-Now we can describe how we extend our lexicon from abstract terms to object
-terms so that it covers the new constructions. The interpretation of the
-abstract types will stay the same, we will only change the effect signature
-to include the following two operations:
+Now we can describe how we extend our lexicon so that it covers the new
+constructions. The interpretation of the abstract types will stay the same,
+we will only change the effect signature to include the following two
+operations:
 
 \begin{align*}
 \op{presuppose} &: (\iota \to o) \rightarrowtail \iota \\
@@ -426,8 +426,8 @@ existing effects and the effect being added. In this chapter, whenever we
 will revise the interpretations of existing lexical items or the
 definitions of existing combinators, we will use the $\coloneqq$ symbol and
 if the right-hand side of the definition will make use of any of the
-symbols being redefined, those symbols are meant to refer to the existing
-definition.
+symbols being redefined, those symbols will be meant to refer to the
+existing (old) definition.
 
 \begin{align*}
   \TOP &: \FF_{E \uplus E_\DRT \uplus \{\op{presuppose}, \op{amb}\}}(1) \to \FF_{E}(o) \\
@@ -442,8 +442,8 @@ presuppositions:
 
 \begin{itemize}
 \item we add $\useFind$ to all boxes ($\BOX$), including also the topmost
-  one ($\TOP$), so that presuppositions of expressions referring to
-  entities already available in the context do not trigger presuppositions
+  one ($\TOP$), so that presuppositional expressions referring to entities
+  already available in the context do not trigger presuppositions
 \item we add $\maybeAccommodate$ to the $\BOX$ handler because a
   presupposition can be accommodated in any DRS on the projection line from
   the point where the presupposition was triggered
@@ -480,7 +480,7 @@ definitions of $\find$ and $+$ given below.
 \begin{align*}
   \find &: (\iota \to o) \to \FF_{E \uplus \{\op{get}, \op{presuppose}\}}(\iota) \\
   \find &= \lam{P}{\app{\op{get}}{\star}{(\lam{e}{\case{\selP(P, e)}{x}{\etaE{x}}{\_}{\ap{\op{presuppose}!}{P}}})}} \\
-  \_+\_ &: \FF_{E \uplus \op{amb}}(\alpha) \to \FF_{E \uplus \op{amb}}(\alpha) \to \FF_{E \uplus \op{amb}}(\alpha) \\
+  \_+\_ &: \FF_{E \uplus \{\op{amb}\}}(\alpha) \to \FF_{E \uplus \{\op{amb}\}}(\alpha) \to \FF_{E \uplus \{\op{amb}\}}(\alpha) \\
   M + N &= \app{\op{amb}}{\star}{(\lam{b}{\ifte{b}{M}{N}})}
 \end{align*}
 
@@ -558,7 +558,7 @@ $$
 
 However, if we do this, none of the discourse referents introduced within
 the supplement will be available in subsequent discourse. This was the
-introduction predicted for parentheticals by
+behavior predicted for parentheticals by
 Nunberg~\cite{nunberg1990linguistics}. However, in his theory of
 conventional implicature~\cite{potts2005logic}, Potts opposes this view and
 shows examples which seem to contradict Nunberg's position. This was
@@ -600,12 +600,12 @@ in the sentence ``\emph{$x$ nearly killed a woman}'' uses the
 $\op{introduce}$ operation to establish a new discourse referent. Upon
 being used as an appositive clause, this $\op{introduce}$ turns into an
 $\op{introduce^i}$, which will project to the global context, from which it
-will be able to bind upcoming pronouns. Therefore, we get the desired
+will be able to bind upcoming pronouns. Therefore we get the desired
 binding in Example~\ref{ex:hospital}.
 
 Finally, the implicatures signalled by the $\op{implicate}$ and
-$\op{introduce^i}$ have to be resolved somewhere. We adopt the approach of
-Projective DRT~\cite{venhuizen2013parsimonious} by interpreting
+$\op{introduce^i}$ operations have to be resolved somewhere. We adopt the
+approach of Projective DRT~\cite{venhuizen2013parsimonious} by interpreting
 conventional implicatures as belonging to the topmost $\BOX$.
 
 \begin{align*}
@@ -620,19 +620,20 @@ conventional implicatures as belonging to the topmost $\BOX$.
 
 \subsection{Connection to the Standalone Theory}
 
-The lexical entries and handlers introduced in this section have been
-quite different from the ones introduced in
+The lexical entries and handlers introduced in this section have been quite
+different from the ones introduced in
 Section~\ref{sec:conventional-implicature}. This raises the issue of
 whether the analysis that was done in
-Section~\ref{sec:conventional-implicature} was extended to the dynamic case
-or redone from scratch. We will draw out the parallels between the
-original definitinos and the new ones to show that:
+Section~\ref{sec:conventional-implicature} is upheld in our extension. We
+will draw out the parallels between the original definitions and the new
+ones to show that:
 
 \begin{itemize}
 \item the most visible changes are due to us representing truth conditions
   as side effects
 \item the important change is the treatment of $\op{introduce}$ which
-  accounts for the binding potentinal of appositives
+  accounts for the binding potentinal of appositives (an interaction
+  between anaphora and conventional implicature)
 \end{itemize}
 
 We start with the appositive relative clause constructor.
@@ -652,7 +653,7 @@ We start with the appositive relative clause constructor.
 
 In the standalone treatment (seen on the right), we used a static grammar,
 where sentences denoted propositions. To turn the proposition into an
-implicature, all we had to was pass that proposition to the
+implicature, all we had to do was to pass that proposition to the
 $\op{implicate}$ operation. In our dynamic grammar, sentences use
 $\op{assert}$ to convey their truth conditions and so we need to use a
 handler to pass these truth conditions to $\op{implicate}$, which is
@@ -697,8 +698,8 @@ from Section~\ref{sec:presuppositions} is given below:
 \end{align*}
 
 The first step is to translate this handler into an open handler. The
-continuation $k$ will now return a computation of a proposition
-($\FF_E(o)$) and so we will use $\andr$ to conjoin the implicature $i$ to
+continuation $k$ will now return a computation of a proposition (type
+$\FF_E(o)$) and so we will use $\andr$ to conjoin the implicature $i$ to
 it.
 
 \begin{align*}
@@ -739,9 +740,9 @@ adding conventional implicatures to our dynamic grammar:
 The difference between the two is the $\op{introduce}$ operation and how we
 decide to deal with it. If we contain it locally, within the implicature,
 we get a theory à la Nunberg~\cite{nunberg1990linguistics}, where referents
-introduced in appositives are not accessible in the at-issue layer. On the
-other hand, if we project the $\op{introduce}$ operations of the
-appositives as $\op{introduce^i}$, we get a theory which licenses the
+introduced in appositives are not accessible outside of the at-issue
+layer. On the other hand, if we project the $\op{introduce}$ operations of
+the appositives as $\op{introduce^i}$, we get a theory which licenses the
 binding in Example~\ref{ex:hospital}.
 
 
@@ -749,11 +750,11 @@ binding in Example~\ref{ex:hospital}.
 
 Geurts and Maier~\cite{geurts2003layered} introduced \emph{Layered DRT},
 wherein every discourse referent and condition is annotated with a
-\emph{label} that tells us to which layer of meaning this
-referent/condition belongs. The layers treated in~\cite{geurts2003layered}
-include the layers of assertions, presuppositions and implicatures. The
-idea is that thanks to these labels, it is possible to separate out the
-individual layers while still allowing binding to work from layer to layer.
+\emph{label} that tells us to which layer of meaning a referent/condition
+belongs. The layers treated in~\cite{geurts2003layered} include the layers
+of assertions, presuppositions and implicatures. The idea is that thanks to
+these labels, it is possible to separate out the individual layers while
+still allowing binding to work from layer to layer.
 
 There is a close correspondence between our use of effects and layered
 DRT:
@@ -859,8 +860,8 @@ accommodate them:
 \item presuppositions (free pointers) use $\op{presuppose}$ and can
   therefore be bound at any $\BOX$ thanks to the $\useFind$ handler
   (see~\ref{ssec:cancelling-presuppositions}) or accommodated at the $\TOP$
-  tahnks to the $\accommodate$ handler (or even accommodated lower due to
-  binding constraints, see~\ref{ssec:ambiguous-presuppositions})
+  thanks to the $\accommodate$ handler (or even accommodated lower due to
+  binding constraints, see~\ref{ssec:ambiguous-accommodation})
 \end{itemize}
 
 
@@ -869,7 +870,7 @@ accommodate them:
 
 We now move to our treatment of indexical expressions, namely of the
 first-person pronoun. We will be enriching the abstract signature with a
-new constant representing the pronoun.
+new constant representing the pronoun as well as verbs for reported speech.
 
 \begin{align*}
   \abs{me} &: NP \\
@@ -895,7 +896,7 @@ items.
   &= \lam{C S}{S \hsbind (\lam{s}{(\app{\TOP}{s}{C}) \hsbind (\lam{c}{\ap{\op{assert}!}{(\app{\obj{say}}{s}{c})}})})} \\
   \\
   \TOP &: \iota \to \FF_{E \uplus E_\DRT \uplus \{\op{presuppose}, \op{amb}, \op{implicate}, \op{introduce^i}, \op{speaker}\}}(1) \to \FF_{E}(o) \\
-  \TOP &\coloneqq \lam{s}{\TOP \comp \withSpeaker s} \\
+  \TOP &\coloneqq \lam{s}{\TOP \comp \ap{\withSpeaker}{s}} \\
   \withSpeaker &: \iota \to \FF_{\{\typedop{speaker}{1}{\iota}\} \uplus E}(\alpha) \to \FF_E(\alpha) \\
   \withSpeaker &= \lam{s}{\banana{\onto{\op{speaker}}{(\lam{\_ k}{\ap{k}{s}})}}}
 \end{align*}
@@ -934,9 +935,10 @@ for direct speech:
     and evaluate the sentence in that context.}
 \item we do not want the presuppositions triggered by the quoted sentence
   to be considered as presuppositions of the report and so we
-  $\accommodate$ them within scope of $\obj{say}$
+  $\accommodate$ them within the scope of $\obj{say}$
 \item we also do not want the same to happen for implicatures and so we use
-  the $\withImplicatures$ to ascribe them to the person being quoted
+  the $\withImplicatures$ handler to ascribe them to the person being
+  quoted
 \end{itemize}
 
 In the end, what we want is to apply a handler for all of the effects that
@@ -985,11 +987,11 @@ $$
 
 Its type has changed from $((\iota \to o) \to o) \rightarrowtail \iota$ to
 $((\iota \to \FF_{E'}(1)) \to \FF_{E'}(1)) \rightarrowtail \iota$ to
-reflect the change from using dynamic propositions $\FF_{E'}(1)$ instead of
-static propositions $o$. Also note that the effect signature that we refer
-to in the type of $\op{scope}$ is $E'$. Throughout this chapter, we use $E$
-to mean the effect signature containing all the effects introduced so
-far. Now, we will be adding $\op{scope}$ into the effect signature
+reflect the change due to using dynamic propositions $\FF_{E'}(1)$ instead
+of static propositions $o$. Also note that the effect signature that we
+refer to in the type of $\op{scope}$ is $E'$. Throughout this chapter, we
+use $E$ to mean the effect signature containing all the effects introduced
+so far. Now, we will be adding $\op{scope}$ into the effect signature
 $E$. However, if we gave it the type
 $((\iota \to \FF_E(1)) \to \FF_E(1)) \rightarrowtail \iota$, then we would
 be giving a circular definition of $E$: $E$ is an effect signature which,
@@ -1000,7 +1002,7 @@ $\op{scope}$\ldots. Therefore, we use a different effect signature in the
 type of $\op{scope}$, one that does not contain $\op{scope}$:
 $E' = E \setminus \{\op{scope}\}$.\footnote{Note that this is the same as
   the $\op{shift0}$ operation used in~\ref{sec:considering-types}, where we
-  extend an existing effect signature with
+  extend an existing effect signature $E$ with
   $\typedop{shift0}{((\delta \to \FF_E(\omega)) \to
     \FF_E(\omega))}{\delta}$.}
 
@@ -1042,9 +1044,10 @@ alternative readings, we will adopt the solution of quantifier raising
 from~\ref{ssec:quantifier-ambiguity}.
 
 We can also check that the new entry for the indefinite article $\abs{a'}$
-amounts to quite the same thing:\footnote{The difference being that
-  $\abs{a'}$ projects to the $\BOX$ which contains the nearest scope island
-  marker $\SI$.}
+amounts to almost the same thing as the one for $\abs{a}$:\footnote{The
+  difference being that $\abs{a'}$ projects to the $\BOX$ which contains
+  the nearest scope island marker $\SI$, whereas $\abs{a}$ project to the
+  nearest $\BOX$.}
 
 \begin{align*}
 \ap{\SI}{(\ap{\sem{\abs{a'}}}{N})}
@@ -1076,13 +1079,13 @@ entries of tensed verbs.
 \subsection{Quantifier Raising --- Inverse Scope and Crossover}
 \label{ssec:crossover}
 
-The strategies that we have used in
+The strategy that we have used in
 Subsection~\ref{ssec:quantifier-ambiguity} to deal with quantifier scope
-ambiguity was to change the order of evaluation of the quantified
-noun phrases. This was the case both in the first approach, which
-considered adding different lexical items which evaluate their arguments in
-different orders, and in the second, final approach, which used a general
-operator $\abs{QR}$ to displace the evaluation of an $NP$.
+ambiguity was to change the order of evaluation of the quantified noun
+phrases. This was the case both in the first approach, which considered
+adding different lexical items which evaluate their arguments in different
+orders, and in the second, final approach, which used a general operator
+$\abs{QR}$ to displace the evaluation of an $NP$.
 
 However, freely changing the order of evaluation is problematic. Consider
 the following sentence (from~\cite{shan2006explaining}):
@@ -1093,7 +1096,7 @@ the following sentence (from~\cite{shan2006explaining}):
 
 Our strategy of generating an inverse scope reading by evaluating the
 object first and then the subject would lead us to bind the pronoun
-\emph{his} by the variable introduced by \emph{every man}. However, this is
+\emph{his} to the variable introduced by \emph{every man}. However, this is
 considered unacceptable and we would therefore like to avoid doing that in
 our model.
 
@@ -1130,8 +1133,9 @@ the $\op{introduce}$ operation.
   \dforall x.\,A &= \dnot (\dexists x.\,\dnot A)
 \end{align*}
 
-The $\op{introduce}$ is interpreted by the $\BOX$ handler as installing an
-existential handler \emph{and} introducing the variable into the context.
+The $\op{introduce}$ operation is interpreted by the $\BOX$ handler as
+installing an existential handler \emph{and} introducing the variable into
+the context.
 
 $$
 \BOX = \ldots \banana{\ldots,\ \onto{\op{introduce}}{(\lam{\_ k}{\etaE{(\lam{e}{\existsr x.\ \ap{k}{x} \apll (x \cons e)})}})},\ \ldots} \ldots
@@ -1184,11 +1188,11 @@ We can now give a new meaning to the determiners \emph{every} and \emph{a}.
   \sem{QNP} &= \FF_{\{\op{scope}\}}(\FF_{E'}(\iota)) \\
   \\
   \lex{every}{\lam{N}{\begin{aligned}[t]
-      &\app{\op{scope}!}{(\lam{k}{\dforall x.\ \ap{\SI}{(N \apl x)} \dimp \ap{k}{x}})}{(\lam{x}{ \\
+      &\app{\op{scope}!}{(\lam{k}{\dforall x.\ \ap{\SI}{((N \apl x) \hsbind \op{assert}!)} \dimp \ap{k}{x}})}{(\lam{x}{ \\
       &\etaE{(\ap{\trace}{x})}})}
     \end{aligned}}} \\
   \lex{a'}{\lam{N}{\begin{aligned}[t]
-      &\app{\op{scope}!}{(\lam{k}{\dexists x.\ \ap{\SI}{(N \apl x)} \dand \ap{k}{x}})}{(\lam{x}{ \\
+      &\app{\op{scope}!}{(\lam{k}{\dexists x.\ \ap{\SI}{((N \apl x) \hsbind \op{assert}!)} \dand \ap{k}{x}})}{(\lam{x}{ \\
       &\etaE{(\ap{\trace}{x})}})}
     \end{aligned}}} \\
   \\
@@ -1206,10 +1210,10 @@ anaphoric pronoun). This way, we can have a different order of evaluation
 in the two layers and get inverse scope readings without risking the
 violation of crossover constraints.
 
-We could have introduced two layers of computations into all of our NP
+We could have introduced two layers of computation into all of our NP
 meanings but this would needlessly create complexity. Instead, only the
-meanings of quantified noun phrases (abstract type $QNP$) will have
-two layers. We can then plug these meanings into our grammars using one of
+meanings of quantified noun phrases (abstract type $QNP$) will have two
+layers. We can then plug these meanings into our grammars using one of
 these two lexical items:
 
 \begin{align*}
@@ -1219,11 +1223,11 @@ these two lexical items:
   \lex{QR}{\lam{Q K}{Q \hsbind K}}
 \end{align*}
 
-$\abs{in-situ}$ collapses the two layers of effects so that the
-quantified noun phrases becomes a single-layer computation, just like
-other NPs. With this lexical item, we recover the original readings that
-were possible with the single-layer denotations of every $\abs{every}$ and
-$\abs{a'}$ that we had at the beginning of this section.
+$\abs{in-situ}$ collapses the two layers of effects so that quantified noun
+phrases become single-layer computations, just like other NPs. With this
+lexical item, we recover the original readings that were possible with the
+single-layer denotations of every $\abs{every}$ and $\abs{a'}$ that we had
+at the beginning of this section.
 
 Furthermore, we can use $\abs{QR}$ to generate inverse scope (and all the
 other permutations of quantifiers
@@ -1234,7 +1238,7 @@ quantified variable into the context and making it anaphorically
 accessible, takes the place of the QNP's trace.
 
 Using $\abs{QR}$, we can explain the inverse scope reading of
-Sentence~\ref{ex:inverse}.
+Example~\ref{ex:inverse}.
 
 \begin{exe}
   \ex A woman loves every man. \label{ex:inverse}
@@ -1249,13 +1253,11 @@ Sentence~\ref{ex:inverse}.
   $\iota \to \FF_E(1) \to \FF_\emptyset(o)$. However, we will often look at
   sentences which are not indexical. In such cases, we will overload $\TOP$
   to also mean ``the $\TOP$ handler without the $\withSpeaker$ handler'',
-  type $\FF_E(1) \to \FF_{\{\op{speaker}\}}(o)$. This means will not be
-  obliged to provide a referent for the speaker. On the other hand, the
-  resulting computation might use the $\op{speaker}$ effect if the sentence
-  is indexical.}
+  type $\FF_{E \setminus \{\op{speaker}\}}(1) \to \FF_\emptyset(o)$. This
+  means will not be obliged to provide a referent for the speaker.}
 
 However, we cannot use the same mechanism to derive the incorrect reading
-of Sentence~\ref{ex:crossover}.
+of Example~\ref{ex:crossover}.
 
 \begin{align*}
   &\ap{(\cherry \circ \TOP \circ \banana{\onto{\op{get}}{(\lam{\_ k}{\ap{k}{e}})}})}{\sem{\app{\abs{QR}}{(\ap{\abs{every}}{\abs{man}})}{(\lam{O}{\app{\abs{loves}}{O}{(\ap{\abs{mother}}{\abs{he}})}})}}} \\
@@ -1273,10 +1275,12 @@ of Sentence~\ref{ex:crossover}.
   write simply $\ap{\selhe}{e}$.}
 
 We now have a grammar that is both capable of licensing inverse scope and
-respects crossover constraints. The rest of the grammar needs to be
-modified only insofar as handlers for $\op{introduce}$ need to be replaced
-with handlers for $\op{fresh}$ and $\op{push}$. The only other handler for
-$\op{introduce}$ besides $\BOX$ is the $\asImplicature$ handler.
+respects (certain) crossover constraints.\footnote{We will see shortly that
+  there are situations for which our treatment is not sufficient.} The rest
+of the grammar needs to be modified only insofar as handlers for
+$\op{introduce}$ need to be replaced with handlers for $\op{fresh}$ and
+$\op{push}$. The only other handler for $\op{introduce}$ besides $\BOX$ is
+the $\asImplicature$ handler.
 
 \begin{align*}
   \asImplicature &: \FF_{E \uplus \{\op{assert},\op{fresh},\op{push}\}}(\alpha) \to
@@ -1307,15 +1311,15 @@ $\op{push^i}$.
 We will draw parallels to two other approaches.
 
 In the interpretations of $\abs{every}$ and $\abs{a'}$, we introduce an
-extra layer of computation. Then instead of generalizing all other noun
+extra layer of computation. Then, instead of generalizing all other noun
 phrases to employ this extra layer, we added $\abs{in-situ}$ and $\abs{qr}$
 as lexical items into our grammar, allowing us to use quantified noun
 phrases, which use this extra layer of computation, in contexts where an
 ordinary noun phrase was expected. The interpretation of $\abs{qr}$ is the
-$\hsbind$ operator. This is reminiscent of the way to compose different
+$\hsbind$ operator. This is reminiscent of the way of composing different
 monads proposed by Simon Charlow during Barker's and Bumford's ESSLLI 2015
 course~\cite{barker2015monads}. The idea is that we should not try to build
-some large monad encompasses all aspects of meaning but rather build
+some large monad that encompasses all aspects of meaning but rather build
 meanings in smaller, different monads, each meaning using only as much
 structure as it needs. The gluing together of the meanings is then
 performed by the parser which can insert $\hsbind$ for the relevant monads
@@ -1331,16 +1335,16 @@ based on similar techniques: $\abs{QR}$ has the same effect of displacing
 evaluation and the denotations of $\abs{every}$ and $\abs{a'}$ suspend the
 evaluation of their anaphoric effects. A distinguishing sign of
 meta-programming or multistage programming are types like
-$\FF_E(\FF_E(\alpha))$, i.e.\ programs producing programs, which is exactly
-the kind of type we use for $\sem{QNP}$.
+$\FF_{E_1}(\FF_{E_2}(\alpha))$, i.e.\ programs producing programs, which is
+exactly the kind of type we use for $\sem{QNP}$.
 
 
 \subsubsection{Limitations}
 
 Our treatment of inverse scope eliminates both primary crossover (the
-raised quantifier is the object, e.g.\ Sentence~\ref{ex:primary-crossover})
+raised quantifier is the object, e.g.\ Example~\ref{ex:primary-crossover})
 and secondary crossover (the raised quantifier is embedded in the object,
-e.g.\ Sentence~\ref{ex:secondary-crossover}). Examples
+e.g.\ Example~\ref{ex:secondary-crossover}). Examples
 from~\cite{shan2006explaining}:
 
 \begin{exe}
@@ -1385,12 +1389,12 @@ relative clauses attach to nouns and narrow down the set of individuals
 under consideration, just like subsective adjectives (e.g.\ \emph{woman},
 and \emph{woman who loves books} as \emph{book-loving woman}).
 
-Supplementary relative clauses let us use the extension of any verb phrase
-as the extension of a noun: for a given verb phrase $P$, we can form the
-noun \emph{one who $P$s}. We therefore have an injection from verb phrases
-to nouns, telling us verb phrases are nouns too. The question now is
-whether the type of interpretations we use for nouns is large enough to fit
-the denotations of verb phrases.
+Restrictive relative clauses let us use the extension of any verb phrase as
+the extension of a noun: for a given verb phrase $P$, we can form the noun
+\emph{one who $P$s}. We therefore have an injection from verb phrases to
+nouns, telling us verb phrases are nouns too. The question now is whether
+the type of interpretations we use for nouns is large enough to fit the
+denotations of verb phrases.
 
 \begin{align*}
   \sem{NP \limp S} = \sem{NP} \limp \sem{S} &= \FF_E(\iota) \to \FF_E(1) \\
@@ -1431,8 +1435,8 @@ $\sem{\lam{x}{\app{\abs{loves}}{\abs{Mary}}{x}}} =
 
 The evaluation of $\CC$ is blocked because the operation
 $\ap{\op{assert}}{(\app{\obj{love}}{x}{\obj{m}})}$ depends on $x$. The
-truth conditions of \emph{$x$ $P$}, where $P$ is a verb phrase, will always
-depend on $x$ and so this approach will not work.
+truth conditions of \emph{$x$ $P$s}, where $P$ is a verb phrase, will
+always depend on $x$ and so this approach will not work.
 
 However, our system already has a well-defined way for turning dynamic
 propositions into simple propositions, and that is the $\BOX$ handler.
@@ -1448,14 +1452,13 @@ propositions into simple propositions, and that is the $\BOX$ handler.
 
 By wrapping the meaning of the relative clause in a $\BOX$, its truth
 conditions ($\op{assert}$ and $\op{introduce}$) are contained within the
-the proposition that the noun maps to and they do not block the $\CC$
-operator. However, adding the $\BOX$ in the entry for $\abs{who}_{\abs{r}}$
-does have its repercussions.\footnote{We have seen that the $\BOX$ handler
-  corresponds to the boundary of a DRS.\@ We note that DRT does not
-  instruct us to wrap the relative clause in a DRS and we can therefore
-  expect our theory to diverge w.r.t.\ accessibility.} It will lead to the
-blocking of anaphoric binding from the noun, as in the
-Sentence~\ref{ex:donkey-sentence}.
+noun's predicate and they do not block the $\CC$ operator. However, adding
+the $\BOX$ in the entry for $\abs{who}_{\abs{r}}$ does have its
+repercussions.\footnote{We have seen that the $\BOX$ handler corresponds to
+  the boundary of a DRS.\@ We note that DRT does not instruct us to wrap
+  the relative clause in a DRS and we can therefore expect our theory to
+  diverge w.r.t.\ accessibility.} It will lead to the blocking of anaphoric
+binding from the noun, as in the Example~\ref{ex:donkey-sentence}.
 
 \begin{exe}
   \ex Every farmer who owns a donkey$_1$ beats it$_1$. \label{ex:donkey-sentence}
@@ -1472,7 +1475,8 @@ the noun \emph{farmer who owns a donkey}:
 The result is a pure computation that is not going to introduce any
 referents into the discourse (because all of the $\op{introduce}$
 operations were captured by $\BOX$) and therefore it is not going to be
-able to license the anaphoric binding to the pronoun \emph{it}.
+able to license the anaphoric binding to the pronoun \emph{it} in
+Example~\ref{ex:donkey-sentence}.
 
 We have seen that by not using $\BOX$ evaluation gets stuck because the
 $\op{assert}$ operations that carry the truth conditions of the relative
@@ -1480,7 +1484,7 @@ clause are not independent of the argument to which the noun's extension is
 applied. On the other hand, by using $\BOX$, the $\op{introduce}$
 operations that introduce new discourse referents are blocked and cannot
 license the kind of anaphora that we see in
-Sentence~\ref{ex:donkey-sentence}. We can find the middle ground between
+Example~\ref{ex:donkey-sentence}. We can find the middle ground between
 the two by only handling $\op{assert}$ to get the truth conditions and
 letting $\op{introduce}$ project outside of the noun.
 
@@ -1496,7 +1500,7 @@ letting $\op{introduce}$ project outside of the noun.
 Now, if we reexamine the meaning of the noun \emph{farmer who owns a
   donkey} under the new interpretation of $\abs{who}_{\abs{r}}$, we find
 that the new discourse referent projects outside of the noun and will
-therefore be able to bind the pronoun in Sentence~\ref{ex:donkey-sentence}:
+therefore be able to bind the pronoun in Example~\ref{ex:donkey-sentence}:
 
 \begin{align*}
 & \sem{\app{\abs{who}_{\abs{r}}}{(\lam{x}{\app{\abs{owns}}{(\ap{\abs{a}}{\abs{donkey}})}{x}})}{\abs{farmer}}} \\
@@ -1513,19 +1517,19 @@ relative clauses and other kinds of complex nouns interact with
 presuppositions and definite descriptions.
 
 
-\subsection{A Different Interpretation for Nouns}
+\subsection{Different Interpretation for Nouns}
 \label{ssec:different-nouns}
 
-At the start of this section, we showed the challenge that is posed by
-folding in the meanings of sentence into meanings of nouns when the two are
-interpreted completely differently:
+At the start of this section, we have shown the challenge that is posed by
+folding in the meanings of sentences into the meanings of nouns when the
+two are interpreted completely differently:
 
 \begin{align*}
   \sem{NP \limp S} &= \FF_E(\iota) \to \FF_E(1) \\
   \sem{N} &= \FF_E(\iota \to o)
 \end{align*}
 
-By changing the type of interpretations of nouns so that truth conditions
+If we change the type of interpretations of nouns so that truth conditions
 are expressed as side effects and the effects can depend on the individual
 argument, then there is no conflict any more and the lexical entry for
 $\abs{who}_{\abs{r}}$ becomes trivial:
@@ -1576,8 +1580,8 @@ proof of Observation~\ref{obs:conservativity-lifting}.
 \end{align*}
 
 Finally, we could integrate this type of noun interpretations and the
-simpler lexical entry for the relative pronoun by adjusting the grammar that we
-have been building up during this chapter.
+simpler lexical entry for the relative pronoun by adjusting the grammar
+that we have been building during this chapter.
 
 \centerline{
 \begin{minipage}{\linewidth}
@@ -1591,7 +1595,7 @@ have been building up during this chapter.
 & \lex{a}{\begin{aligned}[t]
      \lam{N}{&\app{\op{introduce}}{\star}{(\lam{x}{ \\
              &N \hsbind (\lam {n}{ \\
-             &\app{\op{assert}}{(n(x))}{(\lam{\_}{ \\
+             &\app{\op{assert}}{(\ap{n}{x})}{(\lam{\_}{ \\
              &\etaE{x}})}})})}}
   \end{aligned}} \\
   \lex{every}{\lam{N}{\ap{\op{scope}!}{(\lam{k}{\dforall x.\,\ap{\SI}{(\ap{N}{x})} \dimp \ap{k}{x}})}}}
@@ -1646,12 +1650,12 @@ Lebedeva in~\cite{lebedeva2012expression} (Equations~(5.14) and~(5.22)):
   \widetilde{\sem{the}} &= \lam{\textbf{N} \textbf{P}}{\ap{\textbf{P}}{(\ap{\widetilde{\sel}}{\textbf{N}})}}
 \end{align*}
 
-The entry for the definite article uses the dynamic operator $\sel$, on
-which our $\find$ operator is based. The $\sel$ operator is made compatible
-with dynamic properties in $\widetilde{\textsf{sel}}$. This is done by
-applying a context $e$ and the trivial continuation $\lam{e}{\top}$ to the
-dynamic proposition $\ap{\textbf{P}}{(\lam{e}{x})}$.\footnote{This is
-  equivalent to the use of the $\BOX$ handler in our approach.}
+The entry for the definite article uses the operator $\sel$, on which our
+$\find$ operator is based. The $\sel$ operator is made compatible with
+dynamic properties in $\widetilde{\textsf{sel}}$. This is done by applying
+a context $e$ and the trivial continuation $\lam{e}{\top}$ to the dynamic
+proposition $\ap{\textbf{P}}{(\lam{e}{x})}$.\footnote{This is equivalent to
+  the use of the $\BOX$ handler in our approach.}
 
 However, this solution can be lacking when the dynamic property which is
 the denotation of the noun introduces new discourse referents itself (e.g.\
@@ -1668,7 +1672,7 @@ global level a new discourse referent satisfying the above
 condition. However, the binding potential of the NP \emph{a dog} would have
 already been wasted by the use of $\BOX$ (or in the case of TTDL, the use
 of $\lam{e}{\top}$). This means that we would not be able to account for
-the binding in Sentence~\ref{ex:presupposition-binding}.
+the binding in Example~\ref{ex:presupposition-binding}.
 
 \begin{exe}
   \ex The man who owns a dog$_1$ loves it$_1$. \label{ex:presupposition-binding}
@@ -1704,14 +1708,14 @@ solve the binding problem.\footnote{The $\textsf{iacc}$ handler that we
   mentioned in~\ref{ssec:comparison-ttdl}, defined
   in~\cite{lebedeva2012expression}, Definition~6.29.} In our approach, the
 handler responsible for intermediate accommodation, $\maybeAccommodate$, is
-part of the $\BOX$ handler and so evaluation does not get stuck and the
-presupposition is accommodated. Nevertheless, to get the intended reading
-of the above noun phrase, we will have to make the argument to the property
-anaphorically accessible within the noun:\footnote{In the presentation of
-  TTDL in Lebedeva's thesis~\cite{lebedeva2012expression}, adding the
-  condition $\ap{\obj{man}}{x}$ to the context suffices to make $x$
-  accessible. In our setting, we make a distinction between adding a fact
-  to the common ground using $\op{assert}$ versus introducing a new
+already part of the $\BOX$ handler and so evaluation does not get stuck and
+the presupposition is accommodated. Nevertheless, to get the intended
+reading of the above noun phrase, we will have to make the argument to the
+property anaphorically accessible within the noun:\footnote{In the
+  presentation of TTDL in Lebedeva's thesis~\cite{lebedeva2012expression},
+  adding the condition $\ap{\obj{man}}{x}$ to the context suffices to make
+  $x$ accessible. In our setting, we make a distinction between adding a
+  fact to the common ground using $\op{assert}$ versus introducing a new
   discourse referent for discussion using $\op{push}$ or $\op{introduce}$
   (this lets us give a (partial) account of crossover constraints).}
 
@@ -1744,7 +1748,7 @@ dogs will be limited to the proposition
 $\exists y.\, \ap{\obj{dog}}{y} \land \app{\obj{own}}{x}{y} \land
 \ap{\obj{man}}{x} \land \app{\obj{love}}{x}{y}$. This means that we will
 not be able to explain the anaphoric binding in
-Sentence~\ref{ex:presupposition-binding2}.
+Example~\ref{ex:presupposition-binding2}.
 
 \begin{exe}
   \ex The man$_1$ who loves his$_1$ dog$_2$ treats it$_2$ well. \label{ex:presupposition-binding2}
@@ -1782,13 +1786,13 @@ The $\op{scope}$ effect can be eliminated either by evaluating it (i.e.\
 projecting it) or by handling it with $\SI$. Handling it would give us
 narrow scope w.r.t.\ the presupposition, whereas projecting it would give
 us wider scope. We find that both are possible: narrow scope in
-Sentence~\ref{ex:presupposition-every-narrow} and wide scope in
-Sentence~\ref{ex:presupposition-every-wide}. We will therefore choose
+Example~\ref{ex:presupposition-every-narrow} and wide scope in
+Example~\ref{ex:presupposition-every-wide}. We will therefore choose
 narrow scope by default, since in that case we can always derive the wider
 scope by quantifier raising with $\abs{QR}$.
 
 \begin{exe}
-  \ex The owner of every book ever published by Springer must be very
+  \ex The owner of every book ever published by Elsevier must be very
   rich. \label{ex:presupposition-every-narrow}
   \ex Mary sent an email to the representative of every
   country. \label{ex:presupposition-every-wide}
@@ -1801,18 +1805,18 @@ truth conditions ($\op{assert}$) and introduce discourse referents
 
 Next we look at what to do with the anaphoric operation $\op{get}$. If we
 were not to evaluate the $\op{get}$ operation at the point where the
-presupposition is triggered but rather project as part of the presupposed
-material and evaluate in the global context (or some other accommodation
-site), then we would not be able to derive the reading of
-Sentence~\ref{ex:every-presupposition}. If we were to evaluate \emph{$x$ is
+presupposition is triggered but rather project it as part of the
+presupposed material and evaluate in the global context (or some other
+accommodation site), then we would not be able to derive the reading of
+Example~\ref{ex:every-presupposition}. If we were to evaluate \emph{$x$ is
   the sound of their voice} in the global context, we could no longer bind
 the pronoun \emph{their} to its intended antecedent. On the other hand, we
 cannot evaluate the $\op{get}$ operations without evaluating the
 $\op{introduce}$ operations (which we do not want to do since we want to
 evaluate them at accommodation-time) because otherwise we would break
 anaphoric binding \emph{within} the dynamic proposition being
-presupposed. For example, in Sentence~\ref{ex:binding-in-presupposition},
-we would need to evaluate the $\op{introduce}$ operation of the indefinite
+presupposed. For example, in Example~\ref{ex:binding-in-presupposition}, we
+would need to evaluate the $\op{introduce}$ operation of the indefinite
 \emph{a car} in order for the $\op{get}$ operation used by the pronoun to
 be able to bind to the car.
 
@@ -1838,7 +1842,7 @@ material in the context $e$.
   \inTheContext &= \lam{e}{\banana{\onto{\op{get}}{(\lam{\_ k}{\app{\op{get}}{\star}{(\lam{e'}{\ap{k}{(e \cat e')}})}})}}}
 \end{align*}
 
-Finally, we have the rest of the other effects, such as $\op{speaker}$ and
+Finally, we have the rest of the effects, such as $\op{speaker}$ and
 $\op{implicate}$. We could either evaluate them at the point where the
 presupposition is triggered or include them into the set of effects $E^*$
 that is projected with the presupposition. Note that if we include them in
@@ -1857,10 +1861,10 @@ simple as possible and so we will evaluate these effects at the point where
 the presupposition is triggered.
 
 This means that the effect signature $E^*$ in
-$\typedop{presuppose}{(\iota \to \FF_{E^*}(1))}{\iota}$ will be the $E_\DRT$
-effect signature from Chapter~\ref{chap:dynamic-semantics}, though with
-$\op{introduce}$ replaced with $\op{fresh}$ and $\op{push}$ due to the
-changes we made in~\ref{ssec:crossover}.
+$\typedop{presuppose}{(\iota \to \FF_{E^*}(1))}{\iota}$ will be the
+$E_\DRT$ effect signature from Chapter~\ref{chap:dynamic-semantics}, though
+with $\op{introduce}$ replaced with $\op{fresh}$ and $\op{push}$ due to the
+changes we have made in~\ref{ssec:crossover}.
 
 \begin{align*}
   E^* = \{\ &\typedop{get}{1}{\gamma}, \\
@@ -1869,7 +1873,7 @@ changes we made in~\ref{ssec:crossover}.
             &\typedop{assert}{o}{1}\ \}
 \end{align*}
 
-Now our intention is to handle or evaluate the effects of the noun in the
+Our intention is to handle or evaluate the effects of the noun in the
 definite description with the exception of the effects in $E^*$. This means
 that we want to split the computation of the noun's meaning into two
 layers: one using the effects in $E \setminus E^*$ and another using the
@@ -1919,7 +1923,7 @@ $\abs{the}$ as well as the other presupposition triggers.
     \end{aligned}}}
 \end{align*}
 
-Finally, since we changed the type (and therefore also the intended
+Finally, since we have changed the type (and therefore also the intended
 semantics) of the $\op{presuppose}$ operation, we will also have to modify
 its handlers ($\accommodate$, $\maybeAccommodate$ and $\useFind$)
 accordingly.
@@ -1940,20 +1944,20 @@ accordingly.
   \find &= \lam{P}{\app{\op{get}}{\star}{(\lam{e}{\case{\app{\selP}{(\cherry \circ \TOP \circ P)}{e}}{x}{\etaE{x}}{\_}{\ap{\op{presuppose}!}{P}}})}}
 \end{align*}
 
-In $\accommodate$ and $\maybeAccommodate$, the instead of asserting
+In $\accommodate$ and $\maybeAccommodate$, instead of asserting
 $\ap{P}{x}$, we evaluate it, letting it have its dynamic effects at
 wherever the presupposition is being accomodated. The $\useFind$ handler
-will work the same way as before but use a new definition for $\find$ which
-works on dynamic predicates of type $\iota \to \FF_{E^*}(1)$. $\find$ will
-map this dynamic predicate to a static one using $\cherry \circ \TOP$. The
-use of $\TOP$ blocks any effects in the predicate $P$. This is can be
-intuitively understood as the listener considering whether there exists
-some $x$ such that $\ap{P}{x}$ without committing the effects of $P$ to the
-common ground.
+will work the same way as before but with a new definition for $\find$
+which works on dynamic predicates of type $\iota \to \FF_{E^*}(1)$. $\find$
+will map dynamic predicates to static predicates using
+$\cherry \circ \TOP$. The use of $\TOP$ blocks any effects in the predicate
+$P$. This can be intuitively understood as the listener considering whether
+there exists some $x$ such that $\ap{P}{x}$ without committing the effects
+of $P$ to the common ground.
 
 With all of this heavy machinery in place, we now have a system that can
-deal with sentence like Sentence~\ref{ex:presupposition-binding} and
-Sentence~\ref{ex:presupposition-binding2}. The noun phrases \emph{the man
+deal with sentences like Example~\ref{ex:presupposition-binding} and
+Example~\ref{ex:presupposition-binding2}. The noun phrases \emph{the man
   who owns a dog} and \emph{the man who loves his dog} both trigger
 presuppositions with dynamic content. This content is then accommodated
 globally and all the new discourse referents are available in subsequent
@@ -2006,7 +2010,7 @@ discourse.
 \end{align*} 
 
 We also derive the intended readings behind
-Sentences~\ref{ex:presupposition-every-narrow},
+Examples~\ref{ex:presupposition-every-narrow},
 \ref{ex:presupposition-every-wide}, \ref{ex:every-presupposition}
 and~\ref{ex:binding-in-presupposition}, but that was already the case
 before delving into dynamic presuppositions.
@@ -2020,10 +2024,10 @@ presuppositions (of referring expressions), deixis (of first person
 pronouns), quantifiers and conventional implicatures (of appositive
 clauses). The grammar can derive the meanings of all the sentences we
 analyzed in Chapters~\ref{chap:introducing-effects}
-and~\ref{chap:dynamic-semantics} using the same syntactic
+and~\ref{chap:dynamic-semantics} using the same abstract syntactic
 structure.\footnote{With the exception of in-situ quantifiers which now use
   the $\abs{in-situ}$ operator.} Furthermore, the grammar covers sentences
-which combine these phenomena, such as Sentence~\ref{ex:combo}.
+which combine these phenomena, such as Example~\ref{ex:combo}.
 
 \begin{exe}
   \ex My best friend, who owns a dog$_1$, said it$_1$ loves
@@ -2058,11 +2062,11 @@ which combine these phenomena, such as Sentence~\ref{ex:combo}.
   $\etaE{\star} : \FF_E(1)$ is the dynamic tautology.}
 
 
-\subsection{A Note on Conservativity}
+\subsection{Note on Conservativity}
 \label{ssec:conservativity}
 
 An interesting feature of the grammar is that as we added more and more
-phenomena throughout Sections~\ref{sec:adding-presupposition},
+phenomena throughout Sections~\ref{sec:adding-presuppositions},
 \ref{sec:adding-conventional-implicature}, \ref{sec:adding-deixis} and
 \ref{sec:adding-quantification}, we rarely modified the interpretations of
 existing entries. For example, we did not need to turn our interpretations
@@ -2074,7 +2078,7 @@ conventional implicatures, etc.
 The changes that we did to existing interpretations consisted almost
 exclusively of inserting handlers for new effects which did not exist in
 the grammar before. For example, in
-Section~\ref{sec:adding-presupposition}, we added the $\useFind$ and
+Section~\ref{sec:adding-presuppositions}, we added the $\useFind$ and
 $\maybeAccommodate$ handlers for the new $\op{presuppose}$ operation into
 the $\BOX$ combinator and in Section~\ref{sec:adding-quantification}, we
 added the $\SI$ handler for the new $\op{scope}$ operation to the
