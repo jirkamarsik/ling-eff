@@ -505,7 +505,7 @@ implicatures triggered by supplements: nominal appositives and
 supplementary relative clauses. We will use the same abstract constants as
 in Section~\ref{sec:conventional-implicature}, $\abs{who}_{\abs{s}}$ and
 $\abs{appos}$. The constant $\abs{who}_{\abs{s}}$ stands for the
-supplementary (appositive) use of the relativizer \emph{who}.
+supplementary (appositive) use of the relative pronoun \emph{who}.
 
 \begin{align*}
   \abs{who}_{\abs{s}} &: (NP \limp S) \limp NP \limp NP \\
@@ -975,7 +975,7 @@ with quantifiers embedded within quantifiers.
 The object signature already contains the necessary logical material to
 interpret these new lexical items (logical operators and quantifiers for
 the determiners and the $\obj{own}$ relation for the relational noun). To
-account for how quantificational noun phrases take scope over their
+account for how quantified noun phrases take scope over their
 context, we will be using the $\op{scope}$ operator, as in
 Section~\ref{sec:quantification}.
 
@@ -1058,7 +1058,7 @@ amounts to quite the same thing:\footnote{The difference being that
 &= \ap{\sem{\abs{a}}}{N}
 \end{align*}
 
-Quantificational noun phrases using the $\op{scope}$ effect take scope over
+Quantified noun phrases using the $\op{scope}$ effect take scope over
 all the material up to the nearest enclosing $\SI$ handler. We should
 therefore modify some of the existing constructions in our grammar to use
 $\SI$ to designate scope islands. Notably, we will make it so that every
@@ -1078,7 +1078,7 @@ entries of tensed verbs.
 
 The strategies that we have used in
 Subsection~\ref{ssec:quantifier-ambiguity} to deal with quantifier scope
-ambiguity was to change the order of evaluation of the quantificational
+ambiguity was to change the order of evaluation of the quantified
 noun phrases. This was the case both in the first approach, which
 considered adding different lexical items which evaluate their arguments in
 different orders, and in the second, final approach, which used a general
@@ -1105,13 +1105,13 @@ constituents in inverse order, object first and subject last, so that the
 object can take scope over the sentence before the subject does.
 
 In our current setting, this conflict seems impossible to resolve. However,
-we can find a solution by decomposing the action of a quantificational noun
+we can find a solution by decomposing the action of a quantified noun
 phrases into two steps:
 
 \begin{enumerate}
-\item The quantificational noun phrase takes scope over its matrix clause
+\item The quantified noun phrase takes scope over its matrix clause
   \emph{without} making the variable anaphorically accessible. The
-  quantificational noun phrase is ``replaced'' by a \emph{trace}
+  quantified noun phrase is ``replaced'' by a \emph{trace}
   computation.
 \item The trace is evaluated, making the variable anaphorically accessible.
 \end{enumerate}
@@ -1208,7 +1208,7 @@ violation of crossover constraints.
 
 We could have introduced two layers of computations into all of our NP
 meanings but this would needlessly create complexity. Instead, only the
-meanings of quantificational noun phrases (abstract type $QNP$) will have
+meanings of quantified noun phrases (abstract type $QNP$) will have
 two layers. We can then plug these meanings into our grammars using one of
 these two lexical items:
 
@@ -1220,7 +1220,7 @@ these two lexical items:
 \end{align*}
 
 $\abs{in-situ}$ collapses the two layers of effects so that the
-quantificational noun phrases becomes a single-layer computation, just like
+quantified noun phrases becomes a single-layer computation, just like
 other NPs. With this lexical item, we recover the original readings that
 were possible with the single-layer denotations of every $\abs{every}$ and
 $\abs{a'}$ that we had at the beginning of this section.
@@ -1309,7 +1309,7 @@ We will draw parallels to two other approaches.
 In the interpretations of $\abs{every}$ and $\abs{a'}$, we introduce an
 extra layer of computation. Then instead of generalizing all other noun
 phrases to employ this extra layer, we added $\abs{in-situ}$ and $\abs{qr}$
-as lexical items into our grammar, allowing us to use quantificational noun
+as lexical items into our grammar, allowing us to use quantified noun
 phrases, which use this extra layer of computation, in contexts where an
 ordinary noun phrase was expected. The interpretation of $\abs{qr}$ is the
 $\hsbind$ operator. This is reminiscent of the way to compose different
@@ -1508,7 +1508,7 @@ therefore be able to bind the pronoun in Sentence~\ref{ex:donkey-sentence}:
 In the rest of this section, we will discuss two topics related to
 restrictive relative clauses. First, we will outline an analysis which
 chooses a richer type of interpretations for nouns so that the lexical
-entry for the relativizer will be less ad-hoc. Then, we will discuss how
+entry for the relative pronoun will be less ad-hoc. Then, we will discuss how
 relative clauses and other kinds of complex nouns interact with
 presuppositions and definite descriptions.
 
@@ -1576,7 +1576,7 @@ proof of Observation~\ref{obs:conservativity-lifting}.
 \end{align*}
 
 Finally, we could integrate this type of noun interpretations and the
-simpler lexical entry for the relativizer by adjusting the grammar that we
+simpler lexical entry for the relative pronoun by adjusting the grammar that we
 have been building up during this chapter.
 
 \centerline{
@@ -1642,17 +1642,16 @@ operations down to propositions. Note that the same strategy is employed by
 Lebedeva in~\cite{lebedeva2012expression} (Equations~(5.14) and~(5.22)):
 
 \begin{align*}
-  \widetilde{\textsf{sel}} &= \lam{\textbf{P} e}{\app{\textsf{sel}}{(\lam{x}{\appp{\textbf{P}}{(\lam{e}{x})}{e}{(\lam{e}{\top})}})}{e}} \\
-  \widetilde{\sem{the}} &= \lam{\textbf{N} \textbf{P}}{\ap{\textbf{P}}{(\ap{\widetilde{\textsf{sel}}}{\textbf{N}})}}
+  \widetilde{\sel} &= \lam{\textbf{P} e}{\app{\sel}{(\lam{x}{\appp{\textbf{P}}{(\lam{e}{x})}{e}{(\lam{e}{\top})}})}{e}} \\
+  \widetilde{\sem{the}} &= \lam{\textbf{N} \textbf{P}}{\ap{\textbf{P}}{(\ap{\widetilde{\sel}}{\textbf{N}})}}
 \end{align*}
 
-The entry for the definite article uses the dynamic operator
-$\textsf{sel}$, on which our $\find$ operator is based. The $\textsf{sel}$
-operator is made compatible with dynamic properties in
-$\widetilde{\textsf{sel}}$. This is done by applying a context $e$ and the
-trivial continuation $\lam{e}{\top}$ to the dynamic proposition
-$\ap{\textbf{P}}{(\lam{e}{x})}$.\footnote{This is equivalent to the use of
-  the $\BOX$ handler in our approach.}
+The entry for the definite article uses the dynamic operator $\sel$, on
+which our $\find$ operator is based. The $\sel$ operator is made compatible
+with dynamic properties in $\widetilde{\textsf{sel}}$. This is done by
+applying a context $e$ and the trivial continuation $\lam{e}{\top}$ to the
+dynamic proposition $\ap{\textbf{P}}{(\lam{e}{x})}$.\footnote{This is
+  equivalent to the use of the $\BOX$ handler in our approach.}
 
 However, this solution can be lacking when the dynamic property which is
 the denotation of the noun introduces new discourse referents itself (e.g.\
@@ -2016,4 +2015,80 @@ before delving into dynamic presuppositions.
 \section{Summary}
 \label{sec:composing-summary}
 
+In this chapter, we have built up a single grammar that covered anaphora,
+presuppositions (of referring expressions), deixis (of first person
+pronouns), quantifiers and conventional implicatures (of appositive
+clauses). The grammar can derive the meanings of all the sentences we
+analyzed in Chapters~\ref{chap:introducing-effects}
+and~\ref{chap:dynamic-semantics} using the same syntactic
+structure.\footnote{With the exception of in-situ quantifiers which now use
+  the $\abs{in-situ}$ operator.} Furthermore, the grammar covers sentences
+which combine these phenomena, such as Sentence~\ref{ex:combo}.
 
+\begin{exe}
+  \ex My best friend, who owns a dog$_1$, said it$_1$ loves
+  everyone. \label{ex:combo}
+\end{exe}
+
+\begin{align*}
+& \sem{\app{\abs{said}_{\abs{is}}}{(\app{\abs{loves}}{(\ap{\abs{in-situ}}{\abs{everyone}})}{\abs{it}})}{(\app{\abs{who}_{\abs{s}}}{(\ap{\abs{owns}}{(\ap{\abs{a}}{\abs{dog}})})}{(\ap{\abs{best-friend}}{\abs{me}})})}}\footnotemark \\
+& \tto \begin{aligned}[t]
+      &\app{\op{speaker}}{\star}{(\lam{s}{ \\
+      &\ap{\op{presuppose}}{(\lam{x}{\begin{aligned}[t]
+          &\app{\op{push}}{x}{(\lam{\_}{ \\
+          &\app{\op{assert}}{(\app{\obj{best-friend}}{x}{s})}{(\lam{\_}{ \\
+          &\etaE{\star}})}})})\ (\lambda x.\,
+        \end{aligned}}} \\
+      &\app{\op{introduce^i}}{\star}{(\lam{y}{ \\
+      &\app{\op{implicate}}{(\ap{\obj{dog}}{y})}{(\lam{\_}{ \\
+      &\app{\op{implicate}}{(\app{\obj{own}}{x}{y})}{(\lam{\_}{ \\
+      &\app{\op{get}}{\star}{(\lam{e}{ \\
+      &\app{\op{assert}}{(\app{\obj{say}}{x}{(\forall z.\, \app{\obj{love}}{(\ap{\selit}{e})}{z})})}{(\lam{\_}{ \\
+      &\etaE{\star}})}})}})}})}})})})}
+    \end{aligned} \\
+  \\
+& \ap{\cherry}{(\app{\TOP}{s}{\sem{\app{\abs{said}_{\abs{is}}}{(\app{\abs{loves}}{(\ap{\abs{in-situ}}{\abs{everyone}})}{\abs{it}})}{(\app{\abs{who}_{\abs{s}}}{(\ap{\abs{owns}}{(\ap{\abs{a}}{\abs{dog}})})}{(\ap{\abs{best-friend}}{\abs{me}})})}}})} \\
+& \tto \exists x.\, \app{\obj{best-friend}}{x}{s} \land (\exists y.\, \ap{\obj{dog}}{y} \land \app{\obj{own}}{x}{y} \land \app{\obj{say}}{x}{(\forall z.\, \app{\obj{love}}{y}{z})})
+\end{align*}
+
+\footnotetext{We can define the interpretation $\sem{\abs{everyone}}$ of
+  $\abs{everyone : QNP}$ as
+  $\sem{\abs{everyone}} = \ap{\sem{\abs{every}}}{(\lam{x}{\etaE{\star}})}$,
+  where $\lam{x}{\etaE{\star}}$ is of type $\sem{N}$ and
+  $\etaE{\star} : \FF_E(1)$ is the dynamic tautology.}
+
+
+\subsection{A Note on Conservativity}
+\label{ssec:conservativity}
+
+An interesting feature of the grammar is that as we added more and more
+phenomena throughout Sections~\ref{sec:adding-presupposition},
+\ref{sec:adding-conventional-implicature}, \ref{sec:adding-deixis} and
+\ref{sec:adding-quantification}, we rarely modified the interpretations of
+existing entries. For example, we did not need to turn our interpretations
+of proper nouns or pronouns into generalized quantifiers when adding
+quantification, we did not need to change the interpretation of transitive
+verbs to account for the fact that both subject and object might carry
+conventional implicatures, etc.
+
+The changes that we did to existing interpretations consisted almost
+exclusively of inserting handlers for new effects which did not exist in
+the grammar before. For example, in
+Section~\ref{sec:adding-presupposition}, we added the $\useFind$ and
+$\maybeAccommodate$ handlers for the new $\op{presuppose}$ operation into
+the $\BOX$ combinator and in Section~\ref{sec:adding-quantification}, we
+added the $\SI$ handler for the new $\op{scope}$ operation to the
+interpretations of tensed verbs. In all those four sections, we also
+modified the $\TOP$ combinator by composing it with a handler for the newly
+defined effect. However, we know that if we apply a handler to a
+computation in which none of the operations being handled occur, then the
+result will be the same computation (modulo stuck computations). Therefore,
+we have a strong conservativity result for our incremental grammar. In the
+grammars developed from Sections~\ref{sec:dynamic-kernel}
+to~\ref{sec:adding-quantification} (Subsection~\ref{ssec:crossover} not
+included), if an abstract term has an interpretation in one grammar, then
+it has the same interpretation in every other grammar in which it is
+derivable (i.e.\ in every one of its extensions). This is because any
+extension would only change the interpretation by inserting handlers for
+effects which are not used in the interpretation and therefore the handlers
+would make no difference.
