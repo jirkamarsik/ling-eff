@@ -103,7 +103,7 @@ from~\cite{kamp1993discourse} (Example~(1.28), Section~1.1.3):
 & $\to_\crpn$
 & \drs{$\drx$}
 {
-$\obj{Jones}(\drx)$ \\
+$\ap{\obj{Jones}}{\drx}$ \\
 \begin{tikzpicture}
   \Tree [.S $\drx$
             [.VP$'$ [.VP [.V owns ]
@@ -114,9 +114,9 @@ $\obj{Jones}(\drx)$ \\
 & $\to_\crid$
 & \drs{$\drx$ $\dry$}
 {
-$\obj{Jones}(\drx)$ \\
+$\ap{\obj{Jones}}{\drx}$ \\
 \begin{tikzpicture}
-  \Tree [.N($\drx$) Porsche ]
+  \Tree [.N($\dry$) Porsche ]
 \end{tikzpicture} \\
 \begin{tikzpicture}
   \Tree [.S $\drx$
@@ -130,16 +130,16 @@ $\obj{Jones}(\drx)$ \\
 We insert the syntactic analysis of the first sentence into the empty
 DRS.\@ Then there is a reduction rule which replaces the NP \emph{Jones}
 with a discourse referent $\drx$ while at the same time introducing the
-discourse referent $\drx$ and the condition $\obj{Jones}(\drx)$ into the DRS.\@
-In the next DRS, we evaluate the object by replacing it with $\dry$ and adding
-the discourse referent $\dry$ and a condition in which (the meaning of) the
-noun \emph{Porsche} is applied to $\dry$.
+discourse referent $\drx$ and the condition $\ap{\obj{Jones}}{\drx}$ into
+the DRS.\@ In the next DRS, we evaluate the object by replacing it with
+$\dry$ and adding the discourse referent $\dry$ and a condition in which
+(the meaning of) the noun \emph{Porsche} is applied to $\dry$.
 
 \begin{center}
 \begin{tabular}{rcccccl}
 \drs{$\drx$ $\dry$}
 {
-$\obj{Jones}(\drx)$ \\
+$\ap{\obj{Jones}}{\drx}$ \\
 \begin{tikzpicture}
   \Tree [.N($\dry$) Porsche ]
 \end{tikzpicture} \\
@@ -152,8 +152,8 @@ $\obj{Jones}(\drx)$ \\
 & $\to_\crlin$
 & \drs{$\drx$ $\dry$}
 {
-$\obj{Jones}(\drx)$ \\
-$\obj{Porsche}(\dry)$ \\
+$\ap{\obj{Jones}}{\drx}$ \\
+$\ap{\obj{Porsche}}{\dry}$ \\
 \begin{tikzpicture}
   \Tree [.S $\drx$
             [.VP$'$ [.VP [.V owns ]
@@ -163,16 +163,16 @@ $\obj{Porsche}(\dry)$ \\
 & $=$
 & \drs{$\drx$ $\dry$}
 {
-$\obj{Jones}(\drx)$ \\
-$\obj{Porsche}(\dry)$ \\
+$\ap{\obj{Jones}}{\drx}$ \\
+$\ap{\obj{Porsche}}{\dry}$ \\
 $[\drx$ owns $\dry]$
 }
 & $\to_\crlitv$
 & \drs{$\drx$ $\dry$}
 {
-$\obj{Jones}(\drx)$ \\
-$\obj{Porsche}(\dry)$ \\
-$\obj{own}(\drx, \dry)$
+$\ap{\obj{Jones}}{\drx}$ \\
+$\ap{\obj{Porsche}}{\dry}$ \\
+$\app{\obj{own}}{\drx}{\dry}$
 }
 \end{tabular}
 \end{center}
@@ -180,9 +180,9 @@ $\obj{own}(\drx, \dry)$
 Having reduced the noun phrase \emph{a Porsche}, we are now led to evaluate
 the noun \emph{Porsche} itself. It yields the predicate $\obj{Porsche}$. At
 this point, the algorithm presented in~\cite{kamp1993discourse}
-stops. However, in order to be a little bit more uniform, we will evaluate
-reduce the piece of syntax $[\drx$ owns $\dry]$ and replace it with an
-atomic formula $\obj{own}(\drx, \dry)$. We can now add the syntactic
+stops. However, in order to be a little bit more uniform, we will reduce
+the piece of syntax $[\drx$ owns $\dry]$ and replace it with an atomic
+formula $\app{\obj{own}}{\drx}{\dry}$. We can now add the syntactic
 analysis of the second sentence and proceed with computation.
 
 
@@ -190,9 +190,9 @@ analysis of the second sentence and proceed with computation.
 \begin{tabular}{rcl}
 \drs{$\drx$ $\dry$}
 {
-$\obj{Jones}(\drx)$ \\
-$\obj{Porsche}(\dry)$ \\
-$\obj{own}(\drx, \dry)$ \\
+$\ap{\obj{Jones}}{\drx}$ \\
+$\ap{\obj{Porsche}}{\dry}$ \\
+$\app{\obj{own}}{\drx}{\dry}$ \\
 \begin{tikzpicture}
   \Tree [.S [.NP [.PRO It ] ]
             [.VP$'$ [.VP [.V fascinates ]
@@ -202,9 +202,9 @@ $\obj{own}(\drx, \dry)$ \\
 & $\to_\crpro$
 & \drs{$\drx$ $\dry$ $\dru$}
 {
-$\obj{Jones}(\drx)$ \\
-$\obj{Porsche}(\dry)$ \\
-$\obj{own}(\drx, \dry)$ \\
+$\ap{\obj{Jones}}{\drx}$ \\
+$\ap{\obj{Porsche}}{\dry}$ \\
+$\app{\obj{own}}{\drx}{\dry}$ \\
 $\dru = \dry$ \\
 \begin{tikzpicture}
   \Tree [.S $\dru$
@@ -217,16 +217,16 @@ $\dru = \dry$ \\
 
 Again, we start by evaluating the subject. This time, it is a pronoun, but
 the process remains largely the same. We replace the pronoun with a new
-discourse referent $\dru$ which we introduce into the DRS along with the
+discourse referent $\dru$, which we introduce into the DRS along with the
 condition $\dru = \dry$.
 
 \begin{center}
 \begin{tabular}{rcccl}
 \drs{$\drx$ $\dry$ $\dru$}
 {
-$\obj{Jones}(\drx)$ \\
-$\obj{Porsche}(\dry)$ \\
-$\obj{own}(\drx, \dry)$ \\
+$\ap{\obj{Jones}}{\drx}$ \\
+$\ap{\obj{Porsche}}{\dry}$ \\
+$\app{\obj{own}}{\drx}{\dry}$ \\
 $\dru = \dry$ \\
 \begin{tikzpicture}
   \Tree [.S $\dru$
@@ -237,9 +237,9 @@ $\dru = \dry$ \\
 & $\to_\crpro$
 & \drs{$\drx$ $\dry$ $\dru$ $\drv$}
 {
-$\obj{Jones}(\drx)$ \\
-$\obj{Porsche}(\dry)$ \\
-$\obj{own}(\drx, \dry)$ \\
+$\ap{\obj{Jones}}{\drx}$ \\
+$\ap{\obj{Porsche}}{\dry}$ \\
+$\app{\obj{own}}{\drx}{\dry}$ \\
 $\dru = \dry$ \\
 $\drv = \drx$ \\
 \begin{tikzpicture}
@@ -251,25 +251,26 @@ $\drv = \drx$ \\
 & $\to_\crlitv$
 & \drs{$\drx$ $\dry$ $\dru$ $\drv$}
 {
-$\obj{Jones}(\drx)$ \\
-$\obj{Porsche}(\dry)$ \\
-$\obj{own}(\drx, \dry)$ \\
+$\ap{\obj{Jones}}{\drx}$ \\
+$\ap{\obj{Porsche}}{\dry}$ \\
+$\app{\obj{own}}{\drx}{\dry}$ \\
 $\dru = \dry$ \\
 $\drv = \drx$ \\
-$\obj{fascinate}(\dru, \drv)$
+$\app{\obj{fascinate}}{\dru}{\drv}$
 }
 \end{tabular}
 \end{center}
 
 For the object noun we do the same, introducing the discourse referent
-$\drv$ and the condition $\drv = \drx$. Finally, all that is left to
+$\drv$ and the condition $\drv = \drx$. Finally, all that is left is to
 translate the transitive verb into a binary relation and we get the final
 DRS representation.
 
-Let us now look at the formulation of the construction rules\footnote{We
-  will omit gender features from the rules as we will not be studying
-  anaphora resolution in this work.}, starting with $\crid$ in
-Figure~\ref{fig:crid}.
+Let us now look at the formulation of the construction rules, starting with
+$\crid$ in Figure~\ref{fig:crid}.\footnote{The construction rules presented
+  in~\cite{kamp1993discourse} also include gender features, which are
+  necessary for correct anaphora resolution. We will omit them from the
+  rules as we will not be studying anaphora resolution in this work.}
 
 \begin{figure}
 \centering
@@ -295,10 +296,10 @@ highest node of any other triggering configuration that $\gamma$ contains.''
 \end{flushright}
 \end{quote}
 
-In this rule, it serves to make the application of the rule to a subject
-dominant to the application of the same rule (or any other rule evaluating,
-for that purpose) to an object and therefore fixes evaluation order: first
-subject, then object.
+In this rule, the extra piece of context in the triggering configuration
+make it so that the application of the rule to the subject dominates the
+application of the same rule to the object and therefore fixes evaluation
+order: first subject, then object.
 
 The rule then has its contractum, which is given on the last line
 (\textbf{Substitute in $\overline{\gamma}$}). In this case, the contractum
@@ -321,10 +322,12 @@ The rule for pronouns, $\crpro$ in Figure~\ref{fig:crpro}, is very
 similar. In introduces a new kind of operation, in which the NP being
 evaluated is asking its context for a suitable anaphoric referent.
 
-We will leave the rule for proper nouns until~\ref{sec:presuppositions} and
-give the two lexical insertion rules for nouns and transitive verbs
-\footnote{the latter is not present in~\cite{kamp1993discourse}. Instead,
-  the authors declare [$x$ loves $y$] to be an irreducible condition.}.
+We will leave the rule for proper nouns until
+Section~\ref{sec:presuppositions} and give the two lexical insertion rules
+for nouns and transitive verbs \footnote{The latter is not present
+  in~\cite{kamp1993discourse}. Instead, [$x$ loves $y$] is treated as an
+  irreducible condition.} --- Figures~\ref{fig:crlin} and~\ref{fig:crlitv},
+respectively.
 
 \begin{figure}
 \begin{subfigure}[b]{0.4\textwidth}
@@ -344,9 +347,9 @@ give the two lexical insertion rules for nouns and transitive verbs
 The system from~\cite{kamp1993discourse} described above can be presented
 in a manner reminiscent of operational semantics for programming languages.
 
-The terms of this language are syntactic trees containing discourse
-referents and wrapped inside DRSs. The values are just discourse referents
-and DRSs\footnote{Containing only predicates as conditions.}. We will
+The terms of this language are DRSs which contain as conditions syntactic
+trees with discourse referents. The values in this language are discourse
+referents and plain DRSs (DRSs whose conditions are formulas). We will
 define evaluation contexts $C$. These should reflect the fact the
 construction algorithm of DRT permits reduction in any of the conditions
 within a DRS.
@@ -403,12 +406,12 @@ Likewise, there is an analogue for evaluating indefinite descriptions in
 object positions which differs only in the triggerring configuration. The
 reduction rules for $\crpro$, $\crlin$ and $\crlitv$ can be derived in the
 same way. Then, the DRS that corresponds to a sentence can be seen as a
-normal form of in this reduction system\footnote{The system permits
-  reductions in different conditions at the same time and is therefore not
-  confluent. Hence the indefinite article in ``\emph{a normal form}''.}.
+normal form\footnote{The system permits reductions in different conditions
+  at the same time and is therefore not confluent. Hence the indefinite
+  article in ``\emph{a normal form}''.} in this reduction system.
 
-If we look at the rule that we can see a remarkable similarity to the likes
-of those seen in Chapter~\ref{chap:continuations} for $\lambda_\shift$ and
+If we look at the rule, then we can see a remarkable similarity to the
+rules seen in Chapter~\ref{chap:continuations} for $\lambda_\shift$ and
 $\lambda_\shifto$. Inside the context $C$, we have some kind of delimiting
 construction, a DRS in one case and a $\reset$ in the other. As one of the
 arguments of this construction, we have an expression buried inside a more
@@ -435,8 +438,8 @@ facilitated by the fact that in their exposition of
 DRT~\cite{kamp1993discourse}, Kamp and Reyle have structured the
 construction rules by using a limited set of operations to manipulate the
 DRSs. It is these operations that we will include in our effect
-signature. Consider the construction rule of pronouns and the corresponding
-representation as a $\banana{\lambda}$ computation.
+signature. Consider the construction rule for pronouns and the
+corresponding representation as a $\banana{\lambda}$ computation.
 
 \vspace{6mm}
 
@@ -462,20 +465,20 @@ representation as a $\banana{\lambda}$ computation.
 
 \vspace{6mm}
 
-Let $\alpha$ be a third-person singular pronoun\footnote{Since we ignore
+Let $\alpha$ be a third-person singular pronoun.\footnote{Since we ignore
   gender, we can think of $\alpha$ as \emph{the} third-person singular
-  pronoun}. The construction rule reduces the NP node formed by $\alpha$
+  pronoun.} The construction rule reduces the NP node formed by $\alpha$
 into a discourse referent. In the corresponding analysis in our formalism
 (ACG + $\banana{\lambda}$), we have $\alpha$ as an abstract constant of
 type $NP$ whose semantic interpretation is a computation of type
 $\FF_E(\iota)$. The pronoun asks the context for a suitable antecedent,
 which is then referred to as $v$. We mimic the verb \textbf{choose} with an
-operation $\op{choose}$. It does not take as any inputs, as no inputs are
-provided in the construction to the rule\footnote{If we were to care about
+operation $\op{choose}$. It does not take any input, as no input is given
+to \textbf{choose} in the construction rule,\footnote{If we were to care about
   gender markers, the input of this operation would be the gender
   marker/predicate, much like in the example of the $\op{select}$ operator
-  proposed in~\ref{ssec:choosing-effect-signature}.}, and expects a
-discourse referent in return. Since we will be using the type $\iota$ for
+  proposed in~\ref{ssec:choosing-effect-signature}.} and expects a
+discourse referent as output. Since we will be using the type $\iota$ for
 terms that designate individuals, we will identify the type of discourse
 referents with $\iota$.
 
@@ -488,7 +491,7 @@ referent into the DRS $\KK$ that contains the condition being
 evaluated. This instruction and its use of the verb \textbf{introduce}
 gives rise to the $\op{introduce}$ operation. $\op{introduce}$ asks for a
 fresh discourse referent and so its type ends being the same as the one for
-$\op{choose}$, only the semantics differ\footnote{}:
+$\op{choose}$, only the semantics differ.
 
 $$
 \typedop{introduce}{1}{\iota}
@@ -496,20 +499,19 @@ $$
 
 The next step in the construction rule asks the DRS $\KK$ to introduce a
 new condition. For this kind of interaction, \textbf{introducing} a
-condition, we will use a new operation, $\op{assert}$. The NP indicates
-that the condition it wants to add to the DRS, the truth-condition that it
-wants to assert. Conditions are atomic formulas of predicate logic and so
-we will use $o$, the type of propositions, to represent them. The output
-will be of the trivial type $1$ and we will therefore use the variable name
-$\_$, as conventional in functional programming.
+condition, we will use a new operation, $\op{assert}$. The NP indicates the
+condition it wants to add to the DRS, the truth-condition that it wants to
+assert. Conditions are atomic formulas of predicate logic and so we will
+use $o$, the type of propositions, to represent them. The output will be of
+the trivial type $1$.
 
 $$
 \typedop{assert}{o}{1}
 $$
 
 Finally, the construction rule tells us to replace the NP node with the
-discourse referent $u$. This way, when this NP occurs as an argument to a
-predicate, the predicate should be applied to the discourse referent
+discourse referent $u$. This means that when this NP occurs as an argument
+to a predicate, the predicate should be applied to the discourse referent
 $u$. In $\banana{\lambda}$, this role is played by the return values of
 computations (see equation below). Therefore, we return $u$ with the
 computation $\etaE{u}$.
@@ -517,7 +519,7 @@ computation $\etaE{u}$.
 $$
 \obj{predicate} \apr (\app{\op{op}}{M_\petitp}{(\lam{x}{ \ldots\
     \etaE{u}})}) = \app{\op{op}}{M_\petitp}{(\lam{x}{ \ldots\
-    \etaE{(\obj{predicate}(u))}})}
+    \etaE{(\ap{\obj{predicate}}{u})}})}
 $$
 
 We can do the same kind of analysis/translation for the $\crid$ rule for
@@ -539,7 +541,7 @@ indefinite descriptions.
 \begin{align*}
 \sem{\abs{a}} =\ \lam{N}{& \app{\op{introduce}}{&&\star}{ &(\lam{u}{ \\
                          & N &&\hsbind &(\lam {n}{ \\
-                         & \app{\op{assert}}{&&(n(u))}{ &(\lam{\_}{ \\
+                         & \app{\op{assert}}{&&(\ap{n}{u})}{ &(\lam{\_}{ \\
                          \\
                          & \ap{\eta}{u}})}})})}}
 \end{align*}
@@ -586,7 +588,7 @@ own.
 \sem{N} &= \FF_E(\iota \to o)
 \end{align*}
 \begin{align*}
-\sem{\abs{common}} &= \lam{\alpha}{\etaE{(\lam{v}{\alpha(v)})}} \\
+\sem{\abs{common}} &= \lam{\alpha}{\etaE{(\lam{v}{\ap{\alpha}{v}})}} \\
                    &= \lam{\alpha}{\etaE{\alpha}} \\
                    &= \eta
 \end{align*}
@@ -602,12 +604,13 @@ of common nouns (such as \emph{snowman}, \emph{snake}, \emph{ladder}) to
 the larger category $N$ of nouns (\emph{animal in your garden}, \emph{man
   who owns a donkey}). The common nouns will correspond to plain sets of
 individuals, $\sem{CN} = \iota \to o$. However, more complex nouns might
-also have effects (in the case of dynamics, anaphora, more generally,
-deixis, quantification, conventional implicature\ldots) and so we have
+also have effects\footnote{In the case of dynamics, it might be just
+  anaphora, but more generally it might also be indexicality,
+  quantification, conventional implicature\ldots}  and so we have
 $\sem{N} = \FF_E(\iota \to o)$. In ACGs, to say that every common noun $CN$
-is a noun $N$ is to provide an injection of type $N \limp
-CN$. Homomorphically, its denotation will be an injection from
-$\iota \to o$ to $\FF_E(\iota \to o)$, the constructor $\eta$.
+is a noun $N$ is to provide an injection of type $CN \limp
+N$. Homomorphically, its denotation will be an injection from $\iota \to o$
+to $\FF_E(\iota \to o)$, the constructor $\eta$.
 
 \vspace{6mm}
 
@@ -624,7 +627,7 @@ $\iota \to o$ to $\FF_E(\iota \to o)$, the constructor $\eta$.
 \begin{align*}
 \sem{\abs{trans}} = \lam{\alpha Y X}{&X \hsbind (\lam{x}{ \\
                                      &Y \hsbind (\lam{y}{ \\
-                                     &\etaE{(\alpha(x, y))}})})} \\
+                                     &\etaE{(\app{\alpha}{x}{y})}})})} \\
                   = \lam{\alpha Y X}{&\alpha \apr X \aplr Y}
 \end{align*}
 \end{minipage}
@@ -641,7 +644,8 @@ $\crlitv$, we see that (the parent of) the subject dominates (the parent
 of) the object. This leads DRT to always evaluate the dynamic effects of
 the subject before the object. In $\banana{\lambda}$, this feature is
 expressed in the lexical entry for the construction that combines the
-subject, verb and object into a sentence, $\abs{trans}$.
+subject, verb and object into a sentence, $\abs{trans}$, where $X$ is
+evaluated before $Y$ using $\hsbind$.
 
 
 \subsection{Example}
@@ -649,25 +653,25 @@ subject, verb and object into a sentence, $\abs{trans}$.
 
 We have seen how to map the syntax-semantics construction rules of DRT into
 the ACG formalism and how the extra steps performed when reducing
-indefinites or pronouns in DRT correspond naturally to operations, with
-which we have extended ACG's lambda calculus in $\banana{\lambda}$. We can
-now look at an example in action.
+indefinites or pronouns in DRT correspond to operations, with which we have
+extended ACG's lambda calculus in $\banana{\lambda}$. We can now look at an
+example in action.
 
 \begin{exe}
   \ex \label{ex:man-porsche} A man owns a Porsche. It fascinates him.
 \end{exe}
 
 This is a small variation of Example~\ref{ex:jones-porsche} in which
-\emph{Jones} was replaced by \emph{a man}\footnote{We relegate the
-  discussion of proper nouns to~\ref{sec:presuppositions}.}.
+\emph{Jones} was replaced by \emph{a man}.\footnote{We relegate the
+  discussion of proper nouns to Section~\ref{sec:presuppositions}.}
 
 \begin{align*}
   \sem{\appp{\abs{trans}}{&\abs{owns}}{(\ap{\abs{a}}{(\ap{\abs{common}}{\abs{Porsche}})})}{(\ap{\abs{a}}{(\ap{\abs{common}}{\abs{man}})})}} \\
   \tto &\ \app{\op{introduce}}{\star}{(\lam{x}{ \\
-       &\ \app{\op{assert}}{(\obj{man}(x))}{(\lam{\_}{ \\
+       &\ \app{\op{assert}}{(\ap{\obj{man}}{x})}{(\lam{\_}{ \\
        &\ \app{\op{introduce}}{\star}{(\lam{y}{ \\
-       &\ \app{\op{assert}}{(\obj{Porsche}(y))}{(\lam{\_}{ \\
-       &\ \etaE{(\obj{own}(x, y))}})}})}})}})}
+       &\ \app{\op{assert}}{(\ap{\obj{Porsche}}{y})}{(\lam{\_}{ \\
+       &\ \etaE{(\app{\obj{own}}{x}{y})}})}})}})}})}
 \end{align*}
 
 The only effects are due to the indefinites that introduce new discourse
@@ -685,7 +689,7 @@ Example~\ref{ex:man-porsche}:
        &\ \app{\op{choose}}{\star}{(\lam{x'}{ \\
        &\ \app{\op{introduce}}{\star}{(\lam{v}{ \\
        &\ \app{\op{assert}}{(v = x')}{(\lam{\_}{ \\
-       &\ \etaE{(\obj{fascinate}(u, v))}})}})}})}})}})}})}
+       &\ \etaE{(\app{\obj{fascinate}}{u}{v})}})}})}})}})}})}})}
 \end{align*}
 
 We can compose the two using $\andlr$, the conjunction of propositions
@@ -694,26 +698,28 @@ raised to computations.
 \begin{align*}
   \sem{\appp{\abs{trans}}{&\abs{owns}}{(\ap{\abs{a}}{(\ap{\abs{common}}{\abs{Porsche}})})}{(\ap{\abs{a}}{(\ap{\abs{common}}{\abs{man}})})}} \andlr \sem{\appp{\abs{trans}}{\abs{fascinates}}{\abs{him}}{\abs{it}}} \\
   \tto &\ \app{\op{introduce}}{\star}{(\lam{x}{ \\
-       &\ \app{\op{assert}}{(\obj{man}(x))}{(\lam{\_}{ \\
+       &\ \app{\op{assert}}{(\ap{\obj{man}}{x})}{(\lam{\_}{ \\
        &\ \app{\op{introduce}}{\star}{(\lam{y}{ \\
-       &\ \app{\op{assert}}{(\obj{Porsche}(y))}{(\lam{\_}{ \\
+       &\ \app{\op{assert}}{(\ap{\obj{Porsche}}{y})}{(\lam{\_}{ \\
        &\ \app{\op{choose}}{\star}{(\lam{y'}{ \\
        &\ \app{\op{introduce}}{\star}{(\lam{u}{ \\
        &\ \app{\op{assert}}{(u = y')}{(\lam{\_}{ \\
        &\ \app{\op{choose}}{\star}{(\lam{x'}{ \\
        &\ \app{\op{introduce}}{\star}{(\lam{v}{ \\
        &\ \app{\op{assert}}{(v = x')}{(\lam{\_}{ \\
-       &\ \etaE{(\obj{own}(x, y) \land \obj{fascinate}(u, v))}})}})}})}})}})}})}})}})}})}})}
+       &\ \etaE{(\app{\obj{own}}{x}{y} \land \app{\obj{fascinate}}{u}{v})}})}})}})}})}})}})}})}})}})}})}
 \end{align*}
 
 The resulting computation introduces 4 discourse referents: $x$, $y$, $u$
 and $v$. Assuming that $\op{choose}$ will give us $x$ for $x'$ and $y$ for
 $y'$, then we end up introducing and returning the conditions
-$\obj{man}(x)$, $\obj{Porsche}(y)$, $u = x$, $v = y$, $\obj{own}(x, y)$ and
-$\obj{fascinate}(u, v)$, i.e.\ the same conditions as in the DRS for
-Example~\ref{ex:jones-porsche} (replacing $\obj{Jones}(x)$ with
-$\obj{man}(x)$). However, while that might be our desired interpretation of
-this computation, for now, it is just a string of symbols.
+$\ap{\obj{man}}{x}$, $\ap{\obj{Porsche}}{y}$, $u = x$, $v = y$,
+$\app{\obj{own}}{x}{y}$ and $\app{\obj{fascinate}}{u}{v}$, i.e.\ the same
+conditions as in the DRS for Example~\ref{ex:jones-porsche} (replacing
+$\ap{\obj{Jones}}{x}$ with $\ap{\obj{man}}{x}$). However, while that might
+be our desired interpretation of this computation, for now it is just a
+string of (operation) symbols, to which we will now need to give some
+meaning.
 
 
 \subsection{Handler for Dynamics}
@@ -721,7 +727,7 @@ this computation, for now, it is just a string of symbols.
 
 In order to give a formal semantics to the operations that we have
 introduced for DRT, we will write a handler. The type of dynamic
-propositions, $\gamma \to (\gamma \to o) \to o$, of de Groote's TTDL will
+propositions of de Groote's TTDL, $\gamma \to (\gamma \to o) \to o$, will
 serve as a suitable interpretation domain. On top of that, apart from
 implementing a semantics for our operations, we will have demonstrated the
 link between DRT and TTDL.\@ The type of the handler's input will be
@@ -731,16 +737,16 @@ $\op{choose}$, $\op{introduce}$ and $\op{assert}$.
 \begin{align*}
   \TTDL :\ &\FF_E(o) \to \gamma \to (\gamma \to o) \to o \\
   \TTDL = \bbanana{\ 
-  &\onto{\op{choose}}{(\lam{\_ k e \phi}{\appp{k}{(\sel(e))}{e}{\phi}})}, \\
+  &\onto{\op{choose}}{(\lam{\_ k e \phi}{\appp{k}{(\ap{\sel}{e})}{e}{\phi}})}, \\
   &\onto{\op{introduce}}{(\lam{\_ k e \phi}{\exists x.\ \appp{k}{x}{(x \cons e)}{\phi}})}, \\
   &\onto{\op{assert}}{(\lam{p k e \phi}{p \land \appp{k}{\star}{(p \cons e)}{\phi}})}, \\
   &\onto{\eta}{(\lam{p e \phi}{p \land \ap{\phi}{e}})}\ }
 \end{align*}
 
 We write the handler by following the types, keeping in mind the intended
-semantics. There is a remarkable similarity between the clauses of our
-handler and the operators and semantic entries used in TTDL.\@ The $\eta$
-clause is the operation that lifts plain propositions into dynamic
+semantics. There is a notable similarity between the clauses of our handler
+and the operators and semantic entries used in TTDL.\@ The $\eta$ clause is
+the operation that lifts plain propositions into dynamic
 propositions~\cite{lebedeva2012expression}. The clause for $\op{choose}$ is
 (ignoring the first dummy argument) exactly the denotation assigned to
 pronouns in TTDL~\cite{de2006towards}. The clause for $\op{introduce}$ is
@@ -757,16 +763,16 @@ dynamic noun phrases interact with their contexts, retrieving their
 referents from context or introducing new ones into the context. Together
 with $\op{assert}$, which lets us conjoin another proposition to the
 observed proposition, these form the three operations with which we
-characterize DRT dynamics. Our original discovery of these three operations
-with which we can characterize dynamic effects came from the realization
-that we can express all the denotations in TTDL with: reading from the
-context ($\op{choose}$, or later $\op{get}$), wrapping an existential
-quantifier over the continuation while adding the bound variable into the
-context ($\op{introduce}$) and conjoining a proposition to the continuation
-($\op{assert}$).
+characterize DRT-style dynamics. Our original discovery of these three
+operations with which we can characterize dynamic effects came from the
+realization that we can express all the denotations in TTDL with: reading
+from the context ($\op{choose}$, or later $\op{get}$), wrapping an
+existential quantifier over the continuation while adding the bound
+variable into the context ($\op{introduce}$) and conjoining a proposition
+to the continuation ($\op{assert}$).
 
 Once we have applied the $\TTDL$ handler to a computation of type
-$\FF_E(o)$, we can extract the corresponding (simple) proposition by
+$\FF_E(o)$, we can extract the corresponding (static) proposition by
 applying the result to some left context and the trivial right context
 ($\lam{e}{\top}$). Since this what we will be doing most of the time, we
 can simplify the $\TTDL$ handler by assuming that $\phi$ is always equal to
@@ -775,7 +781,7 @@ $\lam{e}{\top}$.
 \begin{align*}
   \BOX :\ &\FF_E(o) \to \gamma \to o \\
   \BOX = \bbanana{\ 
-  &\onto{\op{choose}}{(\lam{\_ k e}{\app{k}{(\sel(e))}{e}})}, \\
+  &\onto{\op{choose}}{(\lam{\_ k e}{\app{k}{(\ap{\sel}{e})}{e}})}, \\
   &\onto{\op{introduce}}{(\lam{\_ k e}{\exists x.\ \app{k}{x}{(x \cons e)}})}, \\
   &\onto{\op{assert}}{(\lam{p k e}{p \land \app{k}{\star}{(p \cons e)}})}, \\
   &\onto{\eta}{(\lam{p e}{p})}\ }
@@ -786,35 +792,35 @@ customarily drawn as boxes. The crucial common point is that putting
 something in a box means that any truth conditions or discourse referents
 that it introduces are contained within the box. Throughout this chapter,
 we will refer to applications of this handler as boxes, DRSs or
-contexts\footnote{Since the handler acts as something that provides and
-  regulates access to a (left) TTDL context.}.
+contexts.\footnote{Since the handler acts as something that provides and
+  regulates access to a (left) TTDL context.}
 
 Getting back to Example~\ref{ex:man-porsche}, we can now apply one of these
 two handlers to get the dynamic proposition.
 
 \begin{align*}
 &\ap{\TTDL}{(\sem{\appp{\abs{trans}}{\abs{owns}}{(\ap{\abs{a}}{(\ap{\abs{common}}{\abs{Porsche}})})}{(\ap{\abs{a}}{(\ap{\abs{common}}{\abs{man}})})}} \andlr \sem{\appp{\abs{trans}}{\abs{fascinates}}{\abs{him}}{\abs{it}}})} \\
-&\tto \lam{e \phi}{\exists x.\ \obj{man}(x) \land (\exists y.\ \obj{Porsche}(y) \land (\exists u.\ u = \sel(e_1) \land (\exists v.\ v = \sel(e_2) \land \obj{own}(x, y) \land \obj{fascinate}(u, v) \land \ap{\phi}{e_3})))} \\
-&= \lam{e \phi}{\exists x y u v.\ \obj{man}(x) \land \obj{Porsche}(y) \land u = \sel(e_1) \land v = \sel(e_2) \land \obj{own}(x, y) \land \obj{fascinate}(u, v) \land \ap{\phi}{e_3}} \\
-&= \lam{e \phi}{\exists x y u v.\ \obj{man}(x) \land \obj{Porsche}(y) \land u = y \land v = x \land \obj{own}(x, y) \land \obj{fascinate}(u, v) \land \ap{\phi}{e_3}} \\
-&= \lam{e \phi}{\exists x y.\ \obj{man}(x) \land \obj{Porsche}(y) \land \obj{own}(x, y) \land \obj{fascinate}(y, x) \land \ap{\phi}{e_3}}
+&\tto \lam{e \phi}{\exists x.\ \ap{\obj{man}}{x} \land (\exists y.\, \ap{\obj{Porsche}}{y} \land (\exists u.\ u = \ap{\sel}{e_1} \land (\exists v.\ v = \ap{\sel}{e_2} \land \app{\obj{own}}{x}{y} \land \app{\obj{fascinate}}{u}{v} \land \ap{\phi}{e_3})))} \\
+&= \lam{e \phi}{\exists x y u v.\ \ap{\obj{man}}{x} \land \ap{\obj{Porsche}}{y} \land u = \ap{\sel}{e_1} \land v = \ap{\sel}{e_2} \land \app{\obj{own}}{x}{y} \land \app{\obj{fascinate}}{u}{v} \land \ap{\phi}{e_3}} \\
+&= \lam{e \phi}{\exists x y u v.\ \ap{\obj{man}}{x} \land \ap{\obj{Porsche}}{y} \land u = y \land v = x \land \app{\obj{own}}{x}{y} \land \app{\obj{fascinate}}{u}{v} \land \ap{\phi}{e_3}} \\
+&= \lam{e \phi}{\exists x y.\ \ap{\obj{man}}{x} \land \ap{\obj{Porsche}}{y} \land \app{\obj{own}}{x}{y} \land \app{\obj{fascinate}}{y}{x} \land \ap{\phi}{e_1}}
 \end{align*}
 
 where:
 \vspace{-1mm}
 \begin{align*}
-  e_1 &= \obj{Porsche}(y) \cons y \cons \obj{man}(x) \cons x \cons e \\
-  e_2 &= (u = \sel(e_1)) \cons u \cons e_1 \\
-  e_3 &= (v = \sel(e_2)) \cons v \cons e_2
+  e_1 &= \ap{\obj{Porsche}}{y} \cons y \cons \ap{\obj{man}}{x} \cons x \cons e \\
+  e_2 &= (u = \ap{\sel}{e_1}) \cons u \cons e_1 \\
+  e_3 &= (v = \ap{\sel}{e_2}) \cons v \cons e_2
 \end{align*}
 
-We have used Kamp's construction rules to compute a dynamic proposition in
-de Groote's TTDL.\@ The first line shows the result as we get it from the
-handler. On the second line, we pull out all of the existential quantifiers
-(prenex form). On the third line, we resolve the anaphora and we get a
-dynamic proposition which corresponds referent by referent, condition by
-condition to the DRS derived by Kamp and Reyle. The last line removes
-spurious variables and equalities.
+We have used Kamp and Reyle's construction rules to compute a dynamic
+proposition in de Groote's TTDL.\@ The first line shows the result as we
+get it from the handler. On the second line, we pull out all of the
+existential quantifiers (prenex form). On the third line, we resolve the
+anaphora and we get a dynamic proposition which corresponds, referent by
+referent, condition by condition, to the DRS derived by Kamp and Reyle. The
+last line removes spurious variables and equalities.
 
 
 \subsection{Negation}
@@ -865,9 +871,9 @@ can define our dynamic negation by:
 However, there is a small catch. We have a free variable $e$ of type
 $\gamma$. This is supposed to be the context in which the new negated
 condition is to appear. This is necessary so that the anaphoric elements
-within the negated condition can refer to not only referents proper to the
-negated DRS, but also those originating in superordinate DRSs. We can
-introduce a new operation for accessing the context.
+within the negated condition can refer to not only the referents proper to
+the negated DRS, but also to those originating in superordinate DRSs. We
+can introduce a new operation for accessing the context.
 
 $$
 \typedop{get}{1}{\gamma}
@@ -891,13 +897,13 @@ operation. However, before we do so, we note that $\op{choose}$ can be
 expressed in terms of $\op{get}$ and $\sel$:
 
 $$
-\op{choose} = \lam{\_ k}{\app{\op{get}}{\star}{(\lam{e}{\ap{k}{(\sel(e))}})}}
+\op{choose} = \lam{\_ k}{\app{\op{get}}{\star}{(\lam{e}{\ap{k}{(\ap{\sel}{e})}})}}
 $$
 
 Therefore, we will drop $\op{choose}$ and keep only $\op{get}$. We have now
 arrived at our final effect signature for DRT dynamics. This signature
 allows us to treat dynamic effects the same way as the other effects that
-we have analyzed in this chapter.
+we have analyzed in Chapter~\ref{chap:introducing-effects}.
 
 \begin{align*}
   E_\DRT = \{\ &\typedop{get}{1}{\gamma}, \\
@@ -932,24 +938,24 @@ Example~\ref{ex:man-porsche}: \emph{a man owns a Porsche}.
 
 \begin{align*}
 &\app{\op{introduce}}{\star}{(\lam{x}{ \\
-&\app{\op{assert}}{(\obj{man}(x))}{(\lam{\_}{ \\
+&\app{\op{assert}}{(\ap{\obj{man}}{x})}{(\lam{\_}{ \\
 &\app{\op{introduce}}{\star}{(\lam{y}{ \\
-&\app{\op{assert}}{(\obj{Porsche}(y))}{(\lam{\_}{ \\
-&\etaE{(\obj{own}(x, y))}})}})}})}})}
+&\app{\op{assert}}{(\ap{\obj{Porsche}}{y})}{(\lam{\_}{ \\
+&\etaE{(\app{\obj{own}}{x}{y})}})}})}})}})}
 \end{align*}
 
 The truth condition that corresponds to the verb is being returned by the
 computation, whereas the truth conditions that arise from the nouns are
 expressed using $\op{assert}$. The at-issue content of this sentence
 consists of all of these conditions and therefore there is no reason to
-separate out the verb's predicate. We could thus write this instead:
+separate out the verb's predicate. We could write this instead:
 
 \begin{align*}
 &\app{\op{introduce}}{\star}{(\lam{x}{ \\
-&\app{\op{assert}}{(\obj{man}(x))}{(\lam{\_}{ \\
+&\app{\op{assert}}{(\ap{\obj{man}}{x})}{(\lam{\_}{ \\
 &\app{\op{introduce}}{\star}{(\lam{y}{ \\
-&\app{\op{assert}}{(\obj{Porsche}(y))}{(\lam{\_}{ \\
-&\app{\op{assert}}{(\obj{own}(x, y))}{(\lam{\_}{ \\
+&\app{\op{assert}}{(\ap{\obj{Porsche}}{y})}{(\lam{\_}{ \\
+&\app{\op{assert}}{(\app{\obj{own}}{x}{y})}{(\lam{\_}{ \\
 &\etaE{\star}})}})}})}})}})}
 \end{align*}
 
@@ -1015,19 +1021,19 @@ there. Let $S$ be the state monad which maps the type $\alpha$ to the type
 $\gamma \to (\alpha \times \gamma)$. This is the monad that underlies
 state, such as the storing and retrieving of discourse referents. Its
 corresponding monad transformer $S(F)$ maps the type $\alpha$ to the type
-$\gamma \to F(\alpha \times \gamma)$. Let $C$ be the continuation monad
-which maps the type $\alpha$ to the type $(\alpha \to o) \to o$. By
-applying the $S$ monad transformer to the $C$ monad, we get a monad $S(C)$
-that maps the type $\alpha$ to the type
+$\gamma \to F(\alpha \times \gamma)$, where $F$ is some other monad. Let
+$C$ be the continuation monad which maps the type $\alpha$ to the type
+$(\alpha \to o) \to o$. By applying the $S$ monad transformer to the $C$
+monad, we get a monad $S(C)$ that maps the type $\alpha$ to the type
 $\gamma \to (\alpha \times \gamma \to o) \to o$. This monad characterizes
 computations that have read/write access to some state of type $\gamma$ and
-can manipulate their continuation of type $o$. If we look at such
-computations of return type $1$, we get a computation type
+can manipulate their continuation of type $o$. If we look at computations
+in this monad with return type $1$, we get the type
 $\gamma \to (1 \times \gamma \to o) \to o$. By the isomorphism between
 $1 \times \gamma$ and $\gamma$, this is the same as
 $\gamma \to (\gamma \to o) \to o$, which is the type $\Omega$ of dynamic
 propositions in TTDL.\@ The correspondence is not a shallow coincidence of
-types, but many of the terms of TTDL can be generated using the $\eta$ and
+types. Many of the terms of TTDL can be generated using the $\eta$ and
 $\hsbind$ of this monad.
 
 The switch from $\FF_E(o)$ to $\FF_{E \uplus DRT}(1)$ is very much like the
@@ -1038,11 +1044,11 @@ structure from the return type to the effect signature. The choice between
 the two is rather arbitrary. Keeping $o$ as the return type for
 computations that interpret sentences is more consistent with what we have
 been doing in Chapter~\ref{chap:introducing-effects}. On the other hand,
-using $1$ as the return type:
+using $1$ as the return type has several advantages:
 
 \begin{itemize}
-\item is more uniform by not admitting both $\etaE{A}$ and
-  $\ap{\op{assert}!}{A}$
+\item it is more uniform by not admitting both $\etaE{A}$ and
+  $\app{\op{assert}}{A}{(\lam{\_}{\etaE{\top}})}$
 \item this in turn leads to nicer canonical representations and equational
   theory in~\ref{ssec:algebraic-drt}
 \item and in order to correctly treat the cancellation of presuppositions
@@ -1090,14 +1096,15 @@ can reorder $\op{get}$ w.r.t.\ these two operations:
 This means we can assume that every computation of type $\FF_{E_\DRT}(1)$
 uses $\op{get}$ exactly once and does so at the very beginning, i.e.\ it is
 of the form $\app{\op{get}}{\star}{(\lam{e}{M(e)})}$ where
-$M(e) : \FF_{\{\op{implicate}, \op{assert}\}}(1)$\footnote{When writing
+$M(e) : \FF_{\{\op{implicate}, \op{assert}\}}(1)$.\footnote{When writing
   effect signatures in subscripts, we will often omit the types of
-  operations, which are presumed to be constant.}.
+  operations, which are presumed to be constant.}
 
-If we assume that relative order of discourse referents and conditions is
-not important (i.e.\ they are both separate parts, as in a DRS),
-$x \cons p \cons e = p \cons x \cons e$ for $x : \iota$, $p : o$ and
-$e : \gamma$, then we get the following equation:
+If we assume that the relative order of discourse referents and conditions
+is not important (e.g.\ they are both separate parts, as in a DRS), or in
+other words we have that $(x \cons p \cons e) = (p \cons x \cons e)$ for
+every $x : \iota$, $p : o$ and $e : \gamma$, then we get the following
+equation:
 
 $$
   \app{\op{assert}}{A}{(\lam{u}{\app{\op{introduce}}{\star}{(\lam{x}{M(u, x)})}})} 
@@ -1133,10 +1140,10 @@ in $\banana{\lambda}$ and their standard notion of $\alpha$-equivalence
 gives rise to $\alpha$-equivalence for our representations.
 
 If we were to further assume that the order in contexts does not matter at
-all (i.e.\ the discourse referents and conditions form sets, as in a DRS),
-$x \cons y \cons e = y \cons x \cons e$ and
-$p \cons q \cons e = q \cons p \cons e$ for $x, y : \iota$, $p, q : o$ and
-$e : \gamma$, then we get the following:
+all (e.g.\ the discourse referents and conditions form sets, as in a DRS),
+meaning that we have $(x \cons y \cons e) = (y \cons x \cons e)$ and
+$(p \cons q \cons e) = (q \cons p \cons e)$ for every $x, y : \iota$,
+$p, q : o$ and $e : \gamma$, then we get the following:
 
 \begin{align*}
    \app{\op{assert}}{A}{(\lam{u_1}{\app{\op{assert}}{B}{(\lam{u_2}{M(u_1, u_2)})}})} 
@@ -1150,8 +1157,8 @@ presentation in~\cite{kamp1993discourse}, this would make our
 representation closer to DRSs.
 
 Furthermore, if we assume that the conditions in a context can be seen as a
-big conjunction, $p \cons q \cons e = (p \land q) \cons e$ for $p, q : o$
-and $e : \gamma$, then we admit the following equations:
+big conjunction, i.e.\ $(p \cons q \cons e) = ((p \land q) \cons e)$ for
+every $p, q : o$ and $e : \gamma$, then we admit the following equations:
 
 $$
   \app{\op{assert}}{A}{(\lam{u}{\app{\op{assert}}{B}{(\lam{u'}{M(u, u')})}})} 
@@ -1176,39 +1183,50 @@ referents $x_1$, \ldots, $x_n$.
 Finally, we will look at the particular case of the computation that serves
 as the denotation of an anaphoric pronoun:
 
-\begin{align*}
+$$
+  \begin{aligned}
    &\app{\op{get}}{\star}{(\lam{e}{ \\
    &\app{\op{introduce}}{\star}{(\lam{y}{ \\
-   &\app{\op{assert}}{(\sel(e) = y)}{(\lam{\_}{ \\
-   &\etaE{y}})}})}})} \\
-=\ &\app{\op{get}}{\star}{(\lam{e}{ \\
+   &\app{\op{assert}}{(\ap{\sel}{e} = y)}{(\lam{\_}{ \\
+   &\etaE{y}})}})}})}
+   \end{aligned}
+   \qquad = \qquad
+   \begin{aligned}
+   &\app{\op{get}}{\star}{(\lam{e}{ \\
    &\app{\op{introduce}}{\star}{(\lam{y}{ \\
-   &\app{\op{assert}}{(\sel(e) = y)}{(\lam{\_}{ \\
-   &\etaE{(\sel(e))}})}})}})} \\
-=\ &\app{\op{get}}{\star}{(\lam{e}{ \\
-   &\etaE{(\sel(e))}})}
-\end{align*}
+   &\app{\op{assert}}{(\ap{\sel}{e} = y)}{(\lam{\_}{ \\
+   &\etaE{(\ap{\sel}{e})}})}})}})}
+   \end{aligned}
+   \qquad = \qquad
+   \begin{aligned}
+   &\app{\op{get}}{\star}{(\lam{e}{ \\
+   &\etaE{(\ap{\sel}{e})}})}
+   \end{aligned}
+$$
 
-The first equation, which exchanges $y$ with $\sel(e)$, is licensed by the
-fact that the $\BOX$ handler will interpret the first computation as the
-proposition $\exists y.\ \sel(e) = y \land \ap{k}{y}$ and the the second
-computation as the proposition
-$\exists y.\ \sel(e) = y \land \ap{k}{(\sel(e))}$, both of which are
-equivalent.
+The first equation, which exchanges $y$ with $\ap{\sel}{e}$, is licensed by
+the fact that the $\BOX$ handler will interpret the first computation as
+the proposition $\exists y.\, \ap{\sel}{e} = y \land \ap{k}{y}$ and the
+second computation as the proposition
+$\exists y.\, \ap{\sel}{e} = y \land \ap{k}{(\ap{\sel}{e})}$, both of which
+are equivalent.
 
-This simplification in the second equation is based on an assumption that
-whenever we have an $x = \sel(e)$, then $(e = y) \cons y \cons e = e$. In
-other words, if an individual is already present in the context, adding it
-again under a different name does not change the context. While certain
-strategies of anaphora resolution might rely on individuals being
-repeatedly added to the context on every use, we allow ourselves this
-modification to simplify the derivations in the coming examples and make
-the resulting logical formulas more readable. Therefore, we will be using
-this simplified denotation for anaphoric pronouns:
+The simplification in the second equation is based on an assumption that
+$((\ap{\sel}{e} = y) \cons y \cons e) = e$. In other words, if an
+individual is already present in the context (the individual
+$\ap{\sel}{e}$), adding it again under a different name ($y$) does not
+change the context. While certain strategies of anaphora resolution might
+rely on individuals being repeatedly added to the context on every
+use,\footnote{For example when contexts are lists of individuals ordered by
+  saliency and adding the same individual multiple times increases its
+  saliency.} we allow ourselves this modification to simplify the
+derivations in the coming examples and make the resulting logical formulas
+more readable. Therefore, we will be using this simplified denotation for
+anaphoric pronouns:
 
 \begin{align*}
   \sem{\abs{he}} =\ &\app{\op{get}}{\star}{(\lam{e}{ \\
-                    &\eta{(\sel(e))}})}
+                    &\etaE{(\ap{\sel}{e})}})}
 \end{align*}
 
 
@@ -1225,8 +1243,8 @@ outside of entailment-cancelling operators such as negation, outside of the
 DRSs in which they are contained.
 
 \begin{exe}
-  \ex \label{ex:jones-mercedes} It is not the case that Jones owns a
-  Porsche. He owns a Mercedes.
+  \ex \label{ex:jones-mercedes} It is not the case that Jones$_1$ owns a
+  Porsche. He$_1$ owns a Mercedes.
 \end{exe}
 
 In Example~\ref{ex:jones-mercedes}, the proper noun \emph{Jones}
@@ -1244,22 +1262,22 @@ negated and the discourse referent would not reach the second sentence.
 If we look at the construction rule for proper nouns in DRT, $\crpn$,
 displayed on Figure~\ref{fig:crpn}, we will see that the discourse referent
 and the condition describing it are being inserted into the main DRS and
-not into the DRS $K$, in which the condition being reduced appears.
+not into the DRS $K$ in which the condition being reduced appears.
 
 In TTDL, this issue was resolved by adding exceptions into the lambda
 calculus used for the semantic terms~\cite{lebedeva2012expression}. The
 lexical entry for a presupposition trigger such as a proper noun or a
-definite description throws an exception,
-$(\texttt{AbsentIndividualExc}\ P)$. This exception carries the predicate
-$P$ that describes the entity that is presupposed to exist. At the top
-level, a handler catches these exceptions and accommodates these
-presuppositions. We have seen that in $\banana{\lambda}$, dynamic
-propositions are modelled as computations and these computations already
-have a notion of throwing exceptions (effects) and handling them
-(handlers). We will introduce an operation named $\op{presuppose}$. Its
-input type will be $\iota \to o$, a predicate that describes the entity
-whose existence is presupposed. The output type will be $\iota$, the
-presupposed entity satisfying the predicate.
+definite description throws the exception
+$\texttt{AbsentIndividualExc}\ P$. This exception carries the predicate $P$
+that describes the entity that is presupposed to exist. At the top level, a
+handler catches these exceptions and accommodates these presuppositions. We
+have seen that in $\banana{\lambda}$, dynamic propositions are modelled as
+computations and these computations already have a notion of throwing
+exceptions (effects) and handling them (handlers). We will introduce an
+operation named $\op{presuppose}$. Its input type will be $\iota \to o$, a
+predicate that describes the entity whose existence is presupposed. The
+output type will be $\iota$, the presupposed entity satisfying the
+predicate.
 
 $$
 \typedop{presuppose}{(\iota \to o)}{\iota}
@@ -1282,9 +1300,9 @@ because of two reasons:
   a new context would be needlessly complex.
 \item This approach over-generates by licencing the reading ``He$_1$ loves
   John's$_1$ car''. When evaluating \emph{John}, the existence of John is
-  presupposed and the sentence is evaluated again, in a context in which
-  John is accessible. However, this will allow the pronoun in subject
-  position to resolve to John and end up being bound by the object.
+  presupposed and the sentence is evaluated again, this time in a context
+  in which John is accessible. However, this will allow the pronoun in
+  subject position to resolve to John and end up being bound by the object.
 \end{itemize}
 
 The effects in $\banana{\lambda}$ differ from traditional exceptions in
@@ -1299,13 +1317,13 @@ the presupposed entity immediately and the evaluation of the sentence
 continues. This strategy also avoid the over-generation mentioned above, in
 which a presupposition trigger binds a pronoun preceding it.
 
-We have shown have the $\op{presuppose}$ operation can be motivated on the
+We have shown how the $\op{presuppose}$ operation can be motivated on the
 grounds of the analysis done by Lebedeva
 in~\cite{lebedeva2012expression}. We can also look at how it ties to the
 DRT construction rule for presupposition triggers such as $\crpn$. When
 translating construction rules into computations, we have implemented the
 \textbf{Introduce in $\universe_K$} command as the $\op{introduce}$
-operation and the \textbf{Introduce in $\conditions_K$} as the
+operation and the \textbf{Introduce in $\conditions_K$} command as the
 $\op{assert}$ operation. We might therefore proceed the same way and
 translate the \textbf{Introduce into the universe of the main DRS} command
 as some operation $\typedop{introduce\_main}{\star}{\iota}$ and
@@ -1316,7 +1334,7 @@ operations in tandem: first introduce a new discourse referent and then
 some condition(s) describing it. Therefore, we can fuse the two into a
 single operation $\typedop{presuppose}{(\iota \to o)}{\iota}$, which
 introduces and outputs a new discourse referent $x$ while at the same it
-introduces the condition $P(x)$, where $P$ is its argument.
+introduces the condition $\ap{P}{x}$, where $P$ is its argument.
 
 Besides lowering the number of basic operations that we have to introduce,
 this also has an advantage when we start to consider ambiguous ways of
@@ -1357,7 +1375,7 @@ continuations which return computations.
   \BOX &:\ \FF_{E \uplus E_\DRT}(1) \to \gamma \to \FF_E(o) \\
   \BOX &= \lam{A e}{(\lban \begin{aligned}[t]
   &\onto{\op{get}}{(\lam{\_ k}{\etaE{(\lam{e}{\ap{k}{e} \apll e})}})}, \\
-  &\onto{\op{introduce}}{(\lam{\_ k}{\etaE{(\lam{e}{\existsr x.\ \ap{k}{x} \apll (x \cons e)})}})}, \\
+  &\onto{\op{introduce}}{(\lam{\_ k}{\etaE{(\lam{e}{\existsr x.\, \ap{k}{x} \apll (x \cons e)})}})}, \\
   &\onto{\op{assert}}{(\lam{p k}{\etaE{(\lam{e}{p \andr (\ap{k}{\star} \apll (p \cons e))})}})}, \\
   &\onto{\eta}{(\lam{\_}{\etaE{(\lam{e}{\top})}})} \rban\ A) \apll e\end{aligned}} \\
   \\
@@ -1408,15 +1426,15 @@ this manuscript. However, note that:
 
 \begin{itemize}
 \item The translation from the closed $\BOX$ handler was mechanical. The
-  open $\BOX$ handler does not include any ad hoc features built in to make
-  it compatible with presuppositions. The only changes we made to the
-  handler was adding $\eta$, $\CC$ and replacing operators with versions
+  open $\BOX$ handler does not include any ad-hoc features built into it to
+  make it compatible with presuppositions. The only changes we made to the
+  handler was adding $\eta$ and $\CC$ and replacing operators with versions
   that can act on computations ($\apr$ and $\apll$ for application, $\andr$
   for conjunction). In an impure calculus with call-by-value semantics in
   which a distinction between the types $\alpha$ and $\FF_E(\alpha)$ does
   not exist, neither $\eta$ nor the $\somelr$ operators would be needed;
-  the only meaningful operator would be $\CC$, which pushes effects out of
-  a function body.
+  the only operator we would need to add would be $\CC$, which pushes
+  effects out of a function body.
 \item The cost of replacing the simpler closed handler with the open
   handler is a price we would have to pay anyway if we wanted to use this
   handler in a setting that involved other effects (such as quantification,
@@ -1452,42 +1470,42 @@ The negation will use $\op{get}$ to retrieve the current context $e$ and
 then proceed by evaluating the expression
 $(\app{\BOX}{\sem{\text{John likes his car}}}{e})$. The proper noun
 \emph{John} will then use $\op{presuppose}$, which will project out of the
-$\BOX$ and introduce John into some superordinate context. But now we have
-to evaluate the pronoun \emph{his} in the context $e$ which was untouched
-by \emph{John} and we will thus fail to retrieve John and get the expected
+$\BOX$ and introduce John into the global context. But now we have to
+evaluate the pronoun \emph{his} in the context $e$ which was untouched by
+\emph{John} and we will thus fail to retrieve John and get the expected
 reading. The problem is in our definition of $\dnot A$. We want anaphoric
 expressions within $A$ to have access to referents introduced outside of
 $A$. We do this by using $\op{get}$ to recover the context $e$ in which we
 are about to evaluate $\dnot A$ and then use that context as the initial
 context when interpreting anaphora in $A$ with $\app{\BOX}{A}{e}$. While
 this works well for TTDL, in which dynamic propositions have no way to
-modify contexts other contexts than the local one, it breaks when we allow
-$\op{presuppose}$ to modify the top context.
+modify contexts other than the local one, it breaks when we let
+$\op{presuppose}$ modify the top context.
 
 The solution is to dismiss the assumption that surrounding contexts are
-immune to change. Whenever we handle a $\op{get}$, we use another
-$\op{get}$ to gather the current state of the surrounding context and then
+immutable. Whenever we handle a $\op{get}$, we use another $\op{get}$ to
+gather the current state of the surrounding (global) context and then
 combine that with the local context. This solution will actually simplify
 the definition of $\dnot$ and the type of $\BOX$, since $\BOX$ does not
 need to be seeded with its surrounding context but retrieves it itself when
 necessary. Furthermore, note that this solution was not available to us
-before we made the handler open, since it interprets computations in
-$\FF_{E_\DRT}(1)$ into computations in $\FF_{\{\op{get}\}}(o)$.
+before we made the handler open, since it interprets computations of type
+$\FF_{E_\DRT}(1)$ as computations of type $\FF_{\{\op{get}\}}(o)$.
 
 \begin{align*}
   &\BOX :\FF_{E \uplus E_\DRT}(1) \to \FF_{E \uplus \{\op{get}\}}(o) \\
   &\BOX = \lam{A}{(\ap{\begin{aligned}[t]\lban
   &\onto{\op{get}}{(\lam{\_ k}{\etaE{(\lam{e}{\app{\op{get}}{\star}{(\lam{e'}{\ap{k}{(e \cat e')} \apll e})}})}})}, \\
-  &\onto{\op{introduce}}{(\lam{\_ k}{\etaE{(\lam{e}{\existsr x.\ \ap{k}{x} \apll (x \cons e)})}})}, \\
+  &\onto{\op{introduce}}{(\lam{\_ k}{\etaE{(\lam{e}{\existsr x.\, \ap{k}{x} \apll (x \cons e)})}})}, \\
   &\onto{\op{assert}}{(\lam{p k}{\etaE{(\lam{e}{p \andr (\ap{k}{\star} \apll (p \cons e))})}})}, \\
   &\onto{\eta}{(\lam{\_}{\etaE{(\lam{e}{\top})}})}\rban}{A}) \apll \nil
     \end{aligned}}
 \end{align*}
 
 The $\op{get}$ now uses another $\op{get}$ to retrieve the current
-surrounding $e'$ which is then combined with the local context $e$ as the
-answer to the original $\op{get}$. In order to combine the two contexts, we
-assume that there is some operation
+surrounding context $e'$, which is then combined with the local context $e$
+as the answer to the original $\op{get}$. In order to combine the two
+contexts, we assume that there is some operation
 $(\cat) : \gamma \to \gamma \to \gamma$. If contexts are (pairs of) lists,
 then this operation would be (pointwise) list concatenation. Since we
 always ask again for the surrounding context, we do not need the
@@ -1527,7 +1545,7 @@ rule for proper nouns, $\crpn$, into $\banana{\lambda}$:
   \sem{\abs{proper}} =
   \lam{\alpha}{&\app{\op{presuppose}}{&(\lam{u}{ \\
                \\
-               &\alpha(u)})}{&(\lam{u}{ \\
+               &\ap{\alpha}{u}})}{&(\lam{u}{ \\
                \\ \\
                & \ap{\eta}{u}})}}
 \end{align*}
@@ -1535,8 +1553,8 @@ rule for proper nouns, $\crpn$, into $\banana{\lambda}$:
 
 \vspace{6mm}
 
-We map the introduction of a discourse referent and a condition into the
-main DRS into the $\op{presuppose}$ operation. As with the lexical
+We model the introduction of a discourse referent and a condition into the
+main DRS with the $\op{presuppose}$ operation. As with the lexical
 insertion rules for common nouns and transitive verbs, this rule is
 parameterized by a lexical item, this time a proper noun. In DRT, proper
 nouns are described using predicates and so we introduce an abstract atomic
@@ -1546,15 +1564,15 @@ parallel the construction. We can actually make it a lot shorter:
 
 \begin{align*}
   \sem{\abs{proper}}
-  &= \lam{\alpha}{\app{\op{presuppose}}{(\lam{u}{\alpha(u)})}{(\lam{u}{\ap{\eta}{u}})}} \\
-  &= \lam{\alpha}{\app{\op{presuppose}}{\alpha}{(\lam{u}{\ap{\eta}{u}})}} \\
-  &= \lam{\alpha}{\ap{\op{presuppose}!}{\alpha}} \\
-  &= \op{presuppose}!
+  =\ &\lam{\alpha}{\app{\op{presuppose}}{(\lam{u}{\ap{\alpha}{u}})}{(\lam{u}{\ap{\eta}{u}})}} \\
+  \to_\eta\ &\lam{\alpha}{\app{\op{presuppose}}{\alpha}{(\lam{u}{\ap{\eta}{u}})}} \\
+  =\ &\lam{\alpha}{\ap{\op{presuppose}!}{\alpha}} \\
+  \to_\eta\ &\op{presuppose}!
 \end{align*}
 
 We will also need a handler to give a meaning to the $\op{presuppose}$
-operation. The meaning behind is $\op{presuppose}$ is clear: it will
-introduce a discourse referent and a condition.
+operation. The meaning behind $\op{presuppose}$ is clear: it will introduce
+a discourse referent and a condition.
 
 \begin{align*}
   \accommodate &: \FF_{E \uplus \{\op{presuppose}\}}(\alpha) \to \FF_E(\alpha) \\
@@ -1579,8 +1597,8 @@ the denotation of the first sentence.
      &\ \sem{\appp{\abs{trans}}{\abs{owns}}{(\ap{\abs{a}}{(\ap{\abs{common}}{\abs{Porsche}})})}{(\ap{\abs{proper}}{\abs{Jones}})}} \\
 \tto &\ \app{\op{presuppose}}{\obj{Jones}}{(\lam{x}{ \\
      &\ \app{\op{introduce}}{\star}{(\lam{y}{ \\
-     &\ \app{\op{assert}}{(\obj{Porsche}(y))}{(\lam{\_}{ \\
-     &\ \app{\op{assert}}{(\obj{own}(x, y))}{(\lam{\_}{ \\
+     &\ \app{\op{assert}}{(\ap{\obj{Porsche}}{y})}{(\lam{\_}{ \\
+     &\ \app{\op{assert}}{(\app{\obj{own}}{x}{y})}{(\lam{\_}{ \\
      &\ \etaE{\star}})}})}})}})}
 \end{align*}
 
@@ -1591,9 +1609,9 @@ and $\op{assert}$ operations but the $\op{presuppose}$ will prevail.
 &\dnot\ \sem{S_1} \\
 \tto &\ \ap{\BOX}{\sem{S_1}} \hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}})\\
 \tto &\ \app{\op{presuppose}}{\obj{Jones}}{(\lam{x}{ \\
-     &\ \etaE{(\exists y.\ \obj{Porsche}(y) \land \obj{own}(x, y))}})} \hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}}) \\
+     &\ \etaE{(\exists y.\, \ap{\obj{Porsche}}{y} \land \app{\obj{own}}{x}{y})}})} \hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}}) \\
 \tto &\ \app{\op{presuppose}}{\obj{Jones}}{(\lam{x}{ \\
-     &\ \app{\op{assert}}{(\lnot (\exists y.\ \obj{Porsche}(y) \land \obj{own}(x, y)))}{(\lam{\_}{ \\
+     &\ \app{\op{assert}}{(\lnot (\exists y.\, \ap{\obj{Porsche}}{y} \land \app{\obj{own}}{x}{y}))}{(\lam{\_}{ \\
      &\ \etaE{\star}})}})}
 \end{align*}
 
@@ -1605,8 +1623,8 @@ whose meaning is derived below.
      &\ \sem{\appp{\abs{trans}}{\abs{owns}}{(\ap{\abs{a}}{(\ap{\abs{common}}{\abs{Mercedes}})})}{\abs{he}}} \\
 \tto &\ \app{\op{get}}{}{(\lam{e}{ \\
      &\ \app{\op{introduce}}{\star}{(\lam{y}{ \\
-     &\ \app{\op{assert}}{(\obj{Mercedes}(y))}{(\lam{\_}{ \\
-     &\ \app{\op{assert}}{(\obj{own}(\sel(e), y))}{(\lam{\_}{ \\
+     &\ \app{\op{assert}}{(\ap{\obj{Mercedes}}{y})}{(\lam{\_}{ \\
+     &\ \app{\op{assert}}{(\app{\obj{own}}{(\ap{\sel}{e})}{y})}{(\lam{\_}{ \\
      &\ \etaE{\star}})}})}})}})}
 \end{align*}
 
@@ -1617,11 +1635,11 @@ the whole discourse in Example~\ref{ex:jones-mercedes}.
 \begin{align*}
   \sem{\text{not $S_1$. $S_2$}} = &\ (\dnot\ \sem{S_1}) \hsbind (\lam{\_}{\sem{S_2}}) \\
 \tto &\ \app{\op{presuppose}}{\obj{Jones}}{(\lam{x}{ \\
-     &\ \app{\op{assert}}{(\lnot (\exists y.\ \obj{Porsche}(y) \land \obj{own}(x, y)))}{(\lam{\_}{ \\
+     &\ \app{\op{assert}}{(\lnot (\exists y.\, \ap{\obj{Porsche}}{y} \land \app{\obj{own}}{x}{y}))}{(\lam{\_}{ \\
      &\ \app{\op{get}}{}{(\lam{e}{ \\
      &\ \app{\op{introduce}}{\star}{(\lam{y}{ \\
-     &\ \app{\op{assert}}{(\obj{Mercedes}(y))}{(\lam{\_}{ \\
-     &\ \app{\op{assert}}{(\obj{own}(\sel(e), y))}{(\lam{\_}{ \\
+     &\ \app{\op{assert}}{(\ap{\obj{Mercedes}}{y})}{(\lam{\_}{ \\
+     &\ \app{\op{assert}}{(\app{\obj{own}}{(\ap{\sel}{e})}{y})}{(\lam{\_}{ \\
      &\ \etaE{\star}})}})}})}})}})}})}
 \end{align*}
 
@@ -1631,36 +1649,38 @@ We can now embed this in the top-level box.
   \ap{\TOP}{\sem{\text{not $S_1$. $S_2$}}} = &\ \ap{\BOX}{(\ap{\accommodate}{\sem{\text{not $S_1$. $S_2$}}})} \\
 \tto \ap{\BOX}{(
      &\ \app{\op{introduce}}{\star}{(\lam{x}{ \\
-     &\ \app{\op{assert}}{(\obj{Jones}(x))}{(\lam{\_}{ \\
-     &\ \app{\op{assert}}{(\lnot (\exists y.\ \obj{Porsche}(y) \land \obj{own}(x, y)))}{(\lam{\_}{ \\
+     &\ \app{\op{assert}}{(\ap{\obj{Jones}}{x})}{(\lam{\_}{ \\
+     &\ \app{\op{assert}}{(\lnot (\exists y.\, \ap{\obj{Porsche}}{y} \land \app{\obj{own}}{x}{y}))}{(\lam{\_}{ \\
      &\ \app{\op{get}}{}{(\lam{e}{ \\
      &\ \app{\op{introduce}}{\star}{(\lam{y}{ \\
-     &\ \app{\op{assert}}{(\obj{Mercedes}(y))}{(\lam{\_}{ \\
-     &\ \app{\op{assert}}{(\obj{own}(\sel(e), y))}{(\lam{\_}{ \\
+     &\ \app{\op{assert}}{(\ap{\obj{Mercedes}}{y})}{(\lam{\_}{ \\
+     &\ \app{\op{assert}}{(\app{\obj{own}}{(\ap{\sel}{e})}{y})}{(\lam{\_}{ \\
      &\ \etaE{\star}})}})}})}})}})}})}})}\ )} \\
 \tto &\ \app{\op{get}}{\star}{(\lam{e}{ \\
      &\ \etaE{(\exists x.\
-          \obj{Jones}(x) \land
-          \lnot (\exists y.\ \obj{Porsche}(y) \land \obj{own}(x, y)) \land
-          (\exists y.\ \obj{Mercedes}(y) \land \obj{own}(\sel(e'), y)))}})}
+          \ap{\obj{Jones}}{x} \land
+          \lnot (\exists y.\, \ap{\obj{Porsche}}{y} \land \app{\obj{own}}{x}{y}) \land
+          (\exists y.\, \ap{\obj{Mercedes}}{y} \land \obj{own}(\sel(e'), y)))}})}
 \end{align*}
 
 where
 
 $$
-e' = \lnot (\exists y.\ \obj{Porsche}(y) \land \obj{own}(x, y)) \cons
-     \obj{Jones}(x) \cons x \cons e
+e' = \lnot (\exists y.\, \ap{\obj{Porsche}}{y} \land \app{\obj{own}}{x}{y}) \cons
+     \ap{\obj{Jones}}{x} \cons x \cons e
 $$
 
 By assuming that $x$ is \emph{the} salient antecedent for the pronoun or by
 evaluating in the empty context $\nil$, we get the intended reading.
 
 \begin{align*}
-  &\ap{\banana{\onto{\op{get}}{(\lam{\_ k}{\ap{k}{\nil}})}}}{(\ap{\TOP}{\sem{\text{not $S_1$. $S_2$}}})} \\
+  \EMPTY &: \FF_{E \uplus \{\op{get}\}}(\alpha) \to \FF_E(\alpha) \\
+  \EMPTY &= \banana{\onto{\op{get}}{(\lam{\_ k}{\ap{k}{\nil}})}} \\
+  &\ap{\EMPTY}{(\ap{\TOP}{\sem{\text{not $S_1$. $S_2$}}})} \\
   &\tto \etaE{(\exists x.\
-          \obj{Jones}(x) \land
-          \lnot (\exists y.\ \obj{Porsche}(y) \land \obj{own}(x, y)) \land
-          (\exists y.\ \obj{Mercedes}(y) \land \obj{own}(x, y)))}
+          \ap{\obj{Jones}}{x} \land
+          \lnot (\exists y.\, \ap{\obj{Porsche}}{y} \land \app{\obj{own}}{x}{y}) \land
+          (\exists y.\, \ap{\obj{Mercedes}}{y} \land \app{\obj{own}}{x}{y}))}
 \end{align*}
 
 
@@ -1671,7 +1691,7 @@ It has been observed that not every presupposition projects. A
 presupposition can be blocked or cancelled in certain contexts. The
 sentence ``John's car is cheap'' presupposes that there is someone named
 John who owns a car. However, if we put this sentence into a conditional
-context as in Example~\ref{ex:cancel}, the presupposition that John owns a
+context, as in Example~\ref{ex:cancel}, the presupposition that John owns a
 car disappears.
 
 \begin{exe}
@@ -1689,7 +1709,7 @@ individual exists in the context. Otherwise, it returns $\ap{\inr}{\star}$.
 
 \begin{align*}
   \find &: (\iota \to o) \to \FF_{E \uplus \{\op{get}, \op{presuppose}\}}(\iota) \\
-  \find &= \lam{P}{\app{\op{get}}{\star}{(\lam{e}{\case{\selP(P, e)}{x}{\etaE{x}}{\_}{\ap{\op{presuppose}!}{P}}})}}
+  \find &= \lam{P}{\app{\op{get}}{\star}{(\lam{e}{\case{\app{\selP}{P}{e}}{x}{\etaE{x}}{\_}{\ap{\op{presuppose}!}{P}}})}}
 \end{align*}
 
 $\find$ examines its context and searches it for an individual satisfying
@@ -1707,7 +1727,7 @@ cancelling of presuppositions.
   \abs{proper} &: PN \limp NP \\
   \lex{proper}{\find} \\
   \abs{poss} &: NP \limp N \limp NP \\
-  \lex{poss}{\lam{X N}{X \hsbind (\lam{x}{N \hsbind (\lam{n}{\ap{\find}{(\lam{y}{\ap{n}{y} \land \obj{own}(x, y)})}})})}}
+  \lex{poss}{\lam{X N}{X \hsbind (\lam{x}{N \hsbind (\lam{n}{\ap{\find}{(\lam{y}{\ap{n}{y} \land \app{\obj{own}}{x}{y}})}})})}}
 \end{align*}
 
 The possessive construction \emph{X's N} uses $\find$ to behave either as a
@@ -1717,7 +1737,7 @@ if there is no suitable referent, as a presupposition trigger.
 The final part of the puzzle is how to make the context of the antecedent
 (\emph{John owns a car}) available in the consequent (\emph{his car is
   cheap}). DRT has special accessibility rules for implications, but
-in~\ref{sec:intro-drt}, we have seen how to translate DRT implications into
+in~\ref{sec:intro-drt} we have seen how to translate DRT implications into
 negations and conjunctions while preserving accessibility\footnote{The same
   technique is applied in the TTDL of~\cite{lebedeva2012expression}.}. We
 will use the same strategy to correctly deal with accessibility in
@@ -1734,17 +1754,17 @@ The dynamic implication used in $\sem{\abs{if-then}}$ explains how
 conditionals can filter presuppositions. A new box is opened using the
 outer negation. Into that box, $A$ will introduce new discourse referents
 and truth conditions. These will then be able available to $B$, which might
-resolve the some of $B$'s presuppositions. Since the whole conditional is
+resolve some of $B$'s presuppositions. Since the whole conditional is
 inside a box due to the dynamic negation, the filtering effect will subside
 after the consequent, i.e.\ dynamic implication is externally
 static~\cite{groenendijk1991dynamic}.
 
-In Example~\ref{ex:cancel}, the sentence in the antecedent introduces John
-($x$, $\obj{John}(x)$) and a car ($y$, $\obj{car}(y)$) and the fact that
-John owns the car ($\obj{own}(x, y)$). The sentence in the consequent then
-has access to this context and can resolve \emph{his} to $x$ and then
-retrieve $y$ using $\selP$, thus preventing the generation of a
-presupposition.
+In Example~\ref{ex:cancel}, the sentence in the antecedent introduces into
+the context John ($x$, $\ap{\obj{John}}{x}$), a car ($y$,
+$\ap{\obj{car}}{y}$) and the fact that John owns the car
+($\app{\obj{own}}{x}{y}$). The sentence in the consequent then has access
+to this context and can resolve \emph{his} to $x$ and then retrieve $y$
+using $\selP$, thus preventing the triggering of a presupposition.
 
 Instead of using $\find$ in the lexical entry of every presupposition
 trigger, there is also an alternative realization that is more in the
@@ -1768,12 +1788,12 @@ existing discourse referent.
 We define a handler for $\op{presuppose}$ called $\useFind$ that tries to
 cancel the presupposition by looking into the current context for a
 possible referent. In case there is no such referent, the presupposition is
-propagated on. Since $\useFind$ can be defined on its own, we can define
-the new $\BOX$ that cancels presuppositions, $\DBOX$, by composing the old
-$\BOX$ with $\useFind$\footnote{We also replace all uses of $\BOX$ with
-  $\DBOX$, i.e.\ the one in dynamic negation.}. The $\useFind$ handler
-which is included in $\DBOX$ handles some uses of $\op{presuppose}$ and
-propagates other. This captures the reality that some contexts cancel some
+projected onwards. Since $\useFind$ can be defined on its own, we can
+define the new $\BOX$ that cancels presuppositions, $\DBOX$, by composing
+the old $\BOX$ with $\useFind$.\footnote{We also replace all uses of $\BOX$
+  with $\DBOX$, i.e.\ the one in dynamic negation.} The $\useFind$ handler,
+which is included in $\DBOX$, handles some uses of $\op{presuppose}$ and
+projects others. This captures the reality that some contexts cancel some
 presuppositions. If we use the $\DBOX$ handler, we can now use
 $\op{presuppose}$ in the lexical entries of presupposition triggers without
 having to remember to use $\find$ in order to consistently get the correct
@@ -1783,28 +1803,29 @@ prediction w.r.t.\ the cancellation of presuppositions.
   \abs{proper} &: PN \limp NP \\
   \lex{proper}{\op{presuppose}!} \\
   \abs{poss} &: NP \limp N \limp NP \\
-  \lex{poss}{\lam{X N}{X \hsbind (\lam{x}{N \hsbind (\lam{n}{\ap{\op{presuppose}!}{(\lam{y}{\ap{n}{y} \land \obj{own}(x, y)})}})})}}
+  \lex{poss}{\lam{X N}{X \hsbind (\lam{x}{N \hsbind (\lam{n}{\ap{\op{presuppose}!}{(\lam{y}{\ap{n}{y} \land \app{\obj{own}}{x}{y}})}})})}}
 \end{align*}
 
-We can now compute the denotation of Example~\ref{ex:cancel}, starting with
-the denotation of the consequent, $S_2$: \emph{his car is cheap}.
+We can now compute the denotation of Example~\ref{ex:cancel}. The meaning
+of Example~\ref{ex:cancel} is equal to
+$\sem{\app{\abs{if-then}}{S_1}{S_2}} = \sem{S_1} \dimp \sem{S_2} =
+\dnot(\sem{S_1} \dand \dnot \sem{S_2})$, where $S_1$ is the antecedent and
+$S_2$ is the consequent. We start with the denotation of the consequent,
+$S_2$: \emph{his car is cheap}.
 
 \begin{align*}
   \sem{S_2}
   &= \sem{\ap{\abs{is-cheap}}{(\app{\abs{poss}}{\abs{he}}{(\ap{\abs{common}}{\abs{car}})})}} \\
   &\tto \begin{aligned}[t]
     &\app{\op{get}}{\star}{(\lam{e}{ \\
-    &\app{\op{presuppose}}{(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e), z)})}{(\lam{z}{ \\
-    &\app{\op{assert}}{(\obj{cheap}(z))}{\lam{\_}{ \\
+    &\app{\op{presuppose}}{(\lam{z}{\ap{\obj{car}}{z} \land \app{\obj{own}}{(\ap{\sel}{e})}{z}})}{(\lam{z}{ \\
+    &\app{\op{assert}}{(\ap{\obj{cheap}}{z})}{\lam{\_}{ \\
     &\etaE{\star}}}})}})}
     \end{aligned}
 \end{align*}
 
-The meaning of Example~\ref{ex:cancel} is equal to
-$\sem{\app{\abs{if-then}}{S_1}{S_2}} = \sem{S_1} \dimp \sem{S_2} =
-\dnot(\sem{S_1} \dand \dnot \sem{S_2})$, where $S_1$ is the antecedent and
-$S_2$ is the consequent. To proceed, we will now compute the dynamic
-negation of $\sem{S_2}$, starting with $\ap{\DBOX}{\sem{S_2}}$.
+Now we will work towards the dynamic negation of $\sem{S_2}$, starting with
+$\ap{\DBOX}{\sem{S_2}}$.
 
 \begin{align*}
   \ap{\DBOX}{\sem{S_2}}
@@ -1812,18 +1833,18 @@ negation of $\sem{S_2}$, starting with $\ap{\DBOX}{\sem{S_2}}$.
   &\tto \ap{\BOX}{(\begin{aligned}[t]
      &\app{\op{get}}{\star}{(\lam{e}{ \\
      &\app{\op{get}}{\star}{(\lam{e'}{ \\
-     &(\casenl{\selP(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e), z)}, e')}
-       {x}{\etaE{x}}
-       {\_}{\ap{\op{presuppose}!}{(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e), z)})}}) \hsbind (\lam{z}{ \\
-     &\app{\op{assert}}{(\obj{cheap}(z))}{(\lam{\_}{ \\
+     &(\casenl{\app{\selP}{(\lam{z}{\ap{\obj{car}}{z} \land \app{\obj{own}}{(\ap{\sel}{e})}{z}})}{e'}}
+       {z}{\etaE{z}}
+       {\_}{\ap{\op{presuppose}!}{(\lam{z}{\ap{\obj{car}}{z} \land \app{\obj{own}}{(\ap{\sel}{e})}{z}})}}) \hsbind (\lam{z}{ \\
+     &\app{\op{assert}}{(\ap{\obj{cheap}}{z})}{(\lam{\_}{ \\
      &\etaE{\star}})}})})}})})
      \end{aligned}} \\
   &\approx \begin{aligned}[t]
      &\app{\op{get}}{\star}{(\lam{e}{ \\
-     &(\casenl{\selP(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e), z)}, e)}
-       {x}{\etaE{x}}
-       {\_}{\ap{\op{presuppose}!}{(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e), z)})}}) \hsbind (\lam{z}{ \\
-     &\etaE{(\obj{cheap}(z))}})})}
+     &(\casenl{\app{\selP}{(\lam{z}{\ap{\obj{car}}{z} \land \app{\obj{own}}{(\ap{\sel}{e})}{z}})}{e}}
+       {z}{\etaE{z}}
+       {\_}{\ap{\op{presuppose}!}{(\lam{z}{\ap{\obj{car}}{z} \land \app{\obj{own}}{(\ap{\sel}{e})}{z}})}}) \hsbind (\lam{z}{ \\
+     &\etaE{(\ap{\obj{cheap}}{z})}})})}
      \end{aligned}
 \end{align*}
 
@@ -1831,7 +1852,7 @@ We see that the meaning $\ap{\DBOX}{\sem{S_2}}$ is anaphoric, it uses
 $\op{get}$ to find an antecedent for \emph{his} and \emph{his
   car}. Furthermore, depending on the retrieved context $e$, it might
 trigger a presupposition about the existence of \emph{his car}. In reducing
-the expression, we ahve also allowed ourselves to collapse the two
+the expression, we have also allowed ourselves to collapse the two
 successive uses of $\op{get}$, since we have derived an equation for
 dynamic computations that tells us that $\op{get}$ is idempotent under the
 handlers we use (see~\ref{ssec:algebraic-drt}), hence the use of the
@@ -1844,10 +1865,10 @@ negate its argument.
   &= \ap{\DBOX}{\sem{S_2}} \hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}}) \\
   &\tto \begin{aligned}[t]
     &\app{\op{get}}{\star}{(\lam{e}{ \\
-    &(\casenl{\selP(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e), z)}, e)}
-      {x}{\etaE{x}}
-      {\_}{\ap{\op{presuppose}!}{(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e), z)})}}) \hsbind (\lam{z}{ \\
-    &\app{\op{assert}}{(\lnot (\obj{cheap}(z)))}{\lam{\_}{ \\
+    &(\casenl{\app{\selP}{(\lam{z}{\ap{\obj{car}}{z} \land \app{\obj{own}}{(\ap{\sel}{e})}{z}})}{e}}
+      {z}{\etaE{z}}
+      {\_}{\ap{\op{presuppose}!}{(\lam{z}{\ap{\obj{car}}{z} \land \app{\obj{own}}{(\ap{\sel}{e})}{z}})}}) \hsbind (\lam{z}{ \\
+    &\app{\op{assert}}{(\lnot (\ap{\obj{cheap}}{z}))}{\lam{\_}{ \\
     &\etaE{\star}}}})})}
     \end{aligned}
 \end{align*}
@@ -1860,8 +1881,8 @@ We now move to up to the antecedent $S_1$: \emph{John owns a car}.
   &\tto \begin{aligned}[t]
       &\app{\op{presuppose}}{\obj{John}}{(\lam{x}{ \\
       &\app{\op{introduce}}{\star}{(\lam{y}{ \\
-      &\app{\op{assert}}{(\obj{car}(y))}{(\lam{\_}{ \\
-      &\app{\op{assert}}{(\obj{own}(x, y))}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\ap{\obj{car}}{y})}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\app{\obj{own}}{x}{y})}{(\lam{\_}{ \\
       &\etaE{\star}})}})}})}})}
     \end{aligned}
 \end{align*}
@@ -1876,25 +1897,25 @@ $\dnot \sem{S_2}$.
   &\tto \begin{aligned}[t]
       &\app{\op{presuppose}}{\obj{John}}{(\lam{x}{ \\
       &\app{\op{introduce}}{\star}{(\lam{y}{ \\
-      &\app{\op{assert}}{(\obj{car}(y))}{(\lam{\_}{ \\
-      &\app{\op{assert}}{(\obj{own}(x, y))}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\ap{\obj{car}}{y})}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\app{\obj{own}}{x}{y})}{(\lam{\_}{ \\
       &\app{\op{get}}{\star}{(\lam{e}{ \\
-      &(\casenl{\selP(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e), z)}, e)}
-        {x}{\etaE{x}}
-        {\_}{\ap{\op{presuppose}!}{(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e), z)})}}) \hsbind (\lam{z}{ \\
-      &\app{\op{assert}}{(\lnot (\obj{cheap}(z)))}{\lam{\_}{ \\
+      &(\casenl{\app{\selP}{(\lam{z}{\ap{\obj{car}}{z} \land \app{\obj{own}}{(\ap{\sel}{e})}{z}})}{e}}
+        {z}{\etaE{z}}
+        {\_}{\ap{\op{presuppose}!}{(\lam{z}{\ap{\obj{car}}{z} \land \app{\obj{own}}{(\ap{\sel}{e})}{z}})}}) \hsbind (\lam{z}{ \\
+      &\app{\op{assert}}{(\lnot (\ap{\obj{cheap}}{z}))}{\lam{\_}{ \\
       &\etaE{\star}}}})})}})}})}})}})}
     \end{aligned} \\
   &\approx \begin{aligned}[t]
       &\app{\op{presuppose}}{\obj{John}}{(\lam{x}{ \\
       &\app{\op{get}}{\star}{(\lam{e}{ \\
       &\app{\op{introduce}}{\star}{(\lam{y}{ \\
-      &\app{\op{assert}}{(\obj{car}(y))}{(\lam{\_}{ \\
-      &\app{\op{assert}}{(\obj{own}(x, y))}{(\lam{\_}{ \\
-      &(\casenl{\selP(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e'), z)}, e')}
-        {x}{\etaE{x}}
-        {\_}{\ap{\op{presuppose}!}{(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e'), z)})}}) \hsbind (\lam{z}{ \\
-      &\app{\op{assert}}{(\lnot (\obj{cheap}(z)))}{\lam{\_}{ \\
+      &\app{\op{assert}}{(\ap{\obj{car}}{y})}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\app{\obj{own}}{x}{y})}{(\lam{\_}{ \\
+      &(\casenl{\app{\selP}{(\lam{z}{\ap{\obj{car}}{z} \land \app{\obj{own}}{(\ap{\sel}{e'})}{z}})}{e'}}
+        {z}{\etaE{z}}
+        {\_}{\ap{\op{presuppose}!}{(\lam{z}{\ap{\obj{car}}{z} \land \obj{own}(\sel(e'), z)})}}) \hsbind (\lam{z}{ \\
+      &\app{\op{assert}}{(\lnot (\ap{\obj{cheap}}{z}))}{\lam{\_}{ \\
       &\etaE{\star}}}})})}})}})}})}})}
     \end{aligned}
 \end{align*}
@@ -1902,7 +1923,7 @@ $\dnot \sem{S_2}$.
 where
 
 $$
-e' = \obj{own}(x, y) \cons \obj{car}(y) \cons y \cons e
+e' = \app{\obj{own}}{x}{y} \cons \ap{\obj{car}}{y} \cons y \cons e
 $$
 
 We compose the two dynamic propositions by concatenating their effects. We
@@ -1918,21 +1939,21 @@ context. However, in all cases we can assume that after performing
 $\ap{\op{presuppose}}{P}$, the context for the subsequent dynamic
 operations will contain some referent $x$ satisfying the predicate
 $P$. Assuming that the context $e$, and therefore by extension $e'$,
-contains the discourse referent $x$ and the condition $John(x)$, $\sel(e')$
-can choose the $x$ as the antecedent for \emph{his}. We can now compute the
-denotation of the noun phrase \emph{his car} in this context and see that
-the presupposition is cancelled.
+contains the discourse referent $x$ and the condition $\ap{\obj{John}}{x}$,
+$\ap{\sel}{e'}$ can choose the $x$ as the antecedent for \emph{his}. We can
+now compute the denotation of the noun phrase \emph{his car} in this
+context and see that the presupposition is cancelled.
 
 \begin{align*}
-  &\casenl{\selP(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e'), z)}, e')}
-          {x}{\etaE{x}}
-          {\_}{\ap{\op{presuppose}!}{(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e'), z)})}} \\
-=\ &\casenl{\selP(\lam{z}{\obj{car}(z) \land \obj{own}(x, z)}, e')}
-          {x}{\etaE{x}}
-          {\_}{\ap{\op{presuppose}!}{(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e'), z)})}} \\
+  &\casenl{\app{\selP}{(\lam{z}{\ap{\obj{car}}{z} \land \app{\obj{own}}{(\ap{\sel}{e'})}{z}})}{e'}}
+          {z}{\etaE{z}}
+          {\_}{\ap{\op{presuppose}!}{(\lam{z}{\ap{\obj{car}}{z} \land \app{\obj{own}}{(\ap{\sel}{e'})}{z}})}} \\
+=\ &\casenl{\app{\selP}{(\lam{z}{\ap{\obj{car}}{z} \land \app{\obj{own}}{x}{z}})}{e'}}
+          {z}{\etaE{z}}
+          {\_}{\ap{\op{presuppose}!}{(\lam{z}{\ap{\obj{car}}{z} \land \app{\obj{own}}{x}{z}})}} \\
 =\ &\casenl{\ap{\inl}{y}}
-          {x}{\etaE{x}}
-          {\_}{\ap{\op{presuppose}!}{(\lam{z}{\obj{car}(z) \land \obj{own}(\sel(e'), z)})}} \\
+          {z}{\etaE{z}}
+          {\_}{\ap{\op{presuppose}!}{(\lam{z}{\ap{\obj{car}}{z} \land \app{\obj{own}}{x}{z}})}} \\
 \to_{\beta.+1}\ &\etaE{y}
 \end{align*}
 
@@ -1945,17 +1966,17 @@ We can plug this result back into the computation for $\sem{S_1} \dand
       &\app{\op{presuppose}}{\obj{John}}{(\lam{x}{ \\
       &\app{\op{get}}{\star}{(\lam{e}{ \\
       &\app{\op{introduce}}{\star}{(\lam{y}{ \\
-      &\app{\op{assert}}{(\obj{car}(y))}{(\lam{\_}{ \\
-      &\app{\op{assert}}{(\obj{own}(x, y))}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\ap{\obj{car}}{y})}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\app{\obj{own}}{x}{y})}{(\lam{\_}{ \\
       &\etaE{y} \hsbind (\lam{z}{ \\
-      &\app{\op{assert}}{(\lnot (\obj{cheap}(z)))}{\lam{\_}{ \\
+      &\app{\op{assert}}{(\lnot (\ap{\obj{cheap}}{z}))}{\lam{\_}{ \\
       &\etaE{\star}}}})})}})}})}})}})}
     \end{aligned} \\
   &\to_{\eta.\hsbind} \begin{aligned}[t]
       &\app{\op{presuppose}}{\obj{John}}{(\lam{x}{ \\
       &\app{\op{introduce}}{\star}{(\lam{y}{ \\
-      &\app{\op{assert}}{(\obj{car}(y))}{(\lam{\_}{ \\
-      &\app{\op{assert}}{(\obj{own}(x, y))}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\ap{\obj{car}}{y})}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\app{\obj{own}}{x}{y})}{(\lam{\_}{ \\
       &\app{\op{assert}}{(\lnot (\obj{cheap}(y)))}{\lam{\_}{ \\
       &\etaE{\star}}}})}})}})}})}
     \end{aligned}
@@ -1973,10 +1994,10 @@ is then the dynamic negation of this computation.
   &= \dnot (\sem{S_1} \dand \dnot \sem{S_2}) \\
   &\tto \begin{aligned}[t]
     &\app{\op{get}}{\star}{(\lam{e}{ \\
-    &(\casenl{\selP(\obj{John}, e)}
+    &(\casenl{\app{\selP}{\obj{John}}{e}}
        {x}{\etaE{x}}
        {\_}{\ap{\op{presuppose}!}{\obj{John}}}) \hsbind (\lam{x}{ \\
-    &\app{\op{assert}}{(\lnot (\exists y.\ \obj{car}(y) \land \obj{own}(x, y) \land \lnot (\obj{cheap}(y))))}{(\lam{\_}{ \\
+    &\app{\op{assert}}{(\lnot (\exists y.\, \ap{\obj{car}}{y} \land \app{\obj{own}}{x}{y} \land \lnot (\obj{cheap}(y))))}{(\lam{\_}{ \\
     &\etaE{\star}})}})})}
     \end{aligned}
 \end{align*}
@@ -1993,22 +2014,21 @@ salient John will be cancelled:
   is cheap.
 \end{exe}
 
-If we consider the sentence in an empty, ``out of the blue'' context, into
-which John will need to be accommodated, we get the intended reading.
+If we consider the sentence of Example~\ref{ex:cancel} in an empty, ``out
+of the blue'' context, into which John will need to be accommodated, we get
+the intended reading.
 
 \begin{align*}
-  \EMPTY &: \FF_{E \uplus \{\op{get}\}}(\alpha) \to \FF_E(\alpha) \\
-  \EMPTY &= \banana{\onto{\op{get}}{(\lam{\_ k}{\ap{k}{\nil}})}} \\
-  \ap{\EMPTY}{(\ap{\TOP}{\sem{\app{\abs{if-then}}{S_1}{S_2}}})}
-  &\tto \etaE{(\exists x.\ \obj{John}(x) \land \lnot (\exists y.\ \obj{car}(y) \land \obj{own}(x, y) \land \lnot (\obj{cheap}(y))))} \\
-  &= \etaE{(\exists x.\ \obj{John}(x) \land (\forall y.\ (\obj{car}(y) \land \obj{own}(x, y)) \to \obj{cheap}(y)))}
+  &\ap{\EMPTY}{(\ap{\TOP}{\sem{\app{\abs{if-then}}{S_1}{S_2}}})} \\
+  &\tto \etaE{(\exists x.\ \ap{\obj{John}}{x} \land \lnot (\exists y.\, \ap{\obj{car}}{y} \land \app{\obj{own}}{x}{y} \land \lnot (\obj{cheap}(y))))} \\
+  &= \etaE{(\exists x.\ \ap{\obj{John}}{x} \land (\forall y.\ (\ap{\obj{car}}{y} \land \app{\obj{own}}{x}{y}) \to \obj{cheap}(y)))}
 \end{align*}
 
 
 \subsection{Ambiguous Accommodation}
 \label{ssec:ambiguous-accommodation}
 
-Presuppositions do not have to always accommodate at the top
+Presuppositions do not always have to accommodate at the top
 level. Consider the following example from~\cite{sep-presupposition}.
 
 \begin{exe}
@@ -2068,11 +2088,9 @@ actually be more useful then the computational one we usually use and so we
 introduce the following:
 
 \begin{align*}
-  \_+\_ &: \FF_E(\alpha) \to \FF_E(\alpha) \to \FF_E(\alpha) \\
+  \_+\_ &: \FF_{E \uplus \{\op{amb}\}}(\alpha) \to \FF_{E \uplus \{\op{amb}\}}(\alpha) \to \FF_{E \uplus \{\op{amb}\}}(\alpha) \\
   M + N &= \app{\op{amb}}{\star}{(\lam{b}{\ifte{b}{M}{N}})}
 \end{align*}
-
-provided that $\typedop{amb}{1}{2} \in E$.
 
 We can now write a handler that tries both projecting a presupposition and
 accommodating it.
@@ -2091,7 +2109,7 @@ existing analyses. Projective DRT~\cite{venhuizen2013parsimonious} lets
 presupposed content accommodate within DRSs on the projection
 line. Lebedeva's use of exceptions for presuppositions in
 TTDL~\cite{lebedeva2012expression} employs an exception handler
-($\mathrm{iacc}$) that allows for accommodation at every point where a
+($\textsf{iacc}$) that allows for accommodation at every point where a
 discourse referent is being bound (i.e.\ at every dynamic existential
 quantification). We can achieve the same result in our $\banana{\lambda}$
 analysis by including the $\maybeAccommodate$ in the $\DBOX$ handler:
@@ -2104,7 +2122,7 @@ analysis by including the $\maybeAccommodate$ in the $\DBOX$ handler:
 Now, if our semantics for the modal operator \emph{maybe} and the attitude
 verb \emph{think} uses boxes, then we get as denotation of
 Example~\ref{ex:wilma} a nondeterministic computation that yields the three
-readings mentioned above. If we look back at those three readings,
+readings mentioned above. Looking back at those three readings,
 \cite{sep-presupposition} states that while they are all possible, the
 first reading (global accommodation at $c_0$) is strongly preferred to the
 other readings. This is generalized to the following empirically motivated
@@ -2134,15 +2152,15 @@ existence of a car belonging to the referent of \emph{their}. We could
 accommodate this presupposition locally, in the nucleus of the quantifier
 \emph{most Germans}, giving the reading ``\emph{Most Germans have a car and
   they wash it on Saturday.}''. We could also accommodate it in the
-restrictor of that quantifier (which is accessible from, i.e.\ on the
-projection line from, the nucleus), giving us ``\emph{Most Germans who have
-  a car wash it on Saturday.}''.
+restrictor of that quantifier (which is accessible, i.e.\ on the projection
+line, from the nucleus), giving us ``\emph{Most Germans who have a car wash
+  it on Saturday}''.
 
 However, we cannot get the global accommodation reading. The problem is
 that the referent of \emph{their} is a variable being quantified over by
 the quantifier \emph{most Germans}. If this variable is $x$, then the
 presupposition being triggered is the existence of an individual satisfying
-$\lam{y}{\obj{car}(y) \land \obj{own}(x, y)}$. This predicate contains a
+$\lam{y}{\ap{\obj{car}}{y} \land \app{\obj{own}}{x}{y}}$. This predicate contains a
 free variable $x$, which means that for every different value $x$, we
 actually have a different predicate that identifies a different car. The
 solution to this \emph{binding problem} in theories that implement
@@ -2163,13 +2181,13 @@ Example~\ref{ex:man-angry}, taken from~\cite{van1992presupposition}, is
 similar in nature to Example~\ref{ex:most-germans-wash}. We have a
 presupposition trigger which can be accommodated in a local context ($c_2$)
 and in an intermediate context ($c_1$), but not in the global context
-($c_0$) because of a bound variable. Furthermore,
+($c_0$), because of a bound variable. Furthermore,
 Example~\ref{ex:man-angry} is built out of constructions we have already
 covered and so we are ready to compute the denotation. We do not analyze
 the construction \emph{$X$'s children} as a possessive
 ($\app{\abs{poss}}{X}{\abs{children}}$), which would refer to some children
 owned by $X$. Since \emph{children} is a relational noun, we assume a
-binary relation $\obj{children}(y, x)$ expressing that $y$ are children of
+binary relation $\app{\obj{children}}{y}{x}$ expressing that $y$ are children of
 $x$. We then analyze \emph{$X$'s children} as $\ap{\abs{children}}{X}$
 where the semantics of $\abs{children}$ makes use of the relation
 $\obj{children}$. For the construction \emph{$X$ gets $A$}, where $A$ is an
@@ -2177,14 +2195,18 @@ adjective, we introduce the abstract constant $\abs{get}$.
 
 \begin{align*}
   \abs{children} &: NP \limp NP \\
-  \lex{children}{\lam{X}{X \hsbind (\lam{x}{\ap{\op{presuppose}!}{(\lam{y}{\obj{children}(y, x)})}})}} \\
+  \lex{children}{\lam{X}{X \hsbind (\lam{x}{\ap{\op{presuppose}!}{(\lam{y}{\app{\obj{children}}{y}{x}})}})}} \\
   \abs{get} &: ADJ \limp NP \limp S \\
   \sem{ADJ} &= \iota \to o \\
   \lex{get}{\lam{a X}{X \hsbind (\lam{x}{\ap{\op{assert}!}{(\ap{a}{x})}})}}
 \end{align*}
 
-We can now compute the denotation of Example~\ref{ex:man-angry}, starting
-with the consequent $S_2$: \emph{his children get frightened}.
+We can now compute the denotation of Example~\ref{ex:man-angry}. The
+structure of Example~\ref{ex:man-angry} is $\app{\abs{if-then}}{S_1}{S_2}$
+where $S_1$ and $S_2$ are the antecedent and consequent, respectively. Its
+semantics, $\sem{\app{\abs{if-then}}{S_1}{S_2}}$, is
+$S_1 \dimp S_2 = \dnot (\sem{S_1} \dand \dnot \sem{S_2})$. We start with
+the denotation of the consequent $S_2$: \emph{his children get frightened}.
 
 \begin{align*}
   \sem{S_2}
@@ -2192,64 +2214,60 @@ with the consequent $S_2$: \emph{his children get frightened}.
   &\tto 
     \begin{aligned}[t]
       (&\app{\op{get}}{\star}{(\lam{e}{ \\
-       &\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(e))})}{(\lam{y}{ \\
-       &\app{\op{assert}}{(\obj{frightened}(y))}{(\lam{\_}{ \\
+       &\app{\op{presuppose}}{(\lam{y}{\app{\obj{children}}{y}{(\ap{\sel}{e})}})}{(\lam{y}{ \\
+       &\app{\op{assert}}{(\ap{\obj{frightened}}{y})}{(\lam{\_}{ \\
        &\etaE{\star}})}})}})})
     \end{aligned}
 \end{align*}
 
-The structure of Example~\ref{ex:man-angry} is
-$\app{\abs{if-then}}{S_1}{S_2}$ where $S_1$ and $S_2$ are the antecedent
-and consequent, respectively. Its semantics,
-$\sem{\app{\abs{if-then}}{S_1}{S_2}}$, is
-$S_1 \dimp S_2 = \dnot (\sem{S_1} \dand \dnot \sem{S_2})$. Our next step
-will be computing $\dnot \sem{S_2}$. Dynamic negation is defined by boxing
-and then asserting the negation of the boxed proposition. We start by
-boxing $\sem{S_2}$, i.e.\ evaluating $\ap{\DBOX}{\sem{S_2}}$.
+Our next step will be computing $\dnot \sem{S_2}$. Dynamic negation is
+defined by boxing and then asserting the negation of the boxed
+proposition. We start by boxing $\sem{S_2}$, i.e.\ evaluating
+$\ap{\DBOX}{\sem{S_2}}$.
 
 \begin{align*}
   \ap{\DBOX}{\sem{S_2}}
   &\tto \ap{\DBOX}{
     \begin{aligned}[t]
       (&\app{\op{get}}{\star}{(\lam{e}{ \\
-       &\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(e))})}{(\lam{y}{ \\
-       &\app{\op{assert}}{(\obj{frightened}(y))}{(\lam{\_}{ \\
+       &\app{\op{presuppose}}{(\lam{y}{\app{\obj{children}}{y}{(\ap{\sel}{e})}})}{(\lam{y}{ \\
+       &\app{\op{assert}}{(\ap{\obj{frightened}}{y})}{(\lam{\_}{ \\
        &\etaE{\star}})}})}})})
     \end{aligned}} \\
   &= \ap{\BOX}{(\ap{\maybeAccommodate}{(\ap{\useFind}{
     \begin{aligned}[t]
       (&\app{\op{get}}{\star}{(\lam{e}{ \\
-       &\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(e))})}{(\lam{y}{ \\
-       &\app{\op{assert}}{(\obj{frightened}(y))}{(\lam{\_}{ \\
+       &\app{\op{presuppose}}{(\lam{y}{\app{\obj{children}}{y}{(\ap{\sel}{e})}})}{(\lam{y}{ \\
+       &\app{\op{assert}}{(\ap{\obj{frightened}}{y})}{(\lam{\_}{ \\
        &\etaE{\star}})}})}})})
     ))\end{aligned}}}} \\
   &\tto \ap{\BOX}{(\ap{\maybeAccommodate}{
     \begin{aligned}[t]
       (&\app{\op{get}}{\star}{(\lam{e}{ \\
        &\app{\op{get}}{\star}{(\lam{e}{ \\
-       &\casenl{\selP(\lam{y}{\obj{children}(y, \sel(e))}, e)}{y}{\etaE{y}}{\_}{\ap{\op{presuppose}!}{(\lam{y}{\obj{children}(y, \sel(e))})}} \hsbind (\lam{y}{ \\
-       &\app{\op{assert}}{(\obj{frightened}(y))}{(\lam{\_}{ \\
+       &\casenl{\app{\selP}{(\lam{y}{\app{\obj{children}}{y}{(\ap{\sel}{e})}})}{e}}{y}{\etaE{y}}{\_}{\ap{\op{presuppose}!}{(\lam{y}{\app{\obj{children}}{y}{(\ap{\sel}{e})}})}} \hsbind (\lam{y}{ \\
+       &\app{\op{assert}}{(\ap{\obj{frightened}}{y})}{(\lam{\_}{ \\
        &\etaE{\star}})}})})}})})
     )\end{aligned}}} \\
   &\approx \ap{\BOX}{(\ap{\maybeAccommodate}{
     \begin{aligned}[t]
       (&\app{\op{get}}{\star}{(\lam{e}{ \\
-       &\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(e))})}{(\lam{y}{ \\
-       &\app{\op{assert}}{(\obj{frightened}(y))}{(\lam{\_}{ \\
+       &\app{\op{presuppose}}{(\lam{y}{\app{\obj{children}}{y}{(\ap{\sel}{e})}})}{(\lam{y}{ \\
+       &\app{\op{assert}}{(\ap{\obj{frightened}}{y})}{(\lam{\_}{ \\
        &\etaE{\star}})}})}})})
     )\end{aligned}}} \\
   &\tto \ap{\BOX}{
     \begin{aligned}[t]
       (&\app{\op{get}}{\star}{(\lam{e}{ \\
        &\quad \begin{aligned}[t]
-           (&\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(e))})}{(\lam{y}{ \\
-            &\app{\op{assert}}{(\obj{frightened}(y))}{(\lam{\_}{ \\
+           (&\app{\op{presuppose}}{(\lam{y}{\app{\obj{children}}{y}{(\ap{\sel}{e})}})}{(\lam{y}{ \\
+            &\app{\op{assert}}{(\ap{\obj{frightened}}{y})}{(\lam{\_}{ \\
             &\etaE{\star}})}})})
            \end{aligned} \\
        &+ \begin{aligned}[t]
            (&\app{\op{introduce}}{\star}{(\lam{y}{ \\
-            &\app{\op{assert}}{(\obj{children}(y, \sel(e)))}{(\lam{\_}{ \\
-            &\app{\op{assert}}{(\obj{frightened}(y))}{(\lam{\_}{ \\
+            &\app{\op{assert}}{(\app{\obj{children}}{y}{(\ap{\sel}{e})})}{(\lam{\_}{ \\
+            &\app{\op{assert}}{(\ap{\obj{frightened}}{y})}{(\lam{\_}{ \\
             &\etaE{\star}})}})}})})})})
           \end{aligned}
     \end{aligned}} \\
@@ -2257,10 +2275,10 @@ boxing $\sem{S_2}$, i.e.\ evaluating $\ap{\DBOX}{\sem{S_2}}$.
     \begin{aligned}[t]
       &\app{\op{get}}{\star}{(\lam{e}{ \\
       &\quad \begin{aligned}[t]
-          (&\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(e))})}{(\lam{y}{ \\
-           &\etaE{(\obj{frightened}(y))}})})
+          (&\app{\op{presuppose}}{(\lam{y}{\app{\obj{children}}{y}{(\ap{\sel}{e})}})}{(\lam{y}{ \\
+           &\etaE{(\ap{\obj{frightened}}{y})}})})
          \end{aligned} \\
-      &+ (\etaE{(\exists y.\ \obj{children}(y, \sel(e)) \land \obj{frightened}(y))})})}
+      &+ (\etaE{(\exists y.\, \app{\obj{children}}{y}{(\ap{\sel}{e})} \land \ap{\obj{frightened}}{y})})})}
     \end{aligned}
 \end{align*}
 
@@ -2272,12 +2290,13 @@ find a referent within $e$ and the presupposition will not be cancelled. We
 also rely on the idempotence of $\op{get}$ to collapse the two $\op{get}$s
 into one and so $\useFind$ ends up having no effect. Next up is
 $\maybeAccommodate$ that tries both projecting the presupposition and
-accommodating it using $\op{introduce}$ and $\op{assert}$. Finally $\BOX$
-translates the dynamic propositions that use into simple propositions. We
-have one proposition with a presupposition projecting out of it and another
-one in which the presupposition was accommodated using an existential
-quantifier. The dynamic negation will negate these propositions and wrap
-them in $\op{assert}$:
+accommodating it using $\op{introduce}$ and $\op{assert}$. Finally, $\BOX$
+translates the dynamic propositions that use $\op{introduce}$ and
+$\op{assert}$ into simple propositions. We have one proposition with a
+presupposition projecting out of it and another one in which the
+presupposition was accommodated using an existential quantifier. The
+dynamic negation will negate these propositions and wrap them in
+$\op{assert}$:
 
 \begin{align*}
   \dnot \sem{S_2}
@@ -2286,22 +2305,22 @@ them in $\op{assert}$:
     \begin{aligned}[t]
       &\app{\op{get}}{\star}{(\lam{e}{ \\
       &\quad \begin{aligned}[t]
-          (&\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(e))})}{(\lam{y}{ \\
-           &\etaE{(\obj{frightened}(y))}})})
+          (&\app{\op{presuppose}}{(\lam{y}{\app{\obj{children}}{y}{(\ap{\sel}{e})}})}{(\lam{y}{ \\
+           &\etaE{(\ap{\obj{frightened}}{y})}})})
          \end{aligned} \\
-      &+ (\etaE{(\exists y.\ \obj{children}(y, \sel(e)) \land \obj{frightened}(y))}) \\
+      &+ (\etaE{(\exists y.\, \app{\obj{children}}{y}{(\ap{\sel}{e})} \land \ap{\obj{frightened}}{y})}) \\
       &\hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}})})}
        \end{aligned} \\
   &\tto 
     \begin{aligned}[t]
       &\app{\op{get}}{\star}{(\lam{e}{ \\
       &\quad \begin{aligned}[t]
-          (&\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(e))})}{(\lam{y}{ \\
-           &\app{\op{assert}}{(\lnot (\obj{frightened}(y)))}{(\lam{\_}{ \\
+          (&\app{\op{presuppose}}{(\lam{y}{\app{\obj{children}}{y}{(\ap{\sel}{e})}})}{(\lam{y}{ \\
+           &\app{\op{assert}}{(\lnot (\ap{\obj{frightened}}{y}))}{(\lam{\_}{ \\
            &\etaE{\star}})}})})
          \end{aligned} \\
       &+ \begin{aligned}[t]
-          (&\app{\op{assert}}{(\lnot (\exists y.\ \obj{children}(y, \sel(e)) \land \obj{frightened}(y)))}{(\lam{\_}{ \\
+          (&\app{\op{assert}}{(\lnot (\exists y.\, \app{\obj{children}}{y}{(\ap{\sel}{e})} \land \ap{\obj{frightened}}{y}))}{(\lam{\_}{ \\
            &\etaE{\star}})}))
          \end{aligned}}}
     \end{aligned}
@@ -2314,8 +2333,8 @@ We now turn to the antecedent $S_1$: \emph{a man gets angry}.
   &= \sem{\app{\abs{get}}{\abs{angry}}{(\ap{\abs{a}}{(\ap{\abs{common}}{\abs{man}})})}} \\
   &\tto \begin{aligned}[t]
       &\app{\op{introduce}}{\star}{(\lam{x}{ \\
-      &\app{\op{assert}}{(\obj{man}(x))}{(\lam{\_}{ \\
-      &\app{\op{assert}}{(\obj{angry}(x))}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\ap{\obj{man}}{x})}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\ap{\obj{angry}}{x})}{(\lam{\_}{ \\
       &\etaE{\star}})}})}})}
     \end{aligned}
 \end{align*}
@@ -2330,16 +2349,16 @@ result.
   &= \sem{S_1} \hsbind (\lam{\_}{\dnot \sem{S_2}}) \\
   &\tto \begin{aligned}[t]
       &\app{\op{introduce}}{\star}{(\lam{x}{ \\
-      &\app{\op{assert}}{(\obj{man}(x))}{(\lam{\_}{ \\
-      &\app{\op{assert}}{(\obj{angry}(x))}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\ap{\obj{man}}{x})}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\ap{\obj{angry}}{x})}{(\lam{\_}{ \\
       &\app{\op{get}}{\star}{(\lam{e}{ \\
       &\quad \begin{aligned}[t]
-          (&\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(e))})}{(\lam{y}{ \\
-           &\app{\op{assert}}{(\lnot (\obj{frightened}(y)))}{(\lam{\_}{ \\
+          (&\app{\op{presuppose}}{(\lam{y}{\app{\obj{children}}{y}{(\ap{\sel}{e})}})}{(\lam{y}{ \\
+           &\app{\op{assert}}{(\lnot (\ap{\obj{frightened}}{y}))}{(\lam{\_}{ \\
            &\etaE{\star}})}})})
          \end{aligned} \\
       &+ \begin{aligned}[t]
-          (&\app{\op{assert}}{(\lnot (\exists y.\ \obj{children}(y, \sel(e)) \land \obj{frightened}(y)))}{(\lam{\_}{ \\
+          (&\app{\op{assert}}{(\lnot (\exists y.\, \app{\obj{children}}{y}{(\ap{\sel}{e})} \land \ap{\obj{frightened}}{y}))}{(\lam{\_}{ \\
            &\etaE{\star}})})))))
          \end{aligned}}}}}}}}}
     \end{aligned}
@@ -2352,73 +2371,73 @@ $\sem{S_1} \dand \dnot \sem{S_2}$:
   &\ap{\DBOX}{(\sem{S_1} \dand \dnot \sem{S_2})} \\
   &\tto \ap{\DBOX}{(\begin{aligned}[t]
       &\app{\op{introduce}}{\star}{(\lam{x}{ \\
-      &\app{\op{assert}}{(\obj{man}(x))}{(\lam{\_}{ \\
-      &\app{\op{assert}}{(\obj{angry}(x))}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\ap{\obj{man}}{x})}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\ap{\obj{angry}}{x})}{(\lam{\_}{ \\
       &\app{\op{get}}{\star}{(\lam{e}{ \\
       &\quad \begin{aligned}[t]
-          (&\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(e))})}{(\lam{y}{ \\
-           &\app{\op{assert}}{(\lnot (\obj{frightened}(y)))}{(\lam{\_}{ \\
+          (&\app{\op{presuppose}}{(\lam{y}{\app{\obj{children}}{y}{(\ap{\sel}{e})}})}{(\lam{y}{ \\
+           &\app{\op{assert}}{(\lnot (\ap{\obj{frightened}}{y}))}{(\lam{\_}{ \\
            &\etaE{\star}})}})})
          \end{aligned} \\
       &+ \begin{aligned}[t]
-          (&\app{\op{assert}}{(\lnot (\exists y.\ \obj{children}(y, \sel(e)) \land \obj{frightened}(y)))}{(\lam{\_}{ \\
+          (&\app{\op{assert}}{(\lnot (\exists y.\, \app{\obj{children}}{y}{(\ap{\sel}{e})} \land \ap{\obj{frightened}}{y}))}{(\lam{\_}{ \\
            &\etaE{\star}})}))))))
          \end{aligned}}}}}}}}}
     \end{aligned}} \\
   &\tto \ap{\BOX}{(\ap{\maybeAccommodate}{(\begin{aligned}[t]
       &\app{\op{introduce}}{\star}{(\lam{x}{ \\
-      &\app{\op{assert}}{(\obj{man}(x))}{(\lam{\_}{ \\
-      &\app{\op{assert}}{(\obj{angry}(x))}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\ap{\obj{man}}{x})}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\ap{\obj{angry}}{x})}{(\lam{\_}{ \\
       &\app{\op{get}}{\star}{(\lam{e}{ \\
       &\quad \begin{aligned}[t]
-          (&\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(e))})}{(\lam{y}{ \\
-           &\app{\op{assert}}{(\lnot (\obj{frightened}(y)))}{(\lam{\_}{ \\
+          (&\app{\op{presuppose}}{(\lam{y}{\app{\obj{children}}{y}{(\ap{\sel}{e})}})}{(\lam{y}{ \\
+           &\app{\op{assert}}{(\lnot (\ap{\obj{frightened}}{y}))}{(\lam{\_}{ \\
            &\etaE{\star}})}})})
          \end{aligned} \\
       &+ \begin{aligned}[t]
-          (&\app{\op{assert}}{(\lnot (\exists y.\ \obj{children}(y, \sel(e)) \land \obj{frightened}(y)))}{(\lam{\_}{ \\
+          (&\app{\op{assert}}{(\lnot (\exists y.\, \app{\obj{children}}{y}{(\ap{\sel}{e})} \land \ap{\obj{frightened}}{y}))}{(\lam{\_}{ \\
            &\etaE{\star}})})))))))
          \end{aligned}}}}}}}}}
     \end{aligned}}} \\
   &\tto \ap{\BOX}{(\begin{aligned}[t]
       &\app{\op{introduce}}{\star}{(\lam{x}{ \\
-      &\app{\op{assert}}{(\obj{man}(x))}{(\lam{\_}{ \\
-      &\app{\op{assert}}{(\obj{angry}(x))}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\ap{\obj{man}}{x})}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\ap{\obj{angry}}{x})}{(\lam{\_}{ \\
       &\app{\op{get}}{\star}{(\lam{e}{ \\
       &\quad \begin{aligned}[t]
-          (&\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(e))})}{(\lam{y}{ \\
-           &\app{\op{assert}}{(\lnot (\obj{frightened}(y)))}{(\lam{\_}{ \\
+          (&\app{\op{presuppose}}{(\lam{y}{\app{\obj{children}}{y}{(\ap{\sel}{e})}})}{(\lam{y}{ \\
+           &\app{\op{assert}}{(\lnot (\ap{\obj{frightened}}{y}))}{(\lam{\_}{ \\
            &\etaE{\star}})}})})
          \end{aligned} \\
       &+ \begin{aligned}[t]
           (&\app{\op{introduce}}{\star}{(\lam{y}{ \\
-           &\app{\op{assert}}{(\obj{children}(y, \sel(e)))}{(\lam{\_}{ \\
-           &\app{\op{assert}}{(\lnot (\obj{frightened}(y)))}{(\lam{\_}{ \\
+           &\app{\op{assert}}{(\app{\obj{children}}{y}{(\ap{\sel}{e})})}{(\lam{\_}{ \\
+           &\app{\op{assert}}{(\lnot (\ap{\obj{frightened}}{y}))}{(\lam{\_}{ \\
            &\etaE{\star}})}})}})})
          \end{aligned} \\
       &+ \begin{aligned}[t]
-          (&\app{\op{assert}}{(\lnot (\exists y.\ \obj{children}(y, \sel(e)) \land \obj{frightened}(y)))}{(\lam{\_}{ \\
+          (&\app{\op{assert}}{(\lnot (\exists y.\, \app{\obj{children}}{y}{(\ap{\sel}{e})} \land \ap{\obj{frightened}}{y}))}{(\lam{\_}{ \\
            &\etaE{\star}})}))))))
          \end{aligned}}}}}}}}}
     \end{aligned}} \\
   &\approx \ap{\BOX}{(\begin{aligned}[t]
       &\app{\op{get}}{\star}{(\lam{e}{ \\
       &\app{\op{introduce}}{\star}{(\lam{x}{ \\
-      &\app{\op{assert}}{(\obj{man}(x))}{(\lam{\_}{ \\
-      &\app{\op{assert}}{(\obj{angry}(x))}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\ap{\obj{man}}{x})}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\ap{\obj{angry}}{x})}{(\lam{\_}{ \\
       &\quad \begin{aligned}[t]
-          (&\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \sel(\obj{angry}(x) \cons \obj{man}(x) \cons x \cons e))})}{(\lam{y}{ \\
-           &\app{\op{assert}}{(\lnot (\obj{frightened}(y)))}{(\lam{\_}{ \\
+          (&\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, \ap{\sel}{(\ap{\obj{angry}}{x} \cons \ap{\obj{man}}{x} \cons x \cons e)})})}{(\lam{y}{ \\
+           &\app{\op{assert}}{(\lnot (\ap{\obj{frightened}}{y}))}{(\lam{\_}{ \\
            &\etaE{\star}})}})})
          \end{aligned} \\
       &+ \begin{aligned}[t]
           (&\app{\op{introduce}}{\star}{(\lam{y}{ \\
-           &\app{\op{assert}}{(\obj{children}(y, \sel(\obj{angry}(x) \cons \obj{man}(x) \cons x \cons e)))}{(\lam{\_}{ \\
-           &\app{\op{assert}}{(\lnot (\obj{frightened}(y)))}{(\lam{\_}{ \\
+           &\app{\op{assert}}{(\obj{children}(y, \ap{\sel}{(\ap{\obj{angry}}{x} \cons \ap{\obj{man}}{x} \cons x \cons e)}))}{(\lam{\_}{ \\
+           &\app{\op{assert}}{(\lnot (\ap{\obj{frightened}}{y}))}{(\lam{\_}{ \\
            &\etaE{\star}})}})}})})
          \end{aligned} \\
       &+ \begin{aligned}[t]
-          (&\app{\op{assert}}{(\lnot (\exists y.\ \obj{children}(y, \sel(\obj{angry}(x) \cons \obj{man}(x) \cons x \cons e)) \land \obj{frightened}(y)))}{(\lam{\_}{ \\
+          (&\app{\op{assert}}{(\lnot (\exists y.\, \obj{children}(y, \ap{\sel}{(\ap{\obj{angry}}{x} \cons \ap{\obj{man}}{x} \cons x \cons e)}) \land \ap{\obj{frightened}}{y}))}{(\lam{\_}{ \\
            &\etaE{\star}})}))))))
          \end{aligned}}}}}}}}}
     \end{aligned}}
@@ -2433,8 +2452,8 @@ using the equations from~\ref{ssec:algebraic-drt}. This makes it more
 obvious that $x$ is one of the available discourse referents for the
 pronoun \emph{his} in the consequent. Assuming that this pronoun will
 actually resolve to $x$ and not to some other referent (i.e.\
-$\sel(\obj{angry}(x) \cons \obj{man}(x) \cons x \cons e) = x$), then the
-argument to $\op{presuppose}$ will be $\lam{y}{\obj{children}(y, x)}$, in
+$\ap{\sel}{(\ap{\obj{angry}}{x} \cons \ap{\obj{man}}{x} \cons x \cons e)} = x$), then the
+argument to $\op{presuppose}$ will be $\lam{y}{\app{\obj{children}}{y}{x}}$, in
 which $x$ occurs free.
 
 The computation is nondeterministic and uses $\op{amb}$ ($+$) to split into
@@ -2455,49 +2474,49 @@ We continue by applying the $\BOX$ handler.
    &\ap{\BOX}{(\begin{aligned}[t]
       &\app{\op{get}}{\star}{(\lam{e}{ \\
       &\app{\op{introduce}}{\star}{(\lam{x}{ \\
-      &\app{\op{assert}}{(\obj{man}(x))}{(\lam{\_}{ \\
-      &\app{\op{assert}}{(\obj{angry}(x))}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\ap{\obj{man}}{x})}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\ap{\obj{angry}}{x})}{(\lam{\_}{ \\
       &\quad \begin{aligned}[t]
-          (&\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, x)})}{(\lam{y}{ \\
-           &\app{\op{assert}}{(\lnot (\obj{frightened}(y)))}{(\lam{\_}{ \\
+          (&\app{\op{presuppose}}{(\lam{y}{\app{\obj{children}}{y}{x}})}{(\lam{y}{ \\
+           &\app{\op{assert}}{(\lnot (\ap{\obj{frightened}}{y}))}{(\lam{\_}{ \\
            &\etaE{\star}})}})})
          \end{aligned} \\
       &+ \begin{aligned}[t]
           (&\app{\op{introduce}}{\star}{(\lam{y}{ \\
-           &\app{\op{assert}}{(\obj{children}(y, x))}{(\lam{\_}{ \\
-           &\app{\op{assert}}{(\lnot (\obj{frightened}(y)))}{(\lam{\_}{ \\
+           &\app{\op{assert}}{(\app{\obj{children}}{y}{x})}{(\lam{\_}{ \\
+           &\app{\op{assert}}{(\lnot (\ap{\obj{frightened}}{y}))}{(\lam{\_}{ \\
            &\etaE{\star}})}})}})})
          \end{aligned} \\
       &+ \begin{aligned}[t]
-          (&\app{\op{assert}}{(\lnot (\exists y.\ \obj{children}(y, x) \land \obj{frightened}(y)))}{(\lam{\_}{ \\
+          (&\app{\op{assert}}{(\lnot (\exists y.\, \app{\obj{children}}{y}{x} \land \ap{\obj{frightened}}{y}))}{(\lam{\_}{ \\
            &\etaE{\star}})}))))))
          \end{aligned}}}}}}}}}
     \end{aligned}} \\
    &\ttoffrom \begin{aligned}[t]
       &\begin{aligned}[t]
          \ap{\BOX}{(&\app{\op{introduce}}{\star}{(\lam{x}{ \\
-                    &\app{\op{assert}}{(\obj{man}(x))}{(\lam{\_}{ \\
-                    &\app{\op{assert}}{(\obj{angry}(x))}{(\lam{\_}{ \\
-                    &\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, x)})}{(\lam{y}{ \\
-                    &\app{\op{assert}}{(\lnot (\obj{frightened}(y)))}{(\lam{\_}{ \\
+                    &\app{\op{assert}}{(\ap{\obj{man}}{x})}{(\lam{\_}{ \\
+                    &\app{\op{assert}}{(\ap{\obj{angry}}{x})}{(\lam{\_}{ \\
+                    &\app{\op{presuppose}}{(\lam{y}{\app{\obj{children}}{y}{x}})}{(\lam{y}{ \\
+                    &\app{\op{assert}}{(\lnot (\ap{\obj{frightened}}{y}))}{(\lam{\_}{ \\
                     &\etaE{\star}})}})}})}})}})})}
        \end{aligned} \\
-      &+ \etaE{(\exists x.\ \obj{man}(x) \land \obj{angry}(x) \land
-                \exists y.\ \obj{children}(y, x) \land
-                \lnot (\obj{frightened}(y)))} \\
-      &+ \etaE{(\exists x.\ \obj{man}(x) \land \obj{angry}(x) \land
-                \lnot (\exists y.\ \obj{children}(y, x) \land \obj{frightened}(y)))}
+      &+ \etaE{(\exists x.\ \ap{\obj{man}}{x} \land \ap{\obj{angry}}{x} \land
+                \exists y.\, \app{\obj{children}}{y}{x} \land
+                \lnot (\ap{\obj{frightened}}{y}))} \\
+      &+ \etaE{(\exists x.\ \ap{\obj{man}}{x} \land \ap{\obj{angry}}{x} \land
+                \lnot (\exists y.\, \app{\obj{children}}{y}{x} \land \ap{\obj{frightened}}{y}))}
     \end{aligned} \\
    &\tto \begin{aligned}[t]
-      &\existsr x.\ \begin{aligned}[t]
-          &\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, x)})}{(\lam{y}{ \\
-          &\etaE{(\obj{man}(x) \land \obj{angry}(x) \land \lnot (\obj{frightened}(y)))}})}
+      &\existsr x.\, \begin{aligned}[t]
+          &\app{\op{presuppose}}{(\lam{y}{\app{\obj{children}}{y}{x}})}{(\lam{y}{ \\
+          &\etaE{(\ap{\obj{man}}{x} \land \ap{\obj{angry}}{x} \land \lnot (\ap{\obj{frightened}}{y}))}})}
         \end{aligned} \\
-      &+ \etaE{(\exists x.\ \obj{man}(x) \land \obj{angry}(x) \land
-                \exists y.\ \obj{children}(y, x) \land
-                \lnot (\obj{frightened}(y)))} \\
-      &+ \etaE{(\exists x.\ \obj{man}(x) \land \obj{angry}(x) \land
-                \lnot (\exists y.\ \obj{children}(y, x) \land \obj{frightened}(y)))}
+      &+ \etaE{(\exists x.\ \ap{\obj{man}}{x} \land \ap{\obj{angry}}{x} \land
+                \exists y.\, \app{\obj{children}}{y}{x} \land
+                \lnot (\ap{\obj{frightened}}{y}))} \\
+      &+ \etaE{(\exists x.\ \ap{\obj{man}}{x} \land \ap{\obj{angry}}{x} \land
+                \lnot (\exists y.\, \app{\obj{children}}{y}{x} \land \ap{\obj{frightened}}{y}))}
     \end{aligned}
 \end{align*}
 
@@ -2505,14 +2524,14 @@ As a result, we get two propositions and one stuck computation. The two
 propositions will (after negation) gives us the intermediate accommodation
 reading and the local accommodation reading, whereas the stuck computation
 represents the impossibility of the global accommodation reading. The term
-$\existsr x.\ \app{\op{presuppose}}{(\lam{y}{\obj{children}(y,
-    x)})}{M_\petitc}$ is stuck, because when we expand $\existsr$, it
-becomes
+$\existsr x.\,
+\app{\op{presuppose}}{(\lam{y}{\app{\obj{children}}{y}{x}})}{M_\petitc}$ is
+stuck, because when we expand $\existsr$, it becomes
 $\exists \apr
-(\ap{\CC}{(\lam{x}{\app{\op{presuppose}}{(\lam{y}{\obj{children}(y,
-        x)})}{M_\petitc}})})$. There is no rule in $\banana{\lambda}$ to
-reduce $\ap{\CC}{(\lam{x}{\app{\op{presuppose}}{M_\petitp}{M_\petitc}})}$
-when $x$ occurs free in $M_\petitp$ and the $\banana{\lambda}$ denotational
+(\ap{\CC}{(\lam{x}{\app{\op{presuppose}}{(\lam{y}{\app{\obj{children}}{y}{x}})}{M_\petitc}})})$. There
+is no rule in $\banana{\lambda}$ to reduce
+$\ap{\CC}{(\lam{x}{\app{\op{presuppose}}{M_\petitp}{M_\petitc}})}$ when $x$
+occurs free in $M_\petitp$ and the $\banana{\lambda}$ denotational
 semantics would assign $\bot$ to this expression.
 
 We finish computing the denotation of Example~\ref{ex:man-angry} by
@@ -2523,63 +2542,63 @@ wrapping up the dynamic negation: negating and asserting the propositions.
   &= \dnot (\sem{S_1} \dand \dnot \sem{S_2}) \\
   &= \ap{\DBOX}{(\sem{S_1} \dand \dnot \sem{S_2})} \hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}}) \\
   &\tto \begin{aligned}[t]
-    &(\existsr x.\ \begin{aligned}[t]
-         &\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, x)})}{(\lam{y}{ \\
-         &\etaE{(\obj{man}(x) \land \obj{angry}(x) \land \lnot (\obj{frightened}(y)))}})}
+    &(\existsr x.\, \begin{aligned}[t]
+         &\app{\op{presuppose}}{(\lam{y}{\app{\obj{children}}{y}{x}})}{(\lam{y}{ \\
+         &\etaE{(\ap{\obj{man}}{x} \land \ap{\obj{angry}}{x} \land \lnot (\ap{\obj{frightened}}{y}))}})}
        \end{aligned} \\
-    &+ \etaE{(\exists x.\ \obj{man}(x) \land \obj{angry}(x) \land
-              \exists y.\ \obj{children}(y, x) \land
-              \lnot (\obj{frightened}(y)))} \\
-    &+ \etaE{(\exists x.\ \obj{man}(x) \land \obj{angry}(x) \land
-              \lnot (\exists y.\ \obj{children}(y, x) \land
-              \obj{frightened}(y)))})
+    &+ \etaE{(\exists x.\ \ap{\obj{man}}{x} \land \ap{\obj{angry}}{x} \land
+              \exists y.\, \app{\obj{children}}{y}{x} \land
+              \lnot (\ap{\obj{frightened}}{y}))} \\
+    &+ \etaE{(\exists x.\ \ap{\obj{man}}{x} \land \ap{\obj{angry}}{x} \land
+              \lnot (\exists y.\, \app{\obj{children}}{y}{x} \land
+              \ap{\obj{frightened}}{y}))})
     \end{aligned} \\
   &\qquad \hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}}) \\
   &\tto \begin{aligned}[t]
-     &((\existsr x.\ \begin{aligned}[t]
-         &\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, x)})}{(\lam{y}{ \\
-         &\etaE{(\obj{man}(x) \land \obj{angry}(x) \land \lnot (\obj{frightened}(y)))}})}) \\
+     &((\existsr x.\, \begin{aligned}[t]
+         &\app{\op{presuppose}}{(\lam{y}{\app{\obj{children}}{y}{x}})}{(\lam{y}{ \\
+         &\etaE{(\ap{\obj{man}}{x} \land \ap{\obj{angry}}{x} \land \lnot (\ap{\obj{frightened}}{y}))}})}) \\
          &\hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}})) \\
        \end{aligned} \\
      &+ (\begin{aligned}[t]
-           &\etaE{(\exists x.\ \obj{man}(x) \land \obj{angry}(x) \land
-                   \exists y.\ \obj{children}(y, x) \land
-                   \lnot (\obj{frightened}(y)))} \\
+           &\etaE{(\exists x.\ \ap{\obj{man}}{x} \land \ap{\obj{angry}}{x} \land
+                   \exists y.\, \app{\obj{children}}{y}{x} \land
+                   \lnot (\ap{\obj{frightened}}{y}))} \\
            &\hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}}))
          \end{aligned} \\
      &+ (\begin{aligned}[t]
-           &\etaE{(\exists x.\ \obj{man}(x) \land \obj{angry}(x) \land
-                  \lnot (\exists y.\ \obj{children}(y, x) \land
-                  \obj{frightened}(y)))} \\
+           &\etaE{(\exists x.\ \ap{\obj{man}}{x} \land \ap{\obj{angry}}{x} \land
+                  \lnot (\exists y.\, \app{\obj{children}}{y}{x} \land
+                  \ap{\obj{frightened}}{y}))} \\
            &\hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}}))
          \end{aligned}
     \end{aligned} \\
   &\tto \begin{aligned}[t]
-     &((\existsr x.\ \begin{aligned}[t]
-         &\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, x)})}{(\lam{y}{ \\
-         &\etaE{(\obj{man}(x) \land \obj{angry}(x) \land \lnot (\obj{frightened}(y)))}})}) \\
+     &((\existsr x.\, \begin{aligned}[t]
+         &\app{\op{presuppose}}{(\lam{y}{\app{\obj{children}}{y}{x}})}{(\lam{y}{ \\
+         &\etaE{(\ap{\obj{man}}{x} \land \ap{\obj{angry}}{x} \land \lnot (\ap{\obj{frightened}}{y}))}})}) \\
          &\hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}})) \\
        \end{aligned} \\
      &+ (\ap{\op{assert}!}
-          {(\lnot (\exists x.\ \obj{man}(x) \land \obj{angry}(x) \land
-                   \exists y.\ \obj{children}(y, x) \land
-                   \lnot (\obj{frightened}(y))))}) \\
+          {(\lnot (\exists x.\ \ap{\obj{man}}{x} \land \ap{\obj{angry}}{x} \land
+                   \exists y.\, \app{\obj{children}}{y}{x} \land
+                   \lnot (\ap{\obj{frightened}}{y})))}) \\
      &+ (\ap{\op{assert}!}
-          {(\lnot (\exists x.\ \obj{man}(x) \land \obj{angry}(x) \land
-                   \lnot (\exists y.\ \obj{children}(y, x) \land
-                   \obj{frightened}(y))))}) \\
+          {(\lnot (\exists x.\ \ap{\obj{man}}{x} \land \ap{\obj{angry}}{x} \land
+                   \lnot (\exists y.\, \app{\obj{children}}{y}{x} \land
+                   \ap{\obj{frightened}}{y})))}) \\
    \end{aligned} \\
   &= \begin{aligned}[t]
-     &((\existsr x.\ \begin{aligned}[t]
-         &\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, x)})}{(\lam{y}{ \\
-         &\etaE{(\obj{man}(x) \land \obj{angry}(x) \land \lnot (\obj{frightened}(y)))}})}) \\
+     &((\existsr x.\, \begin{aligned}[t]
+         &\app{\op{presuppose}}{(\lam{y}{\app{\obj{children}}{y}{x}})}{(\lam{y}{ \\
+         &\etaE{(\ap{\obj{man}}{x} \land \ap{\obj{angry}}{x} \land \lnot (\ap{\obj{frightened}}{y}))}})}) \\
          &\hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}})) \\
        \end{aligned} \\
      &+ (\ap{\op{assert}!}
-          {(\forall x y.\ (\obj{man}(x) \land \obj{angry}(x) \land
-                          \obj{children}(y, x)) \to \obj{frightened}(y))}) \\
+          {(\forall x y.\ (\ap{\obj{man}}{x} \land \ap{\obj{angry}}{x} \land
+                          \app{\obj{children}}{y}{x}) \to \ap{\obj{frightened}}{y})}) \\
      &+ (\ap{\op{assert}!}
-          {(\forall x.\ (\obj{man}(x) \land \obj{angry}(x)) \to (\exists y.\ \obj{children}(y, x) \land \obj{frightened}(y)))})
+          {(\forall x.\ (\ap{\obj{man}}{x} \land \ap{\obj{angry}}{x}) \to (\exists y.\, \app{\obj{children}}{y}{x} \land \ap{\obj{frightened}}{y}))})
    \end{aligned}
 \end{align*}
 
@@ -2601,7 +2620,7 @@ binding. Our operation symbol for nondeterminism was called $\op{amb}$
 because of its similarity to McCarthy's $amb$ operator for writing
 ambiguous (i.e.\ nondeterministic)
 functions~\cite{mccarthy1961basis,abelson1996structure}. The expression
-$C[amb(x,y)]$ reduces to either $C[x]$ or $C[y]$, provided that the
+$C[amb(M, N)]$ reduces to either $C[M]$ or $C[N]$, provided that the
 resulting expression successfully produces a value. This kind of choice
 operator is sometimes called ``angelic'' because it watches out for us by
 making choices that will lead to a successful evaluation. This is the kind
@@ -2614,25 +2633,25 @@ $$
     \app{\op{introduce}}{\star}{(\lam{x}{\app{\op{assert}}{(\ap{P}{x})}{k}})}})}}
 $$
 
-Both $\app{\op{presuppose}}{P}{k}$ and
+Neither $\app{\op{presuppose}}{P}{k}$ nor
 $\app{\op{introduce}}{\star}{(\lam{x}{\app{\op{assert}}{(\ap{P}{x})}{k}})}$
-are well-defined expressions, but if in some larger context we decide to
-choose, e.g., the former, we might end up with a stuck calculation. This
-was the case in the denotation of Example~\ref{ex:man-angry}: we decided
-twice to project the presupposition and later, when we applied the $\BOX$
-handler, we were stuck.
+are stuck computations, but if in some larger context we decide to choose,
+e.g., the former, we might end up being stuck. This was the case in the
+denotation of Example~\ref{ex:man-angry}: we decided twice to project the
+presupposition and later, when we applied the $\BOX$ handler, we were
+stuck.
 
 The $amb$ operator can be implemented in Scheme using
 continuations~\cite{sitaram1998teach} and so we should be able to do the
 same using effects and handlers in $\banana{\lambda}$. We will give $amb$
-the following semantics: $C[amb(x, y)]$ reduces to $C[x]$ if $C[x]$ reduces
-to a value; otherwise, $C[amb(x, y)]$ reduces to $y$. Our choice operator
+the following semantics: $C[amb(M, N)]$ reduces to $C[M]$ if $C[M]$ reduces
+to a value; otherwise, $C[amb(M, N)]$ reduces to $N$. Our choice operator
 will be left-leaning, preferring to take the first choice but accepting the
 second if the first one leads to a failure. This way, we can encode a
 notion of preference into the choices. As when implementing $\shift$ in
 Chapter~\ref{chap:continuations}, we will use an operation for the $amb$
 operator, the $\op{amb}$ operation symbol, written using $+$, and a handler
-to delimit the context $C$ whose result must be a value.
+to delimit the context $C$ whose result we do not want to get stuck.
 
 \begin{align*}
   \search &: \FF_{E \uplus \{\op{amb}\}}(\alpha) \to \FF_E(\alpha) \\
@@ -2649,46 +2668,46 @@ should reduce to $M$. We will give a formal definition shortly.
 
 If we apply this handler to the denotation of Example~\ref{ex:man-angry},
 we will get the inteded reading: the one in which the presupposition
-projects as widely as possible without violating binding\footnote{If we
+projects as widely as possible without violating binding.\footnote{If we
   wanted to retrieve all admissible readings, we could write a handler that
   would use the $M; N$ construction to build a list containing all the
-  non-stuck solutions.}.
+  non-stuck solutions.}
 
 \begin{align*}
   \ap{\search}{\sem{\app{\abs{if-then}}{S_1}{S_2}}}
   &\tto \ap{\search}{(\begin{aligned}[t]
-     &((\existsr x.\ \begin{aligned}[t]
-         &\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, x)})}{(\lam{y}{ \\
-         &\etaE{(\obj{man}(x) \land \obj{angry}(x) \land \lnot (\obj{frightened}(y)))}})}) \\
+     &((\existsr x.\, \begin{aligned}[t]
+         &\app{\op{presuppose}}{(\lam{y}{\app{\obj{children}}{y}{x}})}{(\lam{y}{ \\
+         &\etaE{(\ap{\obj{man}}{x} \land \ap{\obj{angry}}{x} \land \lnot (\ap{\obj{frightened}}{y}))}})}) \\
          &\hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}})) \\
        \end{aligned} \\
      &+ (\ap{\op{assert}!}
-          {(\forall x y.\ (\obj{man}(x) \land \obj{angry}(x) \land
-                          \obj{children}(y, x)) \to \obj{frightened}(y))}) \\
+          {(\forall x y.\ (\ap{\obj{man}}{x} \land \ap{\obj{angry}}{x} \land
+                          \app{\obj{children}}{y}{x}) \to \ap{\obj{frightened}}{y})}) \\
      &+ (\ap{\op{assert}!}
-          {(\forall x.\ (\obj{man}(x) \land \obj{angry}(x)) \to (\exists y.\ \obj{children}(y, x) \land \obj{frightened}(y)))}))
+          {(\forall x.\ (\ap{\obj{man}}{x} \land \ap{\obj{angry}}{x}) \to (\exists y.\, \app{\obj{children}}{y}{x} \land \ap{\obj{frightened}}{y}))}))
    \end{aligned}} \\
   &\tto \begin{aligned}[t]
-     &((\existsr x.\ \begin{aligned}[t]
-         &\app{\op{presuppose}}{(\lam{y}{\obj{children}(y, x)})}{(\lam{y}{ \\
-         &\etaE{(\obj{man}(x) \land \obj{angry}(x) \land \lnot (\obj{frightened}(y)))}})}) \\
+     &((\existsr x.\, \begin{aligned}[t]
+         &\app{\op{presuppose}}{(\lam{y}{\app{\obj{children}}{y}{x}})}{(\lam{y}{ \\
+         &\etaE{(\ap{\obj{man}}{x} \land \ap{\obj{angry}}{x} \land \lnot (\ap{\obj{frightened}}{y}))}})}) \\
          &\hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}})); \\
        \end{aligned} \\
      &(\ap{\op{assert}!}
-        {(\forall x y.\ (\obj{man}(x) \land \obj{angry}(x) \land
-                        \obj{children}(y, x)) \to \obj{frightened}(y))}); \\
+        {(\forall x y.\ (\ap{\obj{man}}{x} \land \ap{\obj{angry}}{x} \land
+                        \app{\obj{children}}{y}{x}) \to \ap{\obj{frightened}}{y})}); \\
      &(\ap{\op{assert}!}
-        {(\forall x.\ (\obj{man}(x) \land \obj{angry}(x)) \to (\exists y.\ \obj{children}(y, x) \land \obj{frightened}(y)))})
+        {(\forall x.\ (\ap{\obj{man}}{x} \land \ap{\obj{angry}}{x}) \to (\exists y.\, \app{\obj{children}}{y}{x} \land \ap{\obj{frightened}}{y}))})
    \end{aligned} \\
   &\tto \ap{\op{assert}!}
-          {(\forall x y.\ (\obj{man}(x) \land \obj{angry}(x) \land
-                           \obj{children}(y, x)) \to \obj{frightened}(y))}
+          {(\forall x y.\ (\ap{\obj{man}}{x} \land \ap{\obj{angry}}{x} \land
+                           \app{\obj{children}}{y}{x}) \to \ap{\obj{frightened}}{y})}
 \end{align*}
 
 
 \subsubsection{Identifying Stuck Computations}
 
-We will now give a formal semantics to the $M; N$ construction. We will
+We will now give a formal semantics to the $M; N$ construction. We will not
 specify the reduction relation as a reduction rule using pattern matching
 because stuck computations are not easy to distinguish syntactically. The
 stuck redex can be buried deep within the term $M$ and even if $M$ contains
@@ -2754,9 +2773,9 @@ construction.
 
 \begin{definition}\label{def:semi-reduction-rule}
   We define a binary \demph{reduction relation $R_;$} on the terms of
-  $\banana{\lambda}$. We write $\to_;$ for its context closure\footnote{The
-    notion of evaluation context being expanded to include
-    $C ::= C; M\ |\ M; C$.}.
+  $\banana{\lambda}$. We write $\to_;$ for its context
+  closure.\footnote{The notion of evaluation context being expanded to
+    include $C ::= C; M\ |\ M; C$.}
   
   \begin{itemize}
   \item $(M; N) \; R_; \; M$ if for every $\Gamma$ and $\tau$ such that
@@ -2778,7 +2797,8 @@ properties: the compositionality of the denotational semantics, which we
 preserve, and the fact that the individual reduction rules preserve
 denotations, which the $\to_;$ rule does by definition. The new
 construction and its reduction rule also preserve confluence and
-termination, as we will show below, and therefore strong normalization.
+termination, as we will show below, and therefore they also preserve strong
+normalization.
 
 \begin{notation}
   The \demph{$\calc^;$ calculus} is the $\calc$ calculus with the $M; N$
@@ -2822,10 +2842,10 @@ termination, as we will show below, and therefore strong normalization.
   which states that we can delay $\eta$-reduction until the very end of
   evaluation and which relies on the idea that $\eta$-reduction never opens
   up a new redex which would neccessitate the use of another rule. This is
-  still the case since $\eta$-reduction cannot make appear a new $;$-redex
-  without actually inserting a new $;$. This holds because the two
-  reduction rules for $M; N$ given above do not look at their arguments and
-  reduce unconditionally.
+  still the case since $\eta$-reduction cannot make a new $;$-redex appear
+  without actually inserting a new semicolon and because the two reduction
+  rules for $M; N$ given above are not sensitive to the structure of $M$
+  and $N$.
 \end{proof}
 
 To prove that $\calc^;$ is confluent, we prove that $\to_;$ is confluent
@@ -2859,7 +2879,7 @@ in~\cite{klop1992term}.
 
   \item If the reductions occurred in non-overlapping subterms, then we can
     take the common reduct $d$ as the term in which both subterms have been
-    reduces.
+    reduced.
 
   \item If the redex in $a \to_; b$ is the entire term $a$ and the redex in
     $a \to_; c$ is a proper subterm of $a$:
@@ -2907,9 +2927,9 @@ in~\cite{klop1992term}.
     Symmetric to the previous case.
 
   \item If the redex in both $a \to_; b$ and $a \to_; c$ is the entire term
-    $a$, then $b = c$ and we their common reduct is $d = b = c$. If $b$ and
+    $a$, then $b = c$ and their common reduct is $d = b = c$. If $b$ and
     $c$ were different, i.e. $M; N \to_; M$ and at the same time
-    $Ml N \to_; N$, then $\sem{M}(e)$ would have to be simultaneously both
+    $M; N \to_; N$, then $\sem{M}(e)$ would have to be simultaneously both
     $\bot$-less and not $\bot$-less for every $e$, which is a
     contradiction.
   \end{enumerate}
@@ -2941,21 +2961,20 @@ in~\cite{klop1992term}.
     redex in $a \to_; c$ is some proper subterm of $a$:
 
     Let $l \to r$ be the $\calc$ rule used in $a \to_\calc b$. None of the
-    left-hand sides of the reduction rules in $\calc$ contain the $M; N$
+    left-hand sides of the reduction rules in $\calc$ contain the semicolon
     operator and so the $;$-redex in $a$ must be matched by some
     metavariable in $l$. Let $M$ be that metavariable. We decompose the
     left-hand side $l$ into $L(M)$ and the right-hand side $r$ into
     $R(M)$. We have $a = L(a')$, $b = R(a')$ and $a' \to_; a''$ with
     $c = L(a'')$ for some $a'$ and $a''$. Our common reduct $d$ will be
     $R(a'')$. For $b$, we have $b = R(a') \tto_; R(a'') = d$ by
-    $a \to_; a'$ and the context closure of $to_;$. Note that $R(a')$ might
-    correspond might contain multiple copies of $a'$ or maybe even no
-    copies of $a'$ (as is the case when rules copy or delete terms). No
-    matter the number of copies, we always have $R(a') \tto_; R(a'')$,
-    because $\tto_;$ is reflexive and transitive. For $c$, we have
+    $a \to_; a'$ and the context closure of $\to_;$. Note that $R(a')$
+    might contain multiple copies of $a'$ or maybe even no copies of $a'$
+    (as is the case when rules copy or delete terms). No matter the number
+    of copies, we always have $R(a') \tto_; R(a'')$, because $\tto_;$ is
+    reflexive and transitive. For $c$, we have
     $c = L(a'') \to_\calc R(a'') = d$ because $L(a'') \to R(a'')$ is an
     instance of the $\calc$ rule $l \to r$.
-  \end{itemize}
 
   \item If the redex in $a \to_; c$ is the entire term $a$ and the redex in
     $a \to_\calc b$ is some proper subterm of $a$:
@@ -2969,9 +2988,12 @@ in~\cite{klop1992term}.
     $\calc$ reduction and so we have $c = d$, or it preserves it whole and
     then we can still perform the reduction $c \to_\calc d$.
 
-  \item $a$ is at the same time $\calc$-redex and a $;$-redex. This is
-    impossible because there is no rule in $\calc$ whose left-hand side is
-    headed by the $M; N$ construction, as is the case in every $;$-redex.
+  \item $a$ is at the same time a $\calc$-redex and a $;$-redex:
+
+    This is impossible because there is no rule in $\calc$ whose left-hand
+    side is headed by the $M; N$ construction, which is on the other hand
+    the case in every $;$-redex.
+  \end{itemize}
 \end{proof}
 
 \begin{corollary}\label{cor:semibanana-confluence}
@@ -3016,38 +3038,37 @@ binding. Our solution improves in some aspects on Lebedeva's work:
 
   Lebedeva extends the simply-typed lambda-calculus with (unrestricted)
   exceptions and the resulting calculus is non-terminating, as shown by
-  Lillibridge's encoding of recursive types (and thereby the untyped lambda
-  calculus)~\cite{lillibridge1995exceptions}. Our first attempt at
-  formalizing $\calc$ actually had the same deficiency and we were able to
-  encode recursive types using Lillibridge's method\footnote{The
-    non-terminating $\calc$ assumed a global effect signature $E$ and used
-    computations types $\FF(\alpha)$ which all shared the effect signature
-    $E$ (i.e.\ every $\FF(\alpha)$ was implicitly $\FF_E(\alpha)$). This
-    was problematic because one could use the type $\FF(\alpha)$ somewhere
-    in the type of one of the operations in $E$. This created a loop where
-    $E$ explicitly referenced $\FF(\alpha)$ which implicitly referenced $E$
-    and it is this loop which is exploited by Lillibridge's encoding of
+  Lillibridge's encoding of recursive
+  types~\cite{lillibridge1995exceptions}. Our first attempt at formalizing
+  $\calc$ actually had the same deficiency and we were able to encode
+  recursive types using Lillibridge's method.\footnote{The non-terminating
+    $\calc$ assumed a global effect signature $E$ and used computation
+    types $\FF(\alpha)$ which all shared the effect signature $E$ (i.e.\
+    every $\FF(\alpha)$ was implicitly $\FF_E(\alpha)$). This was
+    problematic because one could use the type $\FF(\alpha)$ somewhere in
+    the type of one of the operations in $E$. This created a loop where $E$
+    explicitly referenced $\FF(\alpha)$ which implicitly referenced $E$ and
+    it is this loop which is exploited by Lillibridge's encoding of
     recursive types. This no longer works in the version of $\calc$
     presented in this manuscript since the type $\FF_E(\alpha)$ now has to
     explicitly mention $E$ and if $E$ contains $\FF_E(\alpha)$, then it
     leads to an infinite type. This was sufficient to make Lillibridge's
     encoding impossible since we have proven $\calc$ terminating
-    in~\ref{sec:termination}.}. Furthermore, when Lebedeva sketched out a
+    in~\ref{sec:termination}.} Furthermore, when Lebedeva sketched out a
   possible solution to the binding problem, she defined a recursive
-  function which was then part of the lexical semantic entries\footnote{The
-    function in question is the $\textsf{iacc}$ handler for intermediate
-    accommodation from Definition~6.29. This handler is part of the
-    definition of the dynamic existential quantifier, which is the only
-    operator using which new variables are introduced.}. This is also
-  problematic since general recursion precludes termination. Our calculus
-  gets around this by relying on inductive types to provide a limited form
-  of recursion which can be proven terminating.
+  function which was then part of the lexical semantic
+  entries.\footnote{The function in question is the $\textsf{iacc}$ handler
+    for intermediate accommodation from Definition~6.29. This handler is
+    part of the definition of the dynamic existential quantifier, which is
+    the only operator using which new variables are introduced.} This is
+  also problematic since general recursion precludes termination. Our
+  calculus gets around this by relying on inductive types to provide a
+  limited form of recursion which can be proven terminating.
 
   The $\calc$ calculus, as it is presented in this manuscript, is
   terminating and strongly normalizing, while still allowing us to
   implement the accommodation strategy used by van der
-  Sandt~\cite{van1992presupposition}, Projective
-  DRT~\cite{venhuizen2013parsimonious} and
+  Sandt~\cite{van1992presupposition} and
   Lebedeva~\cite{lebedeva2012expression}.
 
 \item Our analysis fixes a bug which allowed presupposition triggers to
@@ -3065,10 +3086,10 @@ binding. Our solution improves in some aspects on Lebedeva's work:
     \ex[*]{He$_1$ loves John's$_1$ car.}
   \end{exe}
 
-  The operations in effects and handlers are resumable exceptions. Since we
-  can resume the interpretation of a sentence after accommodating the
-  presupposition, we do not have to restart the evaluation of the sentence
-  and therefore we avoid the above situation.
+  The operations in $\calc$ are resumable exceptions. Since we can resume
+  the interpretation of a sentence after accommodating the presupposition,
+  we do not have to restart the evaluation of the sentence and therefore we
+  avoid the above situation.
 
 \item We treat presuppositions using the same formal apparatus as dynamics
   and anaphora.
@@ -3082,16 +3103,16 @@ binding. Our solution improves in some aspects on Lebedeva's work:
 
   Our approach is based on and heavily inspired by Lebedeva's use of
   exception mechanisms to treat presupposition but instead of using a term
-  encoding for dynamicity and side effects, such as exceptions for
-  presupposition, we use a free monad for everything\footnote{Not only for
+  encoding for dynamicity and side effects, such as exceptions, for
+  presupposition, we use a free monad for everything.\footnote{Not only for
     dynamicity and presuppositions, but also for quantification,
-    conventional implicature and deixis.}. Our free monad is a term
-  encoding of a computation, much like de Groote's original approach was a
-  term encoding of a dynamic proposition, which means that our calculus has
-  no fixed order of evaluation (i.e.\ is pure). The free monad lets us
-  combine both the dynamic effects of manipulating a state and a
-  continuation together and the effect of throwing exceptions for
-  presuppositions in a single encoding with relative ease.
+    conventional implicature and deixis.} Our free monad is a term encoding
+  of a computation, much like de Groote's original approach was a term
+  encoding of a dynamic proposition, which means that our calculus has no
+  fixed order of evaluation (i.e.\ is pure). The free monad lets us combine
+  both the dynamic effects of manipulating a state and a continuation
+  together with the effect of throwing exceptions for presuppositions in a
+  single encoding with relative ease.
 \end{itemize}
 
 
@@ -3142,8 +3163,8 @@ TTDL with a very similar strategy by Qian in Double Negation TTDL
 The DN-TTDL approach is an instance of the following general strategy. Let
 us imagine we have some set $A$ (e.g.\ the set of DRSs or TTDL dynamic
 propositions) and a function $f : A \to A$ (e.g.\ negation) that we would
-like to adapt into some involution $g$\footnote{An \emph{involution} is a
-  function which is its own inverse, i.e.\ $g(g(x)) = x$.}. Applying $g$ to
+like to adapt into some involution $g$.\footnote{An \emph{involution} is a
+  function which is its own inverse, i.e.\ $g(g(x)) = x$.} Applying $g$ to
 a value once should have the same (or somehow similar) effect as applying
 $f$ once (i.e.\ $g$ should simulate/extend $f$). Furthermore, applying $g$
 twice must act as the identity function. We can consider an extended domain
@@ -3178,7 +3199,7 @@ interpretation functions are given: one for positive readings and another
 for negative readings. Negation becomes a new constructor for DRSs, its
 positive interpretation being the negative interpretation of its argument
 and its negative interpretation being the positive interpretation of its
-argument. Therefore, every DRSs has two interpretation and negation is
+argument. Therefore, every DRS has two interpretations and negation is
 implemented as exchanging these two interpretations.
 
 
@@ -3191,18 +3212,18 @@ this phenomenon from its arguments up to its context. For example:
 
 \begin{itemize}
 \item An indefinite noun phrase like \emph{a man} introduces a new
-  discourse referent $x$ along with the condition $\obj{man}(x)$. If this
+  discourse referent $x$ along with the condition $\ap{\obj{man}}{x}$. If this
   NP becomes an argument of a verb, then the verb applies itself to the
   NP's referent and transfers these dynamic effects up to the nearest
   enclosing box. The meaning of \emph{a man sleeps} still introduces a new
-  discourse referent $x$ along with the condition $\obj{man}(x)$ while also
-  introducing the condition $\obj{sleep}(x)$. Since the verb had no
+  discourse referent $x$ along with the condition $\ap{\obj{man}}{x}$ while also
+  introducing the condition $\ap{\obj{sleep}}{x}$. Since the verb had no
   interaction with dynamicity, all of the NP's effects were preserved.
 \item An anaphoric pronoun such as \emph{he} accesses the context to find
   its antecedent $x$. Applying the predicate \emph{sleeps} preserves this
   context dependence and yields a computation that also starts by accessing
   the context to find an antecedent $x$ and then producing the proposition
-  $\obj{sleep}(x)$. Deictic and intensional meanings access some external
+  $\ap{\obj{sleep}}{x}$. Deictic and intensional meanings access some external
   information to find their referents as well and they behave the same in
   these scenarios.
 \item A definite description such as \emph{the king of France} presupposes
@@ -3303,8 +3324,9 @@ first place. In this and the next subsection, we will try to find out why
 monads and effects are not a good fit for DN-TTDL.
 
 We will start by showing that the constructions in DN-TTDL are not
-monadic. We have seen the definition in~\ref{ssec:monad}: we need to
-provide a functor $F$ and the combinators $\eta$ and $\hsbind$.
+monadic. We have seen the definition of a monad in~\ref{ssec:monad}: we
+need to provide a functor $F$ and the combinators $\eta$ and $\hsbind$
+which satisfy the monad laws.
 
 \begin{align*}
   F(\Omega) &= \Omega \times \Omega \\
@@ -3325,7 +3347,7 @@ This captures the idea behind the DN-TTDL approach:
 \end{itemize}
 
 We can check that our translation is faithful by trying to use the two
-operations above to automatically raise operators such as dynamic
+combinators above to automatically raise operators such as dynamic
 conjunction into the new double-negation theory. We can reuse the general
 monadic lifting functions from~\ref{sec:lifting-semantics}.
 
@@ -3339,7 +3361,7 @@ monadic lifting functions from~\ref{sec:lifting-semantics}.
 \end{align*}
 
 By applying $\liftl_{S \limp S \limp S}$ to dynamic conjunction, we arrive
-at the extended definition of conjunction used introduced by Qian
+at the extended definition of conjunction used by Qian
 in~\cite{qian2014accessibility}. Thus we manage to derive from the general
 monadic lifting function and the two lines that define $\eta$ and $\hsbind$
 for this monad the same operator that Qian introduced in his thesis. This
@@ -3351,8 +3373,8 @@ values of type $\Omega$ (dynamic propositions). It begs the question what
 would be the interpretation of types such as $F(\iota)$, i.e.\ what is the
 negation of an individual. Secondly, even if we ignore this and just stay
 in the domain of dynamic propositions, permitting only types $F(\Omega)$,
-we run into a more severe problem. The ``monad'' that we proposed actually
-does not satisfy the right identity law~\eqref{law:monad-right-id}.
+we run into a more severe problem. The ``monad'' that we proposed does not
+actually satisfy the right identity law (Law~\eqref{law:monad-right-id}).
 
 $$
 X \hsbind \eta = X
@@ -3366,8 +3388,8 @@ default dynamic negation.
 
 In our method, we model denotations as $\banana{\lambda}$ computations and
 $\banana{\lambda}$ computations form a monad, i.e.\ for any effect
-signature, $\left<\FF_E, \eta, \hsbind\right>$ is a monad. Likewise, all of
-the phenomena we treat have a monadic structure as well: Barker's
+signature $E$, $\left<\FF_E, \eta, \hsbind\right>$ is a monad. Likewise,
+all of the phenomena we treat have a monadic structure as well: Barker's
 continuization uses the continuation monad~\cite{barker2002continuations},
 de Groote and Lebedeva's TTDL uses a combination of the state monad and the
 continuation monad~\cite{de2006towards,lebedeva2012expression}
@@ -3405,10 +3427,11 @@ return type is $\Omega$. However, even if we ignore this, we find out that
 this structure does not satisfy the laws of a functor. Functors have to
 adhere to two laws: homomorphism w.r.t.\ to function composition and
 homomorphism w.r.t.\ to identities. It is the latter which this structure
-fails. Consider the identity law of functors \eqref{law:functor-identity}:
+fails. Consider the identity law of functors
+(Law~\eqref{law:functor-identity}):
 
 \begin{align*}
-  F(\id_A) &= id_{F(A)}
+  F(\id_A) &= \id_{F(A)}
 \end{align*}
 
 If we try to elaborate $F(\id_\Omega)$ with this structure, we find that it
@@ -3438,14 +3461,14 @@ function.
 
 When we say that this solution to the double negation problem is
 incompatible with our approach, we mean that we cannot find effects that
-implement this kind of functionality. However, this does not mean we cannot
-combine our technique of using $\banana{\lambda}$ computations with the
-technique proposed by Qian~\cite{qian2014accessibility}. We have seen how
-to implement TTDL in $\banana{\lambda}$, on which DN-TTDL is built. We can
-therefore use the DN-TTDL schema by replacing the TTDL implementation using
-our $\banana{\lambda}$ implementation. The downside is that we have to then
-always work with pairs of computations of propositions everywhere, which is
-a heavy price to pay for the offered empirical coverage increase.
+implement this kind of functionality. However, this does not mean that we
+cannot combine our technique of using $\banana{\lambda}$ computations with
+the technique proposed by Qian~\cite{qian2014accessibility}. We have seen
+how to implement TTDL in $\banana{\lambda}$, on which DN-TTDL is built. We
+can therefore use the DN-TTDL schema by replacing the TTDL implementation
+using our $\banana{\lambda}$ implementation. The downside is that we have
+to then always work with pairs of computations of propositions everywhere,
+which is a heavy price to pay for the offered empirical coverage increase.
 
 
 \section{Summary}
@@ -3504,22 +3527,22 @@ to integrate presuppositions into our dynamic semantics:
   possessive constructions.
 
 \item \label{item:accommodate-handler} We introduced a handler for
-  $\op{presuppose}$ called $\accommodate$ and we added it a handler
-  representing the top-level DRS. At this point, we could analyze
+  $\op{presuppose}$ called $\accommodate$ and we added it to a handler
+  representing the top-level DRS.\@ At this point, we could analyze
   discourses such as Example~\ref{ex:jones-mercedes}, repeated below, which
   were not covered by the original TTDL~\cite{de2006towards} and which
   motivated the use of exceptions in Lebedeva's
   extension~\cite{lebedeva2012expression}.
 
   \begin{exe}
-    \exr{ex:jones-mercedes} It is not the case that Jones owns a
-    Porsche. He owns a Mercedes.
+    \exr{ex:jones-mercedes} It is not the case that Jones$_1$ owns a
+    Porsche. He$_1$ owns a Mercedes.
   \end{exe}
 
 \item \label{item:maybe-accommodate} We introduced a new handler,
-  $\maybeAccommodate$ that tried resolving presuppositions by looking up
-  the referent in the context instead of always presupposing its existence,
-  as in~\cite{lebedeva2012expression}. This let us analyze cases such as
+  $\useFind$, that tried resolving presuppositions by looking up the
+  referent in the context instead of always presupposing its existence, as
+  in~\cite{lebedeva2012expression}. This let us analyze cases such as
   Example~\ref{ex:cancel} without projecting a presupposition.
 
   \begin{exe}
@@ -3527,9 +3550,10 @@ to integrate presuppositions into our dynamic semantics:
   \end{exe}
 
 \item \label{item:nondet-accommodation} We enriched the $\BOX$ handler with
-  a clause for nondeterministically accommodating presuppositions. This
-  allowed us to account for the ambiguity inherent in the accommodation of
-  presuppositions, such as in Example~\ref{ex:wilma}:
+  a clause for nondeterministically accommodating presuppositions,
+  $\maybeAccommodate$. This allowed us to account for the ambiguity
+  inherent in the accommodation of presuppositions, such as in
+  Example~\ref{ex:wilma}:
 
   \begin{exe}
     \exr{ex:wilma} ($c_0$) Maybe ($c_1$) Wilma thinks that ($c_2$) her husband is having an affair.
@@ -3553,8 +3577,8 @@ developed in~\ref{sec:banana-drt} in order to make them
 presupposition-compatible. We only modified dynamic negation, $\dnot$, by
 adding new clauses to the $\BOX$ handler to implement the interaction
 between DRSs and presuppositions. Our objective was to have empirical
-parity with Lebedeva's analysis~\cite{lebedeva2012expression}, while using
-the mechanism to implement both dynamics and presuppositions ($\calc$
+parity with Lebedeva's analysis~\cite{lebedeva2012expression} while using
+the same mechanism to implement both dynamics and presuppositions ($\calc$
 computations) and without having to use a calculus with a non-standard
 evaluation order. In this, we have succeeded\footnote{We have not covered
   the interplay of quantification and dynamics, which TTDL studies as
