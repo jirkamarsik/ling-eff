@@ -2852,14 +2852,18 @@ To prove that $\calc^;$ is confluent, we prove that $\to_;$ is confluent
 and that $\to_;$ and the reduction relation of $\calc$ commute. We prove
 the latter using Lemma~\ref{lem:commutativity}, as we did for $\to_\eta$
 and $\intcalc$ in Lemma~\ref{lem:eta-commutes}, and for the former we use
-the following lemma, which comes from Proposition~1.0.2
+the following lemma, which is a special case of Proposition~1.0.2
 in~\cite{klop1992term}.
 
 \begin{lemma}\label{lem:subcommutativity}
-  $\to$ is confluent iff $\tto$ is subcommutative, i.e.\ if for all
-  $a, b, c$ such that $a \to b$ and $a \to c$, there exists a $d$ such that
-  $b \to^= d$ and $c \to^= d$.
+  A relation $\to$ is confluent iff its reflexive-transitive $\tto$ is
+  subcommutative, i.e.\ if for all $a, b, c$ such that $a \to b$ and
+  $a \to c$, there exists a $d$ such that $b \to^= d$ and $c \to^= d$.
 \end{lemma}
+
+\begin{proof}
+  Follows from Proposition~1.0.2 in~\cite{klop1992term}.
+\end{proof}
 
 \begin{lemma}\label{lem:semicolon-confluent}
   The $\to_;$ reduction relation is confluent.

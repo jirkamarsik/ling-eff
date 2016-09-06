@@ -10,3 +10,7 @@
   for implicatures.
 * When introducing TTDL, mention the possibility of adding both individuals
   and propositions into the context.
+
+* adequacy
+  * case.>>= rule (add footnote)
+* conservativity

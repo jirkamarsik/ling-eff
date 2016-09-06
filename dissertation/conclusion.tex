@@ -1,1 +1,31 @@
 \chapter*{Conclusion}
+
+\section{Summary of Results}
+
+In Part~\ref{part:calculus}, we have introduced $\calc$, a formal calculus
+of effects and handlers. Its definition is given in
+Chapter~\ref{chap:definitions}. The calculus can be compared to several
+existing calculi:
+
+\begin{itemize}
+\item System F (i.e.\ the polymorphic lambda calculus or the second-order
+  lambda calculus)
+
+  $\calc$ extends the simply-typed lambda calculus with computation types
+  $\FF_E(\alpha)$. Computations are algebraic expressions and as such can
+  be expressed as inductive data types.\footnote{An inductive type is a
+    recursive type with positive
+    constructors. In~\ref{ssec:termination-for-idts}, we have seen that a
+    computation type $\FF_E(\alpha)$ has positive constructors $\eta$ and
+    $\op{op}$ for every $\op{op} \in E$.} Inductive data types, along with
+  the sums and products that we add to the calculus in
+  Section~\ref{sec:sums-and-products}, can be expressed in System
+  F~\cite{wadler1990recursive}.
+
+  In $\calc$, a computation of type $\FF_E(\alpha)$ can also be given the
+  type $\FF_{E \uplus E'}(\alpha)$, where $E \uplus E'$ is an extension of
+  $E$. However, in the direct encoding of $\calc$ into System F, for every
+  $E'$ 
+\end{itemize}
+
+\section{Future Work}
