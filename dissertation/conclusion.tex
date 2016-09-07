@@ -4,8 +4,8 @@
 
 In Part~\ref{part:calculus}, we have introduced $\calc$, a formal calculus
 of effects and handlers. Its definition is given in
-Chapter~\ref{chap:definitions}. The calculus can be compared to several
-existing calculi:
+Chapter~\ref{chap:definitions}. $\calc$ can be compared to several existing
+calculi and implementations of effects and handlers:
 
 \begin{itemize}
 \item System F (i.e.\ the polymorphic lambda calculus or the second-order
@@ -25,7 +25,47 @@ existing calculi:
   In $\calc$, a computation of type $\FF_E(\alpha)$ can also be given the
   type $\FF_{E \uplus E'}(\alpha)$, where $E \uplus E'$ is an extension of
   $E$. However, in the direct encoding of $\calc$ into System F, for every
-  $E'$ 
+  effect signature $E \uplus E'$ that we would like to acribe to the
+  computation, we would end up with a different term. On the other hand, in
+  $\calc$ we can keep using the same term. This lets us give a semantics to
+  lexical items that does not have to change when new effects are
+  introduced into the theory.
+
+\item \emph{Eff}
+
+  The \emph{Eff} language~\cite{bauer2012programming} is an ML-like
+  programming language with effects and handlers. Like in ML, effects can
+  be freely used within any expression, without any term encoding (we say
+  that the calculus is \emph{direct-style}). For this to work correctly,
+  the calculus has a fixed evaluation order, which, in following ML, is
+  call-by-value.
+
+  We have used \emph{Eff} in our first explorations of effects and handlers
+  in natural language semantics~\cite{marsik2014algebraic}, benefitting
+  from the existing implementation. However, we have found that
+  call-by-name evaluation is also common, notably on the boundaries of
+  lexical items (see~\ref{ssec:cbn-and-cbv}). Call-by-name can be simulated
+  in call-by-value by passing around thunks (functions of type
+  $1 \to \alpha$ for some $\alpha$). However, in the presence of both
+  call-by-name and call-by-value, we have opted for an indirect
+  presentation of effects using monads which favors neither call-by-value
+  nor call-by-name and that lets us manipulate the order of execution using
+  $\hsbind$.
+
+  Finally, we note that \emph{Eff} is a general-purpose programming
+  language which includes general recursion (\texttt{let rec}) and thefore,
+  contrary to $\calc$, it is not terminating.
+  
+\item $\lambda_{\mathrm{eff}}$
+
+  The $\lambda_{\mathrm{eff}}$ calculus~\cite{kammar2013handlers} is a
+  call-by-push-value lambda calculus~\cite{levy1999call} with operations
+  and handlers. Both languages are \emph{direct-style}, meaning that
+  effects are not encoded but immediate. The chaining of operation
+  execution that is managed by $\hsbind$ in $\calc$ is instead managed by
+  the reduction relation of the calculus itself. For the reduction relation
+  to be confluent, the relation reduction is deterministic, i.e.\ there is
+  always at most one redex.
 \end{itemize}
 
 \section{Future Work}

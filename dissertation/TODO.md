@@ -14,3 +14,5 @@
 * adequacy
   * case.>>= rule (add footnote)
 * conservativity
+
+* execution vs evaluation
