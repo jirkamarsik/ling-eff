@@ -1,72 +1,72 @@
 \begin{ThesisAbstract}
   \begin{FrenchAbstract}
-    Dans la sémantique formelle, les chercheurs attribuent des sens à des
-    phrases d'un langage naturel. Ce travail est guidé par le principe
-    méthodologique de la compositionalité: le sens d'une expression
-    complexe est une fonction des sens de ses constituants. Ces fonctions
-    de sens sont souvent formalisé en utilisant le
-    lambda-calcul. Cependant, il existe des parties de langage qui
-    remettent en cause la notion de compositionnalité, des exemples communs
-    étant les pronoms anaphoriques et les déclencheurs des
-    présuppositions. Ceux-ci forcent les chercheurs à soit ajuster la
-    structure des sens ou abandonner la compositionalité au sens strict du
-    terme. Dans le premier cas, les nouveaux sens ont tendance à avoir la
-    structure d'une monade, alors que dans le second cas, les sens sont
-    dérivés avec des fonctions aux effets de bord. Les monades étant
-    elles-mêmes largement utilisés dans la programmation fonctionnelle pour
-    coder des effets de bord, le thème sous-jacent, commun à ces deux
-    approches, est l'introduction d'effets de bord. En outre, les divers
-    problèmes dans la sémantique conduisent à des diverses théories qui
-    sont difficiles à unir. Notre thèse prétend que, en regardant ces
-    théories comme des théories d'effets de bord, on peut réutiliser les
-    résultats de la recherche dans les langages de programmation pour les
-    combiner.
 
-    Cette thèse étend le lambda-calcul avec une monade des computations. La
-    monade implémente les effets et les handlers, une technique récente
-    dans l'étude des effets de bord du langage de programmation. Dans la
-    première partie de la thèse, nous démontrons quelques propriétés
-    fondamentales de ce calcul: la réduction du sujet, la confluence et la
-    terminaison. Ensuite, dans la deuxième partie, on montre comment
-    utiliser le calcul pour mettre en œuvre des traitements de plusieurs
-    phénomènes linguistiques: deixis, quantification, implicature
-    conventionnelle, anaphore et présupposition. En fin de compte, on
-    construit une grammaire qui couvre tous ces phénomènes et leurs
-    interactions.
+    Ces travaux s’intéressent à la modélisation formelle de la sémantique
+    des langues naturelles. Pour cela, nous suivons le principe de
+    compositionalité qui veut que le sens d’une expression complexe soit
+    une fonction du sens de ses parties. Ces fonctions sont généralement
+    formalisées à l’aide du $\lambda$-calcul. Cependant, ce principe est
+    remis en cause par certains usages de la langue, comme les pronoms
+    anaphoriques ou les présuppositions. Ceci oblige à soit abandonner la
+    compositionalité, soit modifier les structures du sens. Dans le premier
+    cas, le sens n’est alors plus obtenu par un calcul qui correspond à des
+    fonctions mathématiques, mais par un calcul dépendant du contexte, ce
+    qui le rapproche des langages de programmation qui manipulent leur
+    contexte avec des effets de bord. Dans le deuxième cas, lorsque les
+    structures de sens sont ajustées, les nouveaux sens ont tendance à
+    avoir une structure de monade. Ces dernières sont elles-mêmes largement
+    utilisées en programmation fonctionnelle pour coder des effets de bord,
+    que nous retrouvons à nouveau. Par ailleurs, s’il est souvent possible
+    de proposer le traitement d’un unique phénomène, composer plusieurs
+    traitements s’avère être une tâche complexe. Nos travaux proposent
+    d’utiliser les résultats récents autour des langages de programmation
+    pour parvenir à combiner ces modélisations par les effets de bord.
 
+    Pour cela, nous étendons le $\lambda$-calcul avec une monade qui
+    implémente les \textit{effects} et les \textit{handlers}, une technique
+    récente dans l’étude des effets de bord. Dans la première partie de la
+    thèse, nous démontrons les propriétés fondamentales de ce calcul
+    (préservation de type, confluence et terminaison). Dans la seconde
+    partie, nous montrons comment utiliser le calcul pour le traitement de
+    plusieurs phénomènes linguistiques: deixis, quantification, implicature
+    conventionnelle, anaphore et présupposition. Enfin, nous construisons
+    une unique grammaire qui gère ces phénomènes et leurs interactions.
+    
     \KeyWords{sémantique formelle, compositionalité, effets de bord,
       monades, grammaires catégorielles abstraites, sémantique dynamique.}
   \end{FrenchAbstract}
 
   \begin{EnglishAbstract}
     In formal semantics, researchers assign meanings to sentences of a
-    natural language. This work is guided by the methodological principle
-    of compositionality: the meaning of a complex expression is a function
-    of the meanings of its constituents. These meaning functions are often
-    formalized using the lambda calculus. However, there are areas of
-    language which challenge the notion of compositionality, common
-    examples being anaphoric pronouns and presupposition triggers. These
-    force researchers to either adjust the structure of meanings or to
-    abandon compositionality in the strict sense of the word. In the former
-    case, the new meanings tend to have the structure of a monad, whereas
-    in the latter, meanings are derived by functions with side
-    effects. Monads themselves being widely used in functional programming
-    to encode side effects, the common theme that emerges in both
-    approaches is the introduction of side effects. Furthermore, different
-    problems in semantics lead to different theories which are challenging
-    to unite. Our thesis claims that by looking at these theories as
-    theories of side effects, we can reuse results from programming
-    language research to combine them.
+    natural language. This work is guided by the principle of
+    compositionality: the meaning of an expression is a function of the
+    meanings of its parts. These functions are often formalized using the
+    $\lambda$-calculus. However, there are areas of language which
+    challenge the notion of compositionality, e.g.\ anaphoric pronouns or
+    presupposition triggers. These force researchers to either abandon
+    compositionality or adjust the structure of meanings.  In the first
+    case, meanings are derived by processes that no longer correspond to
+    pure mathematical functions but rather to context-sensitive procedures,
+    much like the functions of a programming language that manipulate their
+    context with side effects. In the second case, when the structure of
+    meanings is adjusted, the new meanings tend to be instances of the same
+    mathematical structure, the monad. Monads themselves being widely used
+    in functional programming to encode side effects, the common theme that
+    emerges in both approaches is the introduction of side
+    effects. Furthermore, different problems in semantics lead to different
+    theories which are challenging to unite. Our thesis claims that by
+    looking at these theories as theories of side effects, we can reuse
+    results from programming language research to combine them.
 
-    This thesis extends lambda calculus with a monad of computations. The
+    This thesis extends $\lambda$-calculus with a monad of computations. The
     monad implements effects and handlers, a recent technique in the study
     of programming language side effects.  In the first part of the thesis,
     we prove some of the fundamental properties of this calculus: subject
     reduction, confluence and termination. Then in the second part, we
     demonstrate how to use the calculus to implement treatments of several
     linguistic phenomena: deixis, quantification, conventional implicature,
-    anaphora and presupposition. In the end, we build a grammar that covers
-    all of these phenomena and their interactions.
+    anaphora and presupposition. In the end, we build a grammar that
+    features all of these phenomena and their interactions.
 
     \KeyWords{formal semantics, compositionality, side effects, monads,
       abstract categorial grammars, dynamic semantics.}
