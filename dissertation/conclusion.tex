@@ -61,14 +61,168 @@ calculi and implementations of effects and handlers:
   The $\lambda_{\mathrm{eff}}$ calculus~\cite{kammar2013handlers} is a
   call-by-push-value lambda calculus~\cite{levy1999call} with operations
   and handlers. Call-by-push-value is special in introducing two kinds of
-  terms: computations and values. 
+  terms: computations and values. The intuition behind the two is that
+  computations \emph{do}, whereas values \emph{are}. Two of the crucial
+  things that computations do are to pop values from a stack (that is what
+  abstractions do) and to push values to the stack (that is what
+  applications do). Therefore, applications and abstractions are considered
+  as computations. Furthermore, the function in an application term must be
+  a computation term (which is expected to, among other things, pop a value
+  from the stack), whereas the argument, which is the value to be pushed to
+  the stack, must be a value term.
 
-  Both languages are \emph{direct-style}, meaning that
-  effects are not encoded but immediate. The chaining of operation
-  execution that is managed by $\hsbind$ in $\calc$ is instead managed by
-  the reduction relation of the calculus itself. For the reduction relation
-  to be confluent, the relation reduction is deterministic, i.e.\ there is
-  always at most one redex.
+  This might make it look like that call-by-push-value is like
+  call-by-value since all the arguments passed to functions are
+  values. However, in true call-by-value, we can use complex expressions as
+  arguments and we expect that the reduction system will evaluate the
+  arguments down to values before passing them to the function. To do this
+  in call-by-push-value, we have to implement this manually by evaluating
+  the argument computation down to a value $x$ and then passing the value
+  $x$ to the function in question (i.e.\ in $\lambda_{\mathrm{eff}}$ syntax
+  $\textbf{let } x \from M \textbf{ in } \ap{F}{x}$). In $\calc$, this
+  amounts to the term $M \hsbind F$, where $M : \FF_E(\alpha)$ and
+  $F : \alpha \to \FF_E(\beta)$. To implement call-by-name, computations
+  can be mapped to values by wrapping them in thunks, which are primitive
+  constructs in call-by-push-value (in $\lambda_{\mathrm{eff}}$ syntax
+  $\ap{F}{\{M\}}$, where $M$ is a computation and the thunk $\{M\}$ is a
+  value). In $\calc$, the corresponding term is $\ap{F}{M}$, where
+  $M : \FF_E(\alpha)$ and $F : \FF_E(\alpha) \to \FF_E(\beta)$.
+
+  $\lambda_{\mathrm{eff}}$ presents an intriguing alternative to
+  $\calc$. The call-by-push-value calculus is flexible enough to
+  accommodate both call-by-name and call-by-value. $\lambda$ abstractions
+  and operations are both treated as effects, which might make the
+  definition of the $\CC$ operator, which permutes $\lambda$ with
+  operations, more intuitive.\footnote{The extra typing rule for the $\CC$
+    construction in $\lambda_{\mathrm{eff}}$ would look like this:
+    \begin{prooftree}
+      \AxiomC{$\Gamma \vdash_E M : A \to C$}
+      \UnaryInfC{$\Gamma \vdash_E \ap{\CC}{M} : F (U_\emptyset (A \to C))$}
+    \end{prooftree}} $\lambda_{\mathrm{eff}}$ also has a well-developed
+  metatheory, developed in~\cite{kammar2013handlers}: it is both confluent
+  (due to its reduction relation being deterministic) and terminating
+  (thanks to its effect type system).
+
+  $\lambda_{\mathrm{eff}}$ served as an inspiration to the design of
+  $\calc$; notably, $\calc$'s effect system is based on that of
+  $\lambda_{\mathrm{eff}}$. However, $\calc$ diverges from
+  $\lambda_{\mathrm{eff}}$ in that it is a proper extension of the
+  simply-typed lambda calculus (STLC): every term, type, typing judgment or
+  reduction in STLC is also a term, type, typing judgment or reduction in
+  $\calc$. For example, the STLC term $\lam{x}{x}$ is not a
+  $\lambda_{\mathrm{eff}}$ term. Its closest counterparts in
+  $\lambda_{\mathrm{eff}}$ would be either
+  $\vdash_\emptyset \lam{x}{\textbf{return } x} : A \to F(A)$, where $A$ is
+  a value type, or $\vdash_E \lam{x}{x!} : U_E(C) \to C$, where $C$ is a
+  computation type (a function or an effectful computation). On the other
+  hand, in $\calc$, $\vdash \lam{x}{x} : \alpha \to \alpha$ is a valid term
+  for any $\alpha$, be it an atomic type such as $o$, a function type such
+  as $\iota \to o$ or a computation type such as $\FF_E(o)$.
+
+  The fact that $\calc$ is an extension of STLC motivates its use for two
+  reasons. First, STLC is the lingua franca of formal semantics. $\calc$
+  already introduces a lot of new notation and the use of effects in
+  natural language semantics is not yet ubiquitous. By basing $\calc$ on
+  STLC, we narrow the gap between the common practice of formal semantics
+  and our use of effects and monads, hopefully making the technique more
+  approachable to researchers in the field. Second, the purpose of the
+  calculus is to write down computations that produce logical
+  representations. By having STLC as a subpart of $\calc$, terms of
+  Church's simple type theory (i.e.\ formulas of higher-order logic) are
+  already included in our calculus and we can reuse the same notions of
+  $\lambda$-abstraction and variables. In $\lambda_{\mathrm{eff}}$, we
+  would either need to add constructors for logic formulas (i.e.\ having
+  some logic as an object language over the terms of which the meta
+  language $\lambda_{\mathrm{eff}}$ would calculate) or use
+  call-by-push-value computations in our logical representations.
+
+\item Extensible Effects of Kiselyov et al~\cite{kiselyov2013extensible}
+  and other implementations of effect systems in pure functional
+  programming languages (Haskell, Idris \ldots)
+
+  Our adoption of a free monad and effect handlers was motivated by the
+  paper of Kiselyov, Sabry and Swords on \emph{extensible
+    effects}~\cite{kiselyov2013extensible}. The paper presented a Haskell
+  library for encoding effectful computations, combining computations with
+  diverse effects and interpreting them by composing a series of modular
+  interpreters. The library used a free monad (in the style
+  of~\cite{swierstra2008data}): a computation is either a pure value
+  ($\eta$ in $\calc$) or a request to perform some kind of effect (an
+  operation in $\calc$). These requests are then handled by interpreters
+  which behave similarly to effect handlers (the authors
+  of~\cite{kiselyov2013extensible} also relate handlers to the technique of
+  ``extensible denotational language specifications'' published in 1994 by
+  Cartwright and Felleisen~\cite{cartwright1994extensible}). The paper
+  demonstrated that the approach is more flexible when it comes to
+  combining interacting effects than the existing state-of-the-art
+  technique of using monad transformers. A more refined version of the
+  approach was published in~\cite{kiselyov2015freer} and similar
+  implementations of effects and handlers exist also in other pure
+  functional programming languages such as
+  Idris~\cite{brady2013programming}.
+
+  The extensible effects discipline provides the tools that we would like
+  to use to build a modular semantics of natural language. However, we do
+  not want our formal semantics to depend on the semantics of a large
+  programming language such as Haskell\footnote{The implementations of
+    extensible effects in Haskell make use of a wealth of language
+    extensions which are not even part of the Haskell standard.} or
+  Idris. We created $\calc$ to reap the benefits of extensible effects
+  without incurring the complexity of using a language like Haskell as our
+  meta language. $\calc$ extends STLC with computation types, two
+  constructors ($\eta$ and operations), two destructors (handlers and
+  $\cherry$) and the $\CC$ operator. Unlike Haskell, our extension of STLC
+  preserves strong normalization.
 \end{itemize}
+
+A notable feature which distinguishes $\calc$ from all of the
+above-mentioned approaches is the $\CC$ operator. The $\CC$ operator was
+added relatively late to the $\calc$ calculus as a solution to the
+following problem.
+
+\begin{exe}
+  \ex A man$_1$ walks in the park. He$_1$ whistles. \label{ex:C-operator}
+\end{exe}
+
+In Example~\ref{ex:C-operator}, the noun phrase \emph{a man} introduces a
+quantifier ranging over men that takes scope over its continuation
+$\lam{x}{\sem{x \text{ walks in the park. He whistles.}}} : \iota \to
+\FF_E(o)$.\footnote{In our presentation of dynamic semantics, where
+  $\sem{S} = \FF_E(1)$, the type of the continuation would be
+  $\iota \to \FF_E(1)$.} The problem is how to combine an effectful
+predicate of type $\iota \to \FF_E(o)$ with a quantifier such as
+$\exists : (\iota \to o) \to o$. The key insight is that the effects of the
+continuation usually do not depend on the individual being talked about. No
+matter whether the sentence speaks about Albert, Bill or Charles, the
+continuation will proceed the same. The continuation will look into the
+context to retrieve the antecedent $x$, which is known to satisfy the
+predicate $\obj{man}$ and therefore be eligible for use with a masculine
+pronoun. It will then produce the logical formula
+$\ap{\obj{walk-in-the-park}}{x} \land \ap{\obj{whistle}}{x}$. The
+resolution of the anaphoric pronoun does not depend on the particular
+individual being discussed.
+
+DRT is capable of deriving a meaning for Example~\ref{ex:C-operator}
+without considering which individual the noun phrase \emph{a man} refers
+to. DRT does this by calculating with symbolic representations. The noun
+phrase \emph{a man} will introduce a \emph{discourse referent}, a symbolic
+object distinct from any individual found in the model. Then the evaluation
+of the discourse continues and the anaphoric pronoun can resolve to this
+symbolic object. We could do the same in $\calc$. We could state that the
+$\iota$ type is not the type of individuals in the model, but the type of
+some symbolic objects (discourse referents or variables), and that the type
+$o$ is not the type of propositions, but the type of logical
+formulas. Assuming that we had an operation $\typedop{new\_var}{1}{\iota}$
+which could give us fresh variables and that the type of the constructor
+for formulas of existential quantification would be
+$\exists : \iota \to o \to o$, we could wrap the existential quantifier
+over an effectful computation $P : \iota \to \FF_E(o)$ the following way:
+
+\begin{align*}
+  &\app{\op{new\_var}}{\star}{(\lam{x}{ \\
+  &\ap{P}{x} \hsbind (\lam{p}{ \\
+  &\etaE{(\app{\exists}{x}{p})}})})}
+\end{align*}
+
 
 \section{Future Work}
