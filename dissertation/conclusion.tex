@@ -175,6 +175,9 @@ calculi and implementations of effects and handlers:
   preserves strong normalization.
 \end{itemize}
 
+
+\subsection{The Case of the $\CC$ Operator}
+
 A notable feature which distinguishes $\calc$ from all of the
 above-mentioned approaches is the $\CC$ operator. The $\CC$ operator was
 added relatively late to the $\calc$ calculus as a solution to the
@@ -212,17 +215,29 @@ symbolic object. We could do the same in $\calc$. We could state that the
 $\iota$ type is not the type of individuals in the model, but the type of
 some symbolic objects (discourse referents or variables), and that the type
 $o$ is not the type of propositions, but the type of logical
-formulas. Assuming that we had an operation $\typedop{new\_var}{1}{\iota}$
+formulas. Assuming that we had an operation $\typedop{gensym}{1}{\iota}$
 which could give us fresh variables and that the type of the constructor
 for formulas of existential quantification would be
 $\exists : \iota \to o \to o$, we could wrap the existential quantifier
 over an effectful computation $P : \iota \to \FF_E(o)$ the following way:
 
 \begin{align*}
-  &\app{\op{new\_var}}{\star}{(\lam{x}{ \\
+  &\app{\op{gensym}}{\star}{(\lam{x}{ \\
   &\ap{P}{x} \hsbind (\lam{p}{ \\
   &\etaE{(\app{\exists}{x}{p})}})})}
 \end{align*}
+
+By changing the meaning of the type $\iota$ to be the type of symbolic
+references, we solve our problem. When we need to evaluate the effects of a
+continuation of type $\iota \to \FF_E(o)$, we do not need to know the
+precise identity of the individual $\iota$. Instead, we apply the
+continuation to a symbolic object which will stand in for any such
+individual and then proceed to evaluate the effects of the
+continuation. This is the approach that we were using at the beginning of
+the project~\cite{marsik2014algebraic}.
+
+However, this approach has several downsides. First, our formal semantics
+is contaminated by extra complexity due to the management 
 
 
 \section{Future Work}
