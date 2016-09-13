@@ -16,3 +16,4 @@
 * conservativity
 
 * execution vs evaluation
+* mention destructors in the definitions chapter?

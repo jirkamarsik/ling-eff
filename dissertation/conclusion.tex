@@ -3,8 +3,46 @@
 \section{Summary of Results}
 
 In Part~\ref{part:calculus}, we have introduced $\calc$, a formal calculus
-of effects and handlers. Its definition is given in
-Chapter~\ref{chap:definitions}. $\calc$ can be compared to several existing
+that extends the simply-typed lambda calculus (STLC) with effects and
+handlers.
+
+The definition of $\calc$ is given in
+Chapter~\ref{chap:definitions}. $\calc$ introduces a new family of types
+into STLC, the computation types, and new terms, which are built out of
+computation constructors and destructors. We gave a type system to the
+calculus which extends that of STLC and a reduction semantics which
+combines the STLC $\beta$ and $\eta$ reductions with definitions of the new
+function symbols. During the course of the chapter, we maintain two
+perspectives on the intended meaning of the terms: computations can be seen
+as programs that interact with a system through a selected set of ``system
+calls'' (operations) or they can be seen as algebraic expressions built
+upon an infinitary algebraic signature.
+
+In Chapter~\ref{chap:examples}, we gave an example of using the $\calc$
+calculus. Besides familiarising the reader with the notation and reductions
+of the calculus, the example served as a preview of the kind of linguistic
+modelling we would be doing. During the chapter, we developed a
+compositional semantics for a simple computing language with errors and
+variables. This let us demonstrate the modularity of using our computation
+monad, as we could add variables to the language without needing to modify
+the semantics of the other constructions.
+
+The main contribution of Part~\ref{part:calculus} lies in
+Chapter~\ref{chap:properties}, in which we developed the metatheory of
+$\calc$. In Section~\ref{sec:derived-rules}, concepts which are primitive
+in some other languages (closed handlers and the $\hsbind$ operator) are
+defined within $\calc$ and their typing rules and reduction rules are
+derived from those of $\calc$. In Section~\ref{sec:type-soundness}, we
+prove \emph{subject reduction} of $\calc$. This result gives a basic
+coherence between the type system of $\calc$ and the reduction semantics,
+guaranteeing that types are preserved under reduction. This is complemented
+by a limited proof of \emph{progress}, which states that terms which can no
+longer be reduced must have a very specific shape.
+
+
+\section{Comparison with Existing Work}
+
+ $\calc$ can be compared to several existing
 calculi and implementations of effects and handlers:
 
 \begin{itemize}
@@ -179,9 +217,9 @@ calculi and implementations of effects and handlers:
 \subsection{The Case of the $\CC$ Operator}
 
 A notable feature which distinguishes $\calc$ from all of the
-above-mentioned approaches is the $\CC$ operator. The $\CC$ operator was
-added relatively late to the $\calc$ calculus as a solution to the
-following problem.
+above-mentioned calculi is the $\CC$ operator. The $\CC$ operator was added
+relatively late to the $\calc$ calculus as a solution to the following
+problem.
 
 \begin{exe}
   \ex A man$_1$ walks in the park. He$_1$ whistles. \label{ex:C-operator}
@@ -237,7 +275,109 @@ continuation. This is the approach that we were using at the beginning of
 the project~\cite{marsik2014algebraic}.
 
 However, this approach has several downsides. First, our formal semantics
-is contaminated by extra complexity due to the management 
+is contaminated by extra complexity due to the management of variables and
+operations like $\op{gensym}$. Second, there is an extra level of
+indirection in place. Instead of computing the truth value of a sentence in
+some model, we compute a formula and then that formula itself can be
+evaluated in a model. Third, binding in logical formulas is no longer
+managed by the (meta) calculus. This means that it is easy to $\op{gensym}$
+a variable that is supposed to occur in the scope of a quantifier and then
+have that variable accidentally project outside of its scope, leading to
+the generation of malformed logical formulas.
+
+The $\CC$ operator presents another solution to this problem. If we know
+that in a continuation of type $\iota \to \FF_E(o)$, the effects of the
+$\FF_E(o)$ do not depend on the $\iota$, we could move them out of the body
+of the function. This is exactly what the $\CC$ operator does.\footnote{If
+  we are mistaken and the effects do depend on the bound variable, then
+  computation gets stuck (instead of producing a malformed logical
+  formula).} With it, we can wrap the existential quantifier over the
+continuation using the following expression, which we called $\existsr P$
+in~\ref{ssec:revising-dynamic-handler}:\footnote{The type of $\exists$ is
+  $(\iota \to o) \to o$ and the type of $P$ is $\iota \to \FF_E(o)$.}
+
+$$
+  \exists \apr (\ap{\CC}{P})
+$$
+
+The inspiration for the $\CC$ operator came from Philippe de Groote's work
+on logical relations and
+conservativity~\cite{degroote2015conservativity}. Within his work, de
+Groote makes use of the following mathematical structure: a type
+transformer $\pT$ equipped with three operation $\pU$, $\pBullet$ and $\pC$
+with the following types:
+
+\begin{align*}
+  \pU &: \alpha \to \pT \alpha \\
+  \pBullet &: \pT(\alpha \to \beta) \to \pT \alpha \to \pT \beta \\
+  \pC &: (\alpha \to \pT \beta) \to \pT (\alpha \to \beta)
+\end{align*}
+
+and obeying the following laws:
+
+\begin{align*}
+  (\ap{\pU}{f}) \pBullet (\ap{\pU}{a}) &= \ap{\pU}{(\ap{f}{a})} \\
+  \ap{\pC}{(\lam{x}{\ap{\pU}{(\ap{f}{x})}})} &= \ap{\pU}{f}
+\end{align*}
+
+If we ignore the $\pC$ operator for the moment and focus only on the $\pT$
+type transformer, the $\pU$ and $\pBullet$ operations and the first of the
+two laws, we see that we have a weaker version of an applicative
+functor. An applicative functor is a functor, which in our category is a
+type transformer such as $\pT$ that can also lift functions, equipped with
+two operations, $\pure$ and $\circledast$, which have the same types as
+$\pU$ and $\pBullet$ respectively, and satisfying the four laws given
+in~\ref{ssec:applicative-functor}. The first of the two laws given above is
+the homomorphism law~\ref{law:app-homomorphism} of applicative functors. We
+note that all three instances of this structure that are used in the
+examples of~\cite{degroote2015conservativity} also satisfy all four of the
+applicative functor laws.
+
+We now look at the $\pC$ operator, whose type is the same as the $\CC$
+operator that we added to $\calc$ (with $\FF_E$ corresponding to
+$\pT$). Its behavior is specified only by the second law, which defines the
+value of $\pC$ when applied to a pure function (a function of the form
+$\lam{x}{\ap{\pU}{(\ap{f}{x})}}$). Our $\CC$ also obeys this law by
+including it as the $\CC_\eta$ reduction rule which is part of the
+definition of $\CC$:\footnote{The fact that we can take this law and use it
+  as a definition of the $\CC$ operator is due to $\eta$ being a
+  constructor in $\calc$, $\eta$-headed expressions are not head-reducible
+  and therefore can be reliably pattern-matched on.}
+
+$$
+\ap{\CC}{(\lam{x}{\ap{\eta}{(\ap{f}{x})}})} \; \to_{\CC_\eta} \;
+\etaE{(\lam{x}{\ap{f}{x}})} \; \to_\eta \; \etaE{f}
+$$
+
+Our definition of $\CC$ also includes the $\CC_{\op{op}}$ reduction
+rule. This extends the definition of $\CC$ to computations which use
+operations. However, our definition of $\CC$ is not total, as there are
+well-typed arguments for $\CC$ which will cause computation to get
+stuck. This correlates with the $\pC$ operator in de Groote's work, where
+certain values of the $\CC$ operator are left undefined.
+
+It is interesting that the $\CC$ operator that turned out to be useful in
+our work originated in another work whose objective is to capture the way
+meanings are extended in formal semantics. In our approach, we address
+conservativity\footnote{Conservativity is understood as the notion that
+  extending the grammar to cover a new phenomenon should not change the
+  meanings which were already correct in the simpler grammar.} in two
+ways. First, we show how to lift a simply-typed semantics into a monadic
+semantics while preserving the meanings it assigns to sentences in
+Section~\ref{sec:lifting-semantics}. Then, in
+Chapter~\ref{chap:composing-effects}, we extend a dynamic grammar with
+presuppositions~(\ref{sec:adding-presuppositions}), conventional
+implicature~(\ref{sec:adding-conventional-implicature}),
+deixis~(\ref{sec:adding-deixis}) and
+quantification~(\ref{sec:adding-quantification}), and at every step, the
+only modifications we make to existing entries is to add handlers for new
+effects, which does not affect the meaning of any of the sentences analyzed
+before. Furthermore, since for any effect signature $E$, $\FF_E$ is a type
+transformer which together with $\eta$ as $\pU$, $\aplr$ as $\pBullet$ and
+$\CC$ as $\pC$ has the structure needed
+in~\cite{degroote2015conservativity}, de Groote's technique of logical
+relations should apply to the kinds of meanings produced by our approach as
+well.
 
 
 \section{Future Work}
