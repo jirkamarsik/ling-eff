@@ -19,9 +19,9 @@ calls'' (operations) or they can be seen as algebraic expressions built
 upon an infinitary algebraic signature.
 
 In Chapter~\ref{chap:examples}, we gave an example of using the $\calc$
-calculus. Besides familiarising the reader with the notation and reductions
-of the calculus, the example served as a preview of the kind of linguistic
-modelling we would be doing. During the chapter, we developed a
+calculus. Besides familiarizing the reader with the notation and reductions
+of the calculus, the example served as a preview of the kind of language
+engineering we would be doing. During the chapter, we developed a
 compositional semantics for a simple computing language with errors and
 variables. This let us demonstrate the modularity of using our computation
 monad, as we could add variables to the language without needing to modify
@@ -41,25 +41,87 @@ coherence between the type system of $\calc$ and the reduction semantics,
 guaranteeing that types are preserved under reduction. This is complemented
 by a limited proof of \emph{progress}, which states that terms which can no
 longer be reduced must have a very specific shape. We followed this with
-another fundamental property: strong normalization. Its proof was split
-into two parts: confluence (proved in Section~\ref{sec:confluence}) and
-termination (proved in Section~\ref{sec:termination}). The proofs of both
-confluence and termination proceed by similar strategies: prove the
-property for the calculus without $\eta$-reduction by applying a general
-result and then extend the property to the complete calculus. In the case
-of confluence, the general result is the confluence of orthogonal
-Combinatory Reduction Systems~\cite{klop1993combinatory}. In the case of
-termination, we rely on two techniques: the termination of the reduction
-relation of Inductive Data Type Systems that validate the General
-Schema~\cite{} and Higher-Order Semantic Labelling, which lets use our
-denotational semantics to label the terms of our calculus so that it
-validates the General Schema.
+another fundamental property: \emph{strong normalization}. Its proof was
+split into two parts: \emph{confluence} (proved in
+Section~\ref{sec:confluence}) and \emph{termination} (proved in
+Section~\ref{sec:termination}). The proofs of both confluence and
+termination proceed by similar strategies: prove the property for the
+calculus without $\eta$-reduction by applying a general result and then
+extend the property to the complete calculus. In the case of confluence,
+the general result is the confluence of orthogonal Combinatory Reduction
+Systems~\cite{klop1993combinatory}. In the case of termination, we rely on
+two techniques: the termination of the reduction relation of Inductive Data
+Type Systems that validate the General Schema~\cite{blanqui2000termination}
+and Higher-Order Semantic Labelling~\cite{hamana2007higher}, which lets us
+use our denotational semantics to label the terms of our calculus so that
+it validates the General Schema.
+
+Andrej Bauer made the analogy that effects and handlers are to delimited
+continuations what while loops or if-then-else statements are to
+gotos~\cite{bauer2012lambda}. Continuations themselves have proven to be a
+useful tool in natural language
+semantics~\cite{de2001type,barker2002continuations,shan2005linguistic,de2006towards,barker2006continuations,barker2014continuations}. In
+Chapter~\ref{chap:continuations}, we have shown how $\calc$ can simulate
+delimited continuations, namely the $\shift$/$\reset$ delimited control
+operators. We presented a typed call-by-value lambda calculus with $\shift$
+and $\reset$ and have simulated its types and reductions in $\calc$.
+
+In Part\ref{part:natural-language}, we have demonstrated the applications
+of $\calc$ to the problem of modelling the meaning of natural language
+utterances.
+
+After having reviewed the basics of formal semantics in
+Chapter~\ref{chap:intro-fs}, we have shown how computations in $\calc$ can
+be used to give a compositional account of several ``non-compositional''
+linguistic phenomena in Chapter~\ref{chap:introducing-effects}. We have
+described how to introduce computations into a compositional semantics
+while preserving the meanings assigned by the semantics in
+Section~\ref{sec:lifting-semantics}. We have then presented analyses of
+several linguistic phenomena in the framework of $\calc$ computations:
+deixis (Section~\ref{sec:deixis}), conventional implicature à la Potts
+(Section~\ref{sec:conventional-implicature}) and quantification à la
+Montague (Section~\ref{sec:quantification}). We have then explicitly
+described the methodology given to find the kinds of analyses that we have
+presented in Chapter~\ref{chap:introducing-effects} as to encourage
+researchers to develop other analyses in the framework.
+
+We dedicated Chapter~\ref{chap:dynamic-semantics} to a particularly complex
+phenomenon: dynamics. In Sections~\ref{sec:drt-as-pl}
+and~\ref{sec:banana-drt}, we have shown how a $\calc$ analysis of dynamics
+can be extracted from Discourse Representation Theory. This gave us a way
+to handle dynamics in $\calc$ as well as strengthen the claim that effects
+and handlers are suitable mechanisms for dealing with natural language. We
+have also shown how to interpret the $\calc$ computations as the dynamic
+propositions of de Groote's Type Theoretical Dynamic Logic
+(TTDL)~\cite{de2006towards}. In her
+dissertation~\cite{lebedeva2012expression}, Lebedeva extended TTDL with
+exceptions to treat presuppositions and in
+Section~\ref{sec:presuppositions}, we integrated Lebedeva's analysis of
+presupposition into our $\calc$ analysis of dynamics (we compare our
+adaptation with the original in the next section). In
+Section~\ref{sec:double-negation}, we considered another extension of TTDL,
+Double Negation TTDL~\cite{qian2014accessibility} and we have shown why the
+kind of generalization of denotations done in Double Negation TTDL is not
+amenable to being analyzed as a side effect in $\calc$.
+
+In Chapter~\ref{chap:composing-effects}, we have supported our claim that
+using effects and handlers lets us combine distinct phenomena in a single
+grammar. We have started with the dynamic grammar developed in
+Chapter~\ref{chap:dynamic-semantics}, repeated in
+Sections~\ref{sec:dynamic-kernel} and~\ref{sec:adding-presuppositions}. We
+have then extended this grammar with conventional
+implicatures~(\ref{sec:adding-conventional-implicature}),
+deixis~(\ref{sec:adding-deixis}) and
+quantification~(\ref{sec:adding-quantification}) with little to no
+modification of the original semantics. We finished the chapter by
+sketching out an analysis of restrictive relative clauses and their
+interactions with presuppositions in Section~\ref{sec:relative-clauses}.
 
 
 \section{Comparison with Existing Work}
 
- $\calc$ can be compared to several existing
-calculi and implementations of effects and handlers:
+$\calc$ can be compared to several existing calculi and implementations of
+effects and handlers:
 
 \begin{itemize}
 \item System F (i.e.\ the polymorphic lambda calculus or the second-order
@@ -393,7 +455,7 @@ transformer which together with $\eta$ as $\pU$, $\aplr$ as $\pBullet$ and
 $\CC$ as $\pC$ has the structure needed
 in~\cite{degroote2015conservativity}, de Groote's technique of logical
 relations should apply to the kinds of meanings produced by our approach as
-well.
+well.\footnote{Modulo the partiality of $\CC$.}
 
 
 \section{Future Work}
