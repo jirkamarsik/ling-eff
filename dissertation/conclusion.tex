@@ -30,14 +30,30 @@ the semantics of the other constructions.
 The main contribution of Part~\ref{part:calculus} lies in
 Chapter~\ref{chap:properties}, in which we developed the metatheory of
 $\calc$. In Section~\ref{sec:derived-rules}, concepts which are primitive
-in some other languages (closed handlers and the $\hsbind$ operator) are
-defined within $\calc$ and their typing rules and reduction rules are
-derived from those of $\calc$. In Section~\ref{sec:type-soundness}, we
-prove \emph{subject reduction} of $\calc$. This result gives a basic
+in some other languages (closed handlers and the $\hsbind$ operator) were
+defined within $\calc$ and their typing rules and reduction rules were
+derived from those of $\calc$. In Section~\ref{sec:algebraic-properties},
+we then connected the calculus to the theory of monads by identifying a
+monad in the category in which we interpret $\calc$ with our
+\emph{denotational semantics}. In Section~\ref{sec:type-soundness}, we
+proved \emph{subject reduction} of $\calc$. This result gives a basic
 coherence between the type system of $\calc$ and the reduction semantics,
 guaranteeing that types are preserved under reduction. This is complemented
 by a limited proof of \emph{progress}, which states that terms which can no
-longer be reduced must have a very specific shape.
+longer be reduced must have a very specific shape. We followed this with
+another fundamental property: strong normalization. Its proof was split
+into two parts: confluence (proved in Section~\ref{sec:confluence}) and
+termination (proved in Section~\ref{sec:termination}). The proofs of both
+confluence and termination proceed by similar strategies: prove the
+property for the calculus without $\eta$-reduction by applying a general
+result and then extend the property to the complete calculus. In the case
+of confluence, the general result is the confluence of orthogonal
+Combinatory Reduction Systems~\cite{klop1993combinatory}. In the case of
+termination, we rely on two techniques: the termination of the reduction
+relation of Inductive Data Type Systems that validate the General
+Schema~\cite{} and Higher-Order Semantic Labelling, which lets use our
+denotational semantics to label the terms of our calculus so that it
+validates the General Schema.
 
 
 \section{Comparison with Existing Work}
