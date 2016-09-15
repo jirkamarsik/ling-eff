@@ -120,6 +120,8 @@ interactions with presuppositions in Section~\ref{sec:relative-clauses}.
 
 \section{Comparison with Existing Work}
 
+\subsection{Calculus}
+
 $\calc$ can be compared to several existing calculi and implementations of
 effects and handlers:
 
@@ -292,7 +294,7 @@ effects and handlers:
 \end{itemize}
 
 
-\subsection{The Case of the $\CC$ Operator}
+\subsubsection{The Case of the $\CC$ Operator}
 
 A notable feature which distinguishes $\calc$ from all of the
 above-mentioned calculi is the $\CC$ operator. The $\CC$ operator was added
@@ -456,6 +458,22 @@ $\CC$ as $\pC$ has the structure needed
 in~\cite{degroote2015conservativity}, de Groote's technique of logical
 relations should apply to the kinds of meanings produced by our approach as
 well.\footnote{Modulo the partiality of $\CC$.}
+
+
+\subsection{Linguistic Modelling}
+
+Most of the linguistic analyses presented in our thesis are translations of
+existing analyses to the $\calc$ framework:
+
+\begin{itemize}
+\item Quantification 
+
+  Our technique of using the $\op{scope}$ operation matches closely with
+  approaches that propose the use of continuations in natural
+  language~\cite{de2001type,barker2002continuations,shan2005linguistic}. The
+  type and the semantics of the $\op{scope}$ operator match those of
+  $\shift$, a delimited control operator. 
+\end{itemize}
 
 
 \section{Future Work}
