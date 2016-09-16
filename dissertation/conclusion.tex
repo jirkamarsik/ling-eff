@@ -1,6 +1,8 @@
-\chapter*{Conclusion}
+\chapter{Conclusion}
+\label{chap:conclusion}
 
 \section{Summary of Results}
+\label{sec:summary}
 
 In Part~\ref{part:calculus}, we have introduced $\calc$, a formal calculus
 that extends the simply-typed lambda calculus (STLC) with effects and
@@ -98,11 +100,12 @@ dissertation~\cite{lebedeva2012expression}, Lebedeva extended TTDL with
 exceptions to treat presuppositions and in
 Section~\ref{sec:presuppositions}, we integrated Lebedeva's analysis of
 presupposition into our $\calc$ analysis of dynamics (we compare our
-adaptation with the original in the next section). In
-Section~\ref{sec:double-negation}, we considered another extension of TTDL,
-Double Negation TTDL~\cite{qian2014accessibility} and we have shown why the
-kind of generalization of denotations done in Double Negation TTDL is not
-amenable to being analyzed as a side effect in $\calc$.
+adaptation with the original in the next section,
+\ref{ssec:comparison-linguistic}). In Section~\ref{sec:double-negation}, we
+considered another extension of TTDL, Double Negation
+TTDL~\cite{qian2014accessibility} and we have shown why the kind of
+generalization of denotations done in Double Negation TTDL is not amenable
+to being analyzed as a side effect in $\calc$.
 
 In Chapter~\ref{chap:composing-effects}, we have supported our claim that
 using effects and handlers lets us combine distinct phenomena in a single
@@ -119,8 +122,10 @@ interactions with presuppositions in Section~\ref{sec:relative-clauses}.
 
 
 \section{Comparison with Existing Work}
+\label{sec:comparison}
 
 \subsection{Calculus}
+\label{ssec:comparison-calculus}
 
 $\calc$ can be compared to several existing calculi and implementations of
 effects and handlers:
@@ -461,6 +466,7 @@ well.\footnote{Modulo the partiality of $\CC$.}
 
 
 \subsection{Linguistic Modelling}
+\label{ssec:comparison-linguistic}
 
 Most of the linguistic analyses presented in our thesis are translations of
 existing analyses to the $\calc$ framework:
@@ -468,12 +474,49 @@ existing analyses to the $\calc$ framework:
 \begin{itemize}
 \item Quantification 
 
-  Our technique of using the $\op{scope}$ operation matches closely with
-  approaches that propose the use of continuations in natural
-  language~\cite{de2001type,barker2002continuations,shan2005linguistic}. The
-  type and the semantics of the $\op{scope}$ operator match those of
-  $\shift$, a delimited control operator. 
+  Our technique of using the $\op{scope}$ operation follows approaches that
+  propose the use of continuations in natural
+  language~\cite{de2001type,barker2002continuations}. The type and the
+  semantics of our $\op{scope}$ operation match those of $\shift$, a
+  control operator for delimited continuations used to treat quantification
+  in~\cite{shan2005linguistic}. Instead of context levels, we use
+  quantifier raising to account for scope ambiguity. As in Montague's
+  work~\cite{montague1973proper}, we have a syntactic construction rule
+  that takes a quantificational noun phrase and uses it to bind an $NP$
+  variable within a sentence ($\abs{QR} : QNP \limp (NP \limp S) \limp
+  S$). The syntactic type of $\abs{QR}$ is based on the type given to the
+  determiners \emph{every} and \emph{some}
+  in~\cite{pogodalla2007generalizing}
+  ($C_{\text{every}} : N \limp (NP \limp S) \limp S$). By composing
+  $\abs{every} : N \limp QNP$ and
+  $\abs{QR} : QNP \limp (NP \limp S) \limp S$, we get
+  $\lam{N}{\ap{\abs{QR}}{(\ap{\abs{every}}{N})}} : N \limp (NP \limp S)
+  \limp S$. In~\ref{ssec:algebraic-quantification}, we have also pointed
+  out that a $\calc$ computation invoking a series of $\op{scope}$
+  operations is like a nested sequence of quantifiers in Keller
+  storage~\cite{keller1988nested}. However, unlike Keller storage (and
+  Cooper storage~\cite{cooper1979montague}), the quantifiers cannot be
+  retrieved in any order since one could bind a variable in
+  another.\footnote{We could imagine adding a rule allowing us to permute
+    the order of certain operations, as long as the result of one is not
+    bound in the input to the other. However, we would lose confluence of
+    our calculus at that point.} Therefore, we solve ambiguity by other
+  means ($\abs{QR}$).
+
+\item Conventional implicature
+
+  Our analysis stems from Potts' dissertation on the logic of conventional
+  implicatures~\cite{potts2005logic}. This multidimensional approach to the
+  semantics of conventional implicatures was adapted into a monadic
+  treatment by Giorgolo, Asudeh et al in
+  2011~\cite{giorgolo2011multidimensional,giorgolo2012monads}. Monadic
+  treatments of conventional implicatures have also appeared in recent
+  ESSLLI courses: the treatment of expressives by Kiselyov and Shan at
+  ESSLLI 2013~\cite{kiselyov2010lambda} and by Barker and Bumford at ESSLLI
+  2015. The underlying monad in all the monadic treatments is the writer
+  monad. 
 \end{itemize}
 
 
 \section{Future Work}
+\label{sec:future-work}
