@@ -503,6 +503,7 @@ existing analyses to the $\calc$ framework:
     our calculus at that point.} Therefore, we solve ambiguity by other
   means ($\abs{QR}$).
 
+
 \item Conventional implicature
 
   Our analysis stems from Potts' dissertation on the logic of conventional
@@ -513,8 +514,258 @@ existing analyses to the $\calc$ framework:
   treatments of conventional implicatures have also appeared in recent
   ESSLLI courses: the treatment of expressives by Kiselyov and Shan at
   ESSLLI 2013~\cite{kiselyov2010lambda} and by Barker and Bumford at ESSLLI
-  2015. The underlying monad in all the monadic treatments is the writer
-  monad. 
+  2015~\cite{barker2015monads}. The underlying monad in all the monadic
+  treatments is the writer monad. The writer monad is parameterized by a
+  monoid. Every computation in the monad is accompanied by an element of
+  the monoid and composing computations has the effect of combining their
+  monoidal components. In the case of the writer monad for conventional
+  implicatures, the monoid is some monoid of implicatures, usually the
+  conjunctive monoid on propositions. The structure needs to be a monoid
+  because we need a neutral element for phrases without any conventional
+  implicatures and we need associativity of the monoid to get associativity
+  of the monad.
+
+  In the free monad approach, we can characterize the writer monad by a
+  single operation which computations can use to communicate elements from
+  the monoid. This is what we do in
+  Section~\ref{sec:conventional-implicature}, with
+  $\typedop{implicate}{o}{1}$ as the operation and
+  $\operatorname{accommodate'}$ from~\ref{ssec:algebraic-ci} as the handler
+  which defines the monoid ($\land$ as the binary operation in the
+  $\op{implicate}$ clause and $\top$ as the neutral element in the $\eta$
+  clause). This treatment of conventional implicatures is equivalent to the
+  existing monadic analyses.
+
+  However, in Section~\ref{sec:adding-conventional-implicature}, we study
+  the interaction of dynamics with conventional implicatures. In our
+  approach, the at-issue truth-conditions are communicated by the two
+  operations $\typedop{assert}{o}{1}$ and
+  $\typedop{introduce}{1}{\iota}$. We take our cue from Layered
+  DRT~\cite{geurts2003layered} and Projective
+  DRT~\cite{venhuizen2013parsimonious} to do the same for conventional
+  implicatures: we complement $\typedop{implicate}{o}{1}$ with
+  $\typedop{introduce^i}{1}{\iota}$. This way, the monadic structure behind
+  conventional implicatures becomes similar to the one used for dynamics
+  (continuations with state). Conventional implicatures become updates to
+  the context which are not blocked by logical operators such as
+  negation. In our system, we get a compositional semantics which can
+  account for binding out of appositives, as in Example~\ref{ex:hospital}.
+
+  \begin{exe}
+    \exr{ex:hospital} John, who nearly killed a woman$_1$ with his car,
+    visited her$_1$ in the hospital.
+  \end{exe}
+
+
+\item Deixis
+
+  In his treatment of indexicals, Kaplan models meanings as
+  \emph{characters}, functions from contexts to intensions. Contexts have
+  several components, among them the \emph{agent} which is making the
+  utterance. In our approach, we add getters for the components of the
+  context. In dynamics, we use $\typedop{get}{1}{\gamma}$ to get the
+  anaphoric part of the context, and in treating the first-person pronoun,
+  we use $\typedop{speaker}{1}{\iota}$ to recover the speaker of the
+  utterance.
+
+  We use deixis as the first example in
+  Chapter~\ref{chap:introducing-effects}. Wanting to give an example of a
+  handler for $\op{speaker}$ that appears within a lexical entry, we turned
+  to direct quotations. However, the meanings that we give to sentences
+  such as Example~\ref{ex:mary-peter} only express part of the
+  meaning. Namely, we capture the fact Peter claims that Mary kissed
+  him. Nevertheless, the sentence also entails that Peter uttered the
+  sentence ``Mary kissed me''. Therefore, in our analysis, the sentence in
+  Example~\ref{ex:mary-peter} would be judged equivalent to the sentence in
+  Example~\ref{ex:peter-mary}. The meaning of direct quotation does not
+  depend only on the meaning of the quoted clause, but on its exact
+  form. Since our system is strictly compositional,\footnote{We are using
+    abstract categorial grammars for the syntax-semantics interface.} we
+  would need to make it so that the meaning of every sentence is the
+  sentence itself. More elaborate treatments of quotation can be found
+  in~\cite{geurts2003quotation,potts2007dimensions,shan2010character}.
+
+  \begin{exe}
+    \ex Peter said ``Mary kissed me''. \label{ex:mary-peter}
+    \ex Peter said ``I was kissed by Mary''. \label{ex:peter-mary}
+  \end{exe}
+
+  
+\item Dynamics
+
+  Our treatment of dynamics was presented as a reengineering of DRT and
+  hence it covers DRT as it is presented in Chapter~1
+  of~\cite{kamp1993discourse}. It also originated as a reconstruction of de
+  Groote's Type Theoretic Dynamic Logic (TTDL)~\cite{de2006towards} using
+  monads of effects and handlers~\cite{marsik2014algebraic}. Therefore, it
+  also covers the fragment of TTDL presented in~\cite{de2006towards}
+  and~\cite{lebedeva2012expression}.
+
+
+\item Presuppositions
+
+  In her thesis~\cite{lebedeva2012expression}, Lebedeva gave a
+  compositional account of presupposition projection and accommodation by
+  introducing exceptions and handlers into TTDL.\@ Our use of effects and
+  handlers was strongly influenced by Lebedeva's use of exceptions and so
+  our analysis of presuppositions follows the same strategy. However, we
+  argue that the resumable nature of effects makes them more appropriate
+  for the treatment of presuppositions. We have given a detailed comparison
+  of our approach and Lebedeva's original
+  in~\ref{ssec:comparison-ttdl}, which we summarize here:
+
+  \begin{itemize}
+  \item We preserve strong normalization, even though we have exceptions
+    and recursion (in handlers).
+  \item We do not licence cataphoric binding from presupposition triggers
+    because we can resume on presupposition failure without reevaluating
+    the previous parts of discourse.
+  \item We reuse the same mechanism we have used to treat dynamicity,
+    effects and handlers (i.e.\ the same formal apparatus that projects
+    context updates outside of sentence boundaries is used to project
+    presuppositions outside of downward entailing contexts).
+  \end{itemize}
+\end{itemize}
+
+
+\subsection{Combining Linguistic Effects}
+\label{ssec:combining-linguistic-effects}
+
+Our work is not the only work aimed at combining different linguistic
+effects in a single grammar. During our research, several proposals have
+appeared. Below, we relate them to our approach.
+
+\begin{itemize}
+\item Applicative Abstract Categorial
+  Grammars~\cite{kiselyov2015applicative,kiselyov2015swing}
+
+  
+
+  
+\item Monad
+  Transformers~\cite{charlow2014semantics,barker2015monads}
+
+  Monad transformers map simpler monads into more complex monads with some
+  additional structure. If we want to have a monad with enough structure
+  for, e.g., state, non-determinism and exceptions, we can take the
+  corresponding monad transformers and apply them, one after another, to
+  some base monad. Monad transformers were evoked as a possible solution to
+  the problem of composing monads by Shan in his first paper on monads for
+  natural language semantics~\cite{shan2002monads}. Since then, they have
+  been used by Charlow in his dissertation~\cite{charlow2014semantics} and
+  featured in Barker and Bumford's ESSLLI 2015
+  course~\cite{barker2015monads}.
+
+  To motivate one of the reasons one might prefer effects and handlers
+  instead of monad transformers, we will look at an example lexical entry
+  from~\cite{charlow2014semantics}:
+
+  $$
+  \textsf{\textbf{pro}} \coloneqq \lam{s}{\{ \left< s_\top, s \right> \}}
+  $$
+
+  The monads in use here are the state monad to treat discourse updates and
+  the set monad to treat indefinites. Meanings in the composite monad can
+  depend on some discourse state, they can modify the discourse state and
+  they can propose a set of possible readings. The meaning of pronouns,
+  $\textsf{\textbf{pro}}$, relies on one of these three capabilities. It
+  makes use of the discourse state $s$, in which it looks for the salient
+  (``topical'') referent, $s_\top$. Then, to have the correct type and fit
+  in with the other definitions, it must also supply the output state and
+  the set of possible readings. The output state will be just the input
+  state $s$ and the set of possible readings will be the singleton set
+  $\{\left< s_\top, s \right>\}$. This is the case even though the pronoun
+  has no non-deterministic effect, i.e.\ its structure in the set monad is
+  trivial. We contrast this with the entry for pronouns that we use in
+  $\calc$:
+
+  $$
+  \sem{\abs{she}} = \app{\op{get}}{\star}{(\lam{e}{\etaE{(\ap{\selshe}{e})}})}
+  $$
+
+  We use the $\op{get}$ operation to access the discourse state $e$, which
+  corresponds to the $\lambda s$ abstraction in the monad transformer
+  example. Then we use the $\selshe$ function to retrieve the salient
+  referent from the state of discourse $e$, which corresponds to the use of
+  the $\__\top$ operator. Finally, we return this referent as the result
+  using $\eta$, which corresponds to packing the referent in a pair with
+  the output state $s$ and then wrapping it in a singleton set. Note that
+  no other effect (such as $\op{introduce}$, which would be the analogue to
+  the set monad structure) is mentioned within the lexical entry. If we
+  were to extend the grammar with new effects, the interpretation of
+  $\sem{\abs{she}}$ would stay the same. On the other hand, if we were to
+  add a new monad to the stack of monad transformers in the former example,
+  then the semantics of $\textsf{\textbf{pro}}$ would need to be lifted.
+
+  There is a way to avoid lifting when working with monad transformers. We
+  characterize every monad transformer by some capabilities/operations it
+  gives us and then we write abstract polymorphic terms which can be
+  interpreted in different monads provided that they have enough structure
+  to interpret the capability/operation. This is the method presented
+  in\cite{liang1995monad,jones1995functional} and used in (Haskell)
+  libraries implementing monad transformers~\cite{mtl}. However,
+  formalizing this method already leads us half of the way towards effect
+  and handlers (we write computations using abstract operations and the
+  type of the computation indicates the operations that must be
+  interpreted).
+
+
+\item Setting the Monads
+  Loose~\cite{charlow2015monads,giorgolo2015natural,charlow2015monadic,charlow2015conventional,charlow2015grammar}
+
+  During his invited lecture at Barker and Bumford's ESSLLI 2015
+  course~\cite{barker2015monads,charlow2015monads}, Simon Charlow presented
+  another strategy for combining the different monads. It consists of
+  adding the $\eta$ and the $\hsbind$ of every monad to the lexicon as type
+  shifters. When given a sentence, the grammar then assigns a reading for
+  every possible way to glue the meanings of the parts of the sentence in a
+  type-sound way. There is therefore no need to define any supermonad to
+  serve as the universal glue since the task of gluing together the pieces
+  from different monads is up to the parser. The same strategy was also
+  adopted by Giorgolo and Asudeh in their ESSLLI 2015
+  course~\cite{giorgolo2015natural}. They presented fragments of
+  type-logical grammars with different modalities $\diamond_i$ for
+  different monads. The logic itself contained inference rules which
+  correspond to the monadic primitives (e.g.\ $\eta$ is the rule which lets
+  us deduce $\diamond A$ from $A$). Giorgolo and Asudeh further strengthen
+  the glue available to the logic by adding distributivity laws: rules that
+  can commute certain monadic structures (e.g.\
+  $\diamond_i \diamond_j A \to \diamond_j \diamond_i A$).
+
+  In our thesis, instead of going this road, we build a composite (free)
+  monad. We do so because of two reasons. First, our investigations are
+  motivated by the search for a wide-coverage abstract categorial grammar
+  (ACG) with formal semantics. In ACGs, derivations are expressed in an
+  abstract grammar, which intuitively corresponds to a level of deep
+  syntax. Using a similar approach would force us to introduce semantic
+  types into the level of abstract syntax. Furthermore, the logic which
+  licences derivations would need to be extended to include monadic types
+  (i.e.\ we would need to add modalities to the implicative fragment of
+  linear logic used in ACGs), which means we would risk losing the existing
+  ACG meta-theory, such as parsing results. Second, the point of using
+  $\calc$ is to deal with ``non-compositional'' phenomena in a
+  compositional setting. If we rearrange the deep syntax so as to
+  facilitate composition, then we could be considered
+  cheating.\footnote{Though when it comes to ``non-compositional''
+    phenomena, cheating compositionality might actually be the
+    methodologically sound approach.}
+
+\item Conservativity via Logical
+  Relations~\cite{degroote2015conservativity}
+
+  In~\cite{degroote2015conservativity}, de Groote proves a general
+  conservativity result that guarantees the preservation of predicted
+  meanings under a class of extensions/embeddings, including those that a
+  semanticist might use when introducing a new phenomenon to a
+  grammar. While this gives us a way of porting an existing grammar into a
+  new framework with different types of interpretation, it does not tell us
+  how to add new entries to the ported grammar. For example, we might want
+  to add a deictic pronoun to a grammar that already deals with
+  quantification, dynamics and conventional implicatures. After having
+  ported the old grammar and preserving all of its predictions using
+  conservativity, we still have to give a meaning to the deictic pronoun in
+  a grammar with quantifiers, dynamics, conventional implicatures
+ 
 \end{itemize}
 
 
