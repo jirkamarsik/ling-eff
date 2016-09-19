@@ -1,3 +1,4 @@
+\bookmarksetup{startatroot}
 \chapter{Conclusion}
 \label{chap:conclusion}
 
@@ -636,12 +637,7 @@ effects in a single grammar. During our research, several proposals have
 appeared. Below, we relate them to our approach.
 
 \begin{itemize}
-\item Applicative Abstract Categorial
-  Grammars~\cite{kiselyov2015applicative,kiselyov2015swing}
-
-  
-
-  
+ 
 \item Monad
   Transformers~\cite{charlow2014semantics,barker2015monads}
 
@@ -759,12 +755,142 @@ appeared. Below, we relate them to our approach.
   semanticist might use when introducing a new phenomenon to a
   grammar. While this gives us a way of porting an existing grammar into a
   new framework with different types of interpretation, it does not tell us
-  how to add new entries to the ported grammar. For example, we might want
-  to add a deictic pronoun to a grammar that already deals with
-  quantification, dynamics and conventional implicatures. After having
-  ported the old grammar and preserving all of its predictions using
-  conservativity, we still have to give a meaning to the deictic pronoun in
-  a grammar with quantifiers, dynamics, conventional implicatures
+  how to add new entries to the ported grammar. As an example, we will take
+  the dynamic grammar from~\cite{charlow2014semantics}, which we featured
+  in the monad transformer example with the following example:
+
+  $$
+  \textsf{\textbf{pro}} \coloneqq \lam{s}{\{ \left< s_\top, s \right> \}}
+  $$
+
+  Suppose we want to introduce conventional implicatures (CI) to this
+  grammar and we do so by embedding the interpretations into a domain in
+  which at-issue meanings are paired with CI contributions. If our
+  embedding function satisfies the preconditions
+  in~\cite{degroote2015conservativity}, we will have preserved all of the
+  existing meanings. Now, we want to add non-restrictive relative clauses
+  (NRRCs), which contribute CIs. However, we have to give their meaning in
+  a domain with states, sets and conventional implicatures. Below is the
+  de-sugared semantics that Charlow gives to the NRRC
+  construction~\cite{charlow2015conventional}:
+
+  $$
+  \ap{\textsf{\textbf{comma}}}{\textsf{k}} =
+  \lam{x}{\lam{s}{\{ \left< x \bullet p, s' \right> \mid \left< p, s' \right> \in \app{\textsf{k}}{x}{s} \}}}
+  $$
+
+  The salient part of the entry is that the referent of the appositive is
+  $x$ and the contributed CI is $p$, the meaning of the relative clause
+  $\textsf{k}$ applied to $x$. However, we also need to handle the state
+  and so we abstract over $s$, pass it to $\ap{\textsf{k}}{x}$ to get an
+  output state $s'$ and then bundle the output state $s'$ with our result
+  $x \bullet p$. Furthermore, there is the set structure, and so we need to
+  take into account the fact that $\app{\textsf{k}}{x}{s}$ gives us a set
+  with multiple pairs $\left< p, s' \right>$ and we need to give our
+  meaning for all of them. The structure of this entry on the set monad
+  level and state monad level is trivial since (under this analysis) NRRCs
+  have no interesting interaction with discourse state or
+  indefiniteness. As the number of phenomena in the grammar grows, we would
+  like a way to abstract over the non-relevant parts of the meaning
+  structure. This is something that can be seen in the sugared version of
+  the semantics that Charlow gives to this
+  operator~\cite{degroote2015conservativity}:
+
+  $$
+  \ap{\textsf{\textbf{comma}}}{\textsf{k}} = \lam{x}{\textsf{do }
+    \begin{aligned}[t]
+      & p \from \ap{\textsf{k}}{x} \\
+      & \textsf{return: } x \bullet p
+    \end{aligned}}
+  $$
+
+  as well as in our lexical entry for the same construction:\footnote{The
+    entry we see here is simplified from the one
+    in~\ref{sec:conventional-implicature} to match that of Charlow. This is
+    because in ACGs, we must specify the meaning of the phrase \emph{$X$,
+      who $K$,} in terms of the meanings of $X$ and $K$, where $X$ is a
+    noun phrase with potentially complex monadic structure and $K$ is a
+    sentence missing such a noun phrase (i.e.\ a relative
+    clause). Therefore, in the entry in~\ref{sec:conventional-implicature},
+    we have to evaluate $X : \FF_E(\iota)$ down to $x : \iota$ and when
+    applying $K$ to $x$, we have to wrap $x$ in $\eta$. In Charlow's
+    approach, it is not the duty of the lexical entries to manage
+    evaluation. Rather, it is the grammar which includes the necessary
+    combinators and type shifters which will evaluate $X$ for us.}
+
+  $$
+  \sem{\ap{\abs{who}_{\abs{s}}}{\textsf{k}}} = \lam{x}{\begin{aligned}[t]
+      &\ap{\textsf{k}}{x} \hsbind (\lam{p}{ \\
+      &\app{\op{implicate}}{p}{(\lam{\_}{ \\
+      &\etaE{x}})}})
+    \end{aligned}}
+  $$
+
+  While the conservativity result of de Groote lets us be confident when
+  porting a grammar to a different type of interpretation, it does not help
+  us when extending it with new entries. It is this problem that is
+  addressed by the techniques presented here and in the works of Simon
+  Charlow. Specifically, in our setting, we do not view the different
+  phenomena in a language as forming a hierarchy in which one extends the
+  other.\footnote{There are exceptions, such as our treatment of
+    presuppositions, which extends our treatment of dynamics.} Instead, it
+  is the case that any lexical entry can use any subset of the phenomena it
+  needs. For example, \emph{she} is anaphoric but not quantificational,
+  \emph{every man} is quantificational but not anaphoric, \emph{you} is
+  neither anaphoric nor quantificational but deictic, \emph{your husband}
+  is both deictic and presuppositional but not quantificational\ldots
+ 
+
+\item Applicative Abstract Categorial
+  Grammars~\cite{kiselyov2015applicative,kiselyov2015swing}
+
+  In Subsection~\ref{ssec:applicative-functor}, we spoke about applicative
+  functors. Applicative functors generalize monads since every monad is
+  also an applicative functor, but not vice versa. The structure of an
+  applicative gives us two combinators, $\pure : \alpha \to F \alpha$ and
+  $\circledast : F (\alpha \to \beta) \to F \alpha \to F \beta$. The
+  intuition behind applicative functors vs monads is that applicatives
+  embody computations with static control flow whereas monads embody
+  computations with dynamic control flow~\cite{lindley2014algebraic}.
+
+  \begin{align*}
+    \circledast &: F (\alpha \to \beta) \to F \alpha \to F \beta \\
+    \revhsbind\footnotemark &: (\alpha \to F \beta) \to F \alpha \to F \beta
+  \end{align*}
+
+  \footnotetext{$\revhsbind$ is $\hsbind$ with its arguments reversed.}
+
+  When combining computations using $\hsbind$, as in the case of a monad,
+  we can take a computation $F \alpha$ and chain it with a continuation of
+  type $\alpha \to F \beta$, where the computational structure (i.e.\ the
+  effects) can vary depending on the value of type $\alpha$. However, when
+  combining computations using $\circledast$, as in the case of an
+  applicative, we can only take two computations whose computational
+  structure is already fixed. 
+
+  Kiselyov argues that since sentence structure is itself also static,
+  applicative functors are a good fit~\cite{kiselyov2015applicative}. In
+  Section~\ref{sec:lifting-semantics}, we have seen that we can lift the
+  semantics of a second-order abstract categorial grammar (ACG) into
+  computations using only $\eta$ and $\aplr$, which constitute the
+  applicative structure of $\calc$. Second-order ACGs are relevant not only
+  because they can be efficiently parsed~\cite{kanazawa2007parsing}, but
+  also because they are sufficient to encode mildly context-sensitive
+  grammar formalisms such as tree-adjoining grammars~\cite{degroote02}. If
+  second-order ACGs are sufficient to model language, then applicative
+  functors could be sufficient to model their meanings. The switch to
+  actually using applicative functors can then be motivated on the basis of
+  the fact that, unlike monads, applicatives are
+  composable.\footnote{However, the applicative structure that one gets by
+    composing two monad transformers is not necessarily the same as the one
+    that is obtained by composing the corresponding applicative functors.}
+
+  Kiselyov's applicative abstract categorial grammars (AACGs) exploit
+  this. In a second-order ACG, terms of the abstract language are formed
+  only by constants and applications. In AACGs, the abstract and object
+  languages are defined to be so-called \emph{T-languages} which admit only
+  constants a binary application operator. 
+
  
 \end{itemize}
 
