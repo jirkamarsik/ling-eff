@@ -505,7 +505,7 @@ existing analyses to the $\calc$ framework:
   means ($\abs{QR}$).
 
 
-\item Conventional implicature
+\item Conventional Implicature
 
   Our analysis stems from Potts' dissertation on the logic of conventional
   implicatures~\cite{potts2005logic}. This multidimensional approach to the
@@ -601,6 +601,23 @@ existing analyses to the $\calc$ framework:
   monads of effects and handlers~\cite{marsik2014algebraic}. Therefore, it
   also covers the fragment of TTDL presented in~\cite{de2006towards}
   and~\cite{lebedeva2012expression}.
+
+  Giorgolo and Unger have used the state monad to model DRT-style
+  dynamics~\cite{giorgolo2009coreference} and the technique was later
+  refined by Unger~\cite{unger2012dynamic}. The most challenging aspect in
+  both solutions ends up being the management of accessibility with respect
+  to the scope of quantifiers or logical operators such as negation. In the
+  former~\cite{giorgolo2009coreference}, the state is a tree data structure
+  with a pointer and the denotations manipulate it by appending children to
+  the tree and moving the pointer up the tree. In the
+  latter~\cite{unger2012dynamic}, the state is a stack of contexts and
+  denotations have to allocate new contexts on the stack and clear them
+  from the stack when the contexts should no longer be accessible. This
+  pattern of encapsulating the dynamic effects of some part of a sentence
+  lends itself very well to the handler abstraction. In our treatment of
+  dynamics, we use an effect handler ($\BOX$) and avoid the overt
+  manipulation of any tree or stack of contexts; our contexts are just sets
+  discourse referents propositions.
 
 
 \item Presuppositions
