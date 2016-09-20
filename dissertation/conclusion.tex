@@ -2,6 +2,25 @@
 \chapter{Conclusion}
 \label{chap:conclusion}
 
+We start the conclusion of our thesis by summarizing the results we have
+obtained (Section~\ref{sec:summary}). We proceed chapter by chapter and
+review the material, highlighting the important contributions. We then
+examine related work out there and compare it to our approach
+(Section~\ref{sec:comparison}). We first speak about the calculus $\calc$
+itself, considering the alternatives that exist already and explaining in
+which ways $\calc$ is different~(\ref{ssec:comparison-calculus}). Then, we
+turn to the linguistic analyses that we presented in our dissertation and
+relate them to the closest analogues in semantics
+literature~(\ref{ssec:comparison-linguistic}). Finally, we review recent
+work which focuses on combining multiple monads or linguistic effects in a
+single grammar and see how $\calc$ compares to
+those~(\ref{ssec:comparison-combining}). We end our thesis bringing up
+directions in which the work presented here can be extended
+(Section~\ref{sec:future-work}).
+
+\minitoc
+
+
 \section{Summary of Results}
 \label{sec:summary}
 
@@ -647,7 +666,7 @@ existing analyses to the $\calc$ framework:
 
 
 \subsection{Combining Linguistic Effects}
-\label{ssec:combining-linguistic-effects}
+\label{ssec:comparison-combining}
 
 Our work is not the only work aimed at combining different linguistic
 effects in a single grammar. During our research, several proposals have
@@ -945,9 +964,11 @@ linguistic phenomena. Nevertheless, we believe that the use of effects and
 handlers might be interesting to those considering using monad transformers
 to build a formal semantics. This is especially the case if one is
 considering to do so in the context of an ACG and wants to therefore use a
-formal lambda calculus for the semantic calculations.
-
-
+formal lambda calculus for the semantic calculations. Out of the
+alternatives mentioned in this subsection, we found the approach of setting
+monads loose and letting the grammar figure out the semantic glue
+particularly intriguing as it tries to sidestep the issue of composing the
+monads.
 
 
 \section{Future Work}
