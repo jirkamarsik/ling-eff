@@ -846,7 +846,7 @@ appeared. Below, we relate them to our approach.
 
   In Subsection~\ref{ssec:applicative-functor}, we spoke about applicative
   functors. Applicative functors generalize monads since every monad is
-  also an applicative functor, but not vice versa. The structure of an
+  also an applicative functor but not vice versa. The structure of an
   applicative gives us two combinators, $\pure : \alpha \to F \alpha$ and
   $\circledast : F (\alpha \to \beta) \to F \alpha \to F \beta$. The
   intuition behind applicative functors vs monads is that applicatives
@@ -880,19 +880,57 @@ appeared. Below, we relate them to our approach.
   second-order ACGs are sufficient to model language, then applicative
   functors could be sufficient to model their meanings. The switch to
   actually using applicative functors can then be motivated on the basis of
-  the fact that, unlike monads, applicatives are
-  composable.\footnote{However, the applicative structure that one gets by
+  the fact that applicatives are composable, unlike
+  monads.\footnote{However, the applicative structure that one gets by
     composing two monad transformers is not necessarily the same as the one
     that is obtained by composing the corresponding applicative functors.}
 
   Kiselyov's applicative abstract categorial grammars (AACGs) exploit
   this. In a second-order ACG, terms of the abstract language are formed
   only by constants and applications. In AACGs, the abstract and object
-  languages are defined to be so-called \emph{T-languages} which admit only
-  constants a binary application operator. 
+  languages are defined to be so-called \emph{T-languages}, which admit
+  only constants and a binary application operator. Terms of an abstract
+  T-language are then homomorphically mapped to $\lambda$-terms that
+  produce terms in an object T-language. As in all ACGs, the function type
+  of the abstract language corresponds to functions. Furthermore, as in our
+  approach, atomic abstract types are mapped to types of the form
+  $\FF(\alpha)$, where $\FF$ is some applicative functor and $\alpha$ some
+  object-level type.
 
- 
+  The biggest difference between AACGs and our approach is whether we use a
+  composition of applicative functors or a free monad of effects and
+  handlers. The use of applicative functors relies on the assumption that
+  the computational structure (i.e.\ the control flow) in the semantics is
+  always static. However, even though the structure of sentences is static,
+  we find that the control flow in the semantics can be dynamic. For
+  example, if we consider the noun phrase \emph{her car}, then the pronoun
+  is a computation of an individual, type $\FF(\iota)$, and the genitive
+  construction is a function over individuals that triggers
+  presuppositions, type $\iota \to \FF_E(\iota)$. To find the referent of
+  this noun phrase, we first have to evaluate the pronoun down to an
+  individual $x$ and then apply the meaning of the genitive construction to
+  this individual, triggering the presupposition that $x$ owns a car. We
+  cannot evaluate the effects of the genitive construction independently of
+  the pronoun since we would not know whose car we are presupposing the
+  existence of and therefore we cannot combine the two meanings using only
+  the $\circledast$ combinator we have in an applicative functor.
+
 \end{itemize}
+
+Note that all of the work on combining linguistic effects that was cited in
+this subsection follows the publication of our initial
+report~\cite{marsik2014algebraic} from when we were at about a third of the
+way into working on this dissertation. That is to say that the motivation
+behind this dissertation was not to challenge the work cited in this
+subsection, with which it mostly agrees in saying that effects, monads or
+some other monad-like structure can be used to combine semantic analyses of
+linguistic phenomena. Nevertheless, we believe that the use of effects and
+handlers might be interesting to those considering using monad transformers
+to build a formal semantics. This is especially the case if one is
+considering to do so in the context of an ACG and wants to therefore use a
+formal lambda calculus for the semantic calculations.
+
+
 
 
 \section{Future Work}
