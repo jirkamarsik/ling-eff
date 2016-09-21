@@ -2554,7 +2554,7 @@ wrapping up the dynamic negation: negating and asserting the propositions.
               \ap{\obj{frightened}}{y}))})
     \end{aligned} \\
   &\qquad \hsbind (\lam{a}{\ap{\op{assert}!}{(\lnot a)}}) \\
-  &\tto \begin{aligned}[t]
+  &\tto\footnotemark \begin{aligned}[t]
      &((\existsr x.\, \begin{aligned}[t]
          &\app{\op{presuppose}}{(\lam{y}{\app{\obj{children}}{y}{x}})}{(\lam{y}{ \\
          &\etaE{(\ap{\obj{man}}{x} \land \ap{\obj{angry}}{x} \land \lnot (\ap{\obj{frightened}}{y}))}})}) \\
@@ -2601,6 +2601,20 @@ wrapping up the dynamic negation: negating and asserting the propositions.
           {(\forall x.\ (\ap{\obj{man}}{x} \land \ap{\obj{angry}}{x}) \to (\exists y.\, \app{\obj{children}}{y}{x} \land \ap{\obj{frightened}}{y}))})
    \end{aligned}
 \end{align*}
+
+\footnotetext{Here we are making use of the following rule:
+  $(A + B) \hsbind F \, \to \, (A \hsbind F) + (B \hsbind F)$. However,
+  this rule is not derivable in $\calc$. The $A + B$ is de-sugared into two
+  parts: the $\op{amb}$ operation and an if expression (case analysis). The
+  $\op{op}.\hsbind$ rule lets us move the $\hsbind$ under the
+  operation. However, we have no rule which lets us commute a $\hsbind$
+  (which is a handler) and case analysis (we will speak more about this
+  in~\ref{ssec:future-work-calculus}). Nevertheless, in this example, we
+  permit ourselves to apply this rule as it does not affect the denotation
+  of the term nor the final value and makes the notation a bit more
+  bearable. If we were stricter, we would not be able to proceed with the
+  $\hsbind$ until after we have selected the preferred reading using the
+  $\search$ handler that we will present next.}
 
 In the steps above, we pass $\hsbind$ operator through the $\op{amb}$
 operation symbol, which is represented by $+$. We then perform the negation

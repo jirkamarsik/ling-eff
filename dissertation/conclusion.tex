@@ -973,3 +973,254 @@ monads.
 
 \section{Future Work}
 \label{sec:future-work}
+
+Future work on $\calc$ could be either focused on the calculus itself or
+its linguistic applications. We finish our thesis with a discussion of
+both.
+
+
+\subsection{Future Work on the Calculus}
+\label{ssec:future-work-calculus}
+
+\begin{itemize}
+\item Adequacy of Denotational Semantics, Observational Equivalence
+
+  In~\ref{ssec:denotational-semantics}, we have given a denotational
+  semantics to $\calc$. Even though we first gave the reduction semantics,
+  we perceive the denotational semantics as the primary semantics as it
+  assigns to the terms of $\calc$ the mathematical objects that we want
+  them to stand for. The reduction semantics can then be seen as a
+  mechanization of computing with these objects. In
+  Chapter~\ref{chap:properties}, we have proven
+  Property~\ref{prop:denotation-soundness}, which tells us that our
+  reduction semantics is sound w.r.t.\ the denotations. However, the
+  converse is not the case (i.e.\ there are terms which the denotational
+  semantics considers equal but which are not convertible using our
+  reduction rules).
+
+  The denotational semantics is useful for reasoning about $\calc$
+  programs. Strengthening the formal link between the denotational
+  semantics and the reductions semantics would therefore be most
+  welcome. The kind of property we are looking for is known as
+  \emph{adequacy} and it states that if a program and a value have the same
+  denotation, then the program must be able to reduce to that value. For
+  this property to hold, it can be necessary to restrict it only to
+  programs and values of \emph{ground} types (types which do not ``hide''
+  any more computation, such as functions or continuations). An example of
+  such a ground type in $\calc$ would be the Boolean type $2$. Proving
+  adequacy for terms of type $2$ would then yield a result about
+  \emph{observational equivalence}: if two terms $M$ and $N$ have the same
+  denotation, then they are observationally equivalent, i.e.\ there is no
+  way to write a Boolean expression in $\calc$ whose value differs when
+  switching $M$ for $N$.
+
+
+\item Commuting Conversions and Extensionality
+
+  During the reduction of one of the examples
+  in~\ref{ssec:ambiguous-accommodation}, to simplify the presentation, we
+  have made use of a reduction rule for passing $\hsbind$ (a handler) under
+  case analysis. The formal rule is given below:
+  
+  \begin{align*}
+      &\ap{\cibanana}{(\case{N_\petitc}{x}{N_\petitl(x)}{y}{N_\petitr(y)})} \\
+\to \ &\case{N_\petitc}{x}{\ap{\cibanana}{N_\petitl(x)}}{y}{\ap{\cibanana}{N_\petitr(y)}}
+  \end{align*}
+
+  We note that both the redex and the contractum have the same
+  denotation. On the other hand, if all the $M$ and $N$ terms are normal,
+  then so are both the redex and contractum. Since they are distinct normal
+  terms, this means that the redex and the contractum are not convertible
+  in $\calc$. In other words, this rule is not derivable in our system
+  (even though it is licensed by the denotational semantics).
+
+  For completeness' sake, we might like to have rules such as these in
+  $\calc$. They further close the gap between the denotational semantics
+  and the reduction semantics and they can be useful when working with the
+  calculus, as we have seen in the example
+  in~\ref{ssec:ambiguous-accommodation}. Instead of adding a multitude of
+  \emph{commuting conversions} such as the one for handlers and sums given
+  above, we can also add \emph{extensionality} principles, such as the
+  following $\eta$-reduction for sums:
+
+  \begin{align*}
+      &\case{M}{x_1}{\subst{N}{x}{\ap{\inl}{x_1}}}{x_2}{\subst{N}{x}{\ap{\inr}{x_2}}} \\
+\to \ &\subst{N}{x}{M}
+  \end{align*}
+
+  The commuting conversions that commute over sums can then be derived from
+  this principle~\cite{balat2004extensional}. It might also be interesting
+  to seek what would such an extensionality principle would look like for
+  computation types. However, the biggest obstacle is that enriching the
+  calculus with new reduction rules puts in jeopardy the established
+  meta-theory (most importantly strong normalization, whose proofs are
+  usually brittle).
+
+
+\item Conservativity
+
+  In the summary of the last chapter, Subsection~\ref{ssec:conservativity},
+  we have claimed that modifying a grammar by inserting handlers for
+  effects which are not used anywhere in the grammar has no effect on the
+  semantics. Since this claim plays an important part in motivating the use
+  of $\calc$, it would be desirable to formalize and prove
+  it.\footnote{This might be one of the useful applications of adequacy of
+    our denotational semantics. We can prove that
+    $\ap{\banana{\onto{\op{new\_op}}{M}}}{N}$ has the same denotation as
+    $N$, provided that $\op{new\_op}$ does not occur in the denotation of
+    $N$. By using adequacy, we could translate the equality of denotations
+    into a reduction in the reduction semantics.}
+  
+
+\item Algebraic Theories of Effects
+
+  Within the subsections titled ``Algebraic Considerations'' in
+  Chapters~\ref{chap:introducing-effects} and~\ref{chap:dynamic-semantics},
+  we studied the equational theories on computations induced by handlers
+  (two computations are considered equal if the handler assigns them the
+  same interpretation). Within these chapters, we looked for general
+  equalities that might become useful and we used those equalities to
+  derive a kind of normal form for the computations. However, the
+  normalization assumes that computations are only sequences of operations
+  terminated by a return value, i.e.\ they are generated by the grammar
+  below:\footnote{This grammar only allows for computations which always
+    execute the same sequence of operations, irrespective of any of the
+    their outputs. In Lindley's $\lambda_{\textrm{flow}}$
+    calculus~\cite{lindley2014algebraic}, such computations would be called
+    \emph{arrow} computations~\cite{hughes2000generalising}.}
+
+  $$
+    S ::= \app{\op{op}}{M}{(\lam{x}{S})} \mid \etaE{M}
+  $$
+
+  Is it possible to derive similar normal forms for computations built
+  using a larger grammar (e.g.\ the full $\calc$ language)?
+
+  In the examples of Chapter~\ref{chap:dynamic-semantics}, we have been
+  making use of these equalities to simplify terms before passing them to a
+  handler. If this practice becomes common, it might be interesting to
+  formalize it.
+
+  A good start for both of these problems would be a more thorough
+  investigation of Matija Pretnar's dissertation on the logic and handling
+  of algebraic effects~\cite{pretnar2010logic}, which introduces a calculus
+  of effects, effect theories and handlers.
+
+  
+\end{itemize}
+
+
+\subsection{Future Work on the Linguistic Applications}
+\label{ssec:future-work-linguistic}
+
+The plan for future work on the linguistic applications is simple: get more
+phenomena, more detail, more interactions.
+
+\begin{itemize}
+\item Low-Hanging Fruit
+
+  Intensional meanings are parameterized by some possible world. The kind
+  of structure introduced in~\cite{ben2007semantics} and~\cite{de2013note}
+  is yet another instance of the reader monad pattern. As with deixis,
+  meanings will use a $\typedop{world}{1}{\sigma}$ operation to access the
+  current world. Modal operators, which will quantify over possible worlds,
+  will then interpret a piece of language while binding the current world
+  to some variable (very much like the way we treated direct quotation,
+  which was binding the speaker to the quotee).
+
+  There are also phenomena for which there are already analyses in terms of
+  monads or (delimited) continuations. An example of this is focus, which
+  can be modelled using the pointed powerset monad~\cite{shan2002monads} or
+  using delimited control operators~\cite{barker2006continuations}. While
+  such phenomena ought not to be difficult to implement in $\calc$, it
+  might still take some care and empirical work to ensure that the
+  predictions in cases that involve the new phenomenon and the old
+  phenomena turn out the way they should.
+  
+  
+\item Better Crossover
+
+  Approaches to semantics that exploit the analogy to computations and
+  treat anaphora and scope-taking as side effects run into trouble when it
+  comes to inverse scope readings and the crossover constraints. In
+  Subsection~\ref{ssec:crossover}, we proposed a solution to the problem
+  which decomposes the effect of a quantificational NP into the
+  scope-taking, which can happen out of linear order, and the anaphora,
+  which must happen in linear order. However, there are still cases in
+  which our grammar can violate the crossover constraints, such as when the
+  contributor of a discourse referent (e.g.\ the indefinite \emph{a dog})
+  hitches a ride in the restrictor of a scope taker (e.g.\ \emph{every
+    owner of a dog}), as in Example~\ref{ex:bad-crossover}.
+
+  \begin{exe}
+  \exr{ex:bad-crossover}[*]{It$_1$ loves every owner of a dog$_1$.}
+  \end{exe}
+
+  Crossover issues with inverse scope readings are an old
+  problem~\cite{shan2006explaining} and therefore a solution which improves
+  coverage without incurring extra complexity to the rest of the grammar
+  would be of great interest.
+
+  
+\item More Dynamics --- Double Negation, Modal Subordination and Rhetorical
+  Structure
+
+  The treatment of dynamics is easily the most complex application of
+  $\calc$. However, anaphora is much more complicated than what we have
+  seen in this dissertation. Extending it might thus prove to be a good
+  stress test on the level of complexity that is still manageable in
+  $\calc$. Directions for extending dynamics include:
+
+  \begin{itemize}
+  \item Double negation, which was studied in Qian's
+    dissertation~\cite{qian2014accessibility} and which we reviewed in
+    Section~\ref{sec:double-negation}. This is very difficult to apply in
+    our current implementation of dynamics, since negation uses $\BOX$ to
+    encapsulate all of the dynamic effects that take place in its
+    argument. However, to have the law of double negation, we would need to
+    find a way to break this encapsulation, which is tricky since the
+    $\BOX$ handler does encapsulation by throwing away the local structure
+    (i.e.\ permanently blocking the dynamic contributions).
+
+  \item Modal subordination, as in Example~\ref{ex:modal-subordination}, is
+    another accessibility constraint that was modelled within an extension
+    of TTDL in Qian's thesis~\cite{qian2014accessibility}. Furthermore, it
+    is a phenomenon that lies at the intersection of two linguistic
+    effects, modality and anaphora, which makes it all the more interesting
+    for a $\calc$ analysis.
+
+    \begin{exe}
+      \ex A wolf$_1$ might walk in. It$_1$ would
+      growl. \label{ex:modal-subordination}
+    \end{exe}
+
+  \item Rhetorical structure informs anaphoric accessibility via the Right
+    Frontier Constraint, as in the famous
+    Example~\ref{ex:salmon}~\cite{asher2003logics}.
+
+    \begin{exe}
+      \ex[*]{John had a great evening last night. He had a great meal. He
+        ate salmon$_1$. He devoured lots of cheese. He then won a dancing
+        competition. It$_1$ was pink.} \label{ex:salmon}
+    \end{exe}
+  \end{itemize}
+
+  It remains to be seen whether the handler abstraction, which turned out
+  to be useful to encapsulate the dynamic effects in negation and modelling
+  DRT, would be also useful in analyses of accessibility constraints due to
+  modal subordination or rhetorical structure.
+
+
+\item Champollion --- Sentence Meanings as Generalized Quantifiers over Events
+
+  In~\cite{champollion2015interaction}, Lucas Champollion presents a
+  semantic fragment in which he combines event semantics with classical
+  phenomena of compositional semantics such as quantification or
+  negation. His work therefore seems to be an ideal starting point for
+  anyone wanting to add events into our $\calc$ grammar. However, the types
+  of meanings used within the fragment are quite atypical and therefore it
+  would be interesting to see how many of the theories of the other
+  phenomena developed in this thesis would be compatible with such a
+  semantics.
+  
+\end{itemize}
