@@ -20,7 +20,44 @@ Type-Theoretic Dynamic Logic~\cite{de2006towards}~(\ref{sec:ttdl}).
 \section{Montague Semantics}
 \label{sec:montague}
 
+When studying semantics, one of the verifiable predictions that we can make
+is whether the contents of one utterance entails the contents of
+another. This issue already preoccupied Aristotle, who addressed the
+problem in his study of syllogisms. Using his theory, Aristotle could
+systematically predict that the contents of
+Example~\ref{ex:syllogism-hypothesis} entail the contents of
+Example~\ref{ex:syllogism-conclusion}, i.e.\ ``if
+(\ref{ex:syllogism-hypothesis}), then (\ref{ex:syllogism-conclusion})'' is
+a valid argument.
 
+\begin{exe}
+  \ex Every man is mortal. Socrates is a man. \label{ex:syllogism-hypothesis}
+  \ex Socrates is mortal. \label{ex:syllogism-conclusion}
+\end{exe}
+
+In the 20th century, mathematical logic studied similar properties on
+formal artificial languages, leading to the developments of new ideas such
+as model theory and Tarski's definition of
+truth~\cite{sep-tarski-truth,tarski1986arithmetical}. Montague then argues
+that natural languages deserve the same formal treatment as the artificial
+languages of logic and mathematics:
+
+\begin{quote}
+  There is in my opinion no important theoretical difference between
+  natural languages and the artificial languages of logicians; indeed, I
+  consider it possible to comprehend the syntax and semantics of both kinds
+  of language within a single natural and mathematically precise theory.
+
+  \begin{flushright}
+  Universal Grammar~\cite{montague1970universal}
+  \end{flushright}
+\end{quote}
+
+In formal logic, the formulas of the artificial languages are defined
+inductively, by a series of construction rules. The definition of truth is
+then inductive on the structure of the formula: for every rule that lets us
+form a logical formula, there is a rule which tells us how to compute its
+truth value in a model. In his 
 
 
 \section{Abstract Categorial Grammars}
