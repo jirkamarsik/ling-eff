@@ -738,7 +738,7 @@ $\op{choose}$, $\op{introduce}$ and $\op{assert}$.
   \TTDL :\ &\FF_E(o) \to \gamma \to (\gamma \to o) \to o \\
   \TTDL = \bbanana{\ 
   &\onto{\op{choose}}{(\lam{\_ k e \phi}{\appp{k}{(\ap{\sel}{e})}{e}{\phi}})}, \\
-  &\onto{\op{introduce}}{(\lam{\_ k e \phi}{\exists x.\ \appp{k}{x}{(x \cons e)}{\phi}})}, \\
+  &\onto{\op{introduce}}{(\lam{\_ k e \phi}{\exists x.\, \appp{k}{x}{(x \cons e)}{\phi}})}, \\
   &\onto{\op{assert}}{(\lam{p k e \phi}{p \land \appp{k}{\star}{(p \cons e)}{\phi}})}, \\
   &\onto{\eta}{(\lam{p e \phi}{p \land \ap{\phi}{e}})}\ }
 \end{align*}
@@ -782,7 +782,7 @@ $\lam{e}{\top}$.
   \BOX :\ &\FF_E(o) \to \gamma \to o \\
   \BOX = \bbanana{\ 
   &\onto{\op{choose}}{(\lam{\_ k e}{\app{k}{(\ap{\sel}{e})}{e}})}, \\
-  &\onto{\op{introduce}}{(\lam{\_ k e}{\exists x.\ \app{k}{x}{(x \cons e)}})}, \\
+  &\onto{\op{introduce}}{(\lam{\_ k e}{\exists x.\, \app{k}{x}{(x \cons e)}})}, \\
   &\onto{\op{assert}}{(\lam{p k e}{p \land \app{k}{\star}{(p \cons e)}})}, \\
   &\onto{\eta}{(\lam{p e}{p})}\ }
 \end{align*}

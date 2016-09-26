@@ -1156,7 +1156,9 @@ derivations which can use hypothetical reasoning. That is to say, the terms
 in the abstract signature which represent the tectogrammatic structure can
 contain $\lambda$-binders and variables. We will use this to implement
 Montague's treatment of quantifiers~\cite{montague1973proper}, called
-``quantifying in'' or ``quantifier raising''.
+``quantifying in'' or ``quantifier raising''.\footnote{We saw quantifier
+  raising in Section~\ref{sec:montague}. It is the rule $F_{10,n}$ from
+  clause S14, or rather its semantic counter part $G_{10,n}$ in T14.}
 
 Montague's technique can be explained by saying that sentences such as
 ``\emph{every man loves a woman}'' can be paraphrased as ``\emph{a woman,
@@ -1345,10 +1347,12 @@ sentences as propositions, noun phrases as individuals, nouns as sets),
 there is a question of where to introduce the computation types. In our
 approach, we choose to make the interpretation of every atomic abstract
 type a computation. This has roughly the effect of making every constituent
-a computation. Barker's continuization
+a computation. Kiselyov' Applicative Abstract Categorial
+Grammars~\cite{kiselyov2015applicative,kiselyov2015swing} use exactly the
+same strategy, and Barker's continuization
 approach~\cite{barker2002continuations}, which replaces the NP
 interpretation type $\iota$ with a ``computation type''
-$(\iota \to o) \to o$, uses the same strategy. Other possible strategies
+$(\iota \to o) \to o$, uses a similar approach. Other possible strategies
 include:
 
 \begin{itemize}

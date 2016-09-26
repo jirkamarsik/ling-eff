@@ -13,3 +13,5 @@
 * cite my FG paper?
 * re-read crossover stuff from Shan and Barker
 * read the newest Champollion?
+* read about CVG?
+* consistent capitalization
