@@ -3,19 +3,20 @@
 
 We will now examine dynamic semantics. We will consider two theories of
 dynamics in natural language: Kamp's DRT~\cite{kamp1993discourse} and de
-Groote's TTDL~\cite{de2006towards}. We will build a $\banana{\lambda}$
-analysis of dynamics and link it to both theories, as a side effect showing
-how DRT links to TTDL.\@ The analysis we will present can be motivated on
-the grounds of either DRT or TTDL.\@ We can look at the monad at the core
-of TTDL and devise operations that let us perform interesting things within
-the monad (quantifying over the discourse and modifying the discourse
-state). While this is the process that we have followed to discover this
-analysis (presented in~\cite{marsik2014algebraic}), we will follow a novel
-strategy in this exposition. We will start with DRT, more specifically its
-presentation in Kamp and Reyle's canonical
-textbook~\cite{kamp1993discourse}, and show how to translate it into
-$\banana{\lambda}$ computations (Section~\ref{sec:banana-drt}). We will
-then interpret those computations as TTDL dynamic propositions.
+Groote's TTDL~\cite{de2006towards,lebedeva2012expression}. We will build a
+$\banana{\lambda}$ analysis of dynamics and link it to both theories, as a
+side effect showing how DRT links to TTDL.\@ The analysis we will present
+can be motivated on the grounds of either DRT or TTDL.\@ We can look at the
+monad at the core of TTDL and devise operations that let us perform
+interesting things within the monad (quantifying over the discourse and
+modifying the discourse state). While this is the process that we have
+followed to discover this analysis (presented
+in~\cite{marsik2014algebraic}), we will follow a novel strategy in this
+exposition. We will start with DRT, more specifically its presentation in
+Kamp and Reyle's canonical textbook~\cite{kamp1993discourse}, and show how
+to translate it into $\banana{\lambda}$ computations
+(Section~\ref{sec:banana-drt}). We will then interpret those computations
+as TTDL dynamic propositions.
 
 Afterwards, we will have our first taste of combining different effects. We
 will enhance our theory of dynamics with a treatment of presupposition
@@ -1336,16 +1337,17 @@ introduces the condition $\ap{P}{x}$, where $P$ is its argument.
 
 Besides lowering the number of basic operations that we have to introduce,
 this also has an advantage when we start to consider ambiguous ways of
-accommodating presuppositions
-(\ref{ssec:ambiguous-accommodation}). Suppose we have two operations,
-$\op{introduce\_somewhere}$ and $\op{assert\_somewhere}$, that let us
-introduce discourse referents and conditions into arbitrary DRSs on the
-projection line\footnote{A \emph{projection line} is a path in the
-  accessibility tree from a sub-DRS to the root of the
-  tree~\cite{van1992presupposition}.}. We might then end up accommodating
-the discourse referent and the condition in different DRS, yielding an
-undesired meaning. If we package the two operations into a single
-$\op{presuppose\_somewhere}$, then we do not have this problem.
+accommodating presuppositions (\ref{ssec:ambiguous-accommodation}). Suppose
+we have two operations, $\op{introduce\_somewhere}$ and
+$\op{assert\_somewhere}$, that let us introduce discourse referents and
+conditions into arbitrary DRSs on the projection line\footnote{A
+  \emph{projection line} is a path in the immediate-subordination tree from
+  a sub-DRS to the root DRS~\cite{van1992presupposition}. See the
+  definition of immediate subordination in~\ref{ssec:drt-context}.}. We
+might then end up accommodating the discourse referent and the condition in
+different DRS, yielding an undesired meaning. If we package the two
+operations into a single $\op{presuppose\_somewhere}$, then we do not have
+this problem.
 
 
 \subsection{Revising the Dynamic Handler}
@@ -3503,10 +3505,10 @@ denotations to lexical items in our grammar~(\ref{sec:banana-drt}). In
 translating the DRT fragment into an ACG+$\calc$ fragment, we have made it
 compositional by showing that what DRT actually composes are instructions
 on how to build DRSs. We have then connected our analysis to de Groote's
-Type-Theoretic Dynamic Logic~\cite{de2006towards}, another compositional
-theory of dynamic semantics using ACGs and continuations, by interpreting
-the computations as dynamic propositions. Finally, inspired by the
-algebraic effects
+Type-Theoretic Dynamic Logic~\cite{de2006towards,lebedeva2012expression},
+another compositional theory of dynamic semantics using ACGs and
+continuations, by interpreting the computations as dynamic
+propositions. Finally, inspired by the algebraic effects
 literature\cite{hyland2006combining,plotkin2009handlers,pretnar2010logic,plotkin2013handling},
 we have given a system of equations which derives DRSs as the canonical
 forms of dynamic computations (a collection variables accessible to

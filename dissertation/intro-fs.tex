@@ -12,7 +12,8 @@ Chapter~\ref{chap:dynamic-semantics}, we will be analyzing anaphora in
 $\calc$ by emulating theories of dynamic semantics. To that end, we briefly
 present dynamic semantics by introducing two of its incarnations: Discourse
 Representation Theory~\cite{kamp1993discourse}~(\ref{sec:drt}) and
-Type-Theoretic Dynamic Logic~\cite{de2006towards}~(\ref{sec:ttdl}).
+Type-Theoretic Dynamic
+Logic~\cite{de2006towards,lebedeva2012expression}~(\ref{sec:ttdl}).
 
 \minitoc
 
@@ -1011,7 +1012,7 @@ When Montague wanted to treat intensional and tensed verbs in his fragment,
 he decided to translate natural language to a formal logic which was
 intensional and tensed. A similar thing happened with dynamic phenomena in
 natural language (anaphora) and the development of dynamic
-logics~\cite{groenendijk1991dynamic,kamp1993discourse,de2006towards}. In
+logics~\cite{groenendijk1991dynamic,kamp1993discourse,de2006towards,lebedeva2012expression}. In
 dynamic logic, $(\exists x.\, A) \land B$ becomes equivalent to
 $(\exists x.\, A \land B)$ and $(\exists x.\, A) \to B$ becomes equivalent
 to $(\forall x.\, A \to B)$. With these equivalences, we can lift and
@@ -1020,8 +1021,9 @@ in natural language.
 
 Our analysis of dynamics using $\calc$ draws on two theories of dynamic
 semantics: Discourse Representation Theory (DRT)~\cite{kamp1993discourse}
-and Type-Theoretic Dynamic Logic (TTDL)~\cite{de2006towards}. In this
-section, we briefly introduce DRT and in the next, we talk about TTDL.
+and Type-Theoretic Dynamic Logic
+(TTDL)~\cite{de2006towards,lebedeva2012expression}. In this section, we
+briefly introduce DRT and in the next, we talk about TTDL.
 
 
 \subsection{Discourse Representation Structures}
@@ -1044,8 +1046,8 @@ formalization will also rely on a vocabulary of relation symbols.
 
   \demph{DRS conditions} consist of:
   \begin{itemize}
-  \item atomic conditions $\appp{\obj{P}}{\drx_1}{\ldots}{\drx_n}$, where
-    $\obj{P}$ is an $n$-ary relation symbol and $\drx_1$, \ldots, $\drx_n$
+  \item atomic conditions $\appp{\obj{P}}{x_1}{\ldots}{x_n}$, where
+    $\obj{P}$ is an $n$-ary relation symbol and $x_1$, \ldots, $x_n$
     are discourse referents
   \item $\lnot K$, where $K$ is a DRS
   \item $K_1 \lor K_2$, where $K_1$ and $K_2$ are DRSs
@@ -1054,10 +1056,10 @@ formalization will also rely on a vocabulary of relation symbols.
 \end{definition}
 
 \begin{notation}
-  A DRS $\left< \{ \drx_1, \ldots, \drx_n \}, \{ c_1, \ldots, c_m \} \right>$
+  A DRS $\left< \{ x_1, \ldots, x_n \}, \{ c_1, \ldots, c_m \} \right>$
   will be usually presented using the following notation:
 
-  \drs{$\drx_1$ \ldots\ $\drx_n$}{
+  \drs{$x_1$ \ldots\ $x_n$}{
     $c_1$ \\
     \vdots \\
     $c_m$
@@ -1066,7 +1068,7 @@ formalization will also rely on a vocabulary of relation symbols.
 
 We will formalize the meaning of DRSs in the next two subsections. For now,
 we can think of the DRS
-$\left< \{ \drx_1, \ldots, \drx_n \}, \{ c_1, \ldots, c_m \} \right>$ as
+$\left< \{ x_1, \ldots, x_n \}, \{ c_1, \ldots, c_m \} \right>$ as
 standing for the formula
 $\exists x_1 \ldots x_n.\, c_1 \land \ldots \land c_m$.
 
@@ -1083,9 +1085,9 @@ describes them. After interpreting the subject \emph{Jones} and the object
 \emph{a Porsche}, we would get the following DRS:
 
 $$
-\drs{$\drx$ $\dry$}{
-  $\ap{\obj{Jones}}{\drx}$\footnotemark \\
-  $\ap{\obj{Porsche}}{\dry}$
+\drs{$x$ $y$}{
+  $\ap{\obj{Jones}}{x}$\footnotemark \\
+  $\ap{\obj{Porsche}}{y}$
 }
 $$
 
@@ -1101,10 +1103,10 @@ DRS.\@ Its arguments will be the discourse referents that correspond to the
 subject and the object.
 
 $$
-\drs{$\drx$ $\dry$}{
-  $\ap{\obj{Jones}}{\drx}$ \\
-  $\ap{\obj{Porsche}}{\dry}$ \\
-  $\app{\obj{own}}{\drx}{\dry}$
+\drs{$x$ $y$}{
+  $\ap{\obj{Jones}}{x}$ \\
+  $\ap{\obj{Porsche}}{y}$ \\
+  $\app{\obj{own}}{x}{y}$
 }
 $$
 
@@ -1113,19 +1115,19 @@ Example~\ref{ex:jones-porsche}. We can now use it as the context for
 interpreting the second sentence. Pronouns choose a discourse referent
 accessible from the DRS in which they are to be
 interpreted.\footnote{Accessibility will be formally defined in a coming
-  subsection.} The neutral pronoun \emph{it} will choose $\dry$, since from
-the presence of the $\ap{\obj{Porsche}}{\dry}$ condition, we can infer it
+  subsection.} The neutral pronoun \emph{it} will choose $y$, since from
+the presence of the $\ap{\obj{Porsche}}{y}$ condition, we can infer it
 designates an inanimate object. The masculine pronoun \emph{him} will
-select $\drx$ because it designates a masculine entity. Then as in the case
+select $x$ because it designates a masculine entity. Then as in the case
 of the previous sentence, the transitive verb contributes a condition that
 will relate the referent of the subject to the referent of the object.
 
 $$
-\drs{$\drx$ $\dry$}{
-  $\ap{\obj{Jones}}{\drx}$ \\
-  $\ap{\obj{Porsche}}{\dry}$ \\
-  $\app{\obj{own}}{\drx}{\dry}$ \\
-  $\app{\obj{fascinate}}{\dry}{\drx}$
+\drs{$x$ $y$}{
+  $\ap{\obj{Jones}}{x}$ \\
+  $\ap{\obj{Porsche}}{y}$ \\
+  $\app{\obj{own}}{x}{y}$ \\
+  $\app{\obj{fascinate}}{y}{x}$
 }
 $$
 
@@ -1155,11 +1157,11 @@ logic.\footnote{There exist varieties of DRT that are more complex and
     first-order logic formulas} by the following rules:
 
   \begin{itemize}
-  \item $\fo{\drs{$\drx_1$ \ldots\ $\drx_n$}{$c_1$ \\ \vdots \\ $c_m$}}
+  \item $\fo{\drs{$x_1$ \ldots\ $x_n$}{$c_1$ \\ \vdots \\ $c_m$}}
   = \exists x_1 \ldots x_n.\, \fo{c_1} \land \ldots \land \fo{c_m}$
-  \item $\fo{\left(\drs{$\drx_1$ \ldots\ $\drx_n$}{$c_1$ \\ \vdots \\ $c_m$} \Rightarrow K\right)}
+  \item $\fo{\left(\drs{$x_1$ \ldots\ $x_n$}{$c_1$ \\ \vdots \\ $c_m$} \Rightarrow K\right)}
   = \forall x_1 \ldots x_n.\, (\fo{c_1} \land \ldots \land \fo{c_m}) \to \fo{K}$
-  \item $\fo{(\appp{\obj{P}}{\drx_1}{\ldots}{\drx_n})} = \appp{\obj{P}}{x_1}{\ldots}{x_n}$
+  \item $\fo{(\appp{\obj{P}}{x_1}{\ldots}{x_n})} = \appp{\obj{P}}{x_1}{\ldots}{x_n}$
   \item $\fo{(\lnot K)} = \lnot (\fo{K})$
   \item $\fo{(K_1 \lor K_2)} = \fo{K_1} \lor \fo{K_2}$
   \end{itemize}
@@ -1180,11 +1182,11 @@ We can now retrieve the truth conditions of the DRS that we have computed
 in the previous subsection.
 
 $$
-\fo{\drs{$\drx$ $\dry$}{
-  $\ap{\obj{Jones}}{\drx}$ \\
-  $\ap{\obj{Porsche}}{\dry}$ \\
-  $\app{\obj{own}}{\drx}{\dry}$ \\
-  $\app{\obj{fascinate}}{\dry}{\drx}$
+\fo{\drs{$x$ $y$}{
+  $\ap{\obj{Jones}}{x}$ \\
+  $\ap{\obj{Porsche}}{y}$ \\
+  $\app{\obj{own}}{x}{y}$ \\
+  $\app{\obj{fascinate}}{y}{x}$
 }} = \exists x y.\, \ap{\obj{Jones}}{x} \land \ap{\obj{Porsche}}{y} \land \app{\obj{own}}{x}{y} \land \app{\obj{fascinate}}{y}{x}
 $$
 
@@ -1197,19 +1199,19 @@ the sentence in Example~\ref{ex:donkey-rc}.
 
 $$
 \fo{\drs{\ }{
-  \ifdrs{$\drx$ $\dry$}{
-    $\ap{\obj{farmer}}{\drx}$ \\
-    $\ap{\obj{donkey}}{\dry}$ \\
-    $\app{\obj{own}}{\drx}{\dry}$
+  \ifdrs{$x$ $y$}{
+    $\ap{\obj{farmer}}{x}$ \\
+    $\ap{\obj{donkey}}{y}$ \\
+    $\app{\obj{own}}{x}{y}$
   }
         {\ }{
-    $\app{\obj{beat}}{\drx}{\dry}$
+    $\app{\obj{beat}}{x}{y}$
   }
 }} =\forall x y.\, (\ap{\obj{farmer}}{x} \land \ap{\obj{donkey}}{y} \land
   \app{\obj{own}}{x}{y}) \to \app{\obj{beat}}{x}{y}
 $$
 
-Note that in the above DRS, the discourse referents $\drx$ and $\dry$ in
+Note that in the above DRS, the discourse referents $x$ and $y$ in
 the consequent of the implication are bound by the universe of the DRS that
 is the antecedent of the implication. We will explain the notions of scope
 and accessibility in DRT in the next subsection.
@@ -1218,7 +1220,118 @@ and accessibility in DRT in the next subsection.
 \subsection{DRSs as Contexts}
 \label{ssec:drt-context}
 
+After having interpreted a part of discourse as a DRS, that DRS then serves
+as the \emph{context} in which further discourse is to be evaluated. An
+important feature of the context is the set of discourse referents it makes
+available for anaphoric binding in subsequent discourse. The availability
+of these referents is governed by the notion of \emph{accessibility}, which
+we define formally along with the notion of DRS
+\emph{subordination}.
 
+\begin{definition}
+  An occurrence of a DRS $K_i = \left< U_i, C_i \right>$ within a DRS $K$
+  is \demph{immediately subordinate} to an occurrence of a DRS
+  $K_j = \left< U_j, C_j \right>$ within the same DRS if one of the
+  following is true:
+
+  \begin{itemize}
+  \item $\lnot K_i \in C_j$
+  \item $K_i \Rightarrow K' \in C_j$ for some DRS $K'$
+  \item $K_i \lor K' \in C_j$ for some DRS $K'$
+  \item $K' \lor K_i \in C_j$ for some DRS $K'$
+  \item $K_j \Rightarrow K_i$ occurs within $K$
+  \end{itemize}
+\end{definition}
+
+\begin{definition}
+  The relation ``$K_i$ is \demph{(weakly) subordinate} to $K_j$'' is
+  defined as the (reflexive)-transitive closure of the relation ``$K_i$ is
+  immediately subordinate to $K_j$''.
+\end{definition}
+
+\begin{definition}
+  An occurrence of a DRS $K_i = \left< U_i, C_i \right>$ and the discourse
+  referents from its universe $U_i$ are \demph{accessible} to an occurrence
+  of a DRS $K_j$ if and only if $K_j$ is subordinate to $K_i$.
+\end{definition}
+
+The definition of subordination can be summed up by saying that a DRS
+subordinates every DRS it contains, and within implications, the antecedent
+subordinates the consequent. This definition of accessibility is compatible
+with our translation from DRSs to first-order logic formulas. A discourse
+referent $x$ is accessible to a DRS $K$ if and only if the first-order
+translation of $K$ falls within the scope of the quantifier of $x$.
+
+\begin{flushleft}
+  $K_0$: \hspace{-42mm} \drs{\ }{
+    $K_1$: \drs{$x$ $y$}{
+      $\ap{\obj{farmer}}{x}$ \\
+      $\ap{\obj{donkey}}{y}$ \\
+      $\app{\obj{own}}{x}{y}$
+    }~~
+    {\large $\Rightarrow$}~
+    $K_2$: \drs{~}{
+      $\app{\obj{beat}}{x}{y}$
+    }
+  }
+\end{flushleft}
+
+In the above, $x$ and $y$, the discourse referents of $K_1$, are available
+to $K_2$. Therefore, the occurrences of $x$ and $y$ in $K_2$ are
+bound. However, $x$ and $y$ are not available to $K_0$. This means that if
+we were to continue the discourse with the sentence \emph{he is cruel}, we
+could not interpret the pronoun \emph{he} as referring to the farmer $x$
+since new contribution are added to the main DRS $K_0$. This correctly
+predicts the infelicity of the discourse in Example~\ref{ex:donkey-cruel}.
+
+\begin{exe}
+  \ex[*]{Every farmer$_1$ who owns a donkey$_2$ beats it$_2$. He$_1$ is cruel. \label{ex:donkey-cruel}}
+\end{exe}
+
+
+\subsection{Removing Implication and Disjunction}
+\label{ssec:drt-implication-disjunction}
+
+In dynamic logics such as DPL~\cite{groenendijk1991dynamic} or
+TTDL~\cite{de2006towards,lebedeva2012expression}, implication, disjunction
+and universal quantification are expressed in terms of conjunction,
+negation and existential quantification, which are primitive. In DRT, we
+can do something similar and reduce the $\Rightarrow$ connective (which
+plays the role of implication and universal quantification) and the $\lor$
+connective of disjunction to the other primitives.
+
+\begin{align*}
+\drs{$x_1$ \ldots\ $x_n$}{
+  $c_1$ \\
+  $\vdots$ \\
+  $c_m$ 
+}~~
+\Rightarrow~
+K
+\qquad &= \qquad
+\negdrs{$x_1$ \ldots\ $x_n$}{
+  $c_1$ \\
+  $\vdots$ \\
+  $c_m$ \\
+  $\lnot K$
+} \\
+  \\
+K_1 \lor K_2
+\qquad &= \qquad
+\negdrs{\ }{
+  $\lnot K_1$ \\
+  $\lnot K_2$
+}
+\end{align*}
+
+In both cases, it is easy to verify that the truth conditions are not
+affected: applying the $\fo{(\_)}$ mapping to both sides of an equation
+yields equivalent propositions. Similarly, we can verify that the reduction
+preserves accessibility (i.e.\ that the set of available discourse
+referents in an argument to either $\Rightarrow$ or $\lor$ does not
+change). After the reduction, the consequent of the implication is still
+immediately subordinate to the antecedent. As for disjunction, neither of
+the disjuncts is subordinate to the other.
 
 
 \section{Type-Theoretic Dynamic Logic}
