@@ -228,11 +228,11 @@ meanings are all equivalent to one of the two analyses we have seen above.
 \label{ssec:montague-semantics}
 
 Now that we have defined the expressions of our fragment of English, we
-will study their meaning by establishing their truth-conditions: under
+will study their meaning by establishing their truth conditions: under
 which conditions (i.e.\ in which world or model) the sentence is true.
 
 Methodologically, Montague first proposes introducing a formal logic (an
-artificial language) that is suitable to describe the truth-conditions of
+artificial language) that is suitable to describe the truth conditions of
 the natural language under study. Instead of computing directly the
 truth-value of a sentence in a model, Montague translates sentences of
 natural language into this formal logic. In~\cite{montague1973proper}, this
@@ -952,7 +952,7 @@ course. Let us consider the an example from~\cite{kamp1993discourse}
 \end{exe}
 
 In Example~\ref{ex:jones-porsche}, the first sentence contains an
-indefinite and the truth-conditions of the sentence are thus expressed by
+indefinite and the truth conditions of the sentence are thus expressed by
 an existentially quantified formula. In the second sentence, the pronoun
 refers to the indefinite from the first sentence. We would therefore like
 the referent of the pronoun to co-vary with the referent of the
@@ -995,7 +995,7 @@ reading by lifting and extending the scope of the quantifier contributed by
 the indefinite.
 
 A similar thing happens in Example~\ref{ex:donkey-if}, which paraphrases
-Example~\ref{ex:donkey-rc}. The (montagovian) meaning of the condition
+Example~\ref{ex:donkey-rc}. The (montagovian) meaning of the antecedent
 \emph{a farmer owns a donkey} is the proposition
 $\exists x y.\, \ap{\obj{farmer}}{x} \land \ap{\obj{donkey}}{y} \land
 \app{\obj{own}}{x}{y}$. However, if we use this meaning in the conditional
@@ -1044,8 +1044,9 @@ formalization will also rely on a vocabulary of relation symbols.
 
   \demph{DRS conditions} consist of:
   \begin{itemize}
-  \item atomic conditions $P(x_1, \ldots, x_n)$, where $P$ is an $n$-ary
-    relation symbol and $x_1$, \ldots, $x_n$ are discourse referents
+  \item atomic conditions $\appp{\obj{P}}{\drx_1}{\ldots}{\drx_n}$, where
+    $\obj{P}$ is an $n$-ary relation symbol and $\drx_1$, \ldots, $\drx_n$
+    are discourse referents
   \item $\lnot K$, where $K$ is a DRS
   \item $K_1 \lor K_2$, where $K_1$ and $K_2$ are DRSs
   \item $K_1 \Rightarrow K_2$, where $K_1$ and $K_2$ are DRSs
@@ -1053,25 +1054,168 @@ formalization will also rely on a vocabulary of relation symbols.
 \end{definition}
 
 \begin{notation}
-  A DRS $\left< U, C \right>$ with $U = \{ x_1, \ldots, x_n \}$ and
-  $C = \{ c_1, \ldots, c_m \}$ will be usually presented using the
-  following notation:
+  A DRS $\left< \{ \drx_1, \ldots, \drx_n \}, \{ c_1, \ldots, c_m \} \right>$
+  will be usually presented using the following notation:
 
-  \drs{$x_1$ \ldots\ $x_n$}{
+  \drs{$\drx_1$ \ldots\ $\drx_n$}{
     $c_1$ \\
     \vdots \\
     $c_m$
   }
 \end{notation}
 
+We will formalize the meaning of DRSs in the next two subsections. For now,
+we can think of the DRS
+$\left< \{ \drx_1, \ldots, \drx_n \}, \{ c_1, \ldots, c_m \} \right>$ as
+standing for the formula
+$\exists x_1 \ldots x_n.\, c_1 \land \ldots \land c_m$.
 
-\subsection{DRSs as Content}
+DRSs are computed incrementally, starting from the empty DRS:
+
+$$
+\drs{\ }{}
+$$
+
+If we were to interpret the discourse in Example~\ref{ex:jones-porsche}, we
+would start with the first sentence. Both indefinites and proper nouns are
+handled by introducing a new discourse referent and a condition that
+describes them. After interpreting the subject \emph{Jones} and the object
+\emph{a Porsche}, we would get the following DRS:
+
+$$
+\drs{$\drx$ $\dry$}{
+  $\ap{\obj{Jones}}{\drx}$\footnotemark \\
+  $\ap{\obj{Porsche}}{\dry}$
+}
+$$
+
+\footnotetext{In our formalization of DRT, we do not admit
+  constants. Instead of having a constant $\obj{j}$ for Jones, we have a
+  unary relation $\obj{Jones}$ which is satisfied only by Jones (or only by
+  people whose name is ``Jones''). The consequence of this is that in DRT,
+  we can only refer to individuals via discourse referents, which must be
+  introduced in the universe of some DRS.}
+
+The transitive verb \emph{owns} will then add another condition to the
+DRS.\@ Its arguments will be the discourse referents that correspond to the
+subject and the object.
+
+$$
+\drs{$\drx$ $\dry$}{
+  $\ap{\obj{Jones}}{\drx}$ \\
+  $\ap{\obj{Porsche}}{\dry}$ \\
+  $\app{\obj{own}}{\drx}{\dry}$
+}
+$$
+
+This DRS is the result of interpreting the first sentence of
+Example~\ref{ex:jones-porsche}. We can now use it as the context for
+interpreting the second sentence. Pronouns choose a discourse referent
+accessible from the DRS in which they are to be
+interpreted.\footnote{Accessibility will be formally defined in a coming
+  subsection.} The neutral pronoun \emph{it} will choose $\dry$, since from
+the presence of the $\ap{\obj{Porsche}}{\dry}$ condition, we can infer it
+designates an inanimate object. The masculine pronoun \emph{him} will
+select $\drx$ because it designates a masculine entity. Then as in the case
+of the previous sentence, the transitive verb contributes a condition that
+will relate the referent of the subject to the referent of the object.
+
+$$
+\drs{$\drx$ $\dry$}{
+  $\ap{\obj{Jones}}{\drx}$ \\
+  $\ap{\obj{Porsche}}{\dry}$ \\
+  $\app{\obj{own}}{\drx}{\dry}$ \\
+  $\app{\obj{fascinate}}{\dry}{\drx}$
+}
+$$
+
+The precise mechanism of DRS construction will be given in
+Section~\ref{sec:drt-as-pl}, where we will see the derivation of the DRS
+for Example~\ref{ex:jones-porsche} in more detail. In the rest of this
+section, we will talk about the truth-conditional meaning of DRSs and of
+the accessibility relation.
+
+
+\subsection{DRSs as Contents}
 \label{ssec:drt-content}
 
+The result of interpreting a discourse in DRT is a DRS.\@ Our interest in
+interpreting natural language is to be able to recover the truth conditions
+of a linguistic utterance. Therefore, we need a way of how to read off the
+truth conditions of a discourse from a DRS.\@ We find that the most
+instructive way to give a formal semantics to DRT is to give a translation
+to an already established logic. In the case of our formalization of DRT,
+we will be translating DRSs and DRS conditions to first-order
+logic.\footnote{There exist varieties of DRT that are more complex and
+  might include, e.g., modal operators. There, it might be necessary to
+  translate to some other logic.}
+
+\begin{definition}
+  We define a \demph{mapping $\fo{(\_)}$ from DRSs and DRS conditions to
+    first-order logic formulas} by the following rules:
+
+  \begin{itemize}
+  \item $\fo{\drs{$\drx_1$ \ldots\ $\drx_n$}{$c_1$ \\ \vdots \\ $c_m$}}
+  = \exists x_1 \ldots x_n.\, \fo{c_1} \land \ldots \land \fo{c_m}$
+  \item $\fo{\left(\drs{$\drx_1$ \ldots\ $\drx_n$}{$c_1$ \\ \vdots \\ $c_m$} \Rightarrow K\right)}
+  = \forall x_1 \ldots x_n.\, (\fo{c_1} \land \ldots \land \fo{c_m}) \to \fo{K}$
+  \item $\fo{(\appp{\obj{P}}{\drx_1}{\ldots}{\drx_n})} = \appp{\obj{P}}{x_1}{\ldots}{x_n}$
+  \item $\fo{(\lnot K)} = \lnot (\fo{K})$
+  \item $\fo{(K_1 \lor K_2)} = \fo{K_1} \lor \fo{K_2}$
+  \end{itemize}
+\end{definition}
+
+In the translation defined above, the first two rules expose the nature of
+DRSs. As more and more conditions are added to a DRS, they all fall under
+the scope of the existential quantifiers introduced by the universe of the
+DRS.\@ This intuitively corresponds to the
+$(\exists x.\, A) \land B = (\exists x.\, A \land B)$ law of dynamic
+logic. Furthermore, any (existentially quantified) variables contributed by
+a DRS which acts as an antecedent in an implication take scope over the
+consequent of the implication using universal quantification. This is a
+realization of the $(\exists x.\, A) \to B = (\forall x.\, A \to B)$ law of
+dynamic logic.
+
+We can now retrieve the truth conditions of the DRS that we have computed
+in the previous subsection.
+
+$$
+\fo{\drs{$\drx$ $\dry$}{
+  $\ap{\obj{Jones}}{\drx}$ \\
+  $\ap{\obj{Porsche}}{\dry}$ \\
+  $\app{\obj{own}}{\drx}{\dry}$ \\
+  $\app{\obj{fascinate}}{\dry}{\drx}$
+}} = \exists x y.\, \ap{\obj{Jones}}{x} \land \ap{\obj{Porsche}}{y} \land \app{\obj{own}}{x}{y} \land \app{\obj{fascinate}}{y}{x}
+$$
+
+Assuming that $\obj{j}$ is the only individual that satisfies the
+$\obj{Jones}$ predicate, this proposition is equivalent to the reading that
+we have given before.
+
+As another example, we can take the DRS that is the result of interpreting
+the sentence in Example~\ref{ex:donkey-rc}.
+
+$$
+\fo{\drs{\ }{
+  \ifdrs{$\drx$ $\dry$}{
+    $\ap{\obj{farmer}}{\drx}$ \\
+    $\ap{\obj{donkey}}{\dry}$ \\
+    $\app{\obj{own}}{\drx}{\dry}$
+  }
+        {\ }{
+    $\app{\obj{beat}}{\drx}{\dry}$
+  }
+}} =\forall x y.\, (\ap{\obj{farmer}}{x} \land \ap{\obj{donkey}}{y} \land
+  \app{\obj{own}}{x}{y}) \to \app{\obj{beat}}{x}{y}
+$$
+
+Note that in the above DRS, the discourse referents $\drx$ and $\dry$ in
+the consequent of the implication are bound by the universe of the DRS that
+is the antecedent of the implication. We will explain the notions of scope
+and accessibility in DRT in the next subsection.
 
 
-
-\subsection{DRSs as Context}
+\subsection{DRSs as Contexts}
 \label{ssec:drt-context}
 
 
