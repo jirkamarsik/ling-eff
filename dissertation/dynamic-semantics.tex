@@ -86,7 +86,7 @@ We will look at DRS construction for an example
 from~\cite{kamp1993discourse} (Example~(1.28), Section~1.1.3):
 
 \begin{exe}
-  \ex \label{ex:jones-porsche} Jones owns a Porsche. It fascinates him.
+  \exr{ex:jones-porsche} Jones owns a Porsche. It fascinates him.
 \end{exe}
 
 \begin{center}
@@ -1118,10 +1118,10 @@ computations of type $\FF_{E_\DRT}(1)$:
 \begin{align*}
   &\app{\op{get}}{\star}{(\lam{e}{ \\
   &\app{\op{introduce}}{\star}{(\lam{x_1}{ \\
-  &\qquad \cdots \\
+  &\qquad \vdots \\
   &\app{\op{introduce}}{\star}{(\lam{x_n}{ \\
   &\app{\op{assert}}{c_1}{(\lam{\_}{ \\
-  &\qquad \cdots \\
+  &\qquad \vdots \\
   &\app{\op{assert}}{c_m}{(\lam{\_}{ \\
   &\etaE{\star}})}})}})}})}})}
 \end{align*}
@@ -1131,7 +1131,7 @@ the DRS:
 
 \vspace{2mm}
 
-\drs{$x_1$\ \ldots\ $x_n$}{$c_1$ \\ $\cdots$ \\ $c_m$}
+\drs{$x_1$\ \ldots\ $x_n$}{$c_1$ \\ $\vdots$ \\ $c_m$}
 
 \vspace{2mm}
 
@@ -1170,7 +1170,7 @@ which gives us a simpler canonical representation:
 \begin{align*}
   &\app{\op{get}}{\star}{(\lam{e}{ \\
   &\app{\op{introduce}}{\star}{(\lam{x_1}{ \\
-  &\qquad \cdots \\
+  &\qquad \vdots \\
   &\app{\op{introduce}}{\star}{(\lam{x_n}{ \\
   &\app{\op{assert}}{p}{(\lam{\_}{ \\
   &\etaE{\star}})}})}})}})}

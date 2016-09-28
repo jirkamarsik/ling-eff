@@ -904,15 +904,175 @@ will be giving their interpretations as lexical entries of the form
 $\sem{\abs{item}} = \obj{lambda-banana-term}$. The calculus in which we
 will be giving the meanings of lexical items will be $\calc$.
 
-You might notice that we have already used this style in the first part of
-the manuscript. In Chapter~\ref{chap:examples}, when we were building up
-our simple calculator language and giving its semantics, we were using
-ACGs.\footnote{The only difference being that we used $(\_ \to \_)$ in the
-  abstract types instead of $(\_ \limp \_)$.}
+You might have noticed that we have already used this style in the first
+part of the manuscript. In Chapter~\ref{chap:examples}, when we were
+building up our simple calculator language and giving its semantics, we
+were using ACGs.\footnote{The only difference being that we used
+  $(\_ \to \_)$ in the abstract types instead of $(\_ \limp \_)$.}
 
 
 \section{Discourse Representation Theory}
 \label{sec:drt}
+
+Montague's approach of evaluating natural language in a model has been
+extended to linguistic units larger than a single sentence. The crucial
+observation when dealing with linguistic \emph{discourse} is that the
+meanings (i.e.\ truth values) of the sentences that make it up cannot be
+computed independently, without considering the context in which they
+appear. If we look at the sentence in Example~\ref{ex:no-antecedent}, we
+cannot describe its truth conditions as we do not know to what the pronouns
+\emph{it} and \emph{him} refer.
+
+\begin{exe}
+  \ex It fascinates him. \label{ex:no-antecedent} \\
+  $\app{\obj{fascinate}}{?}{?}$
+\end{exe}
+
+However, if we place this sentence in a context which provides suitable
+antecedents for the pronouns, as in Example~\ref{ex:ulysses}
+from~\cite{kamp1993discourse}, we can find the proposition that represents
+the sentence's truth conditions.
+
+\begin{exe}
+  \ex Jones$_1$ owns Ulysses$_2$. It$_2$ fascinates him$_1$. \label{ex:ulysses} \\
+  $\app{\obj{own}}{\obj{j}}{\obj{u}} \land \app{\obj{fascinate}}{\obj{u}}{\obj{j}}$
+\end{exe}
+
+Furthermore, the contribution of a sentence can be more complicated than
+conjoining a new proposition to the logical representation of the preceding
+course. Let us consider the an example from~\cite{kamp1993discourse}
+(Example~(1.28), Section~1.1.3):
+
+\begin{exe}
+  \ex Jones$_1$ owns a Porsche$_2$. It$_2$ fascinates him$_1$. \label{ex:jones-porsche} \\
+  $(\exists x.\, \ap{\obj{Porsche}}{x} \land \app{\obj{own}}{\obj{j}}{x})
+  \land \app{\obj{fascinate}}{x^?}{\obj{j}}$ \\
+  $(\exists x.\, \ap{\obj{Porsche}}{x} \land \app{\obj{own}}{\obj{j}}{x}
+  \land \app{\obj{fascinate}}{x}{\obj{j}})$ \\
+\end{exe}
+
+In Example~\ref{ex:jones-porsche}, the first sentence contains an
+indefinite and the truth-conditions of the sentence are thus expressed by
+an existentially quantified formula. In the second sentence, the pronoun
+refers to the indefinite from the first sentence. We would therefore like
+the referent of the pronoun to co-vary with the referent of the
+indefinite. However, the variable $x$ which designates the referent of the
+indefinite is not in scope of the second sentence. Instead of just
+conjoining the two propositions, we would like to insert the propositions
+under the scope of the existential quantifier contributed by the indefinite
+of the first sentence.\footnote{We can also think of this as extending the
+  existential quantification from the first sentence to cover the second
+  sentence.}
+
+These issues with anaphora are not limited to examples that span multiple
+sentences. We can see the same phenomenon in the single-sentence
+Example~\ref{ex:donkey-rc} and its paraphrase in~\ref{ex:donkey-if}.
+
+\begin{exe}
+  \ex Every farmer who owns a donkey$_1$ beats it$_1$. \label{ex:donkey-rc} \\
+  $\forall x.\, (\ap{\obj{farmer}}{x} \land (\exists y.\,
+  \ap{\obj{donkey}}{y} \land \app{\obj{own}}{x}{y})) \to
+  \app{\obj{beat}}{x}{y^?}$ \\
+  $\forall x y.\, (\ap{\obj{farmer}}{x} \land \ap{\obj{donkey}}{y} \land
+  \app{\obj{own}}{x}{y}) \to \app{\obj{beat}}{x}{y}$
+
+  \ex If a farmer$_1$ owns a donkey$_2$, he$_1$ beats it$_2$. \label{ex:donkey-if} \\
+  $(\exists x y.\, \ap{\obj{farmer}}{x} \land \ap{\obj{donkey}}{y} \land \app{\obj{own}}{x}{y}) \to \app{\obj{beat}}{x^?}{y^?}$ \\
+  $\forall x y.\, (\ap{\obj{farmer}}{x} \land \ap{\obj{donkey}}{y} \land
+  \app{\obj{own}}{x}{y}) \to \app{\obj{beat}}{x}{y}$
+\end{exe}
+
+If we try to compute the meaning of the noun \emph{farmer who owns a
+  donkey} in Montague semantics,\footnote{In~\cite{montague1973proper},
+  Montague's grammar includes the similar construction \emph{farmer such
+    that he owns a donkey} (rules $F_{3,n}$ in S3).} we get the predicate
+$\lam{x}{\ap{\obj{farmer}}{x} \land (\exists y.\, \ap{\obj{donkey}}{y}
+  \land \app{\obj{own}}{x}{y})}$. However, using this interpretation for
+the relative clause, we get the first logical form under
+Example~\ref{ex:donkey-rc}, in which the pronoun is not in scope of the
+variable $y$ that refers to the donkey. Again, we can get the correct
+reading by lifting and extending the scope of the quantifier contributed by
+the indefinite.
+
+A similar thing happens in Example~\ref{ex:donkey-if}, which paraphrases
+Example~\ref{ex:donkey-rc}. The (montagovian) meaning of the condition
+\emph{a farmer owns a donkey} is the proposition
+$\exists x y.\, \ap{\obj{farmer}}{x} \land \ap{\obj{donkey}}{y} \land
+\app{\obj{own}}{x}{y}$. However, if we use this meaning in the conditional
+of Example~\ref{ex:donkey-if}, the consequent \emph{he beats it} will be
+outside the scope of the variables $x$ and $y$ that refer to the farmer and
+the donkey respectively. This leads to the first logical form under
+Example~\ref{ex:donkey-if}, which is unsatisfactory since the $x$ and $y$
+variables are not correctly bound. Yet again, the desired logical
+representation can be recovered by lifting and extending the scope of the
+quantifiers contributed by the indefinites.
+
+When Montague wanted to treat intensional and tensed verbs in his fragment,
+he decided to translate natural language to a formal logic which was
+intensional and tensed. A similar thing happened with dynamic phenomena in
+natural language (anaphora) and the development of dynamic
+logics~\cite{groenendijk1991dynamic,kamp1993discourse,de2006towards}. In
+dynamic logic, $(\exists x.\, A) \land B$ becomes equivalent to
+$(\exists x.\, A \land B)$ and $(\exists x.\, A) \to B$ becomes equivalent
+to $(\forall x.\, A \to B)$. With these equivalences, we can lift and
+extend the scope of indefinites so as to obtain the binding that we observe
+in natural language.
+
+Our analysis of dynamics using $\calc$ draws on two theories of dynamic
+semantics: Discourse Representation Theory (DRT)~\cite{kamp1993discourse}
+and Type-Theoretic Dynamic Logic (TTDL)~\cite{de2006towards}. In this
+section, we briefly introduce DRT and in the next, we talk about TTDL.
+
+
+\subsection{Discourse Representation Structures}
+\label{sec:drt-drses}
+
+In DRT, sentences contribute to the construction of a \emph{Discourse
+  Representation Structure} (DRS). This structure serve at the same time as
+the representation of the \emph{content} of the discourse and also as the
+\emph{context} in which any subsequent discourse is evaluated.
+
+We begin the formal definition by assuming an infinite set $\DD$ of
+\emph{discourse referents}. These are just like the variables of
+first-order logic; they are symbolic references to individuals. Our
+formalization will also rely on a vocabulary of relation symbols.
+
+\begin{definition}
+  A \demph{Discourse Representation Structure (DRS)} $K$ is a pair
+  $\left< U, C \right>$, where $U$, the \demph{universe}, is a set of
+  discourse referents and $C$ is a set of DRS conditions.
+
+  \demph{DRS conditions} consist of:
+  \begin{itemize}
+  \item atomic conditions $P(x_1, \ldots, x_n)$, where $P$ is an $n$-ary
+    relation symbol and $x_1$, \ldots, $x_n$ are discourse referents
+  \item $\lnot K$, where $K$ is a DRS
+  \item $K_1 \lor K_2$, where $K_1$ and $K_2$ are DRSs
+  \item $K_1 \Rightarrow K_2$, where $K_1$ and $K_2$ are DRSs
+  \end{itemize}
+\end{definition}
+
+\begin{notation}
+  A DRS $\left< U, C \right>$ with $U = \{ x_1, \ldots, x_n \}$ and
+  $C = \{ c_1, \ldots, c_m \}$ will be usually presented using the
+  following notation:
+
+  \drs{$x_1$ \ldots\ $x_n$}{
+    $c_1$ \\
+    \vdots \\
+    $c_m$
+  }
+\end{notation}
+
+
+\subsection{DRSs as Content}
+\label{ssec:drt-content}
+
+
+
+
+\subsection{DRSs as Context}
+\label{ssec:drt-context}
 
 
 
