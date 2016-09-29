@@ -235,7 +235,7 @@ which conditions (i.e.\ in which world or model) the sentence is true.
 Methodologically, Montague first proposes introducing a formal logic (an
 artificial language) that is suitable to describe the truth conditions of
 the natural language under study. Instead of computing directly the
-truth-value of a sentence in a model, Montague translates sentences of
+truth value of a sentence in a model, Montague translates sentences of
 natural language into this formal logic. In~\cite{montague1973proper}, this
 formal logic is a higher-order tensed intensional logic with the standard
 logical connectives, quantifiers over objects of any type, the modal
@@ -263,7 +263,7 @@ interpretations is given below:
 \end{align*}
 
 Unsurprisingly, the categories $t$ and $e$ of truth-denoting and
-entity-denoting expressions will be translated to truth-values and
+entity-denoting expressions will be translated to truth values and
 entities, respectively. The category $A / B$ is the category of expressions
 that can combine with expressions of category $B$ to form a complex
 expression of category $A$. Frege's principle of compositionality states
@@ -286,7 +286,7 @@ fragment to see what type of interpretation corresponds to each category:
 \end{align*}
 
 Sentences are expressions of category $t$ and so are interpreted as
-truth-values. Noun phrases (category $T$) are interpreted as functions of
+truth values. Noun phrases (category $T$) are interpreted as functions of
 type $(e \to t) \to t$. We call such functions \emph{generalized
   quantifiers}. They include the quantifiers $\exists$ and $\forall$, as
 well as functions such as $\lam{P}{\forall x.\, \obj{man}(x) \to P(x)}$,
@@ -453,7 +453,7 @@ In this section, we have seen the essence of montagovian semantics. We
 define (usually a small fragment of) natural language using a formal
 system. For every syntactic construction, there is a description of how to
 compute the meaning of the construction from the meanings of its
-constituents. The meanings of sentences are truth-values in a mathematical
+constituents. The meanings of sentences are truth values in a mathematical
 model which represents the state of affairs in the real world. There are
 other features of Montague grammar that are not essential, but frequently
 reappear in current formulations of Montague's approach:
@@ -463,7 +463,7 @@ reappear in current formulations of Montague's approach:
   interpretation of a sentence is then realized by translating sentences of
   the natural language to formulas of the logic.
 \item Sentences are built out of constituents which do not all denote
-  truth-values (e.g.\ verb phrases denote predicates). Lambda calculus is
+  truth values (e.g.\ verb phrases denote predicates). Lambda calculus is
   used to glue the meanings of all the constituents together. This usually
   means that the logic in which we interpret natural language is
   higher-order logic.
@@ -602,7 +602,7 @@ semantic translation, higher-order logic, is also represented by a
 higher-order signature, $\Sigma_2$. Its constants are the logical
 connectives, quantifiers and the relations that we assume to have in the
 model ($\obj{man}'$, $\obj{unicorn}'$, $\obj{love}'$\ldots). Its types are
-$e$, the type of entities, and $t$, the type of truth-values. The
+$e$, the type of entities, and $t$, the type of truth values. The
 translation that we described in Subsection~\ref{ssec:montague-semantics}
 would correspond to a lexicon from $\Sigma_1$ to $\Sigma_2$. The
 interpretation of types would be the homomorphic function $f$ and the
@@ -1336,3 +1336,173 @@ the disjuncts is subordinate to the other.
 
 \section{Type-Theoretic Dynamic Logic}
 \label{sec:ttdl}
+
+We end this chapter by reviewing another theory of dynamics which served as
+a basis for our analysis of anaphora and presupposition in
+Chapter~\ref{chap:dynamic-semantics}. The theory originates from de
+Groote's paper on a montagovian treatment of dynamics~\cite{de2006towards}
+and it was extended in the dissertations of
+Lebedeva~\cite{lebedeva2012expression} and
+Qian~\cite{qian2014accessibility}, where it is referred to as
+Type-Theoretic Dynamic Logic (TTDL). TTDL aims to reproduce the predictions
+of DRT and dynamic semantics while using only standard logical
+tools. Unlike DPL and DRT, there is no need to introduce a new logic with
+non-standard notions of binding and scope. Meanings are represented as
+functions and propositions in the simply-typed lambda calculus (i.e.\
+higher-order logic) and their composition does not necessitate the use of
+any special primitive operator (such as the merge operator on
+DRSs~\cite{muskens1996combining}).
+
+We will start our introduction of TTDL by showing the meaning that is
+assigned to the two sentences of Example~\ref{ex:jones-porsche} and then we
+will explain what is going on.
+
+\begin{align*}
+\sem{\text{Jones owns a Porsche}} &=
+\lam{e \phi}{\exists x.\, \ap{\obj{Porsche}}{x} \land \app{\obj{own}}{\obj{j}}{x}
+                          \land \ap{\phi}{(x \cons \obj{j} \cons e)}} \\
+\sem{\text{It fascinates him}} &= \lam{e \phi}{\app{\obj{fascinate}}{(\ap{\selit}{e})}{(\ap{\selhe}{e})}
+                                               \land \ap{\phi}{e}}
+\end{align*}
+
+As we have seen in~\ref{sec:drt}, sentences with anaphoric pronouns cannot
+be given a truth value unless we know the context in which they have been
+produced. The meanings are therefore functions of their environments, also
+called (left) \emph{contexts}. By convention, we use the variable $e$ for
+these environments. In the denotation for the second sentence, we retrieve
+the referents of the two anaphoric pronouns from the context $e$ using the
+functions $\selit$ and $\selhe$. The denotations also need a way to update
+the context, e.g.\ when introducing new discourse referents. To enable
+this, the meanings have access to their continuation (also called a right
+context), for which we will always use the variable $\phi$. In the
+denotation for the first sentence, we apply this continuation to a context
+which was updated with the discourse referents $\obj{j}$ (for Jones) and
+$x$ (for the Porsche). The nature of the context in TTDL is left
+open. In~\cite{de2006towards}, the context is taken to be a list of
+available discourse referents, hence the ML-style syntax for consing the
+elements $x$ and $\obj{j}$ to the context $e$. Finally, in~\ref{sec:drt},
+we have also seen that when interpreting indefinites with existential
+quantifiers, we need the scope of the quantifier to extend and cover the
+meanings of any sentences that follow. The use of continuations allows us
+to accomplish that. After the denotation of a sentence applies the
+continuation to the updated context, it can place the resulting proposition
+under the scope of any existential quantifiers it introduces, as is the
+case in the denotation of the first sentence.
+
+We will now look at the types involved. As in Church's simple theory of
+types, there is the $o$ type for propositions and the $\iota$ type for
+individuals. The contexts that sentences have access to are of type
+$\gamma$. The continuations take (updated) contexts as arguments and return
+propositions which represent the meaning of the following discourse, hence
+their type is $\gamma \to o$. Therefore, the type of the denotations that
+is assigned to sentences in TTDL is $\gamma \to (\gamma \to o) \to o$. This
+type is abbreviated as $\Omega$ and terms of this type are called
+\emph{dynamic propositions}. Below, we give the types of the auxiliary
+operations on contexts.
+
+\begin{align*}
+  \nil &: \gamma \\
+  (\_ \cons \_) &: \iota \to \gamma \to \gamma \\
+  \selhe, \selshe, \selit &: \gamma \to \iota
+\end{align*}
+
+Existing work on TTDL focuses on discourse representation and composition
+rather than anaphora resolution. Anaphora resolution is delegated to the
+$\sel$ oracle functions, which are assumed to retrieve the correct
+antecedent from the environment.
+
+The meanings of the two sentences we have given above are both dynamic
+propositions. TTDL gives us a way to compose dynamic propositions using the
+discourse concatenation operator $(\_ \disccat \_)$:
+
+\begin{align*}
+(\_ \disccat \_) &: \Omega \to \Omega \to \Omega \\
+A \disccat B &= \lam{e \phi}{\app{A}{e}{(\lam{e'}{\app{B}{e'}{\phi}})}}
+\end{align*}
+
+The left context $e$ of the resulting proposition is passed directly to
+$A$. The right context of $A$ contains both the dynamic proposition $B$ and
+the right context $\phi$. The left context passed to $B$ is the updated
+context $e'$ that $A$ passes to its continuation. The right context of $B$
+is the right context $\phi$ of the resulting proposition $A \disccat B$.
+
+Using the discourse concatenation operator, we can compute the meaning of
+the discourse from Example~\ref{ex:jones-porsche}.
+
+\begin{align*}
+  & \sem{\text{Jones owns a Porsche. It fascinates him.}} \\
+  =\ & \sem{\text{Jones owns a Porsche}} \disccat \sem{\text{It fascinates him}} \\
+  =\ &\lam{e \phi}{\exists x.\, \ap{\obj{Porsche}}{x} \land
+    \app{\obj{own}}{\obj{j}}{x} \land \app{\obj{fascinate}}{(\ap{\selit}{(x
+    \cons \obj{j} \cons e)})}{(\ap{\selhe}{(x \cons \obj{j} \cons e)})}
+    \land \ap{\phi}{(x \cons \obj{j} \cons e)}} \\
+  =\ &\lam{e \phi}{\exists x.\, \ap{\obj{Porsche}}{x} \land
+    \app{\obj{own}}{\obj{j}}{x} \land \app{\obj{fascinate}}{x}{\obj{j}}
+    \land \ap{\phi}{(x \cons \obj{j} \cons e)}}
+\end{align*}
+
+In the above, we assume that anaphora resolution will pick up the Porsche
+$x$ as the antecedent for the pronoun \emph{it} (i.e.\
+$\ap{\selit}{(x \cons \obj{j} \cons e)} = x$) and Jones, $\obj{j}$, as the
+antecedent for the pronoun \emph{him} (i.e.\
+$\ap{\selhe}{(x \cons \obj{j} \cons e)} = \obj{j}$).
+
+We can retrieve the truth conditions of the discourse by applying it to
+some default context (e.g.\ the $\nil$ context which does not make
+available any discourse referent) and the empty right context (i.e.\ the
+continuation $\lam{e}{\top}$, where $\top$ is a tautology).
+
+\begin{align*}
+\static &: \Omega \to o \\
+\static &= \lam{A}{\app{A}{\nil}{(\lam{e}{\top})}}
+\end{align*}
+
+We can define a combinator $\static$ which will map dynamic propositions to
+static ones by interpreting in the empty contexts. Applying this combinator
+to the dynamic proposition that is the meaning of
+Example~\ref{ex:jones-porsche} gives us the desired truth conditions.
+
+$$
+\ap{\static}{\sem{\text{Jones owns a Porsche. It fascinates him.}}}
+= \exists x.\, \ap{\obj{Porsche}}{x} \land
+  \app{\obj{own}}{\obj{j}}{x} \land \app{\obj{fascinate}}{x}{\obj{j}}
+$$
+
+
+\subsection{Logic}
+\label{ssec:ttdl-logic}
+
+We have seen the notion of a dynamic proposition. In formal logics,
+propositions are defined as expressions of a formal language which includes
+logical connectives such as conjunction, disjunction and quantifiers. In
+her dissertation~\cite{lebedeva2012expression}, Lebedeva defines such
+connectives for TTDL.
+
+\begin{align*}
+  A \dand B &= \lam{e \phi}{\app{A}{e}{(\lam{e'}{\app{B}{e'}{\phi}})}} \\
+  \dnot A &= \lam{e \phi}{\ap{\lnot}{(\app{A}{e}{(\lam{e'}{\top})})} \land \ap{\phi}{e}} \\
+  \dexists P &= \lam{e \phi}{\exists x.\, \appp{P}{x}{(x \cons e)}{\phi}} \\
+  A \dimp B &= \ap{\dnot}{(A \dand \dnot B)} \\
+  A \dor B &= \ap{\dnot}{(\dnot A \dand \dnot B)} \\
+  \dforall P &= \ap{\dnot}{(\dexists x.\, \ap{\dnot}{(\ap{P}{x})})}
+\end{align*}
+
+Implication, disjunction and universal quantification are expressed in
+terms of conjunction, negation and universal quantification, as in DPL (3.4
+in~\cite{groenendijk1991dynamic}) or
+DRT~(\ref{ssec:drt-implication-disjunction}). Dynamic conjunction is the
+same thing as the discourse concatenation combinator, i.e.\ we acknowledge
+the discourse update of both of the conjuncts. Dynamic negation denies the
+discourse update of the negated proposition by applying it to the empty
+right context $\lam{e'}{\top}$. Applying the current left context $e$ and
+the empty right context to the proposition $A$ and then negating it is like
+interpreting $A$ within its own DRS $K$ and then producing the condition
+$\lnot K$. The context that is passed to the continuation of the negation
+is the same context $e$ that the negated proposition received. The dynamic
+existential quantifier wraps an (ordinary) existential quantifier over the
+predicate \emph{as well as} its continuation $\phi$. This has the effect of
+achieving the desired right-extension of existential quantifiers in dynamic
+semantics (i.e.\ $(\exists x.\, A) \land B = (\exists x.\, A \land B)$). At
+the same time, it also introduces the variable $x$ into the context as an
+available discourse referent.
+
