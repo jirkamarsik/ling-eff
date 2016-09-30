@@ -1476,7 +1476,11 @@ We have seen the notion of a dynamic proposition. In formal logics,
 propositions are defined as expressions of a formal language which includes
 logical connectives such as conjunction, disjunction and quantifiers. In
 her dissertation~\cite{lebedeva2012expression}, Lebedeva defines such
-connectives for TTDL.
+connectives for TTDL.\footnote{The definitions below differ slightly from
+  those of Lebedeva~\cite{lebedeva2012expression}. Instead of updating the
+  context with available individuals, Lebedeva updates the context with
+  facts added to the common ground. Instead of using individuals (type
+  $\iota$), Lebedeva uses dynamic individuals (type $\gamma \to \iota$).}
 
 \begin{align*}
   A \dand B &= \lam{e \phi}{\app{A}{e}{(\lam{e'}{\app{B}{e'}{\phi}})}} \\
@@ -1490,19 +1494,181 @@ connectives for TTDL.
 Implication, disjunction and universal quantification are expressed in
 terms of conjunction, negation and universal quantification, as in DPL (3.4
 in~\cite{groenendijk1991dynamic}) or
-DRT~(\ref{ssec:drt-implication-disjunction}). Dynamic conjunction is the
-same thing as the discourse concatenation combinator, i.e.\ we acknowledge
-the discourse update of both of the conjuncts. Dynamic negation denies the
-discourse update of the negated proposition by applying it to the empty
-right context $\lam{e'}{\top}$. Applying the current left context $e$ and
-the empty right context to the proposition $A$ and then negating it is like
-interpreting $A$ within its own DRS $K$ and then producing the condition
-$\lnot K$. The context that is passed to the continuation of the negation
-is the same context $e$ that the negated proposition received. The dynamic
-existential quantifier wraps an (ordinary) existential quantifier over the
-predicate \emph{as well as} its continuation $\phi$. This has the effect of
-achieving the desired right-extension of existential quantifiers in dynamic
-semantics (i.e.\ $(\exists x.\, A) \land B = (\exists x.\, A \land B)$). At
-the same time, it also introduces the variable $x$ into the context as an
-available discourse referent.
+DRT~(Subsection~\ref{ssec:drt-implication-disjunction}). Dynamic
+conjunction is the same thing as the discourse concatenation combinator,
+i.e.\ we acknowledge the discourse update of both of the conjuncts. Dynamic
+negation denies the discourse update of the negated proposition by applying
+it to the empty right context $\lam{e'}{\top}$. Applying the current left
+context $e$ and the empty right context to the proposition $A$ and then
+negating it is like interpreting $A$ within its own DRS $K$ and then
+producing the condition $\lnot K$. The context that is passed to the
+continuation of the negation is the same context $e$ that the negated
+proposition received. The dynamic existential quantifier wraps an
+(ordinary) existential quantifier over the predicate \emph{as well as} its
+continuation $\phi$. This has the effect of achieving the desired
+right-extension of existential quantifiers in dynamic semantics (i.e.\
+$(\exists x.\, A) \land B = (\exists x.\, A \land B)$). At the same time,
+it also introduces the variable $x$ into the context as an available
+discourse referent.
 
+
+\subsection{Monadic Structure}
+\label{ssec:ttdl-monadic-structure}
+
+Within TTDL, we find the structure of a monad (definition
+in~\ref{ssec:monad}). The dynamics monad is given by the following functor
+$D$ and combinators $\eta$ and $\hsbind$:
+
+\begin{align*}
+  D(\alpha) &= \gamma \to (\alpha \to \gamma \to o) \to o \\
+  \etaE{x} &= \lam{e \phi}{\app{\phi}{x}{e}} \\
+  X \hsbind f &= \lam{e \phi}{\app{X}{e}{(\lam{x e'}{\appp{f}{x}{e'}{\phi}})}}
+\end{align*}
+
+These operations satisfy all three of the monad laws. The $D$ monad
+characterizes computations that have read/write access to some state of
+type $\gamma$ and can manipulate their continuation of type $o$. We can
+actually derive as the combination of the state monad and the continuation
+monad using monad transformers. Let $S$ be the state monad which maps the
+type $\alpha$ to the type $\gamma \to (\alpha \times \gamma)$. This is the
+monad that underlies state, such as the storing and retrieving of discourse
+referents. There exists also a monad transformer $S^T$ which maps monads
+$F$ into monads $S(F)$ that enrich the structure of $F$ with state. The
+monad $S(F)$ maps the type $\alpha$ to the type
+$\gamma \to F(\alpha \times \gamma)$. Let $C$ be the continuation monad
+which maps the type $\alpha$ to the type $(\alpha \to o) \to o$. By
+applying the $S$ monad transformer to the $C$ monad, we get a monad $S(C)$
+that maps the type $\alpha$ to the type
+$\gamma \to ((\alpha \times \gamma) \to o) \to o$. This type is isomorphic
+to the type $D(\alpha) = \gamma \to (\alpha \to \gamma \to o) \to o$ by
+currying.
+
+We have presented the $D$ monad. Now, we will show how it features in
+TTDL.\@ We will focus on the type $D(1)$, i.e.\ the type of computations
+that produce no output and where we are only interested in the side
+effects.
+
+$$
+D(1) \; = \; \gamma \to (1 \to \gamma \to o) \to o \; \equiv \;
+\gamma \to (\gamma \to o) \to o \; = \; \Omega
+$$
+
+The types $D(1)$ and $\Omega$ are isomorphic due to the isomorphism between
+the types $1 \to \gamma$ and $\gamma$. We can also take the $\eta$ and
+$\hsbind$ combinators, specialize them to the $D(1)$ type and then apply
+the $1 \to \gamma \equiv \gamma$ isomorphism to simplify them. On the type
+level, $\eta$ will end up being a dynamic proposition and $\hsbind$ a
+binary operator on dynamic propositions.
+
+\begin{align*}
+  \eta &: \alpha \to D(\alpha) \\
+  \eta_1 &: 1 \to D(1) \\
+         &: D(1) \\
+         &: \Omega \\
+  \hsbind &: D(\alpha) \to (\alpha \to D(\beta)) \to D(\beta) \\
+  \hsbind_1 &: D(1) \to (1 \to D(1)) \to D(1) \\
+            &: D(1) \to D(1) \to D(1) \\
+            &: \Omega \to \Omega \to \Omega
+\end{align*}
+
+On the term level, we find out that $\eta_1$ is the dynamic tautology and
+$\hsbind_1$ is dynamic conjunction.
+
+\begin{align*}
+  \etaE{x} &= \lam{e \phi}{\app{\phi}{x}{e}} \\
+  \eta_1 &= \lam{e \phi}{\ap{\phi}{e}} \\
+  X \hsbind f &= \lam{e \phi}{\app{X}{e}{(\lam{x e'}{\appp{f}{x}{e'}{\phi}})}} \\
+  X \hsbind_1 Y &= \lam{e \phi}{\app{X}{e}{(\lam{e'}{\app{Y}{e'}{\phi}})}}
+\end{align*}
+
+Furthermore, by verifying the monad laws for $D$, we have verified the
+monoid laws for dynamic conjunction with dynamic tautology as the neutral
+element.
+
+In TTDL, discourse is composed with the discourse concatenation operator,
+which is just the dynamic conjunction operation. Now we have seen that
+dynamic conjunction corresponds to monadic composition in the $D$
+monad. Therefore, composition of discourse corresponds to composition
+within the $D$ monad.
+
+
+\subsection{Example Lexical Entries}
+\label{ttdl-lexicon}
+
+We end our exposition of TTDL by a quick glance at the semantics of a tiny
+fragment, a subset of the one in~\cite{de2006towards}. We start by giving
+the abstract syntactic types to the lexical items in our fragment.
+
+\begin{align*}
+  \abs{Mary}, \abs{she} &: NP \\
+  \abs{a}, \abs{every} &: N \limp NP \\
+  \abs{woman} &: N \\
+  \abs{love} &: NP \limp NP \limp S
+\end{align*}
+
+Next, we identify the types of interpretations that we will use.
+
+\begin{align*}
+  \sem{S} = \Omega \\
+  \sem{N} = \iota \to \Omega \\
+  \sem{NP} = (\iota \to \Omega) \to \Omega
+\end{align*}
+
+Sentences will denote dynamic propositions, nouns will denote dynamic
+properties (functions from individuals to dynamic propositions) and noun
+phrases will denote dynamic generalized quantifiers (same type as
+generalized quantifiers but with $o$ replaced with $\Omega$). We can now
+give a semantics to the lexical items.
+
+\begin{align*}
+  \lex{Mary}{\lam{P e \phi}{\appp{P}{\obj{m}}{(\obj{m} \cons e)}{\phi}}} \\
+  \lex{she}{\lam{P e \phi}{\appp{P}{(\ap{\selshe}{e})}{e}{\phi}}} \\
+  \lex{a}{\lam{N P}{\dexists x.\, \ap{N}{x} \dand \ap{P}{x}}} \\
+  \lex{every}{\lam{N P}{\dforall x.\, \ap{N}{x} \dimp \ap{P}{x}}} \\
+  \lex{woman}{\lam{x e \phi}{\ap{\obj{woman}}{x} \land \ap{\phi}{e}}} \\
+  \lex{love}{\lam{O S}{\ap{S}{(\lam{s}{\ap{O}{(\lam{o e \phi}{\app{\obj{love}}{s}{o} \land \ap{\phi}{e}})}})}}}
+\end{align*}
+
+The first four lexical entries give semantics to noun phrases. These are
+written as generalized quantifiers: they all abstract over a variable $P$
+which defines the scope of the quantifier. Neither the proper noun
+$\abs{Mary}$ nor the pronoun $\abs{she}$ are quantificational and so they
+dispose of $P$ by applying it immediately to the individuals that they
+refer to. However, the proper noun $\abs{Mary}$ takes advantage of the
+continuation $P$ to access the context $e$ and modify it to include the
+discourse referent for Mary in the following context. Similarly, the
+pronoun $\abs{she}$ uses the continuation $P$ to access the context $e$ and
+find within a suitable referent. The denotations for the determiners
+$\abs{a}$ and $\abs{every}$ are the same as the ones we have seen
+in~\ref{ssec:acg-semantics}, only the classical logical operators have been
+replaced with the dynamic ones from~\ref{ssec:ttdl-logic}. The lexical
+entry for the common noun $\abs{woman}$ differs in that the proposition
+$\ap{\obj{woman}}{x}$ had to be raised from a (static) proposition to a
+dynamic proposition. Finally, we have the lexical entry for the transitive
+verb $\abs{love}$. The solution here differs to the one
+in~\ref{ssec:acg-semantics}. The abstract type $NP$ is interpreted as the
+type of (dynamic) generalized quantifiers, not just individuals. The
+transitive verb, abstract type $NP \limp NP \limp S$, thus has access to
+the generalized quantifiers of the subject and the object, not just their
+referents. The entry arranges those two quantifiers so as to always
+generate a subject-wide scope reading. This restriction is necessary,
+because arranging the quantifiers in an object-wide scope configuration
+would make it so that the discourse referents from the object could bind
+anaphoric elements of the subject, which is not the linguistic reality we
+want to model. We return to the problem of generating inverse scope while
+avoiding licensing right-to-left anaphora (cataphora)
+in~\ref{ssec:crossover}.
+
+In~\ref{ssec:ttdl-monadic-structure}, we have seen that the monadic
+structure underlying TTDL is composed of state manipulation (the state
+monad --- introducing and recovering discourse referents) and continuation
+manipulation (the continuation monad --- scoping existential quantifiers
+over future discourse). Now we have seen that in the fragment
+from~\cite{de2006towards}, there is another layer of continuation structure
+at the level of the noun phrases/generalized quantifiers. In
+Section~\ref{sec:quantification}, we will express the continuation-passing
+style of generalized quantifiers using $\calc$ operations and handlers, and
+in Chapter~\ref{chap:dynamic-semantics}, we will do the same for the state
+and the continuations at the level of discourse dynamics. Then, in
+Chapter~\ref{chap:composing-effects}, we will build a grammar that will,
+among other effects and phenomena, include all of these layers.

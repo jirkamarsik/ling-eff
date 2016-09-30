@@ -728,21 +728,29 @@ meaning.
 
 In order to give a formal semantics to the operations that we have
 introduced for DRT, we will write a handler. The type of dynamic
-propositions of de Groote's TTDL, $\gamma \to (\gamma \to o) \to o$, will
-serve as a suitable interpretation domain. On top of that, apart from
-implementing a semantics for our operations, we will have demonstrated the
-link between DRT and TTDL.\@ The type of the handler's input will be
-$\FF_E(o)$, where $E$ is the effect signature containing only
-$\op{choose}$, $\op{introduce}$ and $\op{assert}$.
+propositions of de Groote's Type-Theoretic Dynamic Logic (TTDL),
+$\gamma \to (\gamma \to o) \to o$, will serve as a suitable interpretation
+domain. On top of that, apart from implementing a semantics for our
+operations, we will have demonstrated the link between DRT and TTDL.\@ The
+type of the handler's input will be $\FF_E(o)$, where $E$ is the effect
+signature containing only $\op{choose}$, $\op{introduce}$ and
+$\op{assert}$.
 
 \begin{align*}
   \TTDL :\ &\FF_E(o) \to \gamma \to (\gamma \to o) \to o \\
   \TTDL = \bbanana{\ 
   &\onto{\op{choose}}{(\lam{\_ k e \phi}{\appp{k}{(\ap{\sel}{e})}{e}{\phi}})}, \\
   &\onto{\op{introduce}}{(\lam{\_ k e \phi}{\exists x.\, \appp{k}{x}{(x \cons e)}{\phi}})}, \\
-  &\onto{\op{assert}}{(\lam{p k e \phi}{p \land \appp{k}{\star}{(p \cons e)}{\phi}})}, \\
+  &\onto{\op{assert}}{(\lam{p k e \phi}{p \land \appp{k}{\star}{(p \cons e)\footnotemark}{\phi}})}, \\
   &\onto{\eta}{(\lam{p e \phi}{p \land \ap{\phi}{e}})}\ }
 \end{align*}
+
+\footnotetext{Unlike the TTDL we presented in Section~\ref{sec:ttdl}, the
+  contexts will be composed not only of accessible discourse referents
+  (which are added to the context in the $\op{introduce}$ clause) but also
+  of propositions added to the common ground (which are added by
+  $\op{assert}$). As in~\cite{lebedeva2012expression}, this information
+  will be necessary to correctly handle presuppositions.}
 
 We write the handler by following the types, keeping in mind the intended
 semantics. There is a notable similarity between the clauses of our handler
@@ -750,27 +758,29 @@ and the operators and semantic entries used in TTDL.\@ The $\eta$ clause is
 the operation that lifts plain propositions into dynamic
 propositions~\cite{lebedeva2012expression}. The clause for $\op{choose}$ is
 (ignoring the first dummy argument) exactly the denotation assigned to
-pronouns in TTDL~\cite{de2006towards}. The clause for $\op{introduce}$ is
-the denotation of the indefinite \emph{someone}, also known as the dynamic
-existential quantifier in~\cite{lebedeva2012expression}. This is not a
-coincidence. The clauses for $\op{choose}$ and $\op{introduce}$ are both
-values of type $\iota$ written in continuation-passing style with
-observation type $\Omega = \gamma \to (\gamma \to o) \to o$, i.e.\ values
-of type $(\iota \to \Omega) \to \Omega$. TTDL uses continuation-passing
-style in the denotation of its noun phrases to account for quantification
-and so their denotations end up having the very same type. The two noun
-phrases, the pronoun and the indefinite, stand for the two major ways that
-dynamic noun phrases interact with their contexts, retrieving their
-referents from context or introducing new ones into the context. Together
-with $\op{assert}$, which lets us conjoin another proposition to the
-observed proposition, these form the three operations with which we
-characterize DRT-style dynamics. Our original discovery of these three
-operations with which we can characterize dynamic effects came from the
-realization that we can express all the denotations in TTDL with: reading
-from the context ($\op{choose}$, or later $\op{get}$), wrapping an
-existential quantifier over the continuation while adding the bound
-variable into the context ($\op{introduce}$) and conjoining a proposition
-to the continuation ($\op{assert}$).
+pronouns in
+TTDL~\cite{de2006towards}~(Subsection~\ref{ssec:ttdl-lexicon}). The clause
+for $\op{introduce}$ is the denotation of the indefinite \emph{someone},
+also known as the dynamic existential quantifier
+in~\cite{lebedeva2012expression}. This is not a coincidence. The clauses
+for $\op{choose}$ and $\op{introduce}$ are both values of type $\iota$
+written in continuation-passing style with observation type
+$\Omega = \gamma \to (\gamma \to o) \to o$, i.e.\ values of type
+$(\iota \to \Omega) \to \Omega$. TTDL uses continuation-passing style
+(generalized quantifiers) in the denotation of its noun phrases and so
+their denotations end up having the same type. The two noun phrases, the
+pronoun and the indefinite, stand for the two major ways that dynamic noun
+phrases interact with their contexts, retrieving their referents from
+context or introducing new ones into the context. Together with
+$\op{assert}$, which lets us conjoin another proposition to the observed
+proposition, these form the three operations with which we characterize
+DRT-style dynamics. Our original discovery of these three operations with
+which we can characterize dynamic effects came from the realization that we
+can express all the denotations in TTDL with: reading from the context
+($\op{choose}$, or later $\op{get}$), wrapping an existential quantifier
+over the continuation while adding the bound variable into the context
+($\op{introduce}$) and conjoining a proposition to the continuation
+($\op{assert}$).
 
 Once we have applied the $\TTDL$ handler to a computation of type
 $\FF_E(o)$, we can extract the corresponding (static) proposition by
@@ -1015,27 +1025,11 @@ up doing.
 This means that we can build up our dynamic semantics using computations
 that do not return anything, only modify the context using side
 effects. This is very much in the spirit of dynamic semantics: meaning is
-context change potential~\cite{sep-dynamic-semantics}.
-
-If we look closer at TTDL, we can see that the same strategy is applied
-there. Let $S$ be the state monad which maps the type $\alpha$ to the type
-$\gamma \to (\alpha \times \gamma)$. This is the monad that underlies
-state, such as the storing and retrieving of discourse referents. Its
-corresponding monad transformer $S(F)$ maps the type $\alpha$ to the type
-$\gamma \to F(\alpha \times \gamma)$, where $F$ is some other monad. Let
-$C$ be the continuation monad which maps the type $\alpha$ to the type
-$(\alpha \to o) \to o$. By applying the $S$ monad transformer to the $C$
-monad, we get a monad $S(C)$ that maps the type $\alpha$ to the type
-$\gamma \to (\alpha \times \gamma \to o) \to o$. This monad characterizes
-computations that have read/write access to some state of type $\gamma$ and
-can manipulate their continuation of type $o$. If we look at computations
-in this monad with return type $1$, we get the type
-$\gamma \to (1 \times \gamma \to o) \to o$. By the isomorphism between
-$1 \times \gamma$ and $\gamma$, this is the same as
-$\gamma \to (\gamma \to o) \to o$, which is the type $\Omega$ of dynamic
-propositions in TTDL.\@ The correspondence is not a shallow coincidence of
-types. Many of the terms of TTDL can be generated using the $\eta$ and
-$\hsbind$ of this monad.
+context change potential~\cite{sep-dynamic-semantics}.\footnote{When
+  studying the monadic structure of TTDL
+  in~\ref{ssec:ttdl-monadic-structure}, we have found that dynamic
+  propositions correspond to monadic computations with the trivial result
+  type $1$.}
 
 The switch from $\FF_E(o)$ to $\FF_{E \uplus DRT}(1)$ is very much like the
 one from $\FF_E((\iota \to o) \to o)$ to
