@@ -1,3 +1,16 @@
+Having developed the $\calc$ calculus in Part~\ref{part:calculus}, we will
+now turn our attention to its applications in natural language
+semantics. We interpret sentences involving deixis, conventional
+implicature, quantification, anaphora and presupposition as $\calc$
+computations in which these phenomena are expressed as side
+effects/operations. This will allow us to construct a grammar in which all
+of these phenomena are present. Within this grammar, sentences are
+interpreted as computations that have access to all of the linguistic side
+effects at the same time.
+
+\EmptyNewPage
+
+
 \chapter{Introduction to Formal Semantics}
 \label{chap:intro-fs}
 
@@ -364,7 +377,6 @@ definition by induction on the structure of these expressions.
 \item[T2] If $\zeta \in P_{CN}$ and $\zeta$ translates to $\zeta'$, then
   $F_0(\zeta)$ translates to $G_0(\zeta')$, $F_1(\zeta)$ translates to
   $G_1(\zeta')$ and $F_2(\zeta)$ translates to $G_2(\zeta')$, where
-
   \begin{align*}
     & G_0(\zeta') = \lam{P}{\forall x.\, \zeta'(x) \to P(x)} \\
     & G_1(\zeta') = \lam{P}{\exists x.\, (\forall y.\, \zeta'(y) \leftrightarrow x
@@ -419,7 +431,8 @@ the sentence:
 The second derivation of the sentence gives the object-wide scope reading:
 
 \begin{center}
-\begin{tikzpicture}[sibling distance=1cm,level distance=2cm]
+\makebox[\textwidth][l]{
+\begin{tikzpicture}[sibling distance=6mm,level distance=2cm]
 \tikzset{every tree node/.style={align=center,anchor=north}}
   \Tree [.{\textbf{every man loves a unicorn}, $F_{10,0}$ \\
            $\exists x.\, \obj{unicorn}'(x) \land (\forall y.\, \obj{man}'(y) \to \obj{love}'(y, x))$, $G_{10,0}$}
@@ -440,6 +453,7 @@ The second derivation of the sentence gives the object-wide scope reading:
                  [.{\textbf{he}$_0$ \\
                     $\lam{P}{P(x_0)}$} ] ] ] ]
 \end{tikzpicture}
+}
 \end{center}
 
 Even though both derivations lead to the same surface forms, the meanings

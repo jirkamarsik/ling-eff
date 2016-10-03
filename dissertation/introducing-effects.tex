@@ -1,8 +1,6 @@
 \chapter{Introducing the Effects}
 \label{chap:introducing-effects}
 
-\setcounter{exx}{0}
-
 In this chapter, we will take a miniature fragment and extend it in
 different directions, studying various linguistic phenomena. The common
 point in all of these analyses is that they will all rely on the notion of
@@ -15,7 +13,7 @@ sections. We will then consider the semantics of deictic
 pronouns~(\ref{sec:deixis}),
 appositives~(\ref{sec:conventional-implicature}) and quantified noun
 phrases~(\ref{sec:quantification}). After a tour of these analyses, we will
-take a step back and reflect on the methodological process that underlied
+take a step back and reflect on the methodological process that underlies
 their development~(\ref{sec:methodology}).
 
 \minitoc
@@ -409,14 +407,14 @@ sentences:
 
 whose meanings we can calculate as:
 
-\NoChapterPrefix
-\begin{align}
+\begin{align*}
   \sem{\app{\abs{loves}}{\abs{Mary}}{\abs{John}}} & \tto 
-  \etaE{(\app{\obj{love}}{\obj{j}}{\obj{m}})} \\
+  \etaE{(\app{\obj{love}}{\obj{j}}{\obj{m}})}
+  \tag{\ref{ex:trivial}} \\
   \sem{\app{\abs{loves}}{\abs{me}}{\abs{John}}} & \tto
   \app{\op{speaker}}{\star}{(\lam{x}{\etaE{(\app{\obj{love}}{\obj{j}}{x})}})}
-\end{align}
-\ChapterPrefix
+  \tag{\ref{ex:deixis}}
+\end{align*}
 
 For~\eqref{ex:trivial}, we get a pure computation that produces the
 proposition $\app{\obj{love}}{\obj{j}}{\obj{m}}$, which is the same
@@ -513,24 +511,23 @@ that in this solution, we have had to use $\hsbind$ and we cannot get by
 with only $\eta$ and $\aplr$ (i.e.\ we need not only an applicative
 functor, but also a monad).
 
-We can now plug this new entry in and compute the meanings
-of~\eqref{ex:indirect-speech} and~\eqref{ex:direct-speech}.
+We can now plug this new entry in and compute the meanings of
+Examples~\ref{ex:indirect-speech} and~\ref{ex:direct-speech}.
 
-\NoChapterPrefix
-\begin{align}
+\begin{align*}
   \sem{\app{\abs{said}_{\abs{is}}}{(\app{\abs{loves}}{\abs{me}}{\abs{Mary}})}{\abs{John}}}
-  & \tto \app{\op{speaker}}{\star}{(\lam{x}{\etaE{(\app{\obj{say}}{\obj{j}}{(\app{\obj{love}}{\obj{m}}{x})})}})} \\
+  & \tto \app{\op{speaker}}{\star}{(\lam{x}{\etaE{(\app{\obj{say}}{\obj{j}}{(\app{\obj{love}}{\obj{m}}{x})})}})}
+  \tag{\ref{ex:indirect-speech}} \\
   \sem{\app{\abs{said}_{\abs{ds}}}{(\app{\abs{loves}}{\abs{me}}{\abs{Mary}})}{\abs{John}}}
   & \tto \etaE{(\app{\obj{say}}{\obj{j}}{(\app{\obj{love}}{\obj{m}}{\obj{j}})})}
-\end{align}
-\ChapterPrefix
+  \tag{\ref{ex:direct-speech}}
+\end{align*}
 
-In the meaning of~\eqref{ex:indirect-speech}, the $\op{speaker}$ operation
-projects outside the complement clause and we end up with another
-speaker-dependent proposition. On the other hand,
-in~\eqref{ex:direct-speech}, the dependence on the identity of the speaker
-has been discharged by the handler contained in the denotation of
-$\abs{said}_{\abs{ds}}$.
+In~\eqref{ex:indirect-speech}, the $\op{speaker}$ operation projects
+outside the complement clause and we end up with another speaker-dependent
+proposition. On the other hand, in~\eqref{ex:direct-speech}, the dependence
+on the identity of the speaker has been discharged by the handler contained
+in the denotation of $\abs{said}_{\abs{ds}}$.
 
 
 \subsection{Algebraic Considerations}
@@ -689,24 +686,22 @@ inside logical operators:
   \ex If it is not the case that John, whom Sarah loves, loves Sarah then Mary loves John. \label{ex:if-not}
 \end{exe}
 
-We expect~\eqref{ex:either-or} to implicate that Mary is John's best friend
-and~\eqref{ex:if-not} to implicate that Sarah loves John. If we compute
-their denotations, we find out that these actually are the propositions
-that the two sentences try to implicate.
+We expect Example~\ref{ex:either-or} to implicate that Mary is John's best
+friend and Example~\ref{ex:if-not} to implicate that Sarah loves John. If
+we compute their denotations, we find out that these actually are the
+propositions that the two sentences try to implicate.
 
-\NoChapterPrefix
-\begin{align}
-  & \sem{\app{\abs{either-or}}{(\app{\abs{loves}}{\abs{Jane}}{\abs{John}})}{(\app{\abs{loves}}{\abs{John}}{(\app{\abs{appos}}{(\ap{\abs{best-friend}}{\abs{John}})}{\abs{Mary}})})}} \nonumber \\
-  & \tto \app{\op{implicate}}{(\obj{m} = \ap{\obj{best-friend}}{\obj{j}})}{(\lam{z}{\etaE{(\app{\obj{love}}{\obj{j}}{\obj{s}} \lor \app{\obj{love}}{\obj{m}}{\obj{j}})}})} \\
-  & \sem{\app{\abs{if-then}}{(\ap{\abs{not-the-case}}{(\app{\abs{loves}}{\abs{Sarah}}{(\app{\abs{who}_{\abs{s}}}{(\lam{x}{\app{\abs{loves}}{x}{\abs{Sarah}}})}{\abs{John}})})})}{(\app{\abs{loves}}{\abs{John}}{\abs{Mary}})}} \nonumber \\
-  & \tto \app{\op{implicate}}{(\app{\obj{love}}{\obj{s}}{\obj{j}})}{(\lam{z}{\etaE{(\lnot(\app{\obj{love}}{\obj{j}}{\obj{s}}) \to \app{\obj{love}}{\obj{m}}{\obj{j}})}})}
-\end{align}
-\ChapterPrefix
+\begin{align*}
+  & \sem{\app{\abs{either-or}}{(\app{\abs{loves}}{\abs{Jane}}{\abs{John}})}{(\app{\abs{loves}}{\abs{John}}{(\app{\abs{appos}}{(\ap{\abs{best-friend}}{\abs{John}})}{\abs{Mary}})})}} \\
+  & \tto \app{\op{implicate}}{(\obj{m} = \ap{\obj{best-friend}}{\obj{j}})}{(\lam{z}{\etaE{(\app{\obj{love}}{\obj{j}}{\obj{s}} \lor \app{\obj{love}}{\obj{m}}{\obj{j}})}})} \tag{\ref{ex:either-or}} \\
+  & \sem{\app{\abs{if-then}}{(\ap{\abs{not-the-case}}{(\app{\abs{loves}}{\abs{Sarah}}{(\app{\abs{who}_{\abs{s}}}{(\lam{x}{\app{\abs{loves}}{x}{\abs{Sarah}}})}{\abs{John}})})})}{(\app{\abs{loves}}{\abs{John}}{\abs{Mary}})}} \\
+  & \tto \app{\op{implicate}}{(\app{\obj{love}}{\obj{s}}{\obj{j}})}{(\lam{z}{\etaE{(\lnot(\app{\obj{love}}{\obj{j}}{\obj{s}}) \to \app{\obj{love}}{\obj{m}}{\obj{j}})}})} \tag{\ref{ex:if-not}}
+\end{align*}
 
-To go full circle and fulfill the empirical criterion that the meaning
-of~\eqref{ex:either-or} should entail that Mary is John's best friend, we
-will need to translate the term containing $\op{implicate}$ operations into
-a proposition. This will be another question of interpreting operation
+To go full circle and fulfill the empirical criterion that the meaning of
+Example~\ref{ex:either-or} should entail that Mary is John's best friend,
+we will need to translate the term containing $\op{implicate}$ operations
+into a proposition. This will be another question of interpreting operation
 symbols and so we will use a handler.
 
 \begin{align*}
@@ -891,14 +886,12 @@ further, we will consider the following example:
 
 and its denotation:
 
-\NoChapterPrefix
-\begin{align}
-& \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{woman}})}{(\ap{\abs{every}}{\abs{man}})}} \nonumber \\
-\tto\ &\app{\op{scope}}{(\lam{k}{\forall x.\ \ap{\obj{man}}{x} \to \ap{k}{x}})}{(\lam{x}{ \nonumber \\
-      &\app{\op{scope}}{(\lam{k}{\exists y.\ \ap{\obj{woman}}{y} \land \ap{k}{y}})}{(\lam{y}{ \nonumber \\
-      &\etaE{(\app{\obj{love}}{x}{y})}})}})}
-\end{align}
-\ChapterPrefix
+\begin{align*}
+& \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{woman}})}{(\ap{\abs{every}}{\abs{man}})}} \\
+\tto\ &\app{\op{scope}}{(\lam{k}{\forall x.\ \ap{\obj{man}}{x} \to \ap{k}{x}})}{(\lam{x}{ \\
+      &\app{\op{scope}}{(\lam{k}{\exists y.\ \ap{\obj{woman}}{y} \land \ap{k}{y}})}{(\lam{y}{ \\
+      &\etaE{(\app{\obj{love}}{x}{y})}})}})} \tag{\ref{ex:quantifiers}}
+\end{align*}
 
 We have $\etaE{(\app{\obj{love}}{x}{y})}$ as the core meaning, with both
 $(\lam{k}{\forall x.\ \ap{\obj{man}}{x} \to \ap{k}{x}})$ and
@@ -934,15 +927,12 @@ $o \to \FF_E(o)$)\footnote{We could also just as well choose $\sem{S} = o$
   far and the ones we will see later.}.
 
 Using this new lexical entry for $\abs{loves}$, we can directly compute a
-reading for Sentence~\ref{ex:quantifiers}:
+reading for Example~\ref{ex:quantifiers}:
 
-\addtocounter{equation}{-1}
-\NoChapterPrefix
-\begin{align}
-& \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{woman}})}{(\ap{\abs{every}}{\abs{man}})}} \nonumber \\
-&\tto \etaE{(\forall x.\ \ap{\obj{man}}{x} \to (\exists y.\ \ap{\obj{woman}}{y} \land \app{\obj{love}}{x}{y}))}
-\end{align}
-\ChapterPrefix
+\begin{align*}
+& \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{woman}})}{(\ap{\abs{every}}{\abs{man}})}} \\
+&\tto \etaE{(\forall x.\ \ap{\obj{man}}{x} \to (\exists y.\ \ap{\obj{woman}}{y} \land \app{\obj{love}}{x}{y}))} \tag{\ref{ex:quantifiers}}
+\end{align*}
 
 Finally, we will address the use of $\SI$ in the denotations of
 $\abs{every}$ and $\abs{a}$. We will note that we interpret constituents of
@@ -1017,12 +1007,10 @@ Assuming the inclusion of the common nouns \emph{siamese cat} and
 \emph{therapist} in our fragment (with semantics analogous to the ones for
 \emph{man} and \emph{woman}), we can compute the following interpretation:
 
-\NoChapterPrefix
-\begin{align}
-& \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{therapist}})}{(\ap{\abs{every}}{(\ap{\abs{owner-of}}{(\ap{\abs{a}}{\abs{siamese-cat}})})})}} \nonumber \\
-&\tto \etaE{(\forall x.\ (\exists y.\ \ap{\obj{siamese-cat}}{y} \land \app{\obj{own}}{x}{y}) \to (\exists z.\ \ap{\obj{therapist}}{z} \land \app{\obj{love}}{x}{z}))}
-\end{align}
-\ChapterPrefix
+\begin{align*}
+& \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{therapist}})}{(\ap{\abs{every}}{(\ap{\abs{owner-of}}{(\ap{\abs{a}}{\abs{siamese-cat}})})})}} \\
+&\tto \etaE{(\forall x.\ (\exists y.\ \ap{\obj{siamese-cat}}{y} \land \app{\obj{own}}{x}{y}) \to (\exists z.\ \ap{\obj{therapist}}{z} \land \app{\obj{love}}{x}{z}))} \tag{\ref{ex:siamese}}
+\end{align*}
 
 
 \subsection{Quantifier Ambiguity}
@@ -1053,15 +1041,12 @@ pulled the only impure part, $N$, in front of the expression using the
 $\hsbind$ operator. This lexical entry puts the scope of any quantifiers
 found in the restrictor noun over the scope of the quantifier contribued by
 the determiner. If we try using this lexical entry when computing the
-meaning of Sentence~\ref{ex:siamese}, we find another possible reading:
+meaning of Example~\ref{ex:siamese}, we find another possible reading:
 
-\addtocounter{equation}{-1}
-\NoChapterPrefix
-\begin{align}
-& \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{therapist}})}{(\ap{\abs{every'}}{(\ap{\abs{owner-of}}{(\ap{\abs{a}}{\abs{siamese-cat}})})})}} \nonumber \\
-&\tto \etaE{(\exists y.\ \ap{\obj{siamese-cat}}{y} \land (\forall x.\ \app{\obj{own}}{x}{y} \to (\exists z.\ \ap{\obj{therapist}}{z} \land \app{\obj{love}}{x}{z})))}
-\end{align}
-\ChapterPrefix
+\begin{align*}
+& \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{therapist}})}{(\ap{\abs{every'}}{(\ap{\abs{owner-of}}{(\ap{\abs{a}}{\abs{siamese-cat}})})})}} \\
+&\tto \etaE{(\exists y.\ \ap{\obj{siamese-cat}}{y} \land (\forall x.\ \app{\obj{own}}{x}{y} \to (\exists z.\ \ap{\obj{therapist}}{z} \land \app{\obj{love}}{x}{z})))} \tag{\ref{ex:siamese}}
+\end{align*}
 
 Both of the readings we have seen are actually valid interpretations of
 this sentence; quantifiers are a notorious source of ambiguities. In the
@@ -1081,7 +1066,7 @@ and $\abs{every'}$, one giving narrow scope to resrictor quantifiers and
 the other giving them wide scope (the same would be the case for other
 determiners such as $\abs{a}$).
 
-Note that Sentence~\ref{ex:quantifiers} is ambiguous as well. The
+Note that Example~\ref{ex:quantifiers} is ambiguous as well. The
 existential quantifier in \emph{a woman} can take either wide or narrow
 scope (we call it wide scope when the object quantifier scopes over the
 subject quantifier and we call it narrow when it scopes under). The
@@ -1099,31 +1084,23 @@ first, subject last.
 \end{align*}
 
 Using the lexical entry, we can now derive the other reading for
-Sentence~\ref{ex:quantifiers}:
+Example~\ref{ex:quantifiers}:
 
-\addtocounter{equation}{-2}
-\NoChapterPrefix
-\begin{align}
-& \sem{\app{\abs{loves'}}{(\ap{\abs{a}}{\abs{woman}})}{(\ap{\abs{every}}{\abs{man}})}} \nonumber \\
-&\tto \etaE{(\exists y.\ \ap{\obj{woman}}{y} \land (\forall x.\ \ap{\obj{man}}{x} \to \app{\obj{love}}{x}{y}))}
-\end{align}
-\ChapterPrefix
-\addtocounter{equation}{1}
+\begin{align*}
+& \sem{\app{\abs{loves'}}{(\ap{\abs{a}}{\abs{woman}})}{(\ap{\abs{every}}{\abs{man}})}} \\
+&\tto \etaE{(\exists y.\ \ap{\obj{woman}}{y} \land (\forall x.\ \ap{\obj{man}}{x} \to \app{\obj{love}}{x}{y}))} \tag{\ref{ex:quantifiers}}
+\end{align*}
 
-as well as two more readings for Sentence~\ref{ex:siamese}:
+as well as two more readings for Example~\ref{ex:siamese}:
 
-\addtocounter{equation}{-1}
-\NoChapterPrefix
-\begin{align}
-& \sem{\app{\abs{loves'}}{(\ap{\abs{a}}{\abs{therapist}})}{(\ap{\abs{every}}{(\ap{\abs{owner-of}}{(\ap{\abs{a}}{\abs{siamese-cat}})})})}} \nonumber \\
-&\tto \etaE{(\exists z.\ \ap{\obj{therapist}}{z} \land (\forall x.\ (\exists y.\ \ap{\obj{siamese-cat}}{y} \land \app{\obj{own}}{x}{y}) \to \app{\obj{love}}{x}{z}))} \\
-\addtocounter{equation}{-1}
-& \sem{\app{\abs{loves'}}{(\ap{\abs{a}}{\abs{therapist}})}{(\ap{\abs{every'}}{(\ap{\abs{owner-of}}{(\ap{\abs{a}}{\abs{siamese-cat}})})})}} \nonumber \\
-&\tto \etaE{(\exists z.\ \ap{\obj{therapist}}{z} \land (\exists y.\ \ap{\obj{siamese-cat}}{y} \land (\forall x.\ \app{\obj{own}}{x}{y} \to \app{\obj{love}}{x}{z})))}
-\end{align}
-\ChapterPrefix
+\begin{align*}
+& \sem{\app{\abs{loves'}}{(\ap{\abs{a}}{\abs{therapist}})}{(\ap{\abs{every}}{(\ap{\abs{owner-of}}{(\ap{\abs{a}}{\abs{siamese-cat}})})})}} \\
+&\tto \etaE{(\exists z.\ \ap{\obj{therapist}}{z} \land (\forall x.\ (\exists y.\ \ap{\obj{siamese-cat}}{y} \land \app{\obj{own}}{x}{y}) \to \app{\obj{love}}{x}{z}))} \tag{\ref{ex:siamese}} \\
+& \sem{\app{\abs{loves'}}{(\ap{\abs{a}}{\abs{therapist}})}{(\ap{\abs{every'}}{(\ap{\abs{owner-of}}{(\ap{\abs{a}}{\abs{siamese-cat}})})})}} \\
+&\tto \etaE{(\exists z.\ \ap{\obj{therapist}}{z} \land (\exists y.\ \ap{\obj{siamese-cat}}{y} \land (\forall x.\ \app{\obj{own}}{x}{y} \to \app{\obj{love}}{x}{z})))} \tag{\ref{ex:siamese}}
+\end{align*}
 
-However, Sentence~\ref{ex:siamese} has one more reading that we will not be
+However, Example~\ref{ex:siamese} has one more reading that we will not be
 able to get at using this technique.
 
 $$
@@ -1183,49 +1160,38 @@ and then we pass to $K$ a trivial computation that always this referent
 $x$.
 
 We will demonstrate $\abs{QR}$ by deriving the object wide scope reading of
-Sentence~\ref{ex:quantifiers}:
+Example~\ref{ex:quantifiers}:
 
-\addtocounter{equation}{-2}
-\NoChapterPrefix
-\begin{align}
-& \ap{\SI}{\sem{(\app{\abs{QR}}{(\ap{\abs{a}}{\abs{woman}})}{(\lam{y}{\app{\abs{loves}}{y}{(\ap{\abs{every}}{\abs{man}})}})})}} \nonumber \\
+\begin{align*}
+& \ap{\SI}{\sem{(\app{\abs{QR}}{(\ap{\abs{a}}{\abs{woman}})}{(\lam{y}{\app{\abs{loves}}{y}{(\ap{\abs{every}}{\abs{man}})}})})}} \\
 &\tto \ap{\SI}{(\app{\op{scope}}
   {(\lam{k}{\exists y.\ \ap{\obj{woman}}{y} \land \ap{k}{y}})}
-  {(\lam{y}{\forall x.\ \etaE{(\ap{\obj{man}}{x} \rightarrow \app{\obj{love}}{x}{y})}})})} \nonumber \\
+  {(\lam{y}{\forall x.\ \etaE{(\ap{\obj{man}}{x} \rightarrow \app{\obj{love}}{x}{y})}})})} \\
 &\tto \ap{(\lam{k}{\exists y.\ \ap{\obj{woman}}{y} \land \ap{k}{y}})}
-         {(\lam{y}{\forall x.\ \ap{\obj{man}}{x} \rightarrow \app{\obj{love}}{x}{y}})} \nonumber \\
-&\tto \exists y.\ \ap{\obj{woman}}{y} \land (\forall x.\ \ap{\obj{man}}{x} \rightarrow \app{\obj{love}}{x}{y})
-\end{align}
-\ChapterPrefix
-\addtocounter{equation}{1}
+         {(\lam{y}{\forall x.\ \ap{\obj{man}}{x} \rightarrow \app{\obj{love}}{x}{y}})} \\
+&\tto \exists y.\ \ap{\obj{woman}}{y} \land (\forall x.\ \ap{\obj{man}}{x} \rightarrow \app{\obj{love}}{x}{y}) \tag{\ref{ex:quantifiers}}
+\end{align*}
 
-We can also generate all five readings of Sentence~\ref{ex:siamese},
-without incurring the overgeneration due to Cooper's
+We can also generate all five readings of Example~\ref{ex:siamese}, without
+incurring the overgeneration due to Cooper's
 storage~\cite{burchardt2004computational} thanks to the ACG type
 system\footnote{The overgenerating case is due to a variable escaping its
   scope. However, such a term with a free occurrence of a variable would
-  not be a well-typed closed term and so such a derivation does not
-  exist in our grammar.}.
+  not be a well-typed closed term and so such a derivation does not exist
+  in our grammar.}.
 
-\addtocounter{equation}{-1}
-\NoChapterPrefix
-\begin{align}
-& \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{therapist}})}{(\ap{\abs{every}}{(\ap{\abs{owner-of}}{(\ap{\abs{a}}{\abs{siamese-cat}})})})}} \nonumber \\
-&\tto \etaE{(\forall x.\ (\exists y.\ \ap{\obj{siamese-cat}}{y} \land \app{\obj{own}}{x}{y}) \to (\exists z.\ \ap{\obj{therapist}}{z} \land \app{\obj{love}}{x}{z}))} \\
-\addtocounter{equation}{-1}
-& \ap{\SI}{\sem{\app{QR}{(\ap{\abs{a}}{\abs{siamese-cat}})}{(\lam{y}{(\app{\abs{loves}}{(\ap{\abs{a}}{\abs{therapist}})}{(\ap{\abs{every}}{(\ap{\abs{owner-of}}{y})})})})}}} \nonumber \\
-&\tto \exists y.\ \ap{\obj{siamese-cat}}{y} \land (\forall x.\ \app{\obj{own}}{x}{y} \to (\exists z.\ \ap{\obj{therapist}}{z} \land \app{\obj{love}}{x}{z})) \\
-\addtocounter{equation}{-1}
-& \ap{\SI}{\sem{\app{QR}{(\ap{\abs{a}}{\abs{therapist}})}{(\lam{z}{(\app{\abs{loves}}{z}{(\ap{\abs{every}}{(\ap{\abs{owner-of}}{(\ap{\abs{a}}{\abs{siamese-cat}})})})})})}}} \nonumber \\
-&\tto \exists z.\ \ap{\obj{therapist}}{z} \land (\forall x.\ (\exists y.\ \ap{\obj{siamese-cat}}{y} \land \app{\obj{own}}{x}{y}) \to \app{\obj{love}}{x}{z}) \\
-\addtocounter{equation}{-1}
-& \ap{\SI}{\sem{\app{QR}{(\ap{\abs{a}}{\abs{siamese-cat}})}{(\lam{y}{(\app{QR}{(\ap{\abs{a}}{\abs{therapist}})}{(\lam{z}{(\app{\abs{loves}}{z}{(\ap{\abs{every}}{(\ap{\abs{owner-of}}{y})})})})})})}}} \nonumber \\
-&\tto \exists y.\ \ap{\obj{siamese-cat}}{y} \land (\exists z.\ \ap{\obj{therapist}}{z} \land (\forall x.\ \app{\obj{own}}{x}{y} \to \app{\obj{love}}{x}{z})) \\
-\addtocounter{equation}{-1}
-& \ap{\SI}{\sem{\app{QR}{(\ap{\abs{a}}{\abs{therapist}})}{(\lam{z}{(\app{QR}{(\ap{\abs{a}}{\abs{siamese-cat}})}{(\lam{y}{(\app{\abs{loves}}{z}{(\ap{\abs{every}}{(\ap{\abs{owner-of}}{y})})})})})})}}} \nonumber \\
-&\tto \exists z.\ \ap{\obj{therapist}}{z} \land (\exists y.\ \ap{\obj{siamese-cat}}{y} \land (\forall x.\ \app{\obj{own}}{x}{y} \to \app{\obj{love}}{x}{z}))
-\end{align}
-\ChapterPrefix
+\begin{align*}
+& \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{therapist}})}{(\ap{\abs{every}}{(\ap{\abs{owner-of}}{(\ap{\abs{a}}{\abs{siamese-cat}})})})}} \\
+&\tto \etaE{(\forall x.\ (\exists y.\ \ap{\obj{siamese-cat}}{y} \land \app{\obj{own}}{x}{y}) \to (\exists z.\ \ap{\obj{therapist}}{z} \land \app{\obj{love}}{x}{z}))} \tag{\ref{ex:siamese}} \\
+& \ap{\SI}{\sem{\app{QR}{(\ap{\abs{a}}{\abs{siamese-cat}})}{(\lam{y}{(\app{\abs{loves}}{(\ap{\abs{a}}{\abs{therapist}})}{(\ap{\abs{every}}{(\ap{\abs{owner-of}}{y})})})})}}} \\
+&\tto \exists y.\ \ap{\obj{siamese-cat}}{y} \land (\forall x.\ \app{\obj{own}}{x}{y} \to (\exists z.\ \ap{\obj{therapist}}{z} \land \app{\obj{love}}{x}{z})) \tag{\ref{ex:siamese}} \\
+& \ap{\SI}{\sem{\app{QR}{(\ap{\abs{a}}{\abs{therapist}})}{(\lam{z}{(\app{\abs{loves}}{z}{(\ap{\abs{every}}{(\ap{\abs{owner-of}}{(\ap{\abs{a}}{\abs{siamese-cat}})})})})})}}} \\
+&\tto \exists z.\ \ap{\obj{therapist}}{z} \land (\forall x.\ (\exists y.\ \ap{\obj{siamese-cat}}{y} \land \app{\obj{own}}{x}{y}) \to \app{\obj{love}}{x}{z}) \tag{\ref{ex:siamese}} \\
+& \ap{\SI}{\sem{\app{QR}{(\ap{\abs{a}}{\abs{siamese-cat}})}{(\lam{y}{(\app{QR}{(\ap{\abs{a}}{\abs{therapist}})}{(\lam{z}{(\app{\abs{loves}}{z}{(\ap{\abs{every}}{(\ap{\abs{owner-of}}{y})})})})})})}}} \\
+&\tto \exists y.\ \ap{\obj{siamese-cat}}{y} \land (\exists z.\ \ap{\obj{therapist}}{z} \land (\forall x.\ \app{\obj{own}}{x}{y} \to \app{\obj{love}}{x}{z})) \tag{\ref{ex:siamese}} \\
+& \ap{\SI}{\sem{\app{QR}{(\ap{\abs{a}}{\abs{therapist}})}{(\lam{z}{(\app{QR}{(\ap{\abs{a}}{\abs{siamese-cat}})}{(\lam{y}{(\app{\abs{loves}}{z}{(\ap{\abs{every}}{(\ap{\abs{owner-of}}{y})})})})})})}}} \\
+&\tto \exists z.\ \ap{\obj{therapist}}{z} \land (\exists y.\ \ap{\obj{siamese-cat}}{y} \land (\forall x.\ \app{\obj{own}}{x}{y} \to \app{\obj{love}}{x}{z})) \tag{\ref{ex:siamese}}
+\end{align*}
 
 The QR operator allows us to displace the scope of any quantifier
 \footnote{Actually, it can displace any kind of $NP$ effect, including
@@ -1282,12 +1248,10 @@ in a sound way, without violating the homomorphism property of the ACG.
 
 \vspace{-8mm}
 
-\NoChapterPrefix
-\begin{align}
-& \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{man}})}{\abs{John}}} \nonumber \\
-&\tto \etaE{(\exists x.\ \ap{\obj{man}}{x} \land \app{\obj{love}}{\obj{j}}{x})}
-\end{align}
-\ChapterPrefix
+\begin{align*}
+& \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{man}})}{\abs{John}}} \\
+&\tto \etaE{(\exists x.\ \ap{\obj{man}}{x} \land \app{\obj{love}}{\obj{j}}{x})} \tag{\ref{ex:mixed-nps}}
+\end{align*}
 
 Since we do not have any useful laws to simplify the denotations in
 $\FF_{\{ \typedop{scope}{((\iota \to o) \to o)}{\iota} \}}(\alpha)$, the
@@ -1308,7 +1272,7 @@ an $\FF_{\{ \typedop{scope}{((\iota \to o) \to o)}{\iota} \}}(\alpha)$
 denotation corresponds to a series of embedded quantifiers in Keller
 storage: we cannot retrieve a quantifier without first retrieving the
 quantifiers which precede it in the chain. This is exemplified by this
-chain from Sentence~\ref{ex:siamese} where the $y$ in the second quantifier
+chain from Example~\ref{ex:siamese} where the $y$ in the second quantifier
 is bound by the first quantifier:
 
 \begin{align*}
@@ -1495,7 +1459,7 @@ homomorphism $\sem{-}$ to the object-level function $\alpha \to \beta$. A
 semantic function is any other function present at the object (semantic)
 level, e.g.\ the predicate $\obj{love} : \iota \to \iota \to o$.
 
-We will demonstrate this on the example of Sentence~\ref{ex:quantifiers}:
+We will demonstrate this on the example of Example~\ref{ex:quantifiers}:
 \emph{every man loves a woman}.
 
 \begin{align*}
@@ -1534,7 +1498,7 @@ Since quantifiers are known to have ambiguous scope and the strength to
 leave scope islands under certain conditions, this reading might still be
 acceptable, even though it was not what our lexical entry intended to do
 (the $\SI$ handler had no effect at all). We can look at another example,
-Sentence~\ref{ex:direct-speech}: \emph{John said ``Mary loves me''}.
+Example~\ref{ex:direct-speech}: \emph{John said ``Mary loves me''}.
 
 \begin{align*}
 & \sem{\app{\abs{said}_{\abs{ds}}}{(\app{\abs{loves}}{\abs{me}}{\abs{Mary}})}{\abs{John}}} \\

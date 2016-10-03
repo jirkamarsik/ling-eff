@@ -1458,10 +1458,10 @@ repercussions.\footnote{We have seen that the $\BOX$ handler corresponds to
   the boundary of a DRS.\@ We note that DRT does not instruct us to wrap
   the relative clause in a DRS and we can therefore expect our theory to
   diverge w.r.t.\ accessibility.} It will lead to the blocking of anaphoric
-binding from the noun, as in the Example~\ref{ex:donkey-sentence}.
+binding from the noun, as in the Example~\ref{ex:donkey-rc}.
 
 \begin{exe}
-  \ex Every farmer who owns a donkey$_1$ beats it$_1$. \label{ex:donkey-sentence}
+  \exr{ex:donkey-rc} Every farmer who owns a donkey$_1$ beats it$_1$.
 \end{exe}
 
 Our entry for $\sem{\abs{who}_{\abs{r}}}$ gives the following meaning to
@@ -1476,17 +1476,17 @@ The result is a pure computation that is not going to introduce any
 referents into the discourse (because all of the $\op{introduce}$
 operations were captured by $\BOX$) and therefore it is not going to be
 able to license the anaphoric binding to the pronoun \emph{it} in
-Example~\ref{ex:donkey-sentence}.
+Example~\ref{ex:donkey-rc}.
 
 We have seen that by not using $\BOX$ evaluation gets stuck because the
 $\op{assert}$ operations that carry the truth conditions of the relative
 clause are not independent of the argument to which the noun's extension is
 applied. On the other hand, by using $\BOX$, the $\op{introduce}$
 operations that introduce new discourse referents are blocked and cannot
-license the kind of anaphora that we see in
-Example~\ref{ex:donkey-sentence}. We can find the middle ground between
-the two by only handling $\op{assert}$ to get the truth conditions and
-letting $\op{introduce}$ project outside of the noun.
+license the kind of anaphora that we see in Example~\ref{ex:donkey-rc}. We
+can find the middle ground between the two by only handling $\op{assert}$
+to get the truth conditions and letting $\op{introduce}$ project outside of
+the noun.
 
 \begin{align*}
   \withAssertions &: \FF_{E \uplus \{\op{assert}\}}(1) \to \FF_E(o) \\
@@ -1500,7 +1500,7 @@ letting $\op{introduce}$ project outside of the noun.
 Now, if we reexamine the meaning of the noun \emph{farmer who owns a
   donkey} under the new interpretation of $\abs{who}_{\abs{r}}$, we find
 that the new discourse referent projects outside of the noun and will
-therefore be able to bind the pronoun in Example~\ref{ex:donkey-sentence}:
+therefore be able to bind the pronoun in Example~\ref{ex:donkey-rc}:
 
 \begin{align*}
 & \sem{\app{\abs{who}_{\abs{r}}}{(\lam{x}{\app{\abs{owns}}{(\ap{\abs{a}}{\abs{donkey}})}{x}})}{\abs{farmer}}} \\
