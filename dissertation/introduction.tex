@@ -12,76 +12,79 @@ identify many of the problems inherent in the translation and point to
 papers that have proposed solutions.
 
 \begin{exe}
-  \ex She must still be dating that idiot.
+  \ex She might still be dating that idiot. \label{ex:intro}
 \end{exe}
 
 \begin{enumerate}
-  \item \label{item:first-feature} We have anaphoric expressions,
-    \emph{she} and \emph{that}. We know that we can translate sentences
-    containing those into Discourse Representation Theory (DRT)
-    \cite{kamp1993discourse} structures, Dynamic Predicate Logic (DPL)
-    \cite{groenendijk1991dynamic} formulas or continuation-passing style
-    $\lambda$-terms \cite{de2006towards}.
-  \item We have the modal auxiliary \emph{must} that we can translate into
-    an operator of a modal logic or directly to some universal
+\item \label{item:first-feature} We have anaphoric expressions, such as the
+  pronoun \emph{she}. We know that we can translate sentences with anaphora
+  into Discourse Representation Theory~(DRT)~\cite{kamp1993discourse}
+  structures, Dynamic Predicate Logic~(DPL)~\cite{groenendijk1991dynamic}
+  formulas or continuation-passing style
+  $\lambda$-terms~\cite{de2006towards}.
+  \item We have the modal auxiliary \emph{might} that we can translate into
+    an operator of modal logic or directly to some existential
     quantification over possible worlds.
   \item We have the progressive present tense in \emph{be
-    dating}. Similarly to the modal, we can translate this into an operator
-    of a temporal logic or directly posit the existence of some interval of
-    time during which the dating takes place and assert that the time of
-    utterance lies in that interval.
-  \item We have the presupposition trigger \emph{still} that will tell us
-    that the dating must have been going on for some time already. We will
-    have to possess some mechanism to project this contribution outside the
-    scope of any of the logical operators present (including \emph{must} in
-    this example\footnote{Consider the same example with \emph{should}
-      instead of \emph{must}.}). We can adopt the strategy of Lebedeva
-    \cite{lebedeva2012expression} and raise exceptions to perform the
-    projection.
+      dating}. Similarly to the modal, we can translate this into an
+    operator of temporal logic or directly posit the existence of some
+    interval of time during which the dating takes place and assert that
+    the time of utterance (possibly) lies in that interval.
+  \item We have the presupposition trigger \emph{still} that tells us that
+    the two must have been dating in the past already. We will have to
+    possess some mechanism to project this contribution outside the scope
+    of any of the logical operators present.\footnote{While in the present,
+      we can only infer that they \emph{might} be dating, by accommodating
+      the presupposition, we can infer that sometime in the past, they
+      \emph{must have been} dating.} We can adopt the strategy of
+    Lebedeva~\cite{lebedeva2012expression} and raise exceptions to perform
+    the projection.
   \item \label{item:last-feature} We have the expressive epithet
     \emph{idiot}. Following the theory of conventional implicatures of
-    Potts \cite{potts2005logic}, elaborated by Gutzmann
-    \cite{gutzmann2015use}, we know that we should introduce a second
-    dimension into which we tuck away the speaker's negative attitude
-    towards the date-ee so that it does not interfere with the at-issue
-    content.
+    Potts~\cite{potts2005logic}, elaborated by
+    Gutzmann~\cite{gutzmann2015use}, we know that we should introduce a
+    second dimension into which we tuck away the speaker's negative
+    attitude towards the date-ee so that it does not interfere with the
+    at-issue content.
 \end{enumerate}
 
 All of the advice given above seems sound. We could follow these guidelines
 to intuitively arrive at some reasonable logical representation. Now how do
 we write down this joint translation process? Most of the theories
-mentioned above come with their own language: their sets of definitions,
-notations and operations.
+mentioned above come with their own language: their own definitions,
+notation and operations.
 
 DRT introduces its own encoding of logical formulas and states an algorithm
-that builds them up incrementally from the input sentence. Potts's logic of
-conventional implicatures introduces two-dimensional logical formulas and
-defines new modes of combination to compute with them. Compositional
-treatments of intensionality or tense tend to use the simply-typed lambda
-calculus, as is the case in de Groote's treatment of anaphora
-\cite{de2006towards}. Lebedeva then refines the calculus of de Groote and
-integrates exceptions to the semantics of the calculus
-\cite{lebedeva2012expression}.
+that builds them up incrementally from the input
+sentence~\cite{kamp1993discourse}. Potts's logic of conventional
+implicatures introduces two-dimensional logical formulas and defines new
+modes of combination to compute with
+them~\cite{potts2005logic}. Compositional treatments of intensionality or
+tense tend to use the simply-typed lambda
+calculus~\cite{ben2007semantics,de2013note}, as is the case in de Groote's
+treatment of anaphora~\cite{de2006towards}. In studying presuppositions,
+Lebedeva changes the calculus of de Groote to integrate
+exceptions~\cite{lebedeva2012expression}.
 
 It seems clear that in order to arrive at a precise notion of what it means
-do all of \ref{item:first-feature}--\ref{item:last-feature}, we will first
+do all of~\ref{item:first-feature}--\ref{item:last-feature}, we will first
 have to be able to express the theories behind
 \ref{item:first-feature}--\ref{item:last-feature} using a single formal
 language.
 
-\section{Enter Monads}
+\section*{Enter Monads}
 
 We will base our universal language on the $\lambda$-calculus. Thanks to
-Richard Montague's hugely influential work \cite{montague1973proper}, the
+Richard Montague's hugely influential work~\cite{montague1973proper}, the
 $\lambda$-calculus is already a very popular formalism in formal
-compositional semantics\footnote{Frege's compositionality principle states
-  that the meanings of complex expressions should be determined by
-  (i.e.\ be functions of) the meanings of its constituents. If meanings are
+compositional semantics.\footnote{Frege's compositionality principle states
+  that the meanings of complex expressions should be determined by (i.e.\
+  be functions of) the meanings of its constituents. If meanings are
   defined in terms of meaning functions, it makes sense to use a calculus
-  of functions.}. Many phenomena are analyzed using the $\lambda$-calculus
+  of functions.} Many phenomena are analyzed using the $\lambda$-calculus
 and the rest tend to get translated to $\lambda$-calculus as well (see, for
-example, $\lambda$-DRT \cite{kuschert1995type} or de Groote's
-continuation-based approach to dynamics \cite{de2006towards}).
+example, $\lambda$-DRT~\cite{kuschert1995type} or de Groote's
+continuation-based approach to dynamics~\cite{de2006towards}).
 
 However, even though we have several theories which are all formalised in
 $\lambda$-calculus, it does not necessarily mean that they are compatible
@@ -90,7 +93,7 @@ might state that sentences ought to be translated to terms that have the
 type $\sigma \to o$, the type of functions from possible worlds to truth
 values. On the other hand, an account of expressives would argue that
 sentences ought to correspond to terms of type $o \times \epsilon$, the
-types of pairs of truth values (propositional content) and expressive
+type of pairs of truth values (propositional content) and expressive
 markers (expressive content). The two theories would be compatible at the
 calculus-level but not at the term-level. A function operating with
 intensional propositions would not be directly applicable to an expressive
@@ -116,13 +119,13 @@ following structure:
   of the old type into denotations of the new type. In the quantifier
   example, this is the famous type raising operation. In the intensional
   example, this is the $\textbf{K}$ combinator that turns a truth value
-  into a constant function that assigns that truth value to all worlds. In
-  the expressive example, this is the function that couples a proposition
-  with a neutral/empty expressive marker.
-\item Then there are of course other inhabitants of the expanded type that
-  are not found by using the lifting function described above. Those are
-  the ones that we expanded the type for. Quantificational noun phrases
-  such as \emph{everyone} are not the result of type raising any specific
+  into a constant function that assigns that truth value to all worlds, a
+  rigid intension. In the expressive example, this is the function that
+  couples a proposition with a neutral/empty expressive marker.
+\item Then there are other inhabitants of the expanded type that are not
+  found by using the lifting function described above; those are the ones
+  for which we expanded the type. Quantificational noun phrases such as
+  \emph{everyone} are not the result of type raising any specific
   individual. Intensional propositions such as \emph{Hespherus is
     Phosphorus} have extensions that vary from world to world. Expressives
   such as the diminutive \emph{Wolfie} will point to some individual and
@@ -142,30 +145,163 @@ following structure:
 
 This kind of structure is very commonly seen in functional programming and
 in denotational semantics of programming languages. It is the structure of
-an \emph{applicative functor} \cite{mcbride2008applicative} (or
+an \emph{applicative functor}~\cite{mcbride2008applicative} (or
 \emph{strong lax monoidal functor}, for the categorically-inclined). The
 above examples are also instances of a more special structure called a
-\emph{monad} \cite{moggi1991notions}.
+\emph{monad}~\cite{moggi1991notions}.
 
 We will not go into the minutiae of the definition of a monad here but we
-will give a rough sketch nonetheless. A monad is a triple $(T, \eta, \mu)$
-where $T$ is a function on types (the type expansion we saw in
-\ref{item:type-transformation}), $\eta$ is some way of lifting simple
-values into expanded values (the lifting functions in \ref{item:monad-eta})
-and $\mu$ gives us a general way of combining values of this expanded type
-(similar to the examples given in \ref{item:monad-mu}). The triple also has
-to satisfy some algebraic properties which guarantee that composing
-functions of expanded types is associative and that the lifting function
-serves as a unit for this composition operator.
+will give a rough sketch nonetheless. A monad is a triple
+$(T, \eta, \hsbind)$ where $T$ is a function on types (the type expansion
+we saw in~\ref{item:type-transformation}), $\eta$ is some way of lifting
+simple values into expanded values (the lifting functions
+in~\ref{item:monad-eta}) and $\hsbind$ gives us a general way of combining
+values of this expanded type (similar to the examples given
+in~\ref{item:monad-mu}). The triple also has to satisfy some algebraic
+properties which guarantee that composing functions of expanded types is
+associative and that the lifting function serves as a unit for this
+composition operator.
 
-The examples given above are all instances of monads. This has al
-
-
-\TODO{David Lewis --- General Semantics --- ``In order to say what a meaning is, we may first ask what a meaning does and then find something that does that.''}
-
-\TODO{Also speak about monad transformers (and free monads?) here as we are
-not making an individual section in the Connections chapter about monads.}
+The examples given above are all instances of monads. The prevalence of
+monads in natural language semantics has been already discovered by Shan
+in~\cite{shan2002monads}. However, the challenge lies in trying to use
+several monads at the same time.
 
 
-We reserve Chapter~\ref{chap:dynamic-semantics} for the discussion of a
-particularly complex phenomenon: dynamics. 
+\section*{Linguistic Side Effects}
+
+Monads often appear in denotational semantics of programming languages to
+account for notions of computation commonly referred to as \emph{side
+  effects}~\cite{moggi1991notions}. We can base ourselves on this
+correspondence and regard the monadic structure in natural language as
+linguistic side effects. This analogy was pursued by
+Shan~\cite{shan2005linguistic,shan2005thesis} and
+Kiselyov~\cite{kiselyov2008call} and is present in recent work on monads in
+natural language
+semantics~\cite{giorgolo2012monads,charlow2014semantics}. However, the idea
+itself stretches back before monads were even introduced to computer
+science. In their 1977 paper~\cite{hobbs1977making}, Hobbs and Rosenschein
+take a computational perspective on the intensional logic of
+Montague~\cite{montague1973proper}: intensions correspond to programs and
+extensions correspond to values. A program can read the value of global
+variables that describe the state of the world.\footnote{Dependence on an
+  environment of some type $\sigma$ is a side effect that can be described
+  using the reader monad. This monad lifts the type $\alpha$ to the type
+  $\sigma \to \alpha$. This is exactly the change of types that is
+  prescribed by theories of
+  intensionalization~\cite{ben2007semantics,de2013note}.} The operators
+$\uparrow$ and $\downarrow$, which map between extension-denoting
+expressions and intension-denoting expressions, then correspond to the
+Lisp-style operators $\texttt{quote}$ and $\texttt{eval}$ respectively.
+
+The idea of treating linguistic expressions as effectful actions or
+programs are also very relevant to dynamic semantics, which treats the
+meanings of sentences as instructions to update some common ground or other
+linguistic context.\footnote{The use of monads to encode dynamic effects
+  (anaphora) dates back to 2009 and the work of Giorgolo and
+  Unger~\cite{giorgolo2009coreference,unger2012dynamic}} Dynamic semantics
+and anaphora are sometimes classified as belonging to both semantics and
+pragmatics. This is also the case for other phenomena that we will treat as
+side effects in our dissertation: deixis, presupposition,
+implicature. Pragmatics studies the way a language fits into the community
+of its users, i.e.\ how it is actually used by its speakers to achieve
+their goals. It might then come as no surprise that pragmatics align well
+with side effects in programming languages since side effects themselves
+concern the ways that programs can interact with the world of their users
+(e.g.\ by making things appear on screen or by listening for the user's
+input).
+
+
+\section*{Effects and Handlers}
+
+By looking at the different monadic structures of natural language
+semantics as side effects, we can apply theories that combine side effects
+to find a formalism that can talk about all the aspects of language at the
+same time. One such theoretical framework are effects and handlers. In this
+framework, programs are interpreted as sequences of instructions (or more
+generally as decision trees).\footnote{More precisely, we are interpreting
+  programs in a free monad~\cite{swierstra2008data}.} The instructions are
+symbols called operations which stand for the different effects, the
+different ways that programs can interact with their contexts. In our
+application to natural language semantics, here are some examples of
+operations that will feature in our demonstrations, along with their
+intended semantics:\footnote{The operations are just symbols and so have no
+  inherent meaning.}
+
+\begin{itemize}
+\item $\op{introduce}$ introduces a new discourse referent to the
+  context. This is the kind of operation used by noun phrases such as the
+  indefinite \emph{a man}.
+\item $\ap{\op{presuppose}}{P}$ presupposes the existence of an entity
+  satisfying the predicate $P$. This is used by definite descriptions
+  \emph{the $P$} and by proper nouns.
+\item $\ap{\op{implicate}}{i}$ states that $i$ is an implicature. This
+  operation is used by appositive constructions such as \emph{John, who is
+    my neighbor}.
+\item $\op{speaker}$ asks the context for the identity of the speaker. This
+  is used by the first-person pronoun to find its referent.
+\end{itemize}
+
+The process of calculating the denotation of a linguistic expression is
+broken down to these operations. When expressions combine to form sentences
+and discourses, these operations end up being concatenated into a large
+program which will want to perform a series of interactions with its
+context. This is when handlers come into play. A handler is an interpreter
+that gives a definition to the operation symbols in a program. Handlers can
+be made modular~\footnote{In a similar way that monads can be turned into
+  monad transformers (monad morphisms) and then
+  composed~\cite{shan2002monads,wu2015transformers}.} so that the
+interpreter for our vocabulary of context interactions can be defined as
+the composition of several smaller handlers, each treating a different
+aspect of language (dynamicity, implicature, deixis\ldots).
+
+When using effects and handlers, we therefore start by enumerating the set
+of interactions that programs (i.e.\ linguistic expressions in our
+application) can have with their contexts. Then, we can interpret
+linguistic expressions as sequences of such instructions. Finally, we write
+handlers which implement these instructions and produce a suitable semantic
+representation. This approach thus closely follows the mantra given by
+Lewis:
+
+\begin{quote}
+  In order to say what a meaning is, we may first ask what a meaning does
+  and then find something that does that.
+
+  \begin{flushright}
+    General Semantics, David Lewis~\cite{lewis1970general}
+  \end{flushright}
+\end{quote}
+
+We can trace the origins of effects and handlers to two strands of
+work. One is Cartwright and Felleisen's work on Extensible Denotational
+Language Specifications~\cite{cartwright1994extensible}, in which a
+technique for building semantics is developed such that when a
+(programming) language is being extended with new constructions (and new
+side effects), the existing denotations remain compatible and can be
+reused. The other precursor is Hyland's, Plotkin's and Power's work on
+algebraic effects~\cite{hyland2006combining}, a categorical technique for
+studying effectful computations, which was later extended by Plotkin and
+Pretnar to include
+handlers~\cite{plotkin2009handlers,pretnar2010logic,plotkin2013handling}. The
+technique has gained in popularity in recent years (2012 and onward). It
+finds applications both in the encoding of effects in pure functional
+programming
+languages~\cite{kiselyov2013extensible,kiselyov2015freer,kammar2013handlers,brady2013programming}
+and in the design of programming
+languages~\cite{bauer2012programming,lindley2016dobedobedo,dolan2015effective,kiselyov2016eff,hillerstrom2016compiling}. Our
+thesis will explore the applicability of effects and handlers to natural
+language semantics.
+
+
+\section*{Plan}
+
+The manuscript of this thesis is split into two parts. In the first, we
+develop a formal calculus that extends the simply-typed lambda calculus
+with a free monad for effects and handlers. We prove some key properties,
+such as strong normalization, and we show how the calculus to other similar
+notions such as continuations or monads. In the second part, we analyze
+some of the aspects of linguistic meaning as side effects: deixis,
+conventional implicature, quantification, anaphora and presupposition. We
+incrementally build up a fragment that features all of those features and
+demonstrates some of their interactions.
+
