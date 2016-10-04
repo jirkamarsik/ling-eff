@@ -1,34 +1,34 @@
 #lang racket
 (require redex)
 
-(define-language EH
-  (e ::= (e e)
-         (λ (x t) e)
-         x
+(define-language BANANA
+  (e ::= x
          c
-         (pure e)
-         (op e (λ (x t) e))
-         (handler (op e) ... (pure e))
+         (e e)
+         (λ (x τ) e)
+         (η E e)
+         (OP e (λ (x τ) e))
+         (with (OP e) ... (η e) handle e)
          (C e))
-  (t ::= (t -> t)
-         v
-         (F t))
+  (τ ::= (τ → τ)
+         ν
+         (F E τ))
   (x ::= variable-not-otherwise-mentioned)
   (c ::= variable-not-otherwise-mentioned)
-  (v ::= variable-not-otherwise-mentioned)
-  (op ::= variable-not-otherwise-mentioned)
-  (G ::= * (x : t G))
-  (S ::= * (c : t S))
-  (E ::= * (op : (t -> t) E))
-  (context ::= G S E)
-  (key ::= x c op))
+  (ν ::= variable-not-otherwise-mentioned)
+  (OP ::= variable-not-otherwise-mentioned)
+  (Γ ::= · (x : τ Γ))
+  (Σ ::= · (c : τ Σ))
+  (E ::= · (OP : (τ ↦ τ) E))
+  (context ::= Γ Σ E)
+  (key ::= x c OP))
 
-(define-metafunction EH
+(define-metafunction BANANA
   different : any any -> #t or #f
   [(different any_1 any_1) #f]
   [(different any_1 any_2) #t])
 
-(define-metafunction EH
+(define-metafunction BANANA
   all-match : any (any ...) -> #t or #f
   [(all-match any_1 (any_1 any_more ...))
    (all-match any_1 (any_more ...))]
@@ -37,7 +37,7 @@
   [(all-match any_1 ())
    #t])
 
-(define-metafunction EH
+(define-metafunction BANANA
   no-match : any (any ...) -> #t or #f
   [(no-match any_1 (any_1 any_more ...))
    #f]
@@ -46,70 +46,109 @@
   [(no-match any_1 ())
    #t])
 
+(define-metafunction BANANA
+  add/replace : key any context -> context
+  [(add/replace key_1 any_1 ·)
+   (key_1 : any_1 ·)]
+  [(add/replace key_1 any_1 (key_1 : any_2 context_2))
+   (key_1 : any_1 context_2)]
+  [(add/replace key_1 any_1 (key_2 : any_2 context_2))
+   (key_2 : any_2 (add/replace key_1 any_1 context_2))])
+
+(define-metafunction BANANA
+  merge : context context -> context
+  [(merge · context_2)
+   context_2]
+  [(merge (key_1 : any_1 context_1) context_2)
+   (add/replace key_1 any_1 (merge context_1 context_2))])
+
+(define-metafunction BANANA
+  ctx-from-ellipsis : ((key any) ...) -> context
+  [(ctx-from-ellipsis ())
+   ·]
+  [(ctx-from-ellipsis ((key_1 any_1) (key_more any_more) ...))
+   (key_1 : any_1 (ctx-from-ellipsis ((key_more any_more) ...)))])
+
 (define-judgment-form
-  EH
-  #:mode (env I O I)
-  #:contract (env key t context)
+  BANANA
+  #:mode (∈ I O I)
+  #:contract (∈ key any context)
   
-  [-----------------------------
-   (env key t (key : t context))]
+  [---------------------------------------
+   (∈ key_1 any_1 (key_1 : any_1 context))]
   
-  [(env key_1 t_1 context)
+  [(∈ key_1 any_1 context)
    (side-condition (different key_1 key_2))
-   ----------------------------------------
-   (env key_1 t_1 (key_2 : t_2 context))])
+   ---------------------------------------
+   (∈ key_1 any_1 (key_2 : any_2 context))])
 
 (define-judgment-form
-  EH
-  #:mode (types I I I I O)
-  #:contract (types G S E e t)
+  BANANA
+  #:mode (context-included I I)
+  #:contract (context-included context context)
+
+  [------------------------------
+   (context-included · context_2)]
+
+  [(∈ key_1 any_1 context_2)
+   (context-included context_1 context_2)
+   ------------------------------------------------------
+   (context-included (key_1 : any_1 context_1) context_2)])
+
+(define-judgment-form
+  BANANA
+  #:mode (⊢ I I I O)
+  #:contract (⊢ Γ Σ e τ)
   
-  [(types G S E e_1 (t_2 -> t_3))
-   (types G S E e_2 t_2)
-   ------------------------------ "app"
-   (types G S E (e_1 e_2) t_3)]
+  [(⊢ Γ Σ e_1 (τ_2 → τ_3))
+   (⊢ Γ Σ e_2 τ_2)
+   --------------------- "app"
+   (⊢ Γ Σ (e_1 e_2) τ_3)]
   
-  [(types (x : t_1 G) S E e t_2)
-   ---------------------------------------- "abs"
-   (types G S E (λ (x t_1) e) (t_1 -> t_2))]
+  [(⊢ (x : τ_1 Γ) Σ e τ_2)
+   --------------------------------- "abs"
+   (⊢ Γ Σ (λ (x τ_1) e) (τ_1 → τ_2))]
   
-  [(env x t G)
-   ----------------- "var"
-   (types G S E x t)]
+  [(∈ x τ Γ)
+   ----------- "var"
+   (⊢ Γ Σ x τ)]
   
-  [(env c t S)
-   ----------------- "const"
-   (types G S E c t)]
+  [(∈ c τ Σ)
+   ----------- "const"
+   (⊢ Γ Σ c τ)]
   
-  [(types G S E e t)
-   ---------------------------- "pure"
-   (types G S E (pure e) (F t))]
+  [(⊢ Γ Σ e τ)
+   ----------------------- "η"
+   (⊢ Γ Σ (η E e) (F E τ))]
   
-  [(env op (t_1 -> t_2) E)
-   (types G S E e_arg t_1)
-   (types G S E e_k (t_2 -> (F t_3)))
-   ------------------------------------ "op"
-   (types G S E (op e_arg e_k) (F t_3))]
+  [(⊢ Γ Σ e_arg τ_1)
+   (⊢ Γ Σ e_k (τ_2 → (F E τ_3)))
+   (∈ OP (τ_1 ↦ τ_2) E)
+   -------------------------------- "OP"
+   (⊢ Γ Σ (OP e_arg e_k) (F E τ_3))]
   
-  [(env op (t_arg -> t_res) E) ...
-   (types G S E e_h (t_arg -> ((t_res -> (F t_out_h)) -> (F t_out_h)))) ...
-   (types G S E e_p (t_in -> (F t_out)))
-   (side-condition (all-match t_out (t_out_h ...)))
-   ------------------------------------------------------------------------ "handler"
-   (types G S E (handler (op e_h) ... (pure e_p)) ((F t_in) -> (F t_out)))]
+  [(⊢ Γ Σ e_h (τ_arg → ((τ_res → (F E_out_h τ_out_h)) → (F E_out_h τ_out_h)))) ...
+   (⊢ Γ Σ e_p (τ_in → (F E_out τ_out)))
+   (⊢ Γ Σ e (F E_in τ_in))
+   (where E (ctx-from-ellipsis ((OP (τ_arg ↦ τ_res)) ...)))
+   (context-included E_in (merge E_out E))
+   (side-condition (all-match τ_out (τ_out_h ...)))
+   (side-condition (all-match E_out (E_out_h ...)))
+   ------------------------------------------------------------ "handle"
+   (⊢ Γ Σ (with (OP e_h) ... (η e_p) handle e) (F E_out τ_out))]
   
-  [(types G S E e (t_1 -> (F t_2)))
-   ------------------------------------ "𝓒"
-   (types G S E (C e) (F (t_1 -> t_2)))])
+  [(⊢ Γ Σ e (τ_1 → (F E τ_2)))
+   ------------------------------- "𝓒"
+   (⊢ Γ Σ (C e) (F E (τ_1 → τ_2)))])
 
 
-(define-metafunction EH
+(define-metafunction BANANA
   free-in : x e -> #t or #f
   [(free-in x (e_f e_a))
    ,(or (term (free-in x e_f)) (term (free-in x e_a)))]
-  [(free-in x (λ (x t) e))
+  [(free-in x (λ (x τ) e))
    #f]
-  [(free-in x (λ (x_different t) e))
+  [(free-in x (λ (x_different τ) e))
    (free-in x e)]
   [(free-in x x)
    #t]
@@ -117,22 +156,24 @@
    #f]
   [(free-in x c)
    #f]
-  [(free-in x (pure e))
+  [(free-in x (η E e))
    (free-in x e)]
-  [(free-in x (op e_arg e_k))
+  [(free-in x (OP e_arg e_k))
    ,(or (term (free-in x e_arg)) (term (free-in x e_k)))]
-  [(free-in x (handler (op_i e_i) ... (pure e_p)))
-   ,(or (ormap identity (term ((free-in x e_i) ...))) (term (free-in x e_p)))]
+  [(free-in x (with (OP_i e_i) ... (η e_p) handle e))
+   ,(or (ormap identity (term ((free-in x e_i) ...)))
+        (term (free-in x e_p))
+        (term (free-in x e)))]
   [(free-in x (C e))
    (free-in x e)])
 
-(define-metafunction EH
+(define-metafunction BANANA
   subst : e x e -> e
   [(subst (e_f e_a) x e_new)
    ((subst e_f x e_new) (subst e_a x e_new))]
-  [(subst (λ (x t) e_body) x e_new)
-   (λ (x t) e_body)]
-  [(subst (λ (x_arg t) e_body) x e_new)
+  [(subst (λ (x τ) e_body) x e_new)
+   (λ (x τ) e_body)]
+  [(subst (λ (x_arg τ) e_body) x e_new)
    ,(if (term (free-in x_arg e_new))
       (let ([x_f (variable-not-in (term (e_new e_body)) (term x_arg))])
         (term (λ (,x_f t) (subst (subst e_body x_arg ,x_f) x e_new))))
@@ -143,175 +184,66 @@
    x_different]
   [(subst c x e_new)
    c]
-  [(subst (pure e) x e_new)
-   (pure (subst e x e_new))]
-  [(subst (op e_arg e_k) x e_new)
-   (op (subst e_arg x e_new) (subst e_k x e_new))]
-  [(subst (handler (op_i e_i) ... (pure e_p)) x e_new)
-   (handler (op_i (subst e_i x e_new)) ... (pure (subst e_p x e_new)))]
+  [(subst (η E e) x e_new)
+   (η E (subst e x e_new))]
+  [(subst (OP e_arg e_k) x e_new)
+   (OP (subst e_arg x e_new) (subst e_k x e_new))]
+  [(subst (with (OP_i e_i) ... (η e_p) handle e) x e_new)
+   (with (OP_i (subst e_i x e_new)) ... (η (subst e_p x e_new))
+         handle (subst e x e_new))]
   [(subst (C e) x e_new)
    (C (subst e x e_new))])
 
 (define eval
   (compatible-closure 
    (reduction-relation
-    EH
+    BANANA
     #:domain e
-    (--> ((λ (x t) e_1) e_2)
+    (--> ((λ (x τ) e_1) e_2)
          (subst e_1 x e_2)
-         "beta")
-    (--> (C (λ (x t) (pure e)))
-         (pure (λ (x t) e))
-         "C-pure")
-    (--> (C (λ (x t) (op e_a (λ (x_k t_k) e_k))))
-         (op e_a (λ (x_k t_k) (C (λ (x t) e_k))))
+         "β")
+    (--> (C (λ (x τ) (η E e)))
+         (η E (λ (x τ) e))
+         "𝓒-η")
+    (--> (C (λ (x τ) (OP e_a (λ (x_k τ_k) e_k))))
+         (OP e_a (λ (x_k τ_k) (C (λ (x τ) e_k))))
          (side-condition (not (term (free-in x e_a))))
-         "C-op")
-    (--> ((handler (op_i e_i) ... (pure e_p)) (pure e_v))
+         "𝓒-OP")
+    (--> (with (OP_i e_i) ... (η e_p) handle (η E e_v))
          (e_p e_v)
-         "handle-pure")
-    (--> ((handler (op_1 e_1) ... (op_2 e_2) (op_3 e_3) ... (pure e_p)) (op_2 e_arg (λ (x t) e_m)))
-         ((e_2 e_arg) (λ (x_f t) ((handler (op_1 e_1) ... (op_2 e_2) (op_3 e_3) ... (pure e_p)) (subst e_m x x_f))))
-         (side-condition (term (no-match op_2 (op_1 ...))))
+         "handle-η")
+    (--> (with (OP_1 e_1) ... (OP_2 e_2) (OP_3 e_3) ... (η e_p) handle (OP_2 e_arg (λ (x τ) e_m)))
+         ((e_2 e_arg) (λ (x_f τ) ((handler E_1 (OP_1 e_1) ... (OP_2 e_2) (OP_3 e_3) ... (η e_p)) (subst e_m x x_f))))
+         (side-condition (term (no-match OP_2 (OP_1 ...))))
          (fresh x_f)
-         "handle-op")
-    (--> ((handler (op_i e_i) ... (pure e_p)) (op e_arg (λ (x t) e_m)))
-         (op e_arg (λ (x_f t) ((handler (op_i e_i) ... (pure e_p)) (subst e_m x x_f))))
-         (side-condition (term (no-match op (op_i ...))))
+         "handle-OP")
+    (--> (with (OP_i e_i) ... (η e_p) handle (OP e_arg (λ (x τ) e_m)))
+         (OP e_arg (λ (x_f τ) (with (OP_i e_i) ... (η e_p) handle (subst e_m x x_f))))
+         (side-condition (term (no-match OP (OP_i ...))))
          (fresh x_f)
-         "handle-missing-op"))
-   EH
+         "handle-missing-OP"))
+   BANANA
    e))
 
-(define-metafunction EH
+(define-metafunction BANANA
   >>= : e e -> e
   [(>>= e_m e_k)
-   ((handler (pure e_k)) e_m)])
+   (with (η e_k) handle e_m)])
 
-
-
-;; Some bigger example terms
-
-(define std-consts
-  (term (unit : u (
-         and : (o -> (o -> o)) (
-         not : (o -> o) (
-         ex : ((i -> o) -> o) (
-         sel : (c -> i) (
-         nil : c (
-         cons : (i -> (c -> c)) (
-         cat : (c -> (c -> c)) (
-         eq_i : (i -> (i -> o)) (
-         man : (i -> o) (
-         woman : (i -> o) (
-         love : (i -> (i -> o)) (
-         know : (i -> (i -> o)) (
-         say : (i -> (o -> o)) (
-         john : i (
-         mary : i (
-         alice : i
-         *)))))))))))))))))))
-
-(define std-effects
-  (term (GET : (u -> c) (
-         FRESH : (u -> i) (
-         ASSERT : (o -> u) (
-         SCOPE : (((i -> (F o)) -> (F o)) -> i)
-         *))))))
-
-(define (check-type exp type)
-  (test-equal (judgment-holds
-               (types * ,std-consts ,std-effects ,exp t)
-               t)
-              (list type)))
-
-(define drs-handler
-  (term (handler
-          (GET (λ (u u) (λ (k (c -> (F (c -> (F o)))))
-                            (pure (λ (e c)
-                                    (GET unit (λ (e_ c) (>>= (k ((cat e) e_))
-                                                             (λ (f (c -> (F o))) (f e))))))))))
-          (FRESH (λ (u u) (λ (k (i -> (F (c -> (F o)))))
-                            (pure (λ (e c)
-                                    (>>= (C (λ (x i) (>>= (k x)
-                                                          (λ (f (c -> (F o)))
-                                                            (f ((cons x) e))))))
-                                         (λ (pred (i -> o)) (pure (ex pred)))))))))
-          (ASSERT (λ (p o) (λ (k (u -> (F (c -> (F o)))))
-                             (pure (λ (e c)
-                                     (>>= (k unit)
-                                          (λ (f (c -> (F o)))
-                                            (>>= (f e)
-                                                 (λ (q o) (pure ((and p) q)))))))))))
-          (pure (λ (x o) (pure (λ (e c) (pure x))))))))
-
-(check-type drs-handler (term ((F o) -> (F (c -> (F o))))))
-
-(define box
-  (term (λ (P (F o))
-          (>>= (,drs-handler P)
-               (λ (f (c -> (F o))) (f nil))))))
-
-(check-type box (term ((F o) -> (F o))))
-
-(define SI
-  (term (handler
-          (SCOPE (λ (c ((i -> (F o)) -> (F o)))
-                        (λ (k (i -> (F o)))
-                          (c k))))
-          (pure (λ (x o) (pure x))))))
-
-(check-type SI (term ((F o) -> (F o))))
-
-
-
-;; Generating counter-examples to normalization
-
-(define-judgment-form EH
-  #:mode (alpha-equiv I I)
+(define-judgment-form BANANA
+  #:mode (α-equiv I I)
   
   [---------------------
-   (alpha-equiv any any)]
+   (α-equiv any any)]
   
-  [(alpha-equiv any_1 any_2) ...
+  [(α-equiv any_1 any_2) ...
    -------------------------------------
-   (alpha-equiv (any_1 ...) (any_2 ...))]
+   (α-equiv (any_1 ...) (any_2 ...))]
 
   [(where x_3 ,(variable-not-in (term (e_1 e_2)) (string->uninterned-symbol "x")))
-   (alpha-equiv (subst e_1 x_1 x_3) (subst e_2 x_2 x_3))
+   (α-equiv (subst e_1 x_1 x_3) (subst e_2 x_2 x_3))
    -------------------------------------------------------------------------------
-   (alpha-equiv (λ (x_1 t) e_1) (λ (x_2 t) e_2))])
-
-(define (alpha-equiv? e1 e2)
-  (not (null? (judgment-holds (alpha-equiv ,e1 ,e2) #t))))
-
-(define checked 0)
-(define cover (make-coverage eval))
-
-(define (normalizes? e)
-  (print e)
-  (newline)
-  (flush-output)
-  (let* ([normal-forms (apply-reduction-relation* eval e #:cache-all? #t)]
-         [n (length normal-forms)])
-    (set! checked (+ 1 checked))
-    (when (= 0 (modulo checked 100))
-        (print checked)
-        (newline)
-        (print e)
-        (newline)
-        (print (covered-cases cover))
-        (newline))
-    (if (positive? n)
-      (andmap alpha-equiv? (take normal-forms (- n 1)) (drop normal-forms 1))
-      #t)))
-
-(define (check-normalization)
-  (parameterize ([relation-coverage (list cover)])
-    (check-reduction-relation
-     eval
-     normalizes?)))
-
+   (α-equiv (λ (x_1 τ) e_1) (λ (x_2 τ) e_2))])
 
 
 ;; Typesetting the language definition
@@ -320,51 +252,120 @@
   (with-compound-rewriters (['no-match (λ (lws) (list "" (list-ref lws 2) " ∉ " (list-ref lws 3) ""))]
                             ['all-match (λ (lws) (list "" (list-ref lws 2) " = " (list-ref lws 3) ""))]
                             ['subst (λ (lws) (list "" (list-ref lws 2) "[" (list-ref lws 3) "/" (list-ref lws 4) "]"))]
-                            ['types (λ (lws) (list "" (list-ref lws 2) ", " (list-ref lws 3) ", " (list-ref lws 4) " ⊢ " (list-ref lws 5) " : " (list-ref lws 6) ""))]
-                            ['env (λ (lws) (list "" (list-ref lws 2) " : " (list-ref lws 3) " ∈ " (list-ref lws 4) ""))]
+                            ['⊢ (λ (lws) (list "" (list-ref lws 2) ", " (list-ref lws 3) ", " (list-ref lws 4) " ⊢ " (list-ref lws 5) " : " (list-ref lws 6) ""))]
+                            ['∈ (λ (lws) (list "" (list-ref lws 2) " : " (list-ref lws 3) " ∈ " (list-ref lws 4) ""))]
                             ['free-in (λ (lws) (list "" (list-ref lws 2) " ∈ FV(" (list-ref lws 3) ")"))]
                             ['not (λ (lws) (list "¬(" (list-ref lws 2) ")"))])
-      (with-atomic-rewriter 't "τ"
-      (with-atomic-rewriter '-> "→"
-      (with-atomic-rewriter 'F "𝓕"
-      (with-atomic-rewriter 'G "Γ"
-      (with-atomic-rewriter 'S "Σ"
-      (with-atomic-rewriter '* "·"
       (with-atomic-rewriter 'C "𝓒"
-        (begin (render-language EH "grammar.ps" #:nts (remove* '(context key) (language-nts EH)))
-               (render-judgment-form types "typings.ps")
-               (render-reduction-relation eval "reductions.ps")))))))))))
+        (begin (render-language BANANA "grammar.ps" #:nts (remove* '(context key) (language-nts BANANA)))
+               (render-judgment-form ⊢ "typings.ps")
+               (render-reduction-relation eval "reductions.ps")))))
 
 
-;; Termination counter-example
 
-(define star
-  (term (F u)))
 
-(define fstar
-  (term (,star -> ,star)))
+(define all-consts
+  (term (★ : u
+        (⊤ : o
+        (⊥ : o
+        (¬ : (o → o)
+        (∧ : (o → (o → o))
+        (⇒ : (o → (o → o))
+        (∨ : (o → (o → o))
+        (∃ : ((ι → o) → o)
+        (∀ : ((ι → o) → o)
+        (= : (ι → (ι → o))
+        (man : (ι → o)
+        (woman : (ι → o)
+        (Porsche : (ι → o)
+        (Mercedes : (ι → o)
+        (John : (ι → o)
+        (Mary : (ι → o)
+        (love : (ι → (ι → o))
+        (own : (ι → (ι → o))
+        (fascinate : (ι → (ι → o))
+        (say : (ι → (o → o))
+        (children : (ι → (ι → o))
+        (best-friend : (ι → (ι → o))
+        (nil : γ
+        (::_ι : (ι → (γ → γ))
+        (::_o : (o → (γ → γ))
+        (++ : (γ → (γ → γ))
+        (sel_he : (γ → ι)
+        (sel_she : (γ → ι)
+        (sel_it : (γ → ι)
+        (selP : ((ι → o) → (γ → ι))
+         ·))))))))))))))))))))))))))))))))
 
-(define dagger
-  (term (λ (y ,star) y)))
+(define get-effect
+  (term (GET : (u ↦ γ)
+         ·)))
 
-(define rec-effect
-  (term (REC : (,fstar -> u) *)))
+(define drt-effects
+  (term (FRESH : (u ↦ ι)
+        (PUSH : (ι ↦ u)
+        (ASSERT : (o ↦ u)
+        ,get-effect)))))
 
-(define roll
-  (term (λ (x ,fstar) (REC x (λ (z u) (pure z))))))
+(define effects-no-scope
+  (term (SPEAKER : (u ↦ ι)
+        (FRESH_I : (u ↦ ι)
+        (PUSH_I : (ι ↦ u)
+        (IMPLICATE : (o ↦ u)
+        (PRESUPPOSE : ((ι → (F ,drt-effects u)) ↦ ι)
+        ,drt-effects)))))))
 
-(define unroll
-  (term (handler (REC (λ (x ,fstar) (λ (k (u -> (F ,fstar))) (pure x))))
-                 (pure (λ (x u) (pure ,dagger))))))
+(define all-effects
+  (term (SCOPE : (((ι → (F ,effects-no-scope u)) → (F ,effects-no-scope u)) ↦ ι)
+        ,effects-no-scope)))
 
-(define app
-  (term (λ (f ,star) (λ (a ,star) (>>= (,unroll f) (λ (f1 (,star -> ,star)) (f1 a)))))))
+(define (get-types env exp)
+  (judgment-holds (⊢ ,env ,all-consts ,exp τ) τ))
 
-(define abs
-  roll)
+(define (check-type exp type)
+  (test-equal (get-types (term ·) exp) (list type)))
 
-(define delta
-  (term (,abs (λ (x ,star) ((,app x) x)))))
+(define drs-handler
+  (term (λ (A (F ,drt-effects u)) (with
+          (GET (λ (_ u) (λ (k (γ → (F ,get-effect (γ → (F ,get-effect o)))))
+                            (η ,get-effect (λ (e γ)
+                                    (GET ★ (λ (e_ γ) (>>= (k ((++ e) e_))
+                                                             (λ (f (γ → (F ,get-effect o))) (f e))))))))))
+          (FRESH (λ (_ u) (λ (k (ι → (F ,get-effect (γ → (F ,get-effect o)))))
+                            (η ,get-effect (λ (e γ)
+                                    (>>= (C (λ (x ι) (>>= (k x)
+                                                          (λ (f (γ → (F ,get-effect o)))
+                                                            (f e)))))
+                                         (λ (pred (ι → o)) (η ,get-effect (∃ pred)))))))))
+          (PUSH (λ (x ι) (λ (k (u → (F ,get-effect (γ → (F ,get-effect o)))))
+                            (η ,get-effect (λ (e γ)
+                                    (>>= (k ★)
+                                         (λ (f (γ → (F ,get-effect o)))
+                                           (f ((::_ι x) e)))))))))
+          (ASSERT (λ (p o) (λ (k (u → (F ,get-effect (γ → (F ,get-effect o)))))
+                             (η ,get-effect (λ (e γ)
+                                     (>>= (k ★)
+                                          (λ (f (γ → (F ,get-effect o)))
+                                            (>>= (f ((::_o p) e))
+                                                 (λ (q o) (η ,get-effect ((∧ p) q)))))))))))
+          (η (λ (_ u) (η ,get-effect (λ (e γ) (η ,get-effect ⊤)))))
+          handle A))))
 
-(define omega
-  (term ((,app ,delta) ,delta)))
+(check-type drs-handler (term ((F ,drt-effects u) → (F ,get-effect (γ → (F ,get-effect o))))))
+
+(define box
+  (term (λ (A (F ,drt-effects u))
+          (>>= (,drs-handler A)
+               (λ (f (γ → (F ,get-effect o))) (f nil))))))
+
+(check-type box (term ((F ,drt-effects u) → (F ,get-effect o))))
+
+(define SI
+  (term (λ (A (F ,all-effects u)) (with
+          (SCOPE (λ (c ((ι → (F ,effects-no-scope u)) → (F ,effects-no-scope u)))
+                        (λ (k (ι → (F ,effects-no-scope u)))
+                          (c k))))
+          (η (λ (x u) (η ,effects-no-scope x)))
+          handle A))))
+
+(check-type SI (term ((F ,all-effects u) → (F ,effects-no-scope u))))
