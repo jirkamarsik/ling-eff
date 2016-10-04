@@ -7,7 +7,14 @@
 * open handlers are to closed handlers what monad transformers are to
   monads (cite Shan and Wu)
 * highlight stability in conclusion
-
+* mention how bothersome it is to embed static propositions into dynamic
+  propositions
+* mention binding out of RRCs in definite descriptions when comparing with
+  TTDL!
+  * and rethink how TTDL would solve this problem...
+* maybe ask for polymorphism in the conclusion...?
+* explain that introduce^i is fresh^i and push^i in the end
+* use parens around the elements of lists
 
 Reading:
 * Look at some of the earlier work form Giorgolo and Asudeh

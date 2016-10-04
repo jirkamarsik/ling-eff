@@ -252,3 +252,350 @@
     dancing competition. It$_1$ was pink.
   \dotfill \pageref{ex:salmon}}
 \end{exe}
+
+
+
+\Annex{Example from the Final Fragment}
+\label{chap:final-example}
+
+We dedicate this chapter to the following sentence:
+
+\begin{exe}
+  \exr{ex:combo} My best friend, who owns a dog$_1$, said it$_1$ loves
+  everyone.
+\end{exe}
+
+This sentence features all of the aspects of language that we covered in
+Part~\ref{part:natural-language}:
+
+\begin{itemize}
+\item we have the deictic first-person pronoun \emph{my}
+\item we have the presupposition triggering noun phrase \emph{my best
+    friend}
+\item we have the appositive relative clause \emph{who owns a dog}
+\item we have the anaphoric pronoun \emph{it}, which is bound by an
+  indefinite inside an appositive
+\item we have the quantificational noun phrase \emph{everyone}
+\end{itemize}
+
+As with the examples in Chapter~\ref{chap:dynamic-semantics}, we will
+proceed by incrementally building up the meanings of the parts of the
+sentence. We start with the clause \emph{it loves everyone}. First, we
+introduce the noun phrase $\abs{everyone} : NP$, which can be seen as a
+special case of the $\abs{every} : N \limp NP$ determiner that already
+exists in our grammar.
+
+\begin{align*}
+  \abs{everyone} &: NP \\
+  \sem{\abs{everyone}} &= \app{\op{scope}}{\dforall}{(\lam{x}{\etaE{(\ap{\trace}{x})}})}
+\end{align*}
+
+Now, we move to the clause. The entry for the transitive verb \emph{loves}
+tells us to evaluate the subject and the object, to assert that the
+relation $\obj{love}$ holds for the two, and to handle any $\op{scope}$
+operations using $\SI$ to enforce the ``tensed clauses are scope islands''
+constraint.
+
+\begin{align*}
+  &\sem{\app{\abs{loves}}{(\ap{\abs{in-situ}}{\abs{everyone}})}{\abs{it}}} \\
+  &\tto \ap{\SI}{(\begin{aligned}[t]
+      &\app{\op{get}}{\star}{(\lam{e}{ \\
+      &\app{\op{scope}}{\dforall}{(\lam{z}{ \\
+      &\app{\op{push}}{z}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\app{\obj{love}}{(\ap{\selit}{e})}{z})}{(\lam{\_}{ \\
+      &\etaE{\star}})}})}})}})})
+    \end{aligned}} \\
+  &\tto \begin{aligned}[t]
+      &\app{\op{get}}{\star}{(\lam{e}{ \\
+      &\ap{\dforall}{(\lam{z}{\app{\op{push}}{z}{(\lam{\_}{\ap{\op{assert}!}{(\app{\obj{love}}{(\ap{\selit}{e})}{z})}})}})}})}
+    \end{aligned} \\
+  &\tto \begin{aligned}[t]
+      &\app{\op{get}}{\star}{(\lam{e}{ \\
+      &\app{\op{assert}}{(\forall z.\, \app{\obj{love}}{(\ap{\selit}{e})}{z})}{(\lam{\_}{ \\
+      &\etaE{\star}})}})}
+    \end{aligned}
+\end{align*}
+
+We will now give a meaning to the verb phrase \emph{said it loves
+  everyone}. The verb \emph{said} evaluates its complementary clause down
+to a proposition using the $\BOX$ handler. We will therefore first
+calculate the value of applying $\BOX$ to the meaning of \emph{it loves
+  everyone}.
+
+\begin{align*}
+  &\ap{\BOX}{\sem{\app{\abs{loves}}{(\ap{\abs{in-situ}}{\abs{everyone}})}{\abs{it}}}} \\
+  &\tto \ap{\BOX}{(\begin{aligned}[t]
+      &\app{\op{get}}{\star}{(\lam{e}{ \\
+      &\app{\op{assert}}{(\forall z.\, \app{\obj{love}}{(\ap{\selit}{e})}{z})}{(\lam{\_}{ \\
+      &\etaE{\star}})}})}\,)
+    \end{aligned}} \\
+  &\tto \begin{aligned}[t]
+      &\app{\op{get}}{\star}{(\lam{e}{ \\
+      &\etaE{(\forall z.\, \app{\obj{love}}{(\ap{\selit}{e})}{z})}})}
+    \end{aligned}
+\end{align*}
+
+We can now plug this result into the lexical entry $\abs{said}_{\abs{is}}$.
+
+\begin{align*}
+  &\sem{\ap{\abs{said}_{\abs{is}}}{(\app{\abs{loves}}{(\ap{\abs{in-situ}}{\abs{everyone}})}{\abs{it}})}} \\
+  &\tto \lam{X}{\ap{\SI}{(\begin{aligned}[t]
+        &X \hsbind (\lam{x}{ \\
+        &\app{\op{get}}{\star}{(\lam{e}{ \\
+        &\app{\op{assert}}{(\app{\obj{say}}{x}{(\forall z.\, \app{\obj{love}}{(\ap{\selit}{e})}{z})})}{(\lam{\_}{ \\
+        &\etaE{\star}})}})}})\,)
+      \end{aligned}}}
+\end{align*}
+
+Now we move to the subject of the sentence. The meaning of the first-person
+pronoun \emph{me} is obtained by asking the context for the identity of the
+speaker and the meaning of the possessive construction \emph{X's best
+  friend} is obtained by asking the context for an individual that is $X$'s
+best friend. To obtain the meaning of the noun phrase \emph{my best
+  friend}, it suffices to chain/concatenate the two computations.
+
+\begin{align*}
+  &\sem{\ap{\abs{best-friend}}{\abs{me}}} \\
+  &\tto \begin{aligned}[t]
+      &\app{\op{speaker}}{\star}{(\lam{s}{ \\
+      &\app{\op{presuppose}}{(\lam{x}{\ap{\op{assert}!}{(\app{\obj{best-friend}}{x}{s})}})}{(\lam{x}{ \\
+      &\etaE{x}})}})}
+    \end{aligned}
+\end{align*}
+
+Next, we compute the meaning of the verb phrase \emph{owns a dog} that
+occurs in the relative clause. The indefinite \emph{a dog} introduces a
+discourse referent which it claims to be a dog.
+
+\begin{align*}
+  &\sem{\ap{\abs{owns}}{(\ap{\abs{a}}{\abs{dog}})}} \\
+  &\tto \lam{X}{\ap{\SI}{(\begin{aligned}[t]
+      &X \hsbind (\lam{x}{ \\
+      &\app{\op{introduce}}{\star}{(\lam{y}{ \\
+      &\app{\op{assert}}{(\ap{\obj{dog}}{y})}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\app{\obj{own}}{x}{y})}{(\lam{\_}{ \\
+      &\etaE{\star}})}})}})}})\,)
+    \end{aligned}}}
+\end{align*}
+
+According to the lexical entry for $\abs{who}_{\abs{s}}$, the verb phrase
+inside an appositive relative clause is applied to a variable $x$ and
+passed through the $\asImplicature$, which moves the contents of the
+relative clause from the at-issue layer to the layer of conventional
+implicatures.
+
+\begin{align*}
+  &\ap{\asImplicature}{\sem{\app{\abs{owns}}{(\ap{\abs{a}}{\abs{dog}})}{(\etaE{x})}}} \\
+  &\tto \ap{\asImplicature}{(\begin{aligned}[t]
+      &\app{\op{introduce}}{\star}{(\lam{y}{ \\
+      &\app{\op{assert}}{(\ap{\obj{dog}}{y})}{(\lam{\_}{ \\
+      &\app{\op{assert}}{(\app{\obj{own}}{x}{y})}{(\lam{\_}{ \\
+      &\etaE{\star}})}})}})}\,)
+    \end{aligned}} \\
+  &\tto \begin{aligned}[t]
+      &\app{\op{introduce^i}}{\star}{(\lam{y}{ \\
+      &\app{\op{implicate}}{(\ap{\obj{dog}}{y})}{(\lam{\_}{ \\
+      &\app{\op{implicate}}{(\app{\obj{own}}{x}{y})}{(\lam{\_}{ \\
+      &\etaE{\star}})}})}})}
+    \end{aligned}
+\end{align*}
+
+To get the meaning of the noun phrase \emph{my best friend} as modified by
+the appositive relative clause \emph{who owns a dog}, we chain their
+computations.
+
+\begin{align*}
+  &\sem{\app{\abs{who}_{\abs{s}}}{(\ap{\abs{owns}}{(\ap{\abs{a}}{\abs{dog}})})}{(\ap{\abs{best-friend}}{\abs{me}})}} \\
+  &\tto \begin{aligned}[t]
+      &\app{\op{speaker}}{\star}{(\lam{s}{ \\
+      &\app{\op{presuppose}}{(\lam{x}{\ap{\op{assert}!}{(\app{\obj{best-friend}}{x}{s})}})}{(\lam{x}{ \\
+      &\app{\op{introduce^i}}{\star}{(\lam{y}{ \\
+      &\app{\op{implicate}}{(\ap{\obj{dog}}{y})}{(\lam{\_}{ \\
+      &\app{\op{implicate}}{(\app{\obj{own}}{x}{y})}{(\lam{\_}{ \\
+      &\etaE{x}})}})}})}})}})}
+    \end{aligned}
+\end{align*}
+
+Finally, to compute the meaning of the whole sentence of
+Example~\ref{ex:combo}, we chain the computation of the subject with the
+computation of the verb phrase.
+
+\begin{align*}
+& \sem{\app{\abs{said}_{\abs{is}}}{(\app{\abs{loves}}{(\ap{\abs{in-situ}}{\abs{everyone}})}{\abs{it}})}{(\app{\abs{who}_{\abs{s}}}{(\ap{\abs{owns}}{(\ap{\abs{a}}{\abs{dog}})})}{(\ap{\abs{best-friend}}{\abs{me}})})}} \\
+& \tto \begin{aligned}[t]
+      &\app{\op{speaker}}{\star}{(\lam{s}{ \\
+      &\app{\op{presuppose}}{(\lam{x}{\ap{\op{assert}!}{(\app{\obj{best-friend}}{x}{s})}})}{(\lam{x}{ \\
+      &\app{\op{introduce^i}}{\star}{(\lam{y}{ \\
+      &\app{\op{implicate}}{(\ap{\obj{dog}}{y})}{(\lam{\_}{ \\
+      &\app{\op{implicate}}{(\app{\obj{own}}{x}{y})}{(\lam{\_}{ \\
+      &\app{\op{get}}{\star}{(\lam{e}{ \\
+      &\app{\op{assert}}{(\app{\obj{say}}{x}{(\forall z.\, \app{\obj{love}}{(\ap{\selit}{e})}{z})})}{(\lam{\_}{ \\
+      &\etaE{\star}})}})}})}})}})}})}})}
+    \end{aligned}
+\end{align*}
+
+We now have all the instructions that tell us how to find the truth
+conditions of the sentence within any context. We can use the handler
+$\ap{\TOP}{s}$ to get the meaning of the sentence within an ``empty''
+context with the speaker $s$. The $\TOP$ handler is defined as a
+composition of all the partial handlers for the different aspects of our
+fragment. We will apply the handlers to the meaning of
+Example~\ref{ex:combo} one by one.
+
+\begin{align*}
+  \TOP &: \iota \to \FF_E(1) \to \FF_\emptyset(o) \\
+  \TOP &= \lam{s}{\search \comp \EMPTY \comp \BOX \comp \accommodate \comp \useFind \comp \withImplicatures \comp \ap{\withSpeaker}{s} \comp \SI}
+\end{align*}
+
+We label the meaning of Example~\ref{ex:combo} as $t_0$ and the successive
+applications of the handlers as $t_1$, $t_2$\ldots
+
+$$
+t_0 = \sem{\app{\abs{said}_{\abs{is}}}{(\app{\abs{loves}}{(\ap{\abs{in-situ}}{\abs{everyone}})}{\abs{it}})}{(\app{\abs{who}_{\abs{s}}}{(\ap{\abs{owns}}{(\ap{\abs{a}}{\abs{dog}})})}{(\ap{\abs{best-friend}}{\abs{me}})})}}
+$$
+
+We start with the $\SI$ handler. Since the computation $t_0$ uses no
+$\op{scope}$ operation, the $\SI$ handler will have no effect.
+
+$$
+t_1 = \ap{\SI}{t_0} \tto t_0
+$$
+
+Next up is the $\ap{\withSpeaker}{s}$ handler. This will resolve the
+$\op{speaker}$ operation by replacing the speaker variable $s$ by the
+hypothetical speaker $s$, i.e.\ the rest of the computation stays the same.
+
+\begin{align*}
+  t_2 = \app{\withSpeaker}{s}{t_1} \tto \ 
+  &\app{\op{presuppose}}{(\lam{x}{\ap{\op{assert}!}{(\app{\obj{best-friend}}{x}{s})}})}{(\lam{x}{ \\
+  &\app{\op{introduce^i}}{\star}{(\lam{y}{ \\
+  &\app{\op{implicate}}{(\ap{\obj{dog}}{y})}{(\lam{\_}{ \\
+  &\app{\op{implicate}}{(\app{\obj{own}}{x}{y})}{(\lam{\_}{ \\
+  &\app{\op{get}}{\star}{(\lam{e}{ \\
+  &\app{\op{assert}}{(\app{\obj{say}}{x}{(\forall z.\, \app{\obj{love}}{(\ap{\selit}{e})}{z})})}{(\lam{\_}{ \\
+  &\etaE{\star}})}})}})}})}})}})}
+\end{align*}
+
+Then we have the $\withSpeaker$ handler that will accommodate the
+implicatures of the sentence as part of its truth conditions.
+
+\begin{align*}
+  t_3 = \ap{\withImplicatures}{t_2} \tto \ 
+  &\app{\op{presuppose}}{(\lam{x}{\ap{\op{assert}!}{(\app{\obj{best-friend}}{x}{s})}})}{(\lam{x}{ \\
+  &\app{\op{introduce}}{\star}{(\lam{y}{ \\
+  &\app{\op{assert}}{(\ap{\obj{dog}}{y})}{(\lam{\_}{ \\
+  &\app{\op{assert}}{(\app{\obj{own}}{x}{y})}{(\lam{\_}{ \\
+  &\app{\op{get}}{\star}{(\lam{e}{ \\
+  &\app{\op{assert}}{(\app{\obj{say}}{x}{(\forall z.\, \app{\obj{love}}{(\ap{\selit}{e})}{z})})}{(\lam{\_}{ \\
+  &\etaE{\star}})}})}})}})}})}})}
+\end{align*}
+
+Next is the $\useFind$ handler that will try to look up a referent for the
+speaker's best friend within the context.
+
+\begin{align*}
+  t_4 = \ap{\useFind}{t_3} \tto \
+  &\app{\op{get}}{\star}{(\lam{e}{ \\
+  &(\casenl{\app{\selP}{(\lam{x}{\app{\obj{best-friend}}{x}{s}})}{e}}
+       {x}{\etaE{x}}
+       {\_}{\ap{\op{presuppose}!}{(\lam{x}{\ap{\op{assert}!}{(\app{\obj{best-friend}}{x}{s})}})}}) \hsbind (\lam{x}{ \\
+  &\app{\op{introduce}}{\star}{(\lam{y}{ \\
+  &\app{\op{assert}}{(\ap{\obj{dog}}{y})}{(\lam{\_}{ \\
+  &\app{\op{asssert}}{(\app{\obj{own}}{x}{y})}{(\lam{\_}{ \\
+  &\app{\op{get}}{\star}{(\lam{e}{ \\
+  &\app{\op{assert}}{(\app{\obj{say}}{x}{(\forall z.\, \app{\obj{love}}{(\ap{\selit}{e})}{z})})}{(\lam{\_}{ \\
+  &\etaE{\star}})}})}})}})}})}})})}
+\end{align*}
+
+We know ahead of time that the context $e$ in which the sentence will be
+evaluated will not contain the speaker's best friend and so we allow
+ourselves to reduce
+$\app{\selP}{(\lam{x}{\app{\obj{best-friend}}{x}{s}})}{e}$ to
+$\ap{\inr}{\star}$.
+
+\begin{align*}
+  t_4 \tto\ 
+  &\app{\op{get}}{\star}{(\lam{e}{ \\
+  &\app{\op{presuppose}}{(\lam{x}{\ap{\op{assert}!}{(\app{\obj{best-friend}}{x}{s})}})}{(\lam{x}{ \\
+  &\app{\op{introduce}}{\star}{(\lam{y}{ \\
+  &\app{\op{assert}}{(\ap{\obj{dog}}{y})}{(\lam{\_}{ \\
+  &\app{\op{assert}}{(\app{\obj{own}}{x}{y})}{(\lam{\_}{ \\
+  &\app{\op{get}}{\star}{(\lam{e}{ \\
+  &\app{\op{assert}}{(\app{\obj{say}}{x}{(\forall z.\, \app{\obj{love}}{(\ap{\selit}{e})}{z})})}{(\lam{\_}{ \\
+  &\etaE{\star}})}})}})}})}})}})}})}
+\end{align*}
+
+The presupposition is then accommodated by the $\accommodate$ handler.
+
+\begin{align*}
+  t_5 = \ap{\accommodate}{t_4} \tto \ 
+  &\app{\op{get}}{\star}{(\lam{e}{ \\
+  &\app{\op{introduce}}{\star}{(\lam{x}{ \\
+  &\app{\op{assert}}{(\app{\obj{best-friend}}{x}{s})}{(\lam{\_}{ \\
+  &\app{\op{introduce}}{\star}{(\lam{y}{ \\
+  &\app{\op{assert}}{(\ap{\obj{dog}}{y})}{(\lam{\_}{ \\
+  &\app{\op{assert}}{(\app{\obj{own}}{x}{y})}{(\lam{\_}{ \\
+  &\app{\op{get}}{\star}{(\lam{e}{ \\
+  &\app{\op{assert}}{(\app{\obj{say}}{x}{(\forall z.\, \app{\obj{love}}{(\ap{\selit}{e})}{z})})}{(\lam{\_}{ \\
+  &\etaE{\star}})}})}})}})}})}})}})}})}
+\end{align*}
+
+Next up is the $\BOX$ handler which takes care of the sentence dynamics.
+
+\begin{align*}
+  t_6 = \ap{\BOX}{t_5} \tto \
+  &\app{\op{get}}{\star}{(\lam{e}{ \\
+  &\app{\op{get}}{\star}{(\lam{e}{ \\
+  &\etaE{(\exists x.\, \app{\obj{best-friend}}{x}{s} \land
+          (\exists y.\, \ap{\obj{dog}}{y} \land \app{\obj{own}}{x}{y} \land
+           \app{\obj{say}}{x}{(\forall z.\, \app{\obj{love}}{(\ap{\selit}{e'})}{z})}))}})}})}
+\end{align*}
+
+where
+
+$$
+e' = ((\app{\obj{own}}{x}{y}) \cons (\ap{\obj{dog}}{y}) \cons y \cons
+(\app{\obj{best-friend}}{x}{s}) \cons x \cons \nil) \cat e
+$$
+
+The $\EMPTY$ handler, which comes next, will identify the (anaphoric)
+context $e$ in which the sentence is being evaluated as the empty context
+$\nil$.
+
+\begin{align*}
+  t_7 = \ap{\EMPTY}{t_6} \tto \
+  &\etaE{(\exists x.\, \app{\obj{best-friend}}{x}{s} \land
+          (\exists y.\, \ap{\obj{dog}}{y} \land \app{\obj{own}}{x}{y} \land
+           \app{\obj{say}}{x}{(\forall z.\, \app{\obj{love}}{(\ap{\selit}{e''})}{z})}))}
+\end{align*}
+
+where
+
+\begin{align*}
+e'' &= ((\app{\obj{own}}{x}{y}) \cons (\ap{\obj{dog}}{y}) \cons y \cons
+(\app{\obj{best-friend}}{x}{s}) \cons x \cons \nil) \cat \nil \\
+    &= (\app{\obj{own}}{x}{y}) \cons (\ap{\obj{dog}}{y}) \cons y \cons
+(\app{\obj{best-friend}}{x}{s}) \cons x \cons \nil
+\end{align*}
+
+The context $e''$ contains only two entities: the speaker's best friend $x$
+and his dog $y$. Assuming that anaphora resolution will choose the dog $y$
+as the referent of the pronoun \emph{it}, we can reduce $\ap{\selit}{e''}$
+to $y$.
+
+\begin{align*}
+  &t_7 = \app{\TOP}{s}{\sem{\app{\abs{said}_{\abs{is}}}{(\app{\abs{loves}}{(\ap{\abs{in-situ}}{\abs{everyone}})}{\abs{it}})}{(\app{\abs{who}_{\abs{s}}}{(\ap{\abs{owns}}{(\ap{\abs{a}}{\abs{dog}})})}{(\ap{\abs{best-friend}}{\abs{me}})})}}} \\
+  &\tto \etaE{(\exists x.\, \app{\obj{best-friend}}{x}{s} \land
+              (\exists y.\, \ap{\obj{dog}}{y} \land \app{\obj{own}}{x}{y} \land
+               \app{\obj{say}}{x}{(\forall z.\, \app{\obj{love}}{y}{z})}))}
+\end{align*}
+
+By applying the $\ap{\TOP}{s}$ composition of handlers, we have interpreted
+away all the operations. The result is of the form $\etaE{A}$ where $A$ are
+the truth conditions of the sentence. To retrieve $A$ from $\etaE{A}$, we
+can use $\cherry$.
+
+\begin{align*}
+& \ap{\cherry}{t_7} = \ap{\cherry}{(\app{\TOP}{s}{\sem{\app{\abs{said}_{\abs{is}}}{(\app{\abs{loves}}{(\ap{\abs{in-situ}}{\abs{everyone}})}{\abs{it}})}{(\app{\abs{who}_{\abs{s}}}{(\ap{\abs{owns}}{(\ap{\abs{a}}{\abs{dog}})})}{(\ap{\abs{best-friend}}{\abs{me}})})}}})} \\
+& \tto \exists x.\, \app{\obj{best-friend}}{x}{s} \land (\exists y.\, \ap{\obj{dog}}{y} \land \app{\obj{own}}{x}{y} \land \app{\obj{say}}{x}{(\forall z.\, \app{\obj{love}}{y}{z})})
+\end{align*}

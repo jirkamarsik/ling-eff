@@ -890,7 +890,7 @@ items.
 
 \begin{align*}
   \lex{me}{\ap{\op{speaker}!}{\star}} \\
-  \sem{\abs{said}_{\abs{is}}} &= \lam{C S}{(\obj{say} \apr S \aplr C) \hsbind \op{assert}!} \\
+  \sem{\abs{said}_{\abs{is}}} &= \lam{C S}{(\obj{say} \apr S \aplr (\ap{\BOX}{C})) \hsbind \op{assert}!} \\
   &= \lam{C S}{S \hsbind (\lam{s}{(\ap{\BOX}{C}) \hsbind (\lam{c}{\ap{\op{assert}!}{(\app{\obj{say}}{s}{c})}})})} \\
   \sem{\abs{said}_{\abs{ds}}}
   &= \lam{C S}{S \hsbind (\lam{s}{(\app{\TOP}{s}{C}) \hsbind (\lam{c}{\ap{\op{assert}!}{(\app{\obj{say}}{s}{c})}})})} \\
@@ -1598,10 +1598,22 @@ that we have been building during this chapter.
              &\app{\op{assert}}{(\ap{n}{x})}{(\lam{\_}{ \\
              &\etaE{x}})}})})}}
   \end{aligned}} \\
-  \lex{every}{\lam{N}{\ap{\op{scope}!}{(\lam{k}{\dforall x.\,\ap{\SI}{(\ap{N}{x})} \dimp \ap{k}{x}})}}}
-& \lex{every}{\lam{N}{\ap{\op{scope}!}{(\lam{k}{\dforall x.\,\ap{\SI}{((N \apl x) \hsbind \op{assert}!)} \dimp \ap{k}{x}})}}} \\
-  \lex{a'}{\lam{N}{\ap{\op{scope}!}{(\lam{k}{\dexists x.\,\ap{\SI}{(\ap{N}{x})} \dand \ap{k}{x}})}}}
-& \lex{a'}{\lam{N}{\ap{\op{scope}!}{(\lam{k}{\dexists x.\,\ap{\SI}{((N \apl x) \hsbind \op{assert}!)} \dand \ap{k}{x}})}}} \\
+  \lex{every}{\lam{N}{\ap{\op{scope}!}{\begin{aligned}[t]
+      &(\lam{k}{\dforall x.\,\ap{\SI}{(\ap{N}{x})} \dimp \ap{k}{x}}) \\
+      &(\lam{x}{\etaE{(\ap{\trace}{x})}})
+    \end{aligned}}}}
+& \lex{every}{\lam{N}{\ap{\op{scope}!}{\begin{aligned}[t]
+      &(\lam{k}{\dforall x.\,\ap{\SI}{((N \apl x) \hsbind \op{assert}!)} \dimp \ap{k}{x}}) \\
+      &(\lam{x}{\etaE{(\ap{\trace}{x})}})
+    \end{aligned}}}} \\
+  \lex{a'}{\lam{N}{\ap{\op{scope}!}{\begin{aligned}[t]
+      &(\lam{k}{\dexists x.\,\ap{\SI}{(\ap{N}{x})} \dand \ap{k}{x}}) \\
+      &(\lam{x}{\etaE{(\ap{\trace}{x})}})
+    \end{aligned}}}}
+& \lex{a'}{\lam{N}{\ap{\op{scope}!}{\begin{aligned}[t]
+      &(\lam{k}{\dexists x.\,\ap{\SI}{((N \apl x) \hsbind \op{assert}!)} \dand \ap{k}{x}}) \\
+      &(\lam{x}{\etaE{(\ap{\trace}{x})}})
+    \end{aligned}}}} \\
   \lex{owner-of}{\lam{Y x}{(\ap{\obj{own}}{x} \apr Y) \hsbind \op{assert}!}}
 & \lex{owner-of}{\lam{Y}{Y \hsbind (\lam{y}{\etaE{(\lam{x}{\app{\obj{own}}{x}{y}})}})}}
 \end{align*}
@@ -1905,8 +1917,10 @@ $\abs{the}$ as well as the other presupposition triggers.
   \packageProperty &= \lam{P}{\begin{aligned}[t]
       &\app{\op{get}}{\star}{(\lam{e}{ \\
       &\ap{\CC}{(\lam{x}{\ap{\splitDRT}{(\app{\inTheContext}{e}{(\ap{\maybeAccommodate}{(\ap{\SI}{(\ap{P}{x})})})})}})}})}
-    \end{aligned}} \\
-  \\
+    \end{aligned}}
+\end{align*}
+
+\begin{align*}
   \lex{the}{\lam{N}{\begin{aligned}[t]
       &\ap{\packageProperty}{(\lam{x}{\app{\op{push}}{x}{(\lam{\_}{\ap{N}{x}})}})} \hsbind (\lam{N'}{ \\
       &\ap{\op{presuppose}!}{N'}})
@@ -1920,7 +1934,11 @@ $\abs{the}$ as well as the other presupposition triggers.
       &X \hsbind (\lam{x}{ \\
       &\ap{\packageProperty}{(\lam{y}{\ap{\op{assert}!}{(\app{\obj{children}}{y}{x})}})} \hsbind (\lam{N'}{ \\
       &\ap{\op{presuppose}!}{N'}})})
-    \end{aligned}}}
+    \end{aligned}}} \\
+  \sem{\abs{children-of}} &\approx \lam{X}{\begin{aligned}[t]
+      &X \hsbind (\lam{x}{ \\
+      &\ap{\op{presuppose}!}{(\lam{y}{\ap{\op{assert}!}{(\app{\obj{children}}{y}{x})}})}})
+    \end{aligned}}
 \end{align*}
 
 Finally, since we have changed the type (and therefore also the intended
@@ -2035,31 +2053,21 @@ which combine these phenomena, such as Example~\ref{ex:combo}.
 \end{exe}
 
 \begin{align*}
-& \sem{\app{\abs{said}_{\abs{is}}}{(\app{\abs{loves}}{(\ap{\abs{in-situ}}{\abs{everyone}})}{\abs{it}})}{(\app{\abs{who}_{\abs{s}}}{(\ap{\abs{owns}}{(\ap{\abs{a}}{\abs{dog}})})}{(\ap{\abs{best-friend}}{\abs{me}})})}}\footnotemark \\
+& \sem{\app{\abs{said}_{\abs{is}}}{(\app{\abs{loves}}{(\ap{\abs{in-situ}}{\abs{everyone}})}{\abs{it}})}{(\app{\abs{who}_{\abs{s}}}{(\ap{\abs{owns}}{(\ap{\abs{a}}{\abs{dog}})})}{(\ap{\abs{best-friend}}{\abs{me}})})}} \\
 & \tto \begin{aligned}[t]
       &\app{\op{speaker}}{\star}{(\lam{s}{ \\
-      &\ap{\op{presuppose}}{(\lam{x}{\begin{aligned}[t]
-          &\app{\op{push}}{x}{(\lam{\_}{ \\
-          &\app{\op{assert}}{(\app{\obj{best-friend}}{x}{s})}{(\lam{\_}{ \\
-          &\etaE{\star}})}})})\ (\lambda x.\,
-        \end{aligned}}} \\
+      &\app{\op{presuppose}}{(\lam{x}{\ap{\op{assert}!}{(\app{\obj{best-friend}}{x}{s})}})}{(\lam{x}{ \\
       &\app{\op{introduce^i}}{\star}{(\lam{y}{ \\
       &\app{\op{implicate}}{(\ap{\obj{dog}}{y})}{(\lam{\_}{ \\
       &\app{\op{implicate}}{(\app{\obj{own}}{x}{y})}{(\lam{\_}{ \\
       &\app{\op{get}}{\star}{(\lam{e}{ \\
       &\app{\op{assert}}{(\app{\obj{say}}{x}{(\forall z.\, \app{\obj{love}}{(\ap{\selit}{e})}{z})})}{(\lam{\_}{ \\
-      &\etaE{\star}})}})}})}})}})})})}
+      &\etaE{\star}})}})}})}})}})}})}})}
     \end{aligned} \\
   \\
 & \ap{\cherry}{(\app{\TOP}{s}{\sem{\app{\abs{said}_{\abs{is}}}{(\app{\abs{loves}}{(\ap{\abs{in-situ}}{\abs{everyone}})}{\abs{it}})}{(\app{\abs{who}_{\abs{s}}}{(\ap{\abs{owns}}{(\ap{\abs{a}}{\abs{dog}})})}{(\ap{\abs{best-friend}}{\abs{me}})})}}})} \\
 & \tto \exists x.\, \app{\obj{best-friend}}{x}{s} \land (\exists y.\, \ap{\obj{dog}}{y} \land \app{\obj{own}}{x}{y} \land \app{\obj{say}}{x}{(\forall z.\, \app{\obj{love}}{y}{z})})
 \end{align*}
-
-\footnotetext{We can define the interpretation $\sem{\abs{everyone}}$ of
-  $\abs{everyone : QNP}$ as
-  $\sem{\abs{everyone}} = \ap{\sem{\abs{every}}}{(\lam{x}{\etaE{\star}})}$,
-  where $\lam{x}{\etaE{\star}}$ is of type $\sem{N}$ and
-  $\etaE{\star} : \FF_E(1)$ is the dynamic tautology.}
 
 
 \subsection{Note on Conservativity}
