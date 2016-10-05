@@ -6,9 +6,7 @@
 
 \begin{document}
 
-% TODO: Fix TOC in PDF
-
-\ThesisDraft
+%\ThesisDraft
 
 \dominitoc
 
@@ -18,24 +16,31 @@
 
 \ThesisUL
 
-\President    = {Le président & }
-\Rapporteurs  = {Le rapporteur 1 & \\
-                 Le rapporteur 2 & \\
-                 Le rapporteur 3 & }
-\Examinateurs = {L'examinateur 1 & \\
-                 L'examinateur 2 & }
+\ClearJury
+\NewJuryCategory{Directeurs}{\textit{Directeur de thèse :}}{\textit{Directeurs de thèse :}}
+\NewJuryCategory{Codirecteurs}{\textit{Co-directeur de thèse :}}{\textit{Co-directeurs de thèse :}}
+\NewJuryCategory{Rapporteurs}{\textit{Rapporteur :}}{\textit{Rapporteurs :}}
+\NewJuryCategory{Examinateurs}{\textit{Examinateur :}}{\textit{Examinateurs :}}
+\Directeurs   = { Philippe de Groote & Inria Nancy - Grand Est }
+\Codirecteurs = { Maxime Amblard & Université de Lorraine }
+\Rapporteurs  = { Hugo Herbelin & Inria Paris - Rocquencourt \\
+                  Chung-chieh Shan & Indiana University }
+\Examinateurs = { Chris Barker & New York University \\
+                  Christina Unger & Universität Bielefeld \\
+                  Laurent Vigneron & Université de Lorraine }
+
+\nthks
 
 \MakeThesisTitlePage
 
-
-\begin{ThesisAcknowledgments}
-Les remerciements.
-\end{ThesisAcknowledgments}
+% \begin{ThesisAcknowledgments}
+% Les remerciements.
+% \end{ThesisAcknowledgments}
 
 
 \begin{ThesisDedication}
 Je dédie cette thèse\\
-à \TODO{\ldots}
+à mes parents
 \end{ThesisDedication}
 
 

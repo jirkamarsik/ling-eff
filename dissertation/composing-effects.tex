@@ -2045,12 +2045,16 @@ analyzed in Chapters~\ref{chap:introducing-effects}
 and~\ref{chap:dynamic-semantics} using the same abstract syntactic
 structure.\footnote{With the exception of in-situ quantifiers which now use
   the $\abs{in-situ}$ operator.} Furthermore, the grammar covers sentences
-which combine these phenomena, such as Example~\ref{ex:combo}.
+which combine these phenomena, such as Example~\ref{ex:combo}.\footnote{For
+  the detailed process of computing the meaning of Example~\ref{ex:combo},
+  take a look in Appendix~\ref{chap:final-example}.}
 
 \begin{exe}
   \ex My best friend, who owns a dog$_1$, said it$_1$ loves
   everyone. \label{ex:combo}
 \end{exe}
+
+\vspace*{-5mm}
 
 \begin{align*}
 & \sem{\app{\abs{said}_{\abs{is}}}{(\app{\abs{loves}}{(\ap{\abs{in-situ}}{\abs{everyone}})}{\abs{it}})}{(\app{\abs{who}_{\abs{s}}}{(\ap{\abs{owns}}{(\ap{\abs{a}}{\abs{dog}})})}{(\ap{\abs{best-friend}}{\abs{me}})})}} \\
