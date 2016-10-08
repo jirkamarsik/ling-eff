@@ -1,6 +1,9 @@
 #lang racket
 (require redex)
 
+;; Defining the Language
+;; =====================
+
 (define-language BANANA
   (e ::= x
          c
@@ -44,8 +47,8 @@
          0
          (τ + τ))
   #:binding-forms
-  (case e (inl x → e_l #:refers-to x)
-          (inr y → e_r #:refers-to y)))
+  (case e (inl x_l → e_l #:refers-to x_l)
+          (inr x_r → e_r #:refers-to x_r)))
 
 (define-extended-language BANANA+SPA
   BANANA+SP
@@ -53,6 +56,12 @@
          (e || e)))
 
 
+
+
+
+
+;; Preliminary Definitions -- Metafunctions
+;; ========================================
 
 (define-metafunction BANANA+SPA
   different : any any -> #t or #f
@@ -102,26 +111,26 @@
 
 (define-metafunction BANANA+SPA
   free-in : x e -> #t or #f
-  [(free-in x (e_f e_a))
-   ,(or (term (free-in x e_f)) (term (free-in x e_a)))]
-  [(free-in x (λ (x τ) e))
-   #f]
-  [(free-in x (λ (x_different τ) e))
-   (free-in x e)]
   [(free-in x x)
    #t]
   [(free-in x x_different)
    #f]
   [(free-in x c)
    #f]
+  [(free-in x (e_f e_a))
+   ,(or (term (free-in x e_f)) (term (free-in x e_a)))]
+  [(free-in x (λ (x_local τ) e))
+   (free-in x e)]
   [(free-in x (η E e))
    (free-in x e)]
-  [(free-in x (OP e_arg e_k))
+  [(free-in x (OP e_arg (λ (x_r) e_k)))
    ,(or (term (free-in x e_arg)) (term (free-in x e_k)))]
   [(free-in x (with (OP_i e_i) ... (η e_p) handle e))
    ,(or (ormap identity (term ((free-in x e_i) ...)))
         (term (free-in x e_p))
         (term (free-in x e)))]
+  [(free-in x (♭ e))
+   (free-in x e)]
   [(free-in x (C e))
    (free-in x e)]
   [(free-in x ★)
@@ -139,14 +148,20 @@
   [(free-in x (case e (inl x_l → e_l)
                       (inr x_r → e_r)))
    ,(or (term (free-in x e))
-        (term (free-in x (λ (x_l 1) e_l)))
-        (term (free-in x (λ (x_r 1) e_r))))]
+        (term (free-in x e_l))
+        (term (free-in x e_r)))]
   [(free-in x (absurd τ e))
    (free-in x e)]
   [(free-in x (e_1 || e_2))
    ,(or (term (free-in x e_1)) (term (free-in x e_2)))])
 
 
+
+
+
+
+;; Type System
+;; ===========
 
 (define-judgment-form
   BANANA+SPA
@@ -173,8 +188,6 @@
    (context-included context_1 context_2)
    ------------------------------------------------------
    (context-included (key_1 : any_1 context_1) context_2)])
-
-
 
 (define-judgment-form
   BANANA+SPA
@@ -267,6 +280,12 @@
 
 
 
+
+
+
+;; Reduction Semantics
+;; ===================
+
 (define eval
   (compatible-closure 
     (reduction-relation
@@ -306,20 +325,14 @@
       (--> (π2 (pair e_1 e_2))
            e_2
            "β.×2")
-      (--> (case (inl E e) (inl x → e_l)
-                           (inr y → e_r))
-           (substitute e x e_l)
+      (--> (case (inl E e) (inl x_l → e_l)
+                           (inr x_r → e_r))
+           (substitute e_l x_l e)
            "β.+1")
-      (--> (case (inr E e) (inl x → e_l)
-                           (inr y → e_r))
-           (substitute e y e_r)
-           "β.+2")
-      (--> (e_1 || e_2)
-           e_1
-           ";1")
-            (--> (e_1 || e_2)
-           e_2
-           ";2"))
+      (--> (case (inr E e) (inl x_l → e_l)
+                           (inr x_r → e_r))
+           (substitute e_r x_r e)
+           "β.+2"))
     BANANA+SPA
     e))
 
@@ -328,159 +341,10 @@
 
 
 
-(define-extended-language BANANA+SPAC
-  BANANA+SPA
-  (gender ::= masculine
-              feminine
-              neutral))
+;; Extra Syntax
+;; ============
 
-(define-judgment-form
-  BANANA+SPAC
-  #:mode (individual-in O I)
-  #:contract (individual-in e e)
-
-  [----------------------------------------------
-   (individual-in e_ind ((::-ι e_ind) e_context))]
-  
-  [(individual-in e_ind e_context)
-   ------------------------------------------------
-   (individual-in e_ind ((::-ι e_other) e_context))]
-
-  [(individual-in e_ind e_context)
-   ------------------------------------------------
-   (individual-in e_ind ((::-o e_other) e_context))])
-
-(define-judgment-form
-  BANANA+SPAC
-  #:mode (proposition-in O I)
-  #:contract (proposition-in e e)
-
-  [-------------------------------------------------
-   (proposition-in e_prop ((::-o e_prop) e_context))]
-  
-  [(proposition-in e_prop e_context)
-   --------------------------------------------------
-   (proposition-in e_prop ((::-ι e_other) e_context))]
-
-  [(proposition-in e_prop e_context)
-   --------------------------------------------------
-   (proposition-in e_prop ((::-o e_other) e_context))])
-
-(define-judgment-form
-  BANANA+SPAC
-  #:mode (has-gender I I I)
-  #:contract (has-gender e gender e)
-
-  [(proposition-in (John e_x) e_c)
-   ------------------------------
-   (has-gender e_x masculine e_c)]
-
-  [(proposition-in (man e_x) e_c)
-   ------------------------------
-   (has-gender e_x masculine e_c)]
-
-  [(proposition-in (Mary e_x) e_c)
-   -----------------------------
-   (has-gender e_x feminine e_c)]
-
-  [(proposition-in (woman e_x) e_c)
-   -----------------------------
-   (has-gender e_x feminine e_c)]
-
-  [(proposition-in (Porsche e_x) e_c)
-   ----------------------------
-   (has-gender e_x neutral e_c)]
-
-  [(proposition-in (Mercedes e_x) e_c)
-   ----------------------------
-   (has-gender e_x neutral e_c)]
-
-  [(proposition-in ((best-friend e_x) e_y) e_c)
-   ------------------------------
-   (has-gender e_x masculine e_c)]
-
-  [(proposition-in ((best-friend e_x) e_y) e_c)
-   ------------------------------
-   (has-gender e_x masculine e_c)])
-
-(define-judgment-form
-  BANANA+SPAC
-  #:mode (sel I I O)
-  #:contract (sel gender e e)
-
-  [(individual-in e_referent e_context)
-   (has-gender e_referent gender e_context)
-   ---------------------------------
-   (sel gender e_context e_referent)])
-
-(define-judgment-form
-  BANANA+SPAC
-  #:mode (all-conds-in I I)
-  #:contract (all-conds-in e e)
-
-  [(all-conds-in e_c1 e_context)
-   (all-conds-in e_c2 e_context)
-   ----------------------------------------
-   (all-conds-in ((∧ e_c1) e_c2) e_context)]
-
-  [(proposition-in e_condition e_context)
-   ------------------------------------
-   (all-conds-in e_condition e_context)])
-
-(define-judgment-form
-  BANANA+SPAC
-  #:mode (sel-prop I I O)
-  #:contract (sel-prop e e e)
-
-  [(individual-in e_referent e_context)
-   (all-conds-in (substitute e_condition x e_referent) e_context)
-   -----------------------------------------------------
-   (sel-prop (λ (x ι) e_condition) e_context e_referent)]
-
-  [(individual-in e_referent e_context)
-   (all-conds-in (e_property e_referent) e_context)
-   -----------------------------------------------------
-   (sel-prop e_property e_context e_referent)])
-
-(define eval-more
-  (compatible-closure
-    (extend-reduction-relation eval
-      BANANA+SPAC
-      (--> ((++ nil) e)
-           e
-           "++ nil")
-      (--> ((++ ((::-i e_h) e_t)) e_2)
-           ((::-ι e_h) ((++ e_t) e_2))
-           "++ ::-ι")
-      (--> ((++ ((::-o e_h) e_t)) e_2)
-           ((::-o e_h) ((++ e_t) e_2))
-           "++ ::-o")
-      (--> (sel-he e_context)
-           e_referent
-           (judgment-holds (sel masculine e_context e_referent))
-           "sel-he")
-      (--> (sel-she e_context)
-           e_referent
-           (judgment-holds (sel feminine e_context e_referent))
-           "sel-she")
-      (--> (sel-it e_context)
-           e_referent
-           (judgment-holds (sel neutral e_context e_referent))
-           "sel-it")
-      (--> ((selP e_property) e_context)
-           e_referent
-           (judgment-holds (sel-prop e_property e_context e_referent))
-           "selP"))
-    BANANA+SPAC
-    e))
-
-
-
-
-
-
-
-(define-metafunction BANANA+SPAC
+(define-metafunction BANANA+SPA
   >>= : e e -> e
   [(>>= e_m e_k)
    (with (η e_k) handle e_m)])
@@ -488,6 +352,10 @@
 
 
 
+
+
+;; Higher-Order Signature
+;; ======================
 
 (define all-consts
   (term (⊤ : o
@@ -521,6 +389,14 @@
         (selP : ((ι → o) → (γ → ι))
          ·)))))))))))))))))))))))))))))))
 
+
+
+
+
+
+;; Effect Signatures
+;; =================
+
 (define get-effect
   (term (GET : (1 ↦ γ)
          ·)))
@@ -542,6 +418,14 @@
 (define all-effects
   (term (SCOPE : (((ι → (F ,effects-no-scope 1)) → (F ,effects-no-scope 1)) ↦ ι)
         ,effects-no-scope)))
+
+
+
+
+
+
+;; Checking Types
+;; ==============
 
 (define (get-types env exp)
   (judgment-holds (⊢ ,env ,all-consts ,exp τ) τ))

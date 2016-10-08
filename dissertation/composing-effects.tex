@@ -1188,11 +1188,11 @@ We can now give a new meaning to the determiners \emph{every} and \emph{a}.
   \sem{QNP} &= \FF_{\{\op{scope}\}}(\FF_{E'}(\iota)) \\
   \\
   \lex{every}{\lam{N}{\begin{aligned}[t]
-      &\app{\op{scope}!}{(\lam{k}{\dforall x.\ \ap{\SI}{((N \apl x) \hsbind \op{assert}!)} \dimp \ap{k}{x}})}{(\lam{x}{ \\
+      &\app{\op{scope}}{(\lam{k}{\dforall x.\ \ap{\SI}{((N \apl x) \hsbind \op{assert}!)} \dimp \ap{k}{x}})}{(\lam{x}{ \\
       &\etaE{(\ap{\trace}{x})}})}
     \end{aligned}}} \\
   \lex{a'}{\lam{N}{\begin{aligned}[t]
-      &\app{\op{scope}!}{(\lam{k}{\dexists x.\ \ap{\SI}{((N \apl x) \hsbind \op{assert}!)} \dand \ap{k}{x}})}{(\lam{x}{ \\
+      &\app{\op{scope}}{(\lam{k}{\dexists x.\ \ap{\SI}{((N \apl x) \hsbind \op{assert}!)} \dand \ap{k}{x}})}{(\lam{x}{ \\
       &\etaE{(\ap{\trace}{x})}})}
     \end{aligned}}} \\
   \\
@@ -1598,19 +1598,19 @@ that we have been building during this chapter.
              &\app{\op{assert}}{(\ap{n}{x})}{(\lam{\_}{ \\
              &\etaE{x}})}})})}}
   \end{aligned}} \\
-  \lex{every}{\lam{N}{\ap{\op{scope}!}{\begin{aligned}[t]
+  \lex{every}{\lam{N}{\ap{\op{scope}}{\begin{aligned}[t]
       &(\lam{k}{\dforall x.\,\ap{\SI}{(\ap{N}{x})} \dimp \ap{k}{x}}) \\
       &(\lam{x}{\etaE{(\ap{\trace}{x})}})
     \end{aligned}}}}
-& \lex{every}{\lam{N}{\ap{\op{scope}!}{\begin{aligned}[t]
+& \lex{every}{\lam{N}{\ap{\op{scope}}{\begin{aligned}[t]
       &(\lam{k}{\dforall x.\,\ap{\SI}{((N \apl x) \hsbind \op{assert}!)} \dimp \ap{k}{x}}) \\
       &(\lam{x}{\etaE{(\ap{\trace}{x})}})
     \end{aligned}}}} \\
-  \lex{a'}{\lam{N}{\ap{\op{scope}!}{\begin{aligned}[t]
+  \lex{a'}{\lam{N}{\ap{\op{scope}}{\begin{aligned}[t]
       &(\lam{k}{\dexists x.\,\ap{\SI}{(\ap{N}{x})} \dand \ap{k}{x}}) \\
       &(\lam{x}{\etaE{(\ap{\trace}{x})}})
     \end{aligned}}}}
-& \lex{a'}{\lam{N}{\ap{\op{scope}!}{\begin{aligned}[t]
+& \lex{a'}{\lam{N}{\ap{\op{scope}}{\begin{aligned}[t]
       &(\lam{k}{\dexists x.\,\ap{\SI}{((N \apl x) \hsbind \op{assert}!)} \dand \ap{k}{x}}) \\
       &(\lam{x}{\etaE{(\ap{\trace}{x})}})
     \end{aligned}}}} \\
@@ -1898,8 +1898,8 @@ effects in $E^*$. We can write a handler for this.\footnote{This amounts to
   with evaluation and functional dependencies.}
 
 \begin{align*}
-  \splitDRT &: \FF_{E \uplus E^*}(\alpha) \to \FF_E(\FF_{E^*}(\alpha)) \\
-  \splitDRT &= \lban \begin{aligned}[t]
+  \separateDynamics &: \FF_{E \uplus E^*}(\alpha) \to \FF_E(\FF_{E^*}(\alpha)) \\
+  \separateDynamics &= \lban \begin{aligned}[t]
       &\onto{\op{get}}{(\lam{x k}{\ap{\op{get}}{x} \apr (\ap{\CC}{k})})}, \\
       &\onto{\op{fresh}}{(\lam{x k}{\ap{\op{fresh}}{x} \apr (\ap{\CC}{k})})}, \\
       &\onto{\op{push}}{(\lam{x k}{\ap{\op{push}}{x} \apr (\ap{\CC}{k})})}, \\
@@ -1916,7 +1916,7 @@ $\abs{the}$ as well as the other presupposition triggers.
                   \to \FF_{E \uplus \{\op{get}\}}(\iota \to \FF_{E^*}(1)) \\
   \packageProperty &= \lam{P}{\begin{aligned}[t]
       &\app{\op{get}}{\star}{(\lam{e}{ \\
-      &\ap{\CC}{(\lam{x}{\ap{\splitDRT}{(\app{\inTheContext}{e}{(\ap{\maybeAccommodate}{(\ap{\SI}{(\ap{P}{x})})})})}})}})}
+      &\ap{\CC}{(\lam{x}{\ap{\separateDynamics}{(\app{\inTheContext}{e}{(\ap{\maybeAccommodate}{(\ap{\SI}{(\ap{P}{x})})})})}})}})}
     \end{aligned}}
 \end{align*}
 
@@ -1959,7 +1959,8 @@ accordingly.
   \useFind &= \banana{\onto{\op{presuppose}}{(\lam{P k}{\ap{\find}{P} \hsbind k})}} \\
   \\
   \find &: (\iota \to \FF_{E^*}(1)) \to \FF_{E \uplus \{\op{get}, \op{presuppose}\}}(\iota) \\
-  \find &= \lam{P}{\app{\op{get}}{\star}{(\lam{e}{\case{\app{\selP}{(\cherry \circ \TOP \circ P)}{e}}{x}{\etaE{x}}{\_}{\ap{\op{presuppose}!}{P}}})}}
+  \find &=
+          \lam{P}{\app{\op{get}}{\star}{(\lam{e}{\case{\app{\selP}{(\cherry \circ \empty \circ \box \circ P)}{e}}{x}{\etaE{x}}{\_}{\ap{\op{presuppose}!}{P}}})}}
 \end{align*}
 
 In $\accommodate$ and $\maybeAccommodate$, instead of asserting
@@ -1968,10 +1969,12 @@ wherever the presupposition is being accomodated. The $\useFind$ handler
 will work the same way as before but with a new definition for $\find$
 which works on dynamic predicates of type $\iota \to \FF_{E^*}(1)$. $\find$
 will map dynamic predicates to static predicates using
-$\cherry \circ \TOP$. The use of $\TOP$ blocks any effects in the predicate
-$P$. This can be intuitively understood as the listener considering whether
-there exists some $x$ such that $\ap{P}{x}$ without committing the effects
-of $P$ to the common ground.
+$\cherry \circ \empty \circ \BOX$. The use of $\empty \circ \BOX$ blocks
+any dynamic effects in the predicate $P$.\footnote{And thanks to
+  $\separateDynamics$, dynamic effects (those from $E^*$) are the only effects in
+  $P$.} This can be intuitively understood as the listener considering
+whether there exists some $x$ such that $\ap{P}{x}$ without committing the
+(dynamic) effects of $P$ to the common ground.
 
 With all of this heavy machinery in place, we now have a system that can
 deal with sentences like Example~\ref{ex:presupposition-binding} and
