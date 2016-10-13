@@ -1,20 +1,23 @@
 \chapter{Examples}
 \label{chap:examples}
 
-We have given a formal definition of our calculus but we have not shown how
-to use it to model side effects and what are the benefits. In this chapter,
-we will present an example problem and as we explore it deeper, we will see
-emerge some of the properties behind our calculus.
+We have given a formal definition of $\calc$, our calculus, but we have not
+shown how to use it to model side effects and what are the benefits. In
+this chapter, we will present an example problem and as we explore it
+deeper, we will see emerge some of the properties behind $\calc$.
 
 \minitoc
+
 
 \section{Introducing Our Running Example}
 
 We will demonstrate our calculus by trying to build a calculator, showing
 how $\calc$ can be used when defining the interpretation of a simple
 language of arithmetic expressions, similar to the one on which Wadler
-demonstrates monads in~\cite{wadler1992essence}. Given some arithmetic
-expression, we would like to reduce it to a simple number.
+demonstrates monads in~\cite{wadler1992essence}.\footnote{The example we
+  will treat might be too simple to actually justify using our
+  calculus. However, it will allow us to see $\calc$ in action.}  Given
+some arithmetic expression, we would like to reduce it to a simple number.
 
 $$
 \app{\sume}{(\ap{\lite}{1})}{(\app{\prode}{(\ap{\lite}{2})}{(\ap{\lite}{4})})}
@@ -24,11 +27,11 @@ $$
 In the above, expressions are formed using the constructors $\sume$,
 $\prode$ and $\lite$ which stand for sums, products and literals,
 respectively. Expressions in our calculator have the type $exp$, the types
-of the constructors (formation rules) are given below\footnote{The type
+of the constructors (formation rules) are given below:\footnote{The type
   $\NN$ is the type of natural numbers. Since our examples will deal with
-  numbers, we will treat naturals as terms of our calculus that have the
-  type $\NN$. Their syntax and equational theory are both standard so we
-  will not repeat it here.}:
+  numbers, we will treat natural numbers as terms of our calculus that have
+  the type $\NN$. Their syntax and equational theory are both standard so
+  we will not repeat it here.}
 
 \begin{align*}
   \sume &: exp \to exp \to exp \\
@@ -39,20 +42,21 @@ of the constructors (formation rules) are given below\footnote{The type
 The exercise is similar to our enterprise of formal semantics. We have a
 language (fragment) with a formal grammar and we try to find a systematic
 way of identifying sentences of this language with their senses or
-references. Our methodology will also be the same of formal semantics: a
-composition of meanings that mirrors the syntactic structure.
+references. Our methodology will also be the same as the one of formal
+semantics: meanings will be composed in parallel with the syntactic
+structure.
 
 Before we go on, a quick technical remark about the $exp$ type and its
-encoding. A common approach is to model $exp$ as an inductive
-algebraic data type\footnote{This would be something called an
-  \emph{initial encoding} of a language.} and then have our calculator be a
-function from $exp$ to $\NN$ or some other domain of
-interpretation. Our calculus does not directly provide inductive types but
-the $\FF$ type constructor is built on top of them and since it is
-parameterizable by an effect signature, it can be used to implement a
-variety of inductive types. In this particular scenario, we could use
-$\FF_{\{\typedop{sum}{1}{2},\typedop{prod}{1}{2}\}}(\NN)$ as
-$exp$. The notion of a closed handler ($\bbanana{}$, see
+encoding. A common approach is to model $exp$ as an inductive algebraic
+data type\footnote{This would be something called an \emph{initial
+    encoding} of a language.} and then have our calculator be a function
+from $exp$ to $\NN$ or some other domain of interpretation. $\calc$ does
+not directly provide inductive types but the $\FF$ type constructor is
+built on top of them and since it is parameterizable by an effect
+signature, it can be used to implement a variety of inductive types. In
+this particular scenario, we could use
+$\FF_{\{\typedop{sum}{1}{2},\typedop{prod}{1}{2}\}}(\NN)$ as $exp$. The
+notion of a closed handler ($\bbanana{}$, see
 $\ref{ssec:operations-and-handlers}$) would then give use the induction
 principle over these arithmetic expression, i.e.\ a way to compositionally
 compute some value from the arithmetic expression.
@@ -68,13 +72,13 @@ number can be realized by adding equations that ``define'' the functions
 $\sume$, $\prode$, $\lite$ and the type $exp$. We thus take $exp$ to be the
 name of the type of our desired interpretations and we take $\sume$,
 $\prode$ and $\lite$ to be some functions that compute directly with these
-interpretations\footnote{This is known as a \emph{final encoding} of a
-  language.}. The task of the semanticist is to fix some specific
+interpretations.\footnote{This is known as a \emph{final encoding} of a
+  language.} The task of the semanticist is to fix some specific
 interpretation for the abstract type $exp$ and figuring out the definitions
-of the abstract functions $\sume$, $\prode$ and $\lite$\footnote{As we will
-  see in Chapter~\ref{chap:intro-fs} when we introduce them, this is
+of the abstract functions $\sume$, $\prode$ and $\lite$.\footnote{As we
+  will see in Chapter~\ref{chap:intro-fs} when we introduce them, this is
   exactly the idea behind abstract categorial grammars
-  \cite{de2001towards}.}. Within our tiny fragment, this is quite easy to
+  \cite{de2001towards}.} Within our tiny fragment, this is quite easy to
 do:
 
 \begin{align*}
@@ -86,9 +90,9 @@ do:
 
 Applying these equations to the term
 $\app{\sume}{(\ap{\lite}{1})}{(\app{\prode}{(\ap{\lite}{2})}{(\ap{\lite}{4})})}$
-and then reducing according to the reduction rules of our calculus
-(alongside with rules/equations to perform arithmetic operations), we get
-the result, $9$.
+and then reducing according to the reduction rules of $\calc$ (alongside
+with rules/equations for performing arithmetic operations), we get the
+result, $9$.
 
 
 \section{Adding Errors}
@@ -107,32 +111,32 @@ semantics to $\dive$:
 \end{align*}
 
 However, this assumes that we have a division operator that defines the
-division $x/y$ for all naturals $x$ and $y$. This is not the case when $y =
-0$. Defining $x/0$ to be some specific natural $d$ is not satisfactory
-since then we cannot distinguish between the cases when $x/y$ is $d$ and
-when $x/y$ is not defined. Fortunately, this is what sum types are very
-useful for. We will have the type of $x/y$ be $\NN + 1$, $x/0$ will reduce
-to $(\ap{\inr}{\star})$ and $x/y$ for $y \neq 0$ will reduce to
-$(\ap{\inl}{q})$ where $q$ is the greatest natural such that $q y \le
-x$.
+division $x/y$ for all natural numbers $x$ and $y$. This is not the case
+when $y = 0$. Defining $x/0$ to be some specific natural number $d$ is not
+satisfactory since then we cannot distinguish between the cases when $x/y$
+is $d$ and when $x/y$ is not defined. Fortunately, this is what sum types
+are very useful for. We will have the type of $x/y$ be $\NN + 1$, $x/0$
+will reduce to $(\ap{\inr}{\star})$ and $x/y$ for $y \neq 0$ will reduce to
+$(\ap{\inl}{q})$ where $q$ is the greatest natural number such that
+$q y \le x$.
+
 
 \subsection{Raising the Type of $exp$}
 \label{ssec:raising-the-type-of-exp}
 
 Now the cases when $x/y$ is and is not defined are clearly
-delimited\footnote{Realizing that $x/y$ is not defined for $y = 0$ and then
-  changing the type and behavior of the underlying division operator is
-  very much like semanticists taking into account that expressions such as
-  \emph{the King of France} need not have a reference and then changing the
-  underlying model by switching from functions to
-  relations.}. Nevertheless, we just made ourselves a new problem. The
-result of a division is something of type $\NN + 1$ and so in our
-interpretation, $exp$ will correspond to $\NN + 1$. This is in line with
-our intuition that arithmetic expressions which contain division can
+delimited.\footnote{Realizing that $x/y$ is not defined for $y = 0$ and
+  then changing the type and behavior of the underlying division operator
+  is very much like semanticists taking into account that expressions such
+  as \emph{the King of France} need not have a reference and then changing
+  the underlying model.} Nevertheless, we just made ourselves a new
+problem. The result of a division is something of type $\NN + 1$ and so in
+our interpretation, $exp$ will correspond to $\NN + 1$. This is in line
+with our intuition that arithmetic expressions which contain division can
 sometimes be undefined. However, the implications of having $exp = \NN + 1$
 begin to sting when we consider the cases of $\sume$ and
-$\prode$\footnote{As a convention, we use $\_$ as a variable name for
-  variables whose values are never used.}.
+$\prode$.\footnote{As a convention, we use $\_$ as a variable name for
+  variables whose values are never used.}
 
 \begin{align*}
   exp &= \NN + 1 \\
@@ -142,16 +146,16 @@ $\prode$\footnote{As a convention, we use $\_$ as a variable name for
   \lite &= \lam{x}{\ap{\inl}{x}}
 \end{align*}
 
-
-the calculation only if both of the operands successfully yield a
-natural\footnote{If you are unfamiliar with the notation used in the terms
-  above, consult Section~\ref{sec:sums-and-products} where we introduced
-  sums and products into our calculus.}. In $\sume$, $\prode$ and $\lite$,
-we also have to wrap the result in $\inl$ in order to go from $\NN$ to $\NN
-+ 1$\footnote{We $\eta$ reduce the definition of $\lite$ for
-  convenience.}. In $\dive$, we do not wrap the result using $\inl$ since
+We now have to inspect the results of both of the operands and proceed with
+the calculation only if both of the operands successfully yield a natural
+number.\footnote{If you are unfamiliar with the notation used in the terms
+  above, consult Section~\ref{sec:sums-and-products}, where we introduced
+  sums and products into our calculus.} In $\sume$, $\prode$ and $\lite$,
+we also have to wrap the result in $\inl$ in order to go from $\NN$ to
+$\NN + 1$. In $\dive$, we do not wrap the result using $\inl$ since
 division already produces a value of type $\NN + 1$. All this seems a heavy
 price to pay just to include division.
+
 
 \subsection{Refactoring with Monads}
 \label{ssec:refactoring-with-monads}
@@ -180,27 +184,25 @@ With these in our hands, we can now straighten out our interpretation.
 
 This pattern that we uncovered in the type $\NN + 1$ and the terms defining
 $\dive$, $\sume$, $\prode$ and $\lite$ is not incidental. The triple
-$\left<T_\bot, \eta_\bot, \hsbind_\bot \right>$ forms a monad\footnote{This
-  way of presenting a monad (a type constructor, $\eta$ and $\hsbind$) is
-  particular to functional programming. Note that this presentation differs
-  from the category-theoretical one which replaces $\hsbind$ with a natural
-  transformation $\mu$ \cite{mac1978categories}.}. This formulation in
-terms of monadic operations will allow us to transition more easily into
-our proposed solution since, as we will show in~\ref{ssec:monad},
-$\left< \FF_E, \eta, \hsbind \right>$ also forms a monad.
+$\left<T_\bot, \eta_\bot, \hsbind_\bot \right>$ forms a monad. This
+formulation in terms of monadic operations will allow us to transition more
+easily into our proposed solution since, as we will show
+in~\ref{ssec:monad}, $\left< \FF_E, \eta, \hsbind \right>$ also forms a
+monad.
+
 
 \subsection{Interpreting Expressions as Computations}
 \label{ssec:expressions-as-computations}
 
 We will now explore an alternative solution which takes advantage of the
-$\FF$-types in our calculus. We will interpret expressions as computations
-of naturals, $exp = \FF_E(\NN)$. Computations will have the ability to fail
-by using the operation $\typedop{fail}{1}{0}$. The input type $1$ means
-that there is only one way to fail (i.e.\ $\op{fail}$ does not distinguish
-failure states) and the output type $0$ means that there is no continuation
-(formally there is a dummy continuation that accepts the impossible type
-$0$). There is a natural way to generalize this approach by using
-$\typedop{error}{\chi}{0}$ instead. Computations can now terminate by
+$\FF$-types in $\calc$. We will interpret expressions as computations of
+natural numbers, $exp = \FF_E(\NN)$. Computations can have the ability to
+fail by using the operation $\typedop{fail}{1}{0}$. The input type $1$
+means that there is only one way to fail (i.e.\ $\op{fail}$ does not
+distinguish failure states) and the output type $0$ means that there is no
+continuation (formally there is a dummy continuation that accepts the
+impossible type $0$). There is a natural way to generalize this approach by
+using $\typedop{error}{\chi}{0}$ instead. Computations can now terminate by
 throwing exceptions of type $\chi$, allowing us to distinguish failure
 states. To identify the division-by-zero failure state, we will introduce
 $\dbzelong : \chi$. A computation that uses the $\op{error}$ operation to
@@ -234,10 +236,11 @@ Let us compare this with the last set of definitions:
 
 The advantage to using the $\FF_E$ monad instead of the $T_\bot$ monad is
 that the $\FF_E$ can be extended to handle other kinds of effects besides
-exceptions whereas the $T_\bot$ monad need would need to be replaced by a
+exceptions whereas the $T_\bot$ monad would need to be replaced by a
 different one. We will see an example of this later
 in~\ref{sec:enriching-the-context-with-variables}. For now, we still have
 something more to explore regarding errors.
+
 
 \subsection{Handling Errors}
 
@@ -270,20 +273,20 @@ $$
 
 Instead of passing $Y$ through the $\hsbind$ operator, which basically says
 to do whatever $Y$ would do (i.e.\ fail whenever $Y$ fails), we apply a
-handler to $Y$\footnote{Feeding it into $\hsbind$ or applying a handler to
-  it are the two most common ways we will be using computations.}. This
+handler to $Y$.\footnote{Feeding it into $\hsbind$ or applying a handler to
+  it are the two most common ways we will be using computations.} This
 handler is very simple, it replaces any failed computation with the
 computation $X$ (the backup computation that should yield the default
 value). It behaves like the exception handlers of common programming
 languages, whenever the computation $Y$ would throw an $\op{error}$, we
 handle it by running computation $X$ instead.
 
-\subsection{Examples of Errors}
+\subsection{Examples with Errors}
 
-We now have enough interesting material to play around with a little bit
-and see if (and why) it really works as it should. We will take an
-expression large enough to contain all the features which we added and we
-will evaluate it piece by piece.
+We now have enough interesting material to play around with and see if (and
+why) it really works as it should. We will take an expression large enough
+to contain all the features which we added and we will evaluate it piece by
+piece.
 
 $$
 \app{\sume}{\litec{5}}{\tryec{\litec{0}}{\prodec{\litec{3}}{\divec{\litec{2}}{\litec{0}}}}}
@@ -323,9 +326,9 @@ come from the definitions of $\hsbind$ and $^*$
 in~\ref{ssec:composing-functions}. The step on line 8 is just a repeat of
 the steps on lines 4 to 6. This sequence of steps will be quite common and
 we will from now on refer to it as the reduction rule
-$\eta.\hsbind$\footnote{This rule will be formally introduced
-  in~\ref{ssec:bind}. It says that whenever we have
-  $(\ap{\eta}{x}) \hsbind k$, we can reduce this to $\ap{k}{x}$.}
+$\eta.\hsbind$.\footnote{This rule will be formally introduced
+  in Subsection~\ref{ssec:bind}. It says that whenever we have
+  $(\ap{\eta}{x}) \hsbind k$, we can reduce it to $\ap{k}{x}$.}
 
 The result of this first elaboration was not surprising: dividing 2 by 0
 throws a $\dbzelong$ exception. We will now try to see what happens when
@@ -346,7 +349,7 @@ this faulty expression appears within another expression.
   &= (\app{\op{error}}{\dbzelong}{(\lam{o}{\absurd{o}})}) \hsbind (\lam{y}{\ap{\eta} {(3 \times y)}}) \\
   &= \ap{(\lam{y}{\ap{\eta} {(3 \times y)}})^*}{(\app{\op{error}}{\dbzelong}{(\lam{o}{\absurd{o}})})} \\
   &= \ap{\banana{\onto{\eta}{(\lam{y}{\ap{\eta} {(3 \times y)}})}}}{(\app{\op{error}}{\dbzelong}{(\lam{o}{\absurd{o}})})} \\
-  &\to_{\banana{\op{op}'}} \app{\op{error}}{\dbzelong}{(\lam{z}{\ap{\banana{\onto{\eta}{(\lam{y}{\ap{\eta} {(3 \times y)}})}}}{(\absurd{z})}})} \\
+  &\to_{\banana{\op{op}'}} \app{\op{error}}{\dbzelong}{(\lam{o}{\ap{\banana{\onto{\eta}{(\lam{y}{\ap{\eta} {(3 \times y)}})}}}{(\absurd{o})}})} \\
   &\simeq \dbze
 \end{align}
 \setcounter{equation}{0}
@@ -354,16 +357,18 @@ this faulty expression appears within another expression.
 
 Line 2 is due to our interpretation of $\prode$. Line 4 is due to the
 $\eta.\hsbind$ rule that we have demonstrated in the last example. Lines 6,
-7 and 8 expand the definitions of $\dbze$, $\hsbind$ and $^*$. On line 10,
-we equate the term with $\dbze$. The terms differ in the continuation but
-since the continuation can never be called\footnote{Technical aside: To be
-  precise, we should define $\dbze$ to be a class of terms of the shape
-  $\app{\op{error}}{\dbzelong}{M}$ for any term $M$. The only operations we
-  will ever perform on $\dbze$ in these examples will be congruent with the
-  equivalence relation of our calculus refined by adding equalities between
-  terms of the shape $\app{\op{error}}{\dbzelong}{M}$. Therefore, so long
-  as we end up removing the $\dbze$ terms from our result, we can treat
-  them as equivalent during our calculations.}, we can consider them equal.
+7 and 8 expand the definitions of $\dbze$, $\hsbind$ and $^*$
+respectively. On line 10, we equate the term with $\dbze$. The terms differ
+in the continuation but since the continuation can never be
+called,\footnote{Technical aside: To be precise, we should define $\dbze$
+  to be a class of terms of the shape
+  $\app{\op{error}}{\dbzelong}{(\lam{o}{M})}$ for any term $M$. The only
+  operations we will ever perform on $\dbze$ in these examples will be
+  congruent with the equivalence relation of our calculus refined by adding
+  equalities between terms of the shape
+  $\app{\op{error}}{\dbzelong}{(\lam{o}{M})}$. Therefore, so long as we end up
+  removing the $\dbze$ terms from our result, we can treat them as
+  equivalent during our calculations.} we can consider them equal.
 
 We have seen the $\dbzelong$ exception propagate. Now let's see what
 happens when it hits a $\trye$ construction.
@@ -375,7 +380,7 @@ happens when it hits a $\trye$ construction.
   &= \app{(\lam{X Y}{\ap{\banana{\onto{\op{error}}{(\lam{e k}{X})}}}{Y}})}{(\ap{\eta}{0})}{\dbze} \\
   &\to_{\beta,\beta} \ap{\banana{\onto{\op{error}}{(\lam{e k}{\ap{\eta}{0}})}}}{\dbze} \\
   &= \ap{\banana{\onto{\op{error}}{(\lam{e k}{\ap{\eta}{0}})}}}{(\app{\op{error}}{\dbzelong}{(\lam{o}{\absurd{o}})})} \\
-  &\to_{\banana{\op{op}}} \app{(\lam{e k}{\ap{\eta}{0}})}{\dbzelong}{(\lam{z}{\ap{\banana{\onto{\op{error}}{(\lam{e k}{\ap{\eta}{0}})}}}{(\absurd{z})}})} \\
+  &\to_{\banana{\op{op}}} \app{(\lam{e k}{\ap{\eta}{0}})}{\dbzelong}{(\lam{o}{\ap{\banana{\onto{\op{error}}{(\lam{e k}{\ap{\eta}{0}})}}}{(\absurd{o})}})} \\
   &\to_{\beta,\beta} \ap{\eta}{0}
 \end{align}
 \setcounter{equation}{0}
@@ -384,9 +389,10 @@ happens when it hits a $\trye$ construction.
 Line 2 is our interpretation of $\trye$. Line 4 is the definition of
 $\dbze$.
 
-We see that since the embedded expression failed to evaluate (its sense was
-$\dbze$), we have evaluated the literal 0 instead. We now have an actual
-number again and we can try feeding it into another operation.
+We see that since the embedded expression failed to evaluate (its
+denotation was $\dbze$), we have evaluated the literal 0 instead. We now
+have an actual number again and we can try feeding it into another
+operation.
 
 \NoChapterPrefix
 \begin{align}
@@ -406,8 +412,8 @@ number again and we can try feeding it into another operation.
 Line 2 is our interpretation of $\sume$. The others are reductions of the
 kind we have seen before.
 
-Finally, we see the simplest case when an operator just reaches into the
-results of both operands using $\to_{\eta.\hsbind}$ and carries out its
+Finally, we have seen the simplest case, when an operator just reaches into
+the results of both operands using $\to_{\eta.\hsbind}$ and carries out its
 operation. This also concludes our evaluation of the expression we have
 presented at the beginning of this subsection. We can therefore now
 conclude that:
@@ -436,8 +442,8 @@ $\lete$ binds a variable to the result of the first expression; this
 variable stays available during the evaluation of the second
 expression. $\vare$ then lets us use the variable in place of an
 expression. We also introduce terms for the different variables that can be
-used in our calculator. They look the same as the variables in our calculus
-but with a bar on top.
+used in our calculator. They look the same as the variables in $\calc$ 
+but they have a bar on top.
 
 Here is a term that uses the new constructions:
 
@@ -471,8 +477,11 @@ In the implementation above, we also rely on the presence of an equality
 predicate on the $var$ type:
 
  $$
-  (=) : var \to var \to 2
+  (=) : var \to var \to 2\footnotemark
  $$
+
+ \footnotetext{$2$ is the Boolean type that we have defined in
+   Section~\ref{sec:sums-and-products} as $1 + 1$.}
 
 And that is all we need. We can put these two combinators side-by-side with
 the existing ones like $\dive$ and $\trye$ and we will have a semantics for
@@ -480,8 +489,8 @@ a calculator with exceptions and variables.
 
 \subsection{Example with Variables}
 
-To get some practice with the calculus, we will evaluate a simple
-expression with multiple variables, step by step.
+To get some practice with $\calc$, we will evaluate a simple expression
+with multiple variables, step by step.
 
 $$
 \letecn{x}{\litec{1}}{\letec{y}{\litec{2}}{\sumec{\varec{x}}{\varec{y}}}}
@@ -530,18 +539,19 @@ $\sume$ and we $\beta$ reduce.
 
 On line 4, we substitute $\op{get}!$ with the definition of the exclamation
 mark that we provided in~\ref{ssec:operations-and-handlers}. Similarly, on
-line 6, we expand the definition of $\hsbind$\footnote{$\hsbind$ is defined
+line 6, we expand the definition of $\hsbind$.\footnote{$\hsbind$ is defined
   in terms of $^*$, which is itself defined in terms of $\banana{}$. Here,
   we expand both in one go, i.e.\ $(x \hsbind f) =
-  (\ap{\banana{\onto{\eta}{f}}}{x})$}.
+  (\ap{\banana{\onto{\eta}{f}}}{x})$}
 
-If you compare line 3 and line 9 (the second to last line), you will
-notice that they are practically identical. The $(\ap{\op{get}!}{\bar{x}})
-\hsbind k$ on line 3 has been replaced with
-$\app{\op{get}}{\bar{x}}{k}$. This is encapsulated in a rule named
-$\op{op}!.\hsbind$ that will be introduced in Chapter~\ref{chap:properties}
-and which lets us replace $(\ap{\op{op}!}{x}) \hsbind k$ with
-$\app{\op{op}}{x}{k}$.
+If you compare line 3 and line 9 (the second to last line), you will notice
+that they are practically identical. The
+$(\ap{\op{get}!}{\bar{x}}) \hsbind (\lam{x}{\ldots})$ on line 3 has been
+replaced with $\app{\op{get}}{\bar{x}}{(\lam{x}{\ldots})}$. This is a
+derivable rule in $\calc$, which we call $\op{op}!.\hsbind$.\footnote{In
+  Subsection~\ref{ssec:bind}, we will derive a similar, but more general,
+  rule called $\op{op}.\hsbind$, which will cover the steps from line 5 to
+  line 8.}
 
 On the last line, we simply repeat the last 6 steps (which we now packaged
 into the $\op{op}!.\hsbind$ rule) for $\ap{\op{get}!}{\bar{y}}$.
@@ -571,77 +581,77 @@ variable $\bar{y}$. It interprets such operations by returning the value
 $2$, otherwise it leaves them untouched.
 
 We will now apply this handler to the meaning of
-$\sumecn{\varec{x}}{\varec{y}}$ to get the meaning of
+$\sumecn{\varec{x}}{\varec{y}}$ to get the meaning of \\
 $\letecn{y}{\litec{2}}{\sumec{\varec{x}}{\varec{y}}}$.
 
 \NoChapterPrefix
 \begin{align}
   & \letecn{y}{\litec{2}}{\sumec{\varec{x}}{\varec{y}}} \\
-= & \letecn{y}{\litec{2}}
+=\ &\letecn{y}{\litec{2}}
        {(\app{\op{get}}{\bar{x}} {(\lam{x}{
          \app{\op{get}}{\bar{y}}{(\lam{y}{\ap{\eta}{(x + y)}})}})})} \\
-= & \ap{\banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = \bar{y}}
+=\ &\ap{\banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = \bar{y}}
         {(\ap{k}{2})}{(\app{\op{get}}{u}{k})}})}}}
        {(\app{\op{get}}{\bar{x}} {(\lam{x}{
          \app{\op{get}}{\bar{y}}{(\lam{y}{\ap{\eta}{(x + y)}})}})})} \\
-\to_{\banana{\op{op}}} &
+\to_{\banana{\op{op}}}\ &
   \app{(\lam{u k}{\ifte{u = \bar{y}}{(\ap{k}{2})}{(\app{\op{get}}{u}{k})}})}
       {\bar{x}}
       {(\lam{x}{\appp{\lete}{\bar{y}}{\litec{2}}
                    {(\app{\op{get}}{\bar{y}}{(\lam{y}{\ap{\eta}{(x + y)}})})}})} \\
-\to_{\beta} &
+\to_{\beta}\ &
   \ap{(\lam{k}{\ifte{\bar{x} = \bar{y}}{(\ap{k}{2})}{(\app{\op{get}}{\bar{x}}{k})}})}
      {(\lam{x}{\appp{\lete}{\bar{y}}{\litec{2}}
                   {(\app{\op{get}}{\bar{y}}{(\lam{y}{\ap{\eta}{(x + y)}})})}})} \\
-\to_= &
+\to_=\ &
   \ap{(\lam{k}{\ifte{\false}{(\ap{k}{2})}{(\app{\op{get}}{\bar{x}}{k})}})}
      {(\lam{x}{\appp{\lete}{\bar{y}}{\litec{2}}
                   {(\app{\op{get}}{\bar{y}}{(\lam{y}{\ap{\eta}{(x + y)}})})}})} \\
-\to_{\textbf{if}.\false} &
+\to_{\textbf{if}.\false}\ &
   \ap{(\lam{k}{(\app{\op{get}}{\bar{x}}{k})})}
      {(\lam{x}{\appp{\lete}{\bar{y}}{\litec{2}}
                   {(\app{\op{get}}{\bar{y}}{(\lam{y}{\ap{\eta}{(x + y)}})})}})} \\
-\to_{\beta} &
+\to_{\beta}\ &
   \app{\op{get}}{\bar{x}}
      {(\lam{x}{\appp{\lete}{\bar{y}}{\litec{2}}
                   {(\app{\op{get}}{\bar{y}}{(\lam{y}{\ap{\eta}{(x + y)}})})}})} \\
-= &
+=\ &
   \app{\op{get}}{\bar{x}}
      {(\lam{x}{\ap{\banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = \bar{y}}
                                           {(\ap{k}{2})}{(\app{\op{get}}{u}{k})}})}}}
                   {(\app{\op{get}}{\bar{y}}{(\lam{y}{\ap{\eta}{(x + y)}})})}})} \\
-\to_{\banana{\op{op}}} &
+\to_{\banana{\op{op}}}\ &
   \app{\op{get}}{\bar{x}}
      {(\lam{x}{(\app{(\lam{u k}{\ifte{u = \bar{y}}
                                      {(\ap{k}{2})}{(\app{\op{get}}{u}{k})}})}
                     {\bar{y}}{(\lam{y}{\appp{\lete}{\bar{y}}{\litec{2}}{(\ap{\eta}{(x + y)})}})})})} \\
-\to_{\beta} &
+\to_{\beta}\ &
   \app{\op{get}}{\bar{x}}
      {(\lam{x}{(\ap{(\lam{k}{\ifte{\bar{y} = \bar{y}}
                                      {(\ap{k}{2})}{(\app{\op{get}}{\bar{y}}{k})}})}
                     {(\lam{y}{\appp{\lete}{\bar{y}}{\litec{2}}{(\ap{\eta}{(x + y)})}})})})} \\
-\to_= &
+\to_=\ &
   \app{\op{get}}{\bar{x}}
      {(\lam{x}{(\ap{(\lam{k}{\ifte{\true}
                                      {(\ap{k}{2})}{(\app{\op{get}}{\bar{y}}{k})}})}
                     {(\lam{y}{\appp{\lete}{\bar{y}}{\litec{2}}{(\ap{\eta}{(x + y)})}})})})} \\
-\to_{\textbf{if}.\true} &
+\to_{\textbf{if}.\true}\ &
   \app{\op{get}}{\bar{x}}
      {(\lam{x}{(\ap{(\lam{k}{\ap{k}{2}})}
                    {(\lam{y}{\appp{\lete}{\bar{y}}{\litec{2}}{(\ap{\eta}{(x + y)})}})})})} \\
-\to_{\beta} &
+\to_{\beta}\ &
   \app{\op{get}}{\bar{x}}
      {(\lam{x}{\ap{(\lam{y}{\appp{\lete}{\bar{y}}{\litec{2}}{(\ap{\eta}{(x + y)})}})}
                   {2}})} \\
-\to_{\beta} &
+\to_{\beta}\ &
   \app{\op{get}}{\bar{x}}
      {(\lam{x}{\appp{\lete}{\bar{y}}{\litec{2}}{(\ap{\eta}{(x + 2)})}})} \\
-= &
+=\ &
   \app{\op{get}}{\bar{x}}
      {(\lam{x}{\ap{\banana{\onto{\op{get}}{(\lam{u k}{\ifte{u = \bar{y}}
                                           {(\ap{k}{2})}{(\app{\op{get}}{u}{k})}})}}}
                   {(\ap{\eta}{(x + 2)})}})} \\
-\to_{\banana{\eta}} & \app{\op{get}}{\bar{x}} {(\lam{x}{\ap{\eta}{(x + 2)}})}
+\to_{\banana{\eta}}\ &\app{\op{get}}{\bar{x}} {(\lam{x}{\ap{\eta}{(x + 2)}})}
 \end{align}
 \setcounter{equation}{0}
 \ChapterPrefix
@@ -675,11 +685,8 @@ line:
     variables, we expect the equality predicate to return false ($\false$).
 
   \item[Line 7 ($\textbf{if}.\false$)] Since the condition evaluated to
-    $\false$, we choose the second branch of the conditional. We are
-    invoking a derived rule that we have not shown before. The rule
-    consists simply of expanding the definitions of $\false$ and
-    $\textbf{if}$ and performing a $\beta.+_2$ reduction. You can find the
-    rule in Chapter~\ref{chap:properties}.
+    $\false$, we choose the second branch of the conditional. The reduction
+    rule used here was derived in Subsection~\ref{ssec:booleans}.
 
   \item[Line 8 ($\beta$)] We have simplified the handler clause and so
     we are ready to substitute in the continuation. Remark the similarity
@@ -687,7 +694,7 @@ line:
     the $\app{\lete}{\bar{y}}{\litec{2}}$ handler. It has moved from the
     first $\op{get}$ down to the second $\op{get}$.
 
-  \item[Line 9 ($=$)] We will proceed as we did from line 3 onwards. We
+  \item[Line 9 ($=$)] We will proceed as we did from line 3 onward. We
     expand $\app{\lete}{\bar{y}}{\litec{2}}$ to reveal the handler.
 
   \item[Line 10 ($\banana{\op{op}}$)] We have another $\op{get}$
@@ -703,13 +710,11 @@ line:
     so the equality predicate will yield true ($\true$).
 
   \item[Line 13 ($\textbf{if}.\true$)] Since the condition is true, we
-    choose the first branch of the conditional. The rule
-    $\textbf{if}.\true$ is analogous to the $\textbf{if}.\false$ described
-    at line 7.
+    choose the first branch of the conditional.
 
   \item[Line 14 ($\beta$)] Having simplified the handler clause, we can
     pass in the continuation so that we can supply it with the value of the
-    variable $bar{y}$ that it was looking for.
+    variable $\bar{y}$ that it was looking for.
 
   \item[Line 15 ($\beta$)] We pass $2$ to the continuation.
 
@@ -785,11 +790,11 @@ $\trye$.
 \end{align*}
 
 What denotation should we assign to $\varecn{x}$? It does not correspond to
-any particular natural nor is it an expression that should always fail. We
+any particular natural number nor is it an expression that should always fail. We
 can find an answer to our question by expanding the domain from $\NN + 1$
 to $\gamma \to (\NN + 1)$ where $\gamma = var \to (\NN + 1)$ is the type of
-environments\footnote{Environments are partial functions from variable
-  names to naturals, hence the $+ 1$ in the result type.}.
+environments.\footnote{Environments are partial functions from variable
+  names to natural numbers, hence the $+ 1$ in the result type.}
 
 \begin{align*}
   exp &= \gamma \to \NN + 1 \\
@@ -812,11 +817,13 @@ environment of type $\gamma$ to get a value of the old type $\NN + 1$.
 In the rule for $\vare$, we just lookup the value of the variable in the
 environment. If the environment does not contain a value for this variable,
 it returns $\inr{\star}$ of type $\NN + 1$. In that case, $\vare$ returns
-the same to indicate that the expression has no reference. In $\lete$,
+the same to indicate that the expression has no reference. In $\lete$, we
 evaluate $X$ in the current environment $e$ and if it has a value, we also
 evaluate $Y$. However, $Y$ itself is evaluated in an environment in which
 $v$ is bound to $x$, the value of $X$.
 
+We can now compare this to the semantics that we have arrived at using
+effects and handlers.
 
 \begin{align*}
   exp &= \FF_{\{\typedop{error}{\chi}{0},\typedop{get}{var}{\NN}\}}(\NN) \\
@@ -842,17 +849,13 @@ accommodate $\lete$ and $\vare$ forced us to change the definitions of
 $\dive$, $\trye$, $\sume$, $\prode$ and $\lite$ (i.e.\ all the other
 constructions in our fragment).
 
-We could mitigate both of these problems using the same technique we have
+We could solve some of these problems by using the same technique we have
 seen in~\ref{ssec:refactoring-with-monads}. We can find a monad whose type
-constructor is $T(\alpha) = \gamma \to \alpha + 1$, whose unit is $\eta =
-(\lam{x e}{\ap{\inl}{x}})$ and whose bind simultaneously takes care of
-passing around the environment and performing case analysis on intermediate
-results
-
-%% TODO: Talk about monad transformers, maybe?
-%% However, as we will see in~\ref{sec:monads}, we will still be
-%% motivated to recreate something like the abstract operations that we are
-%% using in our proposed solution.
+constructor is $T(\alpha) = \gamma \to \alpha + 1$, whose unit is
+$\eta = (\lam{x e}{\ap{\inl}{x}})$ and whose bind simultaneously takes care
+of passing around the environment and performing case analysis on
+intermediate results. However, we would still need to rewrite the existing
+parts of the semantics to use the new monad.
 
 
 \section{Summary}
@@ -865,8 +868,8 @@ In this chapter, we have hoped to convey two things:
   We have performed long reduction chains which illustrated a large part of
   the reduction rules and syntax introduced in
   Chapter~\ref{chap:definitions}. The goal of that was to build up our
-  intuition of how terms written in our calculus actually look like and how
-  to use them to write computations.
+  intuition of how terms written in $\calc$ actually look like and how to
+  use them to write computations.
 
 \item A glimpse of the methodology we would like to adopt.
 

@@ -11,7 +11,7 @@
 
 \newcommand{\cons}{\mathbin{::}}
 \newcommand{\cat}{\mathbin{+\mkern-10mu+}}
-\newcommand{\nil}{\textsf{nil}}
+\newcommand{\nil}{\mathsf{nil}}
 
 \newcommand{\apl}{\opl{\cdot}}
 \newcommand{\apll}{\opll{\cdot}}
@@ -212,20 +212,21 @@
 
 \newcommand{\etaE}[1]{\ap{\eta}{#1}}
 
-\newcommand{\withSpeaker}{\textsf{withSpeaker}}
-\newcommand{\SI}{\textsf{SI}}
-\newcommand{\withImplicatures}{\textsf{withImplicatures}}
-\newcommand{\withAssertions}{\textsf{withAssertions}}
-\newcommand{\accommodate}{\textsf{accommodate}}
-\newcommand{\maybeAccommodate}{\textsf{maybeAccommodate}}
-\newcommand{\EMPTY}{\textsf{empty}}
-\newcommand{\asImplicature}{\textsf{asImplicature}}
-\newcommand{\inTheContext}{\textsf{inTheContext}}
-\newcommand{\separateDynamics}{\textsf{separateDynamics}}
-\newcommand{\packageProperty}{\textsf{packageProperty}}
+\newcommand{\withSpeaker}{\mathsf{withSpeaker}}
+\newcommand{\SI}{\mathsf{SI}}
+\newcommand{\withImplicatures}{\mathsf{withImplicatures}}
+\newcommand{\withAssertions}{\mathsf{withAssertions}}
+\newcommand{\accommodate}{\mathsf{accommodate}}
+\newcommand{\maybeAccommodate}{\mathsf{maybeAccommodate}}
+\newcommand{\EMPTY}{\mathsf{empty}}
+\newcommand{\asImplicature}{\mathsf{asImplicature}}
+\newcommand{\inTheContext}{\mathsf{inTheContext}}
+\newcommand{\separateDynamics}{\mathsf{separateDynamics}}
+\newcommand{\packageProperty}{\mathsf{packageProperty}}
 
 \newcommand{\calc}{{\banana{\lambda}}}
 \newcommand{\intcalc}{{\banana{\lambda}_{-\eta}}}
+\newcommand{\poorcalc}{{\banana{\lambda}_{-\CC}}}
 
 
 
@@ -236,7 +237,9 @@
 
 \newcommand{\Pos}{\operatorname{Pos}}
 \newcommand{\Neg}{\operatorname{Neg}}
+\newcommand{\SPos}{\operatorname{SPos}}
 
+\newcommand{\Acc}{\operatorname{Acc}}
 
 \newcommand{\petitp}{\mathrm{p}}
 \newcommand{\petitc}{\mathrm{c}}
@@ -265,9 +268,9 @@
 
 
 
-\newcommand{\pure}{\operatorname{pure}}
-\newcommand{\return}{\operatorname{return}}
-\newcommand{\aps}{\operatorname{ap}}
+\newcommand{\pure}{\mathsf{pure}}
+\newcommand{\return}{\mathsf{return}}
+\newcommand{\aps}{\mathsf{ap}}
 
 
 \newcommand{\To}{\Rightarrow}
@@ -289,9 +292,9 @@
 
 \newcommand{\petitv}{\mathrm{v}}
 
-\newcommand{\lift}{\textsf{lift}}
-\newcommand{\liftl}{\textsf{lift}^{\textsf{L}}}
-\newcommand{\liftr}{\textsf{lift}^{\textsf{R}}}
+\newcommand{\lift}{\mathsf{lift}}
+\newcommand{\liftl}{\mathsf{lift}^{\mathsf{L}}}
+\newcommand{\liftr}{\mathsf{lift}^{\mathsf{R}}}
 
 
 \newcommand{\petita}{\mathrm{a}}
@@ -425,20 +428,20 @@
 }
 
 
-\newcommand{\TTDL}{\textsf{TTDL}}
-\newcommand{\sel}{\textsf{sel}}
-\newcommand{\selhe}{\textsf{sel}_{\textsf{he}}}
-\newcommand{\selshe}{\textsf{sel}_{\textsf{she}}}
-\newcommand{\selit}{\textsf{sel}_{\textsf{it}}}
-\newcommand{\selP}{\textsf{sel}_{\textsf{P}}}
-\newcommand{\find}{\textsf{find}}
-\newcommand{\useFind}{\textsf{useFind}}
-\newcommand{\search}{\textsf{search}}
-\newcommand{\BOX}{\textsf{box}}
-\newcommand{\DBOX}{\overline{\textsf{box}}}
-\newcommand{\TOP}{\textsf{top}}
-\newcommand{\eq}{\textsf{eq}}
-\newcommand{\trace}{\textsf{trace}}
+\newcommand{\TTDL}{\mathsf{TTDL}}
+\newcommand{\sel}{\mathsf{sel}}
+\newcommand{\selhe}{\mathsf{sel}_{\mathsf{he}}}
+\newcommand{\selshe}{\mathsf{sel}_{\mathsf{she}}}
+\newcommand{\selit}{\mathsf{sel}_{\mathsf{it}}}
+\newcommand{\selP}{\mathsf{sel}_{\mathsf{P}}}
+\newcommand{\find}{\mathsf{find}}
+\newcommand{\useFind}{\mathsf{useFind}}
+\newcommand{\search}{\mathsf{search}}
+\newcommand{\BOX}{\mathsf{box}}
+\newcommand{\DBOX}{\overline{\mathsf{box}}}
+\newcommand{\TOP}{\mathsf{top}}
+\newcommand{\eq}{\mathsf{eq}}
+\newcommand{\trace}{\mathsf{trace}}
 
 
 \newcommand{\crnegbox}{
@@ -501,11 +504,11 @@
 }
 
 
-\newcommand{\pU}{\textsf{U}}
+\newcommand{\pU}{\mathsf{U}}
 \newcommand{\pBullet}{\mathbin{\bullet}}
-\newcommand{\pC}{\textsf{C}}
+\newcommand{\pC}{\mathsf{C}}
 \newcommand{\pT}{\text{T}}
 
 \newcommand{\fo}[1]{#1^{fo}}
-\newcommand{\static}{\textsf{static}}
+\newcommand{\static}{\mathsf{static}}
 \newcommand{\disccat}{\mathbin{.}}

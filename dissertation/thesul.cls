@@ -79,7 +79,6 @@
                  \let\annexe\Annexe
                  \let\annexes\Annexes
                 }
-\RequirePackage[T1]{fontenc}
 \if@dont@load@french
   \if@minfrench
     \RequirePackage[french]{babel}
@@ -116,7 +115,6 @@
 \else
    \RequirePackage[french]{babel}
 \fi
-\RequirePackage[utf8]{inputenc}
 \newcommand{\@DFD}{\'Ecole doctorale IAEM Lorraine}
 \newcommand{\DFD}[1]{\renewcommand\@DFD{#1}}
 \newcommand{\@TUL@cmn@head}{\vskip1mm\noindent\hrulefill\\}

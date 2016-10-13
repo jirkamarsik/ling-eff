@@ -1,60 +1,60 @@
 We will present a calculus with special constructions for dealing with
 effects and handlers, which we will then apply to the problem of natural
-language semantics in the rest of the thesis. Our calculus is an extension
-of the simply-typed lambda calculus (STLC). We enrich STLC with a type for
-representing effectful computations alongside with operations to create and
-process values of this type.
+language semantics in the second part of the thesis. Our calculus, which we
+will call $\calc$, is an extension of the simply-typed $\lambda$-calculus
+(STLC). We enrich STLC with a type for representing effectful computations
+alongside with operations to create and process values of this type.
 
 \EmptyNewPage
+
 
 \chapter{Definitions}
 \label{chap:definitions}
 
 We are tempted to start by first giving the formal definitions of all the
-essential components of our calculus:
+essential components of $\calc$:
 
 \begin{itemize}
-\item the syntax of the terms in our calculus
-\item the syntax of the types in our calculus
+\item the syntax of the terms in $\calc$ 
+\item the syntax of the types in $\calc$
 \item the judgments that relate types to terms
-\item a reduction semantics
+\item the reduction semantics
 \end{itemize}
 
-However, before we do so, we will briefly sketch the ideas behind the
-calculus so you can start building an intuition about the meaning of the
-symbols that we will be introducing below.
+However, before we do so, we will briefly sketch the ideas behind $\calc$
+so you can start building an intuition about the meaning of the symbols
+that we will be introducing below.
 
 \minitoc
 
-\section{Sketching Out the Calculus}
-%% \todo{This now serves both as a sketch and a justification of the calculus,
-%%   along with the history of the techniques used. This could maybe later
-%%   live in its own place, somewhere in the introduction.}
 
-We will be adding a new type constructor, $\FF$, into our
-language. The type $\FF(\alpha)$ will correspond to effectful
-\emph{computations} that produce values of type $\alpha$. The idea comes
-from the programming language Haskell and its use of monads
-\cite{moggi1991notions,wadler1992essence,jones2003haskell}. Our type
-constructor $\FF$ will also stand in for a monad, one that has been
-already encoded in Haskell in several ways
-\cite{kiselyov2013extensible,kammar2013handlers}. The motivation behind our
-calculus is thus to build a minimal language which gives us directly the
+\section{Sketching Out the Calculus}
+
+We will be adding a new type constructor, $\FF$, into our language. The
+type $\FF(\alpha)$ will correspond to effectful \emph{computations} that
+produce values of type $\alpha$. The idea comes from the programming
+language Haskell and its use of
+monads~\cite{moggi1991notions,wadler1992essence,jones2003haskell}. Our type
+constructor $\FF$ will also stand in for a monad, one that has been already
+encoded in Haskell in several
+ways~\cite{kiselyov2013extensible,kammar2013handlers}. The motivation
+behind $\calc$ is to build a minimal language which directly gives us the
 primitive operations for working with this particular monad. This way, we
 end up with a language that:
+
 \begin{itemize}
 \item is smaller than Haskell (and thus more mananageable to analyse),
 \item is closer to the STLC favored by semanticists,
 \item and which makes more evident the features that our proposal relies on.
 \end{itemize}
 
-The transition from type $\alpha$ to a type $\FF(\alpha)$ is meant
-as a generalization of a scheme often seen in semantics when novel forms of
-meaning are studied (e.g., type raising \cite{montague1973proper},
-dynamization \cite{lebedeva2012expression}, intensionalization
-\cite{de2013note}). The distinction between the type $\alpha$ and the type
-$\FF(\alpha)$ will, in different analyses, align with dichotomies
-such as the following:
+The transition from type $\alpha$ to a type $\FF(\alpha)$ is meant as a
+generalization of a scheme often seen in semantics when novel forms of
+meaning are studied (e.g., type raising~\cite{montague1973proper},
+dynamization~\cite{lebedeva2012expression},
+intensionalization~\cite{de2013note}). The distinction between the type
+$\alpha$ and the type $\FF(\alpha)$ will, in different analyses, align with
+dichotomies such as the following:
 
 \begin{itemize}
 \item reference/sense
@@ -84,34 +84,35 @@ with two different intuitive models.
 \subsubsection*{Algebraic Effects and Handlers}
 
 Hyland, Power and Plotkin have studied the problem of deriving denotational
-semantics of programming languages that combine different side effects
-\cite{hyland2006combining}. In their approach, rather then modeling the
-individual effects using monads and combining the monads, every effect is
-expressed in terms of \emph{operators} on computations. Computations thus
-become algebraic expressions with effects as operations and values as part
-of the generator set.
+semantics of programming languages that combine different side
+effects~\cite{hyland2006combining}. In their approach, rather then modeling
+the individual effects using monads and combining the monads, every effect
+is expressed in terms of \emph{operators} on computations. Computations
+thus become algebraic expressions with effects as operations and values as
+part of the generator set.
 
 Let us take the example of nondeterminism. In the monadic framework, this
 effect is analyzed by shifting the type of denotations from $\alpha$ to the
-powerset $\PP(\alpha)$. In the algebraic framework, a binary
-operator $+$ is introduced and is given meaning through a set of equations.
-In this case, these are the equations of a semilattice (stating the
-operator's associativity, commutativity and idempotence).
+powerset $\PP(\alpha)$. In the algebraic framework, a binary operator $+$
+is introduced and is given meaning through a set of equations.  In this
+case, these are the equations of a semilattice (stating the operator's
+associativity, commutativity and idempotence).
 
 When the time comes to combine two effects, their signatures are summed
 together and their theories are combined through either a sum or a tensor
-(a sum that adds commutativity laws for operators coming from the two
-different effects).
+(tensor differs from sum in that it adds commutativity laws for operators
+coming from the two different effects).
 
 In order to fit exception handlers into their theory, Plotkin and Pretnar
-enriched the theory with a general notion of a \emph{handler}
-\cite{plotkin2013handling}. A handler's purpose is to replace occurrences
-of an operator within a computation by another expression. This notion was
-shown to be very useful. Since using a handler on a computation is similar
-to interpreting its algebraic expression in a particular algebra, in many
-practical applications, the use of handlers has replaced equational
-theories altogether
-\cite{bauer2012programming,kammar2013handlers,brady2013programming}.
+enriched the theory with a general notion of a
+\emph{handler}~\cite{plotkin2013handling}. A handler's purpose is to
+replace occurrences of an operator within a computation by another
+expression. This notion was shown to be very useful. Since using a handler
+on a computation is similar to interpreting its algebraic expression in a
+particular algebra, in many practical applications, the use of handlers has
+replaced equational theories
+altogether~\cite{bauer2012programming,kammar2013handlers,brady2013programming}.
+
 
 \subsubsection*{Extensible Effects}
 
@@ -121,7 +122,7 @@ denotational semantics or some other interpretation. In your simple
 language, numerical expressions might be interpreted as numbers. In that
 case, the literal number 3 would denote the number 3 and the application of
 the sum operator to two numerical expressions would denote the sum of their
-interpretations. Now consider that you want to add mutable variables to
+interpretations. Now imagine that you want to add mutable variables to
 your language. Numerical expressions no longer denote specific numbers, but
 rather functions from states of the variable store to both a number and an
 updated variable store (since expressions can now both read from and write
@@ -131,14 +132,14 @@ identity function. The addition operator now has to take care to thread the
 state of the memory through the evaluation of both of its arguments. In
 short, we are forced to give new interpretations for the entire language.
 
-Cartwright and Felleisen proposed a solution to this problem
-\cite{cartwright1994extensible}. In their system, an expression can either
-yield a value or produce an effect. If it produces an effect, the effect
-percolates through the program all the way to the top, with the context
-that the effect projected from stored as a continuation. The effect and the
-continuation are then passed to an external ``authority'' that handles the
-effect, often by producing some output and passing it back to the
-continuation. When a new feature is added to the language, it often
+Cartwright and Felleisen proposed a solution to this
+problem~\cite{cartwright1994extensible}. In their system, an expression can
+either yield a value or produce an effect. If it produces an effect, the
+effect percolates through the program all the way to the top, with the
+context that the effect projected from stored as a continuation. The effect
+and the continuation are then passed to an external ``authority'' that
+handles the effect, often by producing some output and passing it back to
+the continuation. When a new feature is added to the language, it often
 suffices to add a new kind of effect and introduce a new clause into the
 central ``authority''. The central authority then ends up being a
 collection of small modular interpreters for the various effect
@@ -146,40 +147,28 @@ types. Denotation-wise, every expression can thus have a stable denotation
 which is either a pure value or an effect request coupled with a
 continuation.
 
-Later on, this project was picked up by Oleg Kiselyov, who, following
-Plotkin and Pretnar's work on handlers, proposed to break down the
-``authority'' into the smaller constituent interpreters and have them be
-part of the language themselves \cite{kiselyov2013extensible}.
+Later on, this project was picked up by Kiselyov, Sabry and Swords, who,
+following Plotkin and Pretnar's work on handlers, proposed to break down
+the ``authority'' into the smaller constituent interpreters and have them
+be part of the language themselves~\cite{kiselyov2013extensible}.
+
 
 \subsubsection*{Synthesis}
 
-In our language, we can see values of type $\FF(\alpha)$ as
-algebraic expressions built on top of some effect signature and the
-generator set $\alpha$. Since an
-%% \todo{Maybe introduce a more precise term
-%%   which would correspond to an algebraic expression in which variables have
-%%   been replaced by members of a carrier/generator set.}
-{algebraic expression} is either a constant or an operator applied to some
-other expressions/computations, we can also use the ``extensible effects''
-perspective. Under that perspective, we can think of computations as
-something which is either a pure value or an effect coupled with a
-continuation (the effect corresponds to the operator and the continuation
-to the indexed family of operands).
+In our language, values of type $\FF(\alpha)$ can be seen either as
+algebraic expressions or as programs. Under the algebraic perspective, an
+expression is either a variable or an operator applied to some other
+expressions, whereas under the ``extensible effects'' perspective, a
+program is either a value or a request for an effect followed by some other
+programs (the continuation).
 
-Our calculus will contain tools for injecting values of type $\alpha$ into
-the type of algebraic expressions $\FF(\alpha)$, as well as tools
-for constructing expressions using operators from the effect
-signature. Under the ``extensible effects'' point of view, the latter can
-be seen as tools for creating a computation that will raise a request to
-perform an effect.
-
-Finally, we will have a special form for defining handlers. In the
+Our calculus will also have a special form for defining handlers. In the
 ``algebraic effects and handlers'' frame of mind, these can be thought of
-folds or catamorphisms that traverse the algebraic expression and transform
-certain operators within. On the other hand, with ``extensible effects'',
-the intuition is more similar to that of an exception handler which
-intercepts requests of a certain type and decides how the computation
-should continue.
+as algebras that interpret the operations within an algebraic
+expression. On the other hand, with ``extensible effects'', the intuition
+is more similar to that of an exception handler which intercepts requests
+of a certain type and decides how the computation should continue.
+
 
 \section{Terms}
 
@@ -198,11 +187,11 @@ The expressions of our language are comprised of the following:
   \item[abstraction] $\lam{x}{M}$, where $x$ is a variable from $\XX$ and
     $M$ is an expression
   \item[application] $\ap{M}{N}$, where $M$ and $N$ are expressions
+  \item[injection] $\ap{\eta}{M}$, where $M$ is an expression
   \item[operation]
     $\app{\op{op}}{M_{\mathrm{p}}}{(\lam{x}{M_{\mathrm{c}}})}$, where
     $\op{op}$ is an operator from $\EE$, $x$ is a variable from $\XX$ and
     $M_{\mathrm{p}}$ and $M_{\mathrm{c}}$ are expressions
-  \item[injection] $\ap{\eta}{M}$, where $M$ is an expression
   \item[handler] $\cdbanana$
     where $\op{op}_i$ are operators from $\EE$ and $M_i$ and $M_\eta$ are
     expressions
@@ -210,21 +199,23 @@ The expressions of our language are comprised of the following:
   \item[exchange] $\CC$
 \end{description}
 
-The first four constructions --- abstraction, application, variables and
-constants --- come directly from STLC with constants.
+The first four constructions --- variables, constants, abstractions and
+applications --- come directly from STLC with constants.
 
 The next four deal with the algebraic expressions used to encode
 computations. Let us sketch the behaviors of these four kinds of
 expressions under the two readings outlined above.
 
+
 \subsection*{Algebraic Expressions -- The Denotational View}
 
-The $\eta$ function serves to inject values from the generator set into the
-set of algebraic expressions. It is a constructor for the trivial atomic
-algebraic expression consisting of just a single constant.
+The set of algebraic expressions is generated by closing some generator set
+over the operations of the algebra. The $\eta$ function serves to inject
+values from the generator set into the set of algebraic expressions. It is
+the constructor for the atomic algebraic expressions.
 
-Next, for every symbol $\op{op}$ in $\EE$, we have a corresponding function
-$\op{op}$ in our calculus. The function $\op{op}$ is a constructor for
+Next, for every symbol $\op{op}$ in $\EE$, we have a corresponding
+constructor $\op{op}$ in our calculus. $\op{op}$ is a constructor for
 algebraic expressions whose topmost operation is $\op{op}$. The $\op{op}$
 constructor takes as argument a function that provides its operands, which
 are further algebraic expressions.
@@ -233,13 +224,14 @@ The banana brackets $\cdbanana$ contain algebras: interpretations of
 operators and constants. These components are combined into a catamorphism
 that can interpret algebraic expressions (hence the use of banana brackets
 \cite{meijer1991functional})\footnote{Since the banana brackets can contain
-  an arbitrary number of operator clauses, we use the syntax of named
-  parameters/records commonly used in popular programming languages such as
-  Ruby, Python or JavaScript.}.
+  an arbitrary number of operator clauses, we adopt the syntax of named
+  parameters/records used in languages such as Ruby, Python or
+  JavaScript.}.
 
 The extraction function $\cherry$, pronounced ``cherry'', takes an atomic
 algebraic expression (the kind produced by $\eta$) and projects out the
 element of the generator set.
+
 
 \subsection*{Effectful Computations -- The Operational View}
 
@@ -277,22 +269,20 @@ abstracting over a variable and performing an operation commute
 together\footnote{This is \emph{very} reminiscent of the idea behind Paul
   Blain Levy's call-by-push-value calculus \cite{levy1999call}, which
   treats abstracting over a variable as an effectful operation of popping a
-  value from a stack. Using call-by-push-value should prove to be a
+  value from a stack. Using call-by-push-value could prove to be a
   rewarding way to refine our approach.}.
 
 We will see the utility of $\CC$ later on. The idea came to us from a paper
 by Philippe de Groote \cite{degroote2015conservativity} which tried to
 solve a similar problem. The name comes from the $\mathbf{C}$ combinator,
-which reorders the order of abstractions in a $\lambda$-term. $\mathbf{C}$
-can be seen as a special case of our $\CC$ when the type of computations
-producing values $\alpha$ is $\gamma \to \alpha$ for some $\gamma$.
+which reorders the order of abstractions in a $\lambda$-term.
 
 
 \section{Types and Typing Rules}
 \label{sec:types}
 
-We now give a syntax for the types of our calculus alongside with a typing
-relation. In the grammar below, $\nu$ ranges over atomic types from set
+We now give a syntax for the types of $\calc$ alongside with a typing
+relation. In the grammar below, $\nu$ ranges over atomic types from a set
 $\TT$.
 
 The types of our language consist of:
@@ -306,31 +296,30 @@ The types of our language consist of:
 The only novelty here is the $\FF_E(\alpha)$
 computation\footnote{Throughout this manuscript, we will be using the term
   \emph{computation} to mean values of type $\FF_E(\alpha)$. Programs
-  written in our calculus are simply called terms and their normal forms
-  are called values. To break it down, in our calculus, terms evaluate to
+  written in $\calc$ are simply called terms and their normal forms
+  are called values. To break it down, in $\calc$, terms evaluate to
   values, some of which can be computations (those of an $\FF$ type).}
 type. This type will be inhabited by effectful computations that have
 permission to perform the effects described in $E$ and yield values of type
 $\alpha$. The representation will be that of an algebraic expression with
-operators taken from the signature $E$ and constants (elements of the
-generator set) taken to be in type $\alpha$.
+operators taken from the signature $E$ and generators of type $\alpha$.
 
 In giving the typing rules, we will rely on the standard notion of a
 \emph{context}. For us, specifically, a context is a partial mapping from
 the variables in $\XX$ to the types defined above.  We commonly write
 $\Gamma, x : \alpha$ for a context that assigns to $x$ the type $\alpha$
-and to other variables $y$ the type $\Gamma(y)$. We also write $x : \alpha
-\in \Gamma$ to say that the context maps $x$ to $\alpha$. Note, however,
-that for $\Delta = \Gamma, x : \alpha, x : \beta$, $x : \beta \in \Delta$
-while $x : \alpha \notin \Delta$.
+and to other variables $y$ the type $\Gamma(y)$. We also write
+$x : \alpha \in \Gamma$ to say that the context maps $x$ to $\alpha$. Note,
+however, that for $\Delta = \Gamma, x : \alpha, x : \beta$, we have
+$x : \beta \in \Delta$ while $x : \alpha \notin \Delta$.
 
 \emph{Effect signatures} are very much like contexts. They are partial
 mappings from the set of operation symbols $\EE$ to pairs of types. We will
-write the elements of effect signatures the following way:
+write the elements of effect signatures the following way: \\
 $\typedop{op}{\alpha}{\beta} \in E$ means that $E$ maps $\op{op}$ to the
-pair of types $\alpha$ and $\beta$\footnote{The two types $\alpha$ and
+pair of types $\alpha$ and $\beta$.\footnote{The two types $\alpha$ and
   $\beta$ are to be seen as the operation's \emph{input} and \emph{output}
-  types, respectively.}. When dealing with effect signatures, we will often
+  types, respectively.} When dealing with effect signatures, we will often
 make use of the disjoint union operator $\uplus$. The term $E_1 \uplus E_2$
 serves as a constraint demanding that the domains of $E_1$ and $E_2$ be
 disjoint and at the same time it denotes the effect signature that is the
@@ -376,6 +365,23 @@ higher-order signature giving types to constants.
 \begin{figure}
   \def\labelSpacing{4pt}
 
+ \begin{subfigure}{.5\textwidth}
+   \begin{prooftree}
+    \AxiomC{$x : \alpha \in \Gamma$}
+    \RightLabel{[var]}
+    \UnaryInfC{$\Gamma \vdash x : \alpha$}
+   \end{prooftree}
+  \end{subfigure}
+  \begin{subfigure}{.5\textwidth}
+   \begin{prooftree}
+    \AxiomC{$c : \alpha \in \Sigma$}
+    \RightLabel{[const]}
+    \UnaryInfC{$\Gamma \vdash c : \alpha$}
+   \end{prooftree}
+  \end{subfigure}
+
+  \vspace{2mm}
+
   \begin{subfigure}{.5\textwidth}
    \begin{prooftree}
     \AxiomC{$\Gamma, x : \alpha \vdash M : \beta$}
@@ -392,25 +398,8 @@ higher-order signature giving types to constants.
    \end{prooftree}
   \end{subfigure}
 
-  \vspace{2mm}
- 
-  \begin{subfigure}{.5\textwidth}
-   \begin{prooftree}
-    \AxiomC{$x : \alpha \in \Gamma$}
-    \RightLabel{[var]}
-    \UnaryInfC{$\Gamma \vdash x : \alpha$}
-   \end{prooftree}
-  \end{subfigure}
-  \begin{subfigure}{.5\textwidth}
-   \begin{prooftree}
-    \AxiomC{$c : \alpha \in \Sigma$}
-    \RightLabel{[const]}
-    \UnaryInfC{$\Gamma \vdash c : \alpha$}
-   \end{prooftree}
-  \end{subfigure}
-
   \vspace{6mm}
-
+ 
   \begin{subfigure}{.5\textwidth}
    \begin{prooftree}
     \AxiomC{$\Gamma \vdash M : \alpha$}
@@ -456,7 +445,7 @@ higher-order signature giving types to constants.
    \end{prooftree}
   \end{subfigure}
 
-  \caption{\label{fig:types}Typing rules for our calculus.}
+  \caption{\label{fig:types}The typing rules for $\calc$.}
 \end{figure}
 
 
@@ -468,8 +457,8 @@ lets us start to see what we meant by saying that the $\CC$ operator lets
 the function type and the computation type commute.
 
 Let us ponder the types of the new constructions so as to get a grip on the
-interface that the calculus provides us for dealing with computation
-values.
+interface that the calculus provides us for dealing with computations.
+
 
 \subsection*{[$\eta$]}
 
@@ -481,23 +470,24 @@ of the generator set are valid algebraic expressions independent of the
 choice of signature. Computationally, returning a value is always an
 option, independently of the available permissions.
 
+
 \subsection*{[$\op{op}$]}
 
 More complicated computations can be built up by extending existing
-computations using the \textbf{operation} construction. Let us have an
-effect signature $E$, such that $\typedop{op}{\alpha}{\beta} \in E$. To use
+computations using the \emph{operation} construction. Let us have an effect
+signature $E$ such that $\typedop{op}{\alpha}{\beta} \in E$. To use
 $\op{op}$, we first apply it to a value of the input type $\alpha$ and to a
-continuation. The continuation is a function of type $\beta \to
-\FF_E(\gamma)$ that accepts a value of the output type $\beta$ (the result
-of performing the operation) and chooses in return a computation that
-should be pursued next. The return type of our new computation will thus be
-the return type $\gamma$ of the computation provided by the
-continuation. The continuation's computation and the new extended
-computation will also share the same effect signature $E$. This means that
-all uses of the operation $\op{op}$ within the created computation have the
-same input and output types\footnote{In general, the same operation symbol
-  can be used in different computations whose types are indexed by
-  different effect signatures.}.
+continuation. The continuation is a function of type
+$\beta \to \FF_E(\gamma)$ that accepts a value of the output type $\beta$
+(the result of performing the operation) and chooses in return a
+computation that should be pursued next. The return type of our new
+computation will thus be the return type $\gamma$ of the computation
+provided by the continuation. The continuation's computation and the new
+extended computation will also share the same effect signature $E$. This
+means that all uses of the operation $\op{op}$ within the created
+computation have the same input and output types.\footnote{In general, the
+  same operation symbol can be used with different input and output types,
+  in computations whose types are indexed by different effect signatures.}
 
 There is a parallel between the [var] rule and the [$\op{op}$] rule. The
 [var] rule lets use a symbol $x$ with type $\alpha$ provided
@@ -520,7 +510,7 @@ handlers, we would like to give the algebraic intuition behind [$\op{op}$],
 as the algebraic point of view makes explaining the handler rule
 [$\banana{}$] easier.
 
-We can see the effect signature as an algebraic signature. Whenever we have
+We can see the effect signature as an algebraic signature. For every
 $\typedop{op}{\alpha}{\beta} \in E$, we have an $\alpha$-indexed family of
 operators of arity $\beta$. Let's unpack this statement.
 
@@ -564,11 +554,11 @@ operators of arity $\beta$. Let's unpack this statement.
 
   How do we write down the application of an operator of arity $\beta$ to
   its operands? We can no longer just list out all the operands, since
-  types in our calculus may have an unbounded number of inhabitants. We
-  will organize operands in \emph{operand clusters}\footnote{Our use of the
-  word \emph{cluster} is synonymous with the mathematical term
-  \emph{family}. We will be using the term \emph{cluster} for families of
-  computations passed to operations and handlers.}, arity-indexed families
+  types in $\calc$ may have an unbounded number of inhabitants. We
+  will organize operands in \emph{operand clusters},\footnote{Our use of
+    the word \emph{cluster} is synonymous with the mathematical term
+    \emph{family}. We will be using the term \emph{cluster} for families of
+    computations passed to operations and handlers.} arity-indexed families
   of operands. We will write them down as functions, using
   $\lambda$-abstraction, from the arity type $\beta$ to some operand type,
   e.g., $\FF_E(\gamma)$.
@@ -589,16 +579,11 @@ internal node is labelled with some $\typedop{op}{\alpha}{\beta} \in E$ and
 with a parameter of type $\alpha$ and it has a cluster of children indexed
 by $\beta$.
 
+
 \subsection*{[$\banana{}$]}
 
 Now we are ready to explain the handler rule. The typing rule for
 $\banana{}$ is repeated in Figure~\ref{fig:handler-rule}.
-
-\begin{figure}
-  \handlerrule
-  \caption{\label{fig:handler-rule} The typing rule for the handler
-    construction.}
-\end{figure}
 
 To illustrate the constraints on the types of the components, $M_i$ and
 $M_\eta$, of a handler, we will examine its semantics. The handler
@@ -611,9 +596,9 @@ the shape of the expression, one of the following will happen:
   produce a new tree of type $\FF_{E'}(\delta)$, hence the fourth
   hypothesis of the $\banana{}$ rule.
 
-\item If $N = \app{\op{op}_i}{N_{\mathrm{c}}}{(\lam{x}{N_{\mathrm{c}}})}$
+\item If $N = \app{\op{op}_i}{N_{\mathrm{p}}}{(\lam{x}{N_{\mathrm{c}}})}$
   for some $i \in I$, then $N_{\mathrm{p}}$ must be of type
-  $\alpha_i$. Furthermore, for every $x : \beta_i$, we have a operand
+  $\alpha_i$. Furthermore, for every $x : \beta_i$, we have an operand
   $N_{\mathrm{c}} : \FF_E(\gamma)$. We know this since $N$ is of type
   $\FF_E(\gamma)$ and the first hypothesis tells us that
   $\typedopg{\op{op}_i}{\alpha_i}{\beta_i} \in E$.
@@ -631,11 +616,19 @@ the shape of the expression, one of the following will happen:
   the resulting expression will contain the operation symbol $\op{op}$ from
   $E_f$\footnote{The $f$ in $E_f$ stands for \emph{forwarded effects},
     since it refers to effects that the handler will not interpret but
-    instead forward to some other interpreter.}. In order for such a
-  expression to be of the desired type $\FF_{E'}(\delta)$, $E_f$ must be a
-  subset of $E'$, which is what the second hypothesis of the $\banana{}$
-  rule guarantees.
+    instead forward to some other interpreter. The notation comes from a
+    similar rule in the $\lambda_{\mathrm{eff}}$
+    calculus~\cite{kammar2013handlers}.}. In order for such an expression
+  to be of the desired type $\FF_{E'}(\delta)$, $E_f$ must be included in
+  $E'$, which is what the second hypothesis of the $\banana{}$ rule
+  guarantees.
 \end{itemize}
+
+\begin{figure}
+  \handlerrule
+  \caption{\label{fig:handler-rule} The typing rule for the handler
+    construction.}
+\end{figure}
 
 We have covered the whole $\banana{}$ rule, except for the presence of the
 effect signature $E''$. It serves two roles.
@@ -648,11 +641,8 @@ effect signature $E''$. It serves two roles.
   $E'$). This is in analogy to the free effect variable $E$ in the [$\eta$]
   and [$\op{op}$] rules. This freedom of effect variables is a way of
   implementing the idea that a computation of type $\FF_{E_1}(\alpha)$ can
-  be used anywhere that a computation of type $\FF_{E_2}(\alpha)$ given
-  that $E_1 \subseteq E_2$.
- %% \footnote{This relation is an instance of
- %%   subtyping and a more robust treatment will be outlined in
- %%   Section~\ref{sec:subtyping}.}
+  be used anywhere that a computation of type $\FF_{E_2}(\alpha)$ is needed
+  given that $E_1 \subseteq E_2$.
 
 \item In the previous paragraph, why did we put the word ``free'' in
   quotation marks?  Because the effect variable $E''$ is not actually
@@ -661,20 +651,22 @@ effect signature $E''$. It serves two roles.
   respectively. The handler's clauses might themselves introduce new
   effects, which will in turn translate into constraints on $E'$ and
   $E''$. This happens when a handler interprets an operation by making an
-  appeal to some other operation (e.g.\ a handler can interpret
-  computations using n-ary choice into computation using binary choice).
+  appeal to some other operation (e.g.\ a handler could interpret
+  computations using n-ary choice into computations using binary choice).
 
   As the simplest example, we can take a handler that replaces one
   operation symbol with another,
-  $\banana{\onto{\op{old}} \op{new},\ \onto{\eta} \eta}$. The type scheme
-  corresponding to the term is $\FF_{\{\typedop{old}{\alpha}{\beta}\}
-    \uplus E_f}(\gamma) \to \FF_{\{\typedop{new}{\alpha}{\beta}\} \uplus
-    E^3 \uplus E_f}(\gamma)$. In this scheme, $\alpha$, $\beta$ and
-  $\gamma$ are free meta-variables ranging over types and $E_f$ and $E^3$
-  are free over effect signatures. The $E''$ of the $\banana{}$ rule
-  corresponds to $\{\typedop{new}{\alpha}{\beta}\} \uplus E^3$. The handler
-  has eliminated the $\op{old}$ effect but it has also introduced the
-  $\op{new}$ effect.
+  $\banana{\onto{\op{old}}{(\lam{p c}{\app{\op{new}}{p}{(\lam{y}{\ap{c}{y}})}})},\
+    {\onto{\eta}}{(\lam{x}{\etaE{x}})}}$. The type scheme corresponding to
+  the term is \\
+  $\FF_{\{\typedop{old}{\alpha}{\beta}\} \uplus E_f}(\gamma) \to
+  \FF_{\{\typedop{new}{\alpha}{\beta}\} \uplus E^+ \uplus E_f}(\gamma)$. In
+  this scheme, $\alpha$, $\beta$ and $\gamma$ are free meta-variables
+  ranging over types and $E_f$ and $E^+$ range over effect
+  signatures. The $E''$ of the $\banana{}$ rule corresponds to
+  $\{\typedop{new}{\alpha}{\beta}\} \uplus E^+$ (i.e. $E''$ is not free, it
+  must contain $\op{new}$). The handler has eliminated
+  the $\op{old}$ effect but it has also introduced the $\op{new}$ effect.
 \end{itemize}
 
 This concludes our exploration of the $\banana{}$ rule. We have explained
@@ -707,8 +699,8 @@ $(\alpha \to \FF_E(\beta)) \to \FF_E(\alpha \to \beta)$. Its input is an
 $\alpha$-indexed family of computations and its output is a computation of
 $\alpha$-indexed families. The operator applies only in the case when all
 the computations in the family share the same \emph{internal structure}. By
-sharing the same \emph{internal structure}, we mean that the trees can only
-differ in their leaves. What the $\CC$ operator then does is to push the
+sharing the same internal structure, we mean that the trees can only differ
+in their leaves. What the $\CC$ operator then does is to push the
 $\lambda$-binder down this common internal structure into the leaves. This
 way, we can evaluate/handle the common operations without commiting to a
 specific value of type $\alpha$.
@@ -719,8 +711,8 @@ type. It maps one value to the left subtree of $\lambda$ (with leaves
 $A_i$) and the other value to the right subtree (leaves $B_i$). Both
 subtrees correspond to computations, in which a box is an operation and a
 circle is an atomic expression (i.e.\ a return value). Furthermore,
-$\op{op}_1$ has a two-value output type and $\op{op}_2$ has a one-value
-output type.
+$\op{op}_1$ has a two-value output type (arity $2$) and $\op{op}_2$ has a
+one-value output type (arity $1$).
 
 Since the operations $\op{op}_1$ and $\op{op}_2$ and their arguments $M_1$
 and $M_2$ are the same in both subtrees, and thus independent of the value
@@ -734,7 +726,9 @@ produces a function.
   $M = $
   &
   \vspace{0pt}
-  \begin{tikzpicture}[level distance=1.5cm,sibling distance=1cm]
+\begin{tikzpicture}[level distance=1.5cm,sibling distance=1cm]
+  \tikzset{every tree node/.style={draw,thick}}
+  \tikzset{edge from parent/.style={draw,thick}}
   \Tree [.$\lambda$
     [.\node[draw]{$\op{op}_1(M_1)$};
       [.\node[draw,circle]{$A_1$}; ]
@@ -751,6 +745,8 @@ produces a function.
   &
   \vspace{0pt}
   \begin{tikzpicture}[level distance=2cm,sibling distance=1cm]
+  \tikzset{every tree node/.style={draw,thick}}
+  \tikzset{edge from parent/.style={draw,thick}}
   \Tree [.\node[draw]{$\op{op}_1(M_1)$};
     [.\node[draw,circle,inner sep=0pt,anchor=center]{
       \begin{tikzpicture}[level distance=1cm,sibling distance=1cm]
@@ -785,34 +781,35 @@ $x$\footnote{Violating this assumption will yield terms which get stuck
   \cite{lindley2014algebraic}. A similar refinement should be possible in
   our case as well but it would obscure the already dense type notation.}
 and it can thus postpone popping $x$ off the stack until after the
-operations dictated by the continuation have been evaluated. $\CC$ is thus
-a kind of commutativity law for operations and abstraction (the popping of
-a value off the operand stack): as long as one does not depend on the
-other, it does not matter whether we first perform an operation and then
-abstract over an argument or whether we do so the other way
-around\footnote{The other direction, typed $\FF_E(\alpha \to \beta) \to
-  (\alpha \to \FF_E(\beta))$, is already possible without introducing a
-  special operator since $\FF_E$ is a functor (as we will show later).}.
+operations dictated by the continuation have been evaluated. $\CC$ is
+therefore a kind of commutativity law for operations and abstractions (the
+popping of a value off the operand stack): as long as one does not depend
+on the other, it does not matter whether we first perform an operation and
+then abstract over an argument or whether we do so the other way
+around.\footnote{The other direction, typed
+  $\FF_E(\alpha \to \beta) \to (\alpha \to \FF_E(\beta))$, is already
+  possible without introducing a special operator since $\FF_E$ is a
+  functor (as we will see in Subsection~\ref{ssec:functor}).}
 
 
 \section{Reduction Rules}
 \label{sec:reductions}
 
-We will now finally give a semantics to our calculus. The semantics will be
+We will now finally give a semantics to $\calc$. The semantics will be
 given in the form of a reduction relation on terms. Even though the point
 of the calculus is to talk about effects, the reduction semantics will have
-no notion of order of evaluation; any subexpression that is reducible can
-be reduced in any context.
+no notion of order of evaluation; any reducible subexpression can be
+reduced in any context.
 
-Before we dive into the reduction rules proper we will first have to handle
-some formal paperwork, most of it due to the fact that we use variables and
-binders in our calculus. In order to quotient out the irrelevant
-distinction between terms that are the same up to variable names, we will
-introduce a series of definitions leading up to a notion of
+Before we dive into the reduction rules proper, we will first have to
+handle some formal paperwork, most of it due to the fact that we use
+variables and binders in our calculus. In order to quotient out the
+irrelevant distinction between terms that are the same up to variable
+names, we will introduce a series of definitions leading up to a notion of
 $\alpha$-equivalence.
 
 \begin{definition}
-  Let $M$ be a term in our calculus. We define the set of \textbf{free
+  Let $M$ be a term in $\calc$. We define the set of \textbf{free
     variables} of $M$, written $\FV(M)$, using the following set of
   equations:
 
@@ -840,13 +837,8 @@ notion.
 
 \begin{definition}
   Let $M$ and $N$ be terms and $x$ a variable. We define the
-  \textbf{capture-avoiding substitution}
-  % \footnote{\TODO{Maybe add a small note for readers not aware of the
-  %     capture problem? I do not expect people to be unfamiliar with it, but
-  %     I do spend a few pages talking about the trouble with substitutions
-  %     and variables so it might be worth it to have a small intro.}}
-  of $N$ for $x$ in $M$, written as $\subst{M}{x}{N}$, using the following
-  equations:
+  \textbf{capture-avoiding substitution} of $N$ for $x$ in $M$, written as
+  $\subst{M}{x}{N}$, using the following equations:
 
   \begin{align*}
     \subst{(\lam{x}{M})}{x}{N} &= \lam{x}{M} \\
@@ -900,20 +892,17 @@ notion.
 \end{definition}
 
 \begin{definition}\label{def:context-closure}
-  Let $\sim$ be a binary relation on the terms of our calculus. We define
+  Let $\sim$ be a binary relation on the terms of $\calc$. We define
   the relation $\syntclos{\sim}$, called the \textbf{context closure} of
-  $\sim$, as the smallest relation
-  % \footnote{\TODO{Should I prove that such a relation is uniquely
-  %     determined?}}
-  that contains $\sim$ and satisfies the following closure property for any
-  evaluation context $C$:
+  $\sim$, as the smallest relation that contains $\sim$ and satisfies the
+  following closure property for any evaluation context $C$:
 
   \begin{itemize}
     \item if $M \syntclos{\sim} M'$, then $C[M] \syntclos{\sim} C[M']$
   \end{itemize}
 \end{definition}
 
-Later on, we will define relations on the terms of our calculus that will
+We will be defining relations on the terms of $\calc$ that will
 correspond to different transformations (such as $\swap$ and the reduction
 rules). The notion of context closure will allow us to say that a term can
 be transformed by transforming any of its parts.
@@ -930,30 +919,16 @@ be transformed by transforming any of its parts.
 \end{definition}
 
 \begin{definition}
-  We define a relation called $\swap$ on the terms of our calculus as:
+  We define a relation called $\swap$ on the terms of $\calc$ as:
 
   \begin{itemize}
   \item $\lam{x}{M} \swap \lam{y}{(\subst{M}{x}{y})}$ given that $y \notin
     \FV(M)$ and that $\subst{M}{x}{y}$ exists
-    %% \footnote{Also under the condition that $\subst{M}{x}{y}$
-    %%   exists. We will not mention this proviso in further definitions.
-
-    %%   Whenever we will try to define a relation between elements $f(X)$ and
-    %%   $g(X)$, where $f$ and $g$ are partial functions, and either $f(X)$ or
-    %%   $g(X)$ will not exist, then we will ignore the pair (i.e. $f(X)$ and
-    %%   $g(X)$ will not enter into the relation since one of them does not
-    %%   even exist).
-
-    %%   Linguistically speaking, the presuppositions triggered by the
-    %%   definite descriptions $f(X)$ and $g(X)$ in the sentence ``$f(X)$
-    %%   relates to $g(X)$'' are resolved by adding an implicit conditional
-    %%   ``if $f(X)$ and $g(X)$ both exist''. This handler will be specific to
-    %%   the way we define relations. Dangling presuppositions in other parts
-    %%   of the math should be seen as mistakes or omissions.}
-    \item $\app{\op{op}}{M_\petitp}{(\lam{x}{M_\petitc})} \swap
-           \app{\op{op}}{M_\petitp}{(\lam{y}{\subst{M_\petitc}{x}{y}})}$
-           given that $y \notin \FV(M_\petitc)$ and that
-           $\subst{M_\petitc}{x}{y}$ exists
+  \item
+    $\app{\op{op}}{M_\petitp}{(\lam{x}{M_\petitc})} \swap
+    \app{\op{op}}{M_\petitp}{(\lam{y}{\subst{M_\petitc}{x}{y}})}$ given
+    that $y \notin \FV(M_\petitc)$ and that $\subst{M_\petitc}{x}{y}$
+    exists
   \end{itemize}
 \end{definition}
 
@@ -983,43 +958,41 @@ freely used to actually mean an $\alpha$-equivalence class of terms.
 However, before we start using individual terms while having them represent
 entire $\alpha$-equivalence classes, we should better make sure that the
 operations that we will perform with these terms are congruent with
-$\alpha$-equivalence\footnote{Congruence means that equivalent inputs are
-  mapped to equivalent outputs.}. Is it the case that the operations we
-have introduced in this section are congruent with $\alpha$-equivalence?
+$\alpha$-equivalence.\footnote{Congruence means that equivalent inputs are
+  mapped to equivalent outputs.} Is it the case that the operations we have
+introduced in this section are congruent with $\alpha$-equivalence?
 
 $\FV$ is congruent: swapping names bound by $\lambda$ does not change the
-set of free variables in a term.
-
-Definition~\ref{def:context-closure} of context closure works for
-$\alpha$-equivalence classes as well.
-
-What about substitution? As we have already seen, capture-avoiding
-substitution is a partial operation: $\subst{(\lam{y}{x})}{x}{y}$ does not
-exist. However, $\lam{z}{x}$ is $\alpha$-equivalent to $\lam{y}{x}$ and
-$\subst{(\lam{z}{x})}{x}{y}$ exists; it is $\lam{z}{y}$. Not congruent.
+set of free variables in a term. What about substitution? As we have
+already seen, capture-avoiding substitution is a partial operation:
+$\subst{(\lam{y}{x})}{x}{y}$ does not exist. However, $\lam{z}{x}$ is
+$\alpha$-equivalent to $\lam{y}{x}$ and $\subst{(\lam{z}{x})}{x}{y}$
+exists; it is $\lam{z}{y}$. Therefore, capture-avoiding substitution is not
+$\alpha$-congruent.
 
 We will introduce an alternative notion, \emph{capture-resolving
   substitution}. While capture-avoiding substitution was a partial function
 on terms, capture-resolving substitution will be a total function on
-$\alpha$-equivalence classes. Furthermore, the new function will be an
-extension of the old one. If capture-avoiding substitution would have
+$\alpha$-equivalence classes of terms. Furthermore, the new function will
+be an extension of the old one. If capture-avoiding substitution would have
 mapped $A$ to $B$, then capture-resolving substitution will map the
-$=_\alpha$ class of $A$ to the $=_\alpha$ class of $B$.
+$=_\alpha$-class of $A$ to the $=_\alpha$-class of $B$.
 
 In defining capture-resolving substitution, we will demonstrate a technique
 that is made possible by the transition from single terms to $=_\alpha$
 classes of terms. When we have a variable $x$ bound in a term, we can
 always assume, without loss of generality, that it is distinct from another
 variable $y$ (since inside our term, we can swap $x$ with any variable from
-$\XX$ which is different from $y$ and end up in the same $=_\alpha$
-class). By extension, we can also assume that a variable $x$ bound in some
-term is fresh in some other term.
+$\XX$ which is different from $y$ and end up in the same
+$=_\alpha$-class). By extension, we can also assume that a variable $x$
+bound in some term is fresh in some other term.
 
 \begin{definition}\label{def:capture-resolving-substitution}
   Let $M$ and $N$ be terms and $x$ a variable. We define the
-  \textbf{(capture-resolving) substitution} of $N$ for $x$ in $M$, written as
-  $\subst{M}{x}{N}$\footnote{From now on, this notation will be used for
-    capture-resolving substitution only.}, using the following equations:
+  \textbf{(capture-resolving) substitution} of $N$ for $x$ in $M$, written
+  as $\subst{M}{x}{N}$,\footnote{From now on, this notation will be used
+    for capture-resolving substitution only.} using the following
+  equations:
 
   \begin{align*}
     \subst{(\lam{y}{M})}{x}{N} &= \lam{y}{(\subst{M}{x}{N})} \textrm{ assuming
@@ -1030,7 +1003,7 @@ term is fresh in some other term.
     \subst{c}{x}{N} &= c \\
     \subst{(\app{\op{op}}{M_\petitp}{(\lam{y}{M_\petitc})})}{x}{N}
     &= \app{\op{op}}{(\subst{M_\petitp}{x}{N})}{(\lam{y}{\subst{M_\petitc}{x}{N}})}
-    \textrm{ assuming that } y \neq x \textrm{ and $y$ is fresh for $N$} \footnotemark \\
+    \textrm{ assuming that } y \neq x \textrm{ and $y$ is fresh for $N$} \\
     \subst{(\ap{\eta}{M})}{x}{N} &= \ap{\eta}{(\subst{M}{x}{N})} \\
     \subst{(\ap{\cibanana}{N'})}{x}{N} &= \ap{\banana{(\onto{\op{op}_i}
       (\subst{M_i}{x}{N}))_{i \in I},\ \onto{\eta} (\subst{M_\eta}{x}{N})}}
@@ -1048,7 +1021,7 @@ term is fresh in some other term.
   have to \emph{examine} whether it is different from $x$ or not.}
 
 We are now at a point where we can easily lay down the reduction rules for
-our calculus. A reduction rule $\xi$ will be a relation on terms. Most of
+$\calc$. A reduction rule $\xi$ will be a relation on terms. Most of
 the time, we will deal with their context closures, $[\xi]$, for which we
 will also adopt the notation $\to_\xi$. We will also use the notation
 $\to_{\xi_1,\dots,\xi_n}$ for the composition
@@ -1061,7 +1034,7 @@ $M \ttoffrom N$, we will also say that $M$ and $N$ are \emph{convertible}.
 A term which is not reducible to some other term is said to be in
 \emph{normal form}.
 
-We will now go through the reduction rules of our calculus, presented in
+We will now go through the reduction rules of $\calc$, presented in
 Figure~\ref{fig:reductions}, one by one.
 
 
@@ -1098,7 +1071,7 @@ Figure~\ref{fig:reductions}, one by one.
   & where $x \notin \FV(M_{\mathrm{p}})$
   \end{tabular}
   
-  \caption{\label{fig:reductions} The reduction rules of our calculus.}
+  \caption{\label{fig:reductions} The reduction rules of $\calc$.}
 \end{figure}
 
 
@@ -1114,15 +1087,16 @@ informal denotational semantics given in Section~\ref{sec:types}.
   $\banana{\eta}$ applies the clause $M_\eta$ to the value $N$ contained
   within.
 \item When the expression is an operation
-  $\app{\op{op}_j}{N_{\mathrm{p}}}{N_{\mathrm{c}}}$ with $j \in I$, we
-  first recursively apply the handler to every child
-  $\ap{N_{\mathrm{c}}}{x}$. We then pass the parameter $N_{\mathrm{p}}$
-  stored in the node along with the cluster of the processed children to
-  the clause $M_j$.
+  $\app{\op{op}_j}{N_{\mathrm{p}}}{(\lam{x}{N_{\mathrm{c}}(x)})}$ with
+  $j \in I$, we first recursively apply the handler to every child
+  $N_{\mathrm{c}}(x)$. We then pass the parameter $N_{\mathrm{p}}$ stored
+  in the node along with the cluster of the processed children to the
+  clause $M_j$.
 \item When the expression is an operation
-  $\app{\op{op}_j}{N_{\mathrm{p}}}{N_{\mathrm{c}}}$ but where $j \notin I$,
-  we leave the node as it is and just recurse down on to the subexpressions
-  (effectively using $\op{op}_j$ as the handler clause for $\op{op}_j$).
+  $\app{\op{op}_j}{N_{\mathrm{p}}}{(\lam{x}{N_{\mathrm{c}}(x)})}$ but where
+  $j \notin I$, we leave the node as it is and just recurse down on to the
+  subexpressions (effectively using $\op{op}_j$ as the handler clause for
+  $\op{op}_j$).
 \end{itemize}
 
 By looking at these rules, we also notice that all they do is just traverse
@@ -1135,10 +1109,10 @@ correspondence with the typing rules [$\eta$] and [$\op{op}$],
 respectively.
 
 The next rule talks about the cherry operator. It does what we would expect
-it to do\footnote{Based on what we said about it in
-  Section~\ref{sec:types}, not on its name.}. It expects its argument to
-always be a leaf, a pure computation, and it extracts the argument that was
-passed to the $\eta$ constructor.
+it to do.\footnote{Based on what we said about it in
+  Section~\ref{sec:types}, not on its name.} It expects its argument to
+always be an atomic algebraic expression, a pure computation, and it
+extracts the argument that was passed to the $\eta$ constructor.
 
 Finally, we have the two rules defining the behavior of $\CC$. We remind
 ourselves that the goal of $\CC$ is to make computations and abstractions
@@ -1150,9 +1124,9 @@ commute by pushing $\lambda$ below operation symbols and $\eta$.
   just reorder the $\lambda$ binder and the $\eta$ operator.
 
 \item Rule $\CC_{\op{op}}$ deals with the case of the $\lambda$ meeting an
-  operation symbol. The solution is to just continue down on to the
-  children. The operation $\ap{\CC}{(\lam{x}{\dots})}$ is applied
-  recursively to every child $\ap{M_{\mathrm{c}}}{y}$. However, this
+  operation symbol. The solution is to push the $\CC$ operator down through
+  the continuation. The operation $\ap{\CC}{(\lam{x}{\dots})}$ is applied
+  recursively to every child $\ap{M_{\mathrm{c}}}(y)$. However, this
   strategy is sound only when $M_{\mathrm{p}}$ has no free occurrence of
   $x$ (which would have been bound by the $\lambda$ in the redex but would
   become unbound in the contractum). We therefore have a constraint saying
@@ -1187,6 +1161,7 @@ calculus has facilities for dealing with sum types and product types
 (variants and pairs). In this section, we give a brief formal definition of
 the standard components that will provide these facilities in our calculus.
 
+
 \subsection{New Terms}
 
 First, we add new expressions into our language:
@@ -1194,8 +1169,8 @@ First, we add new expressions into our language:
 \begin{description}
   \item[pair] $\pair{M}{N}$ where $M$ and $N$ are expressions
   \item[unit] $\star$
-  \item[first projection] $\ap{\pi_1}$ where $M$ is an expression
-  \item[second projection] $\ap{\pi_2}$ where $M$ is an expression
+  \item[first projection] $\ap{\pi_1}{M}$ where $M$ is an expression
+  \item[second projection] $\ap{\pi_2}{M}$ where $M$ is an expression
   \item[left injection] $\ap{\inl}{M}$ where $M$ is an expression
   \item[right injection] $\ap{\inr}{M}$ where $M$ is an expression
   \item[case analysis] \hspace{1mm}
@@ -1209,6 +1184,7 @@ project out both of its components. We can also create values of the unit
 type. The other four implement sums. We can construct two disjoint variants
 and then we can do case analysis on the results. We can also treat the
 empty type by handling its zero possible cases.
+
 
 \subsection{New Types}
 
@@ -1229,22 +1205,14 @@ the output type of operations that do not return any interesting value.
 Analogously, the empty type serves as a unit to the sum type since $\alpha
 + 0$, $0 + \alpha$ and $\alpha$ are isomorphic. The empty type is useful as
 the output type of operations that never return (such as
-$\typedop{fail}{1}{0}$, which terminates a computation signalling failure).
+$\typedop{fail}{1}{0}$, which terminates a computation, signalling failure).
 
 The standard typing rules of the constructions concerning sums and products
-are given in Figure~\ref{fig:types-of-sums-and-products}\footnote{There is
-  a slight difference between the standard formulation and the one we have
-  here. The types of $\pi_1$, $\pi_2$, $\inl$ and $\inr$ are given as
-  axioms and not as inference rules. This goes back to our decision to make
-  operators like $\pi_1$ terms of our language rather than admitting only
-  terms of the shape $\ap{\pi_1}{M}$. The reason for this divergence is
-  that this formulation lets us treat projections and injections as
-  functions instead of having to write things like
-  $\lam{x}{\ap{\pi_1}{x}}$.}. In the typing rules, we can witness the
-duality of $\times$ and $+$. There is one introduction rule and two
-elimination rule for pairs, whereas we have two introduction rules and one
-elimination rule for variants. We also have an introduction rule for the
-unit type and an elimination for the empty type.
+are given in Figure~\ref{fig:types-of-sums-and-products}. In the typing
+rules, we can witness the duality of $\times$ and $+$. There is one
+introduction rule and two elimination rules for pairs, whereas we have two
+introduction rules and one elimination rule for variants. We also have an
+introduction rule for the unit type and an elimination for the empty type.
 
 \begin{figure}
   \def\labelSpacing{4pt}
@@ -1317,16 +1285,16 @@ unit type and an elimination for the empty type.
     and products.}
 \end{figure}
 
+
 \subsection{New Reduction Rules}
 
 Now that we know how to correctly write terms with sums and products after
 having introduced the syntax and the typing rules, we will look at how to
 simplify and evaluate such terms. We will extend the set of reduction rules
-in our calculus with the ones in
+in $\calc$ with the ones in
 Figure~\ref{fig:reductions-of-sums-and-products}. As before, we take the
 context closure of these rules $\xi$ to get relations $\to_\xi$ and then we
-include these relations into our small-step semantics $\to$ and big-step
-semantics $\tto$.
+include these relations into our reduction relations $\to$ and $\tto$.
 
 \begin{figure}
   \centering
@@ -1344,11 +1312,13 @@ semantics $\tto$.
   $\subst{N_{\mathrm{r}}}{y}{M}$ & \\
   \end{tabular}
   
-  \caption{\label{fig:reductions-of-sums-and-products} Reduction rules for
+  \caption{\label{fig:reductions-of-sums-and-products} The reduction rules for
     sums and products.}
 \end{figure}
  
+
 \subsection{Booleans}
+\label{ssec:booleans}
 
 The most simple use of a sum type is to serve as a binary Boolean
 type. Since this comes very handy in examples, we will introduce the
@@ -1378,11 +1348,32 @@ $$
 
 where $x$ is fresh for $N_\true$ and $y$ is fresh for $N_\false$.
 
+This lets us derive the two reduction rules which define the semantics of
+if-then-else expressions:
+
+\begin{align*}
+  \ifte{\true}{N_\true}{N_\false} &\to_{\textbf{if}.\true} N_\true \\
+  \ifte{\false}{N_\true}{N_\false} &\to_{\textbf{if}.\false} N_\false
+\end{align*}
+
+because:
+
+\begin{align*}
+  \ifte{\true}{N_\true}{N_\false}
+  &= \case{(\ap{\inl}{\star})}{x}{N_\true}{y}{N_\false} \\
+  &\to_{\beta.+_1} N_\true \\
+  \ifte{\false}{N_\true}{N_\false}
+  &= \case{(\ap{\inr}{\star})}{x}{N_\true}{y}{N_\false} \\
+  &\to_{\beta.+_2} N_\false
+\end{align*}
+
+
 \section{Common Combinators}
 \label{sec:common-combinators}
 
 Here we will introduce a collection of useful syntactic shortcuts and
 combinators for our calculus.
+
 
 \subsection{Composing Functions and Computations}
 \label{ssec:composing-functions}
@@ -1400,8 +1391,9 @@ We will also ``functionalize'' our term constructors (i.e.\ we will write
 $\eta$ as a shortcut for $(\lam{x}{\etaE{x}})$). Our motive in not defining
 our symbols directly as function constants in the core calculus is due to
 the proofs of confluence and termination. A complete list of functionalized
-symbols is given below\footnote{The types and effect signatures in the
-  types are bound by the typing constraints of the functionalized terms.}.
+symbols is given below.\footnote{The type and effect signature
+  metavariables that appear in the types are bound by the typing
+  constraints of the terms on the right-hand side.}
 
 \begin{align*}
   &\eta : \alpha \to \FF_E(\alpha) &
@@ -1437,23 +1429,23 @@ a monad, as in Haskell.\footnote{In the types of the operators given below,
 
 \begin{align*}
   \_^* &: (\alpha \to \FF_E(\beta)) \to (\FF_E(\alpha) \to \FF_E(\beta)) \\
-  f^* &= \lam{x}{\banana{\onto{\eta}{f}}} \\
+  f^* &= \banana{\onto{\eta}{f}} \\
   \_ \hsbind \_ &: \FF_E(\alpha) \to (\alpha \to \FF_E(\beta)) \to \FF_E(\beta) \\
   M \hsbind N &= \ap{N^*}{M} \\
 \end{align*}
 
 Finally, we will define a notation for applying infix operators to
-arguments wrapped inside computations. Let $\_ \times \_$ be an infix
+arguments wrapped inside computations. Let $\_ \circledcirc \_$ be an infix
 operator of type $\alpha \to \beta \to \gamma$. Then we define the
 following:
 
 \begin{align*}
-  \_ \opl{\times} \_ &: \FF_E(\alpha) \to \beta \to \FF_E(\gamma) \\
-  X \opl{\times} y &= X \hsbind (\lam{x}{\ap{\eta}{(x \times y)}}) \\
-  \_ \opr{\times} \_ &: \alpha \to \FF_E(\beta) \to \FF_E(\gamma) \\
-  x \opr{\times} Y &= Y \hsbind (\lam{y}{\ap{\eta}{(x \times y)}}) \\
-  \_ \oplr{\times} \_ &: \FF_E(\alpha) \to \FF_E(\beta) \to \FF_E(\gamma) \\
-  X \oplr{\times} Y &= X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\ap{\eta}{(x \times y)}})})
+  \_ \opl{\circledcirc} \_ &: \FF_E(\alpha) \to \beta \to \FF_E(\gamma) \\
+  X \opl{\circledcirc} y &= X \hsbind (\lam{x}{\ap{\eta}{(x \circledcirc y)}}) \\
+  \_ \opr{\circledcirc} \_ &: \alpha \to \FF_E(\beta) \to \FF_E(\gamma) \\
+  x \opr{\circledcirc} Y &= Y \hsbind (\lam{y}{\ap{\eta}{(x \circledcirc y)}}) \\
+  \_ \oplr{\circledcirc} \_ &: \FF_E(\alpha) \to \FF_E(\beta) \to \FF_E(\gamma) \\
+  X \oplr{\circledcirc} Y &= X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\ap{\eta}{(x \circledcirc y)}})})
 \end{align*}
 
 In particular, we will be using this notation for the function application
@@ -1475,16 +1467,17 @@ which will yield the following combinators:
   F \aplr X &= F \hsbind (\lam{f}{X \hsbind (\lam{x}{\ap{\eta}{(\ap{f}{x})}})})
 \end{align*}
 
-The second of these three, $\apr$, is the morphism component of the $\FF_E$
-functor (which we will show in
-Section~\ref{sec:algebraic-properties}). $\FF_E$ is also an applicative
-functor and the third operator in the list above, $\aplr$, is the operator
-for application within the functor.
+The first of the three, $\apl$, is the inverse function to $\CC$. The
+second, $\apr$, is the morphism component of the $\FF_E$ functor (which we
+will demonstrate in Section~\ref{sec:algebraic-properties}). $\FF_E$ is
+also an applicative functor and the third operator in the list above,
+$\aplr$, is the operator for application within the functor.
+
 
 \subsection{Operations and Handlers}
 \label{ssec:operations-and-handlers}
 
-Now we will look at syntactic sugar specific to our calculus. In
+Now we will look at syntactic sugar specific to $\calc$. In
 \ref{ssec:composing-functions}, we have seen the bind operator $\hsbind$
 and other ways of composing computations. Since we now have a practical way
 to compose computations, we can simplify the way we write effectful
@@ -1530,8 +1523,9 @@ see on the pair of rules below:
 \vspace{3mm}
 
 We can also see that the $\rightarrowtail$ arrow used in effect signatures
-gives rise to a Kleisli arrow since $\FF_E$ is a monad (more on that in
-Chapter~\ref{chap:properties}).
+gives rise to a Kleisli arrow since $\FF_E$ is a monad (as we will see in
+Subsection~\ref{ssec:monad}).
+
 
 \subsubsection{Handlers}
 
@@ -1539,11 +1533,11 @@ In Section~\ref{sec:reductions}, we have seen how the reduction rules treat
 unknown operation symbols: by leaving them intact. With some syntactic
 sugar, we can extend this behavior to the $\eta$ operator as well. We will
 sometimes write a handler and omit giving the $\eta$ clause. In that case,
-the $\eta$ clause is presumed to be just $\eta$\footnote{This is not a part
-  of the core calculus as this is only sound when the type of the handler
-  is of the shape $\FF_E(\gamma) \to \FF_{E'}(\gamma)$ (i.e.\ when the
-  handler preserves the type of values yielded by the
-  computation).}. Schematically, we can define this piece of new syntax in
+the $\eta$ clause is presumed to be just $\eta$.\footnote{This is not a
+  part of the core calculus as this is only sound when the type of the
+  handler is of the shape $\FF_E(\gamma) \to \FF_{E'}(\gamma)$ (i.e.\ when
+  the handler preserves the type $\gamma$ of values returned by the
+  computation).} Schematically, we can define this piece of new syntax in
 the following way:
 
 $$
@@ -1551,7 +1545,7 @@ $$
 $$
 
 Finally, we will introduce a special syntax for \emph{closed
-  handlers}\cite{kammar2013handlers}. A \emph{closed handler} is a handler
+  handlers}~\cite{kammar2013handlers}. A \emph{closed handler} is a handler
 that interprets the entire computation that is given as its input (it must
 have a clause for every operator that appears within). Since all effects
 are handled and none are forwarded, the codomain of the handler can be
@@ -1567,9 +1561,9 @@ $$
 $$
 
 As we can see, the only material added by the closed handler brackets are
-the functions $\eta$ and $\cherry$\footnote{Composing the $\cherry$
+the functions $\eta$ and $\cherry$,\footnote{Composing the $\cherry$
   operator with a $\banana{}$ handler is an identifying characteristic of
-  closed handlers: a closed handler is a banana with a cherry on the top.},
+  closed handlers: a closed handler is a banana with a cherry on the top.}
 which simply translate between the types $\alpha$ and
 $\FF_\emptyset(\alpha)$. Rather than closely studying the definition and
 scrutinizing the etas and the cherries, the idea of a closed handler is
@@ -1595,7 +1589,7 @@ the $\bbanana{}$ rule simpler than the one of $\banana{}$:
 
 \begin{itemize}
 \item $M_\eta$ gives $\delta$-typed interpretations to the terminal
-  values (leaves) of type $\gamma$
+  values of type $\gamma$
 \item $M_i$ maps the parameter of type $\alpha_i$ and the $\delta$-typed
   interpretations of the $\beta_i$-indexed family of children to a
   $\delta$-typed interpretation of an internal node
@@ -1614,15 +1608,3 @@ clause.
  &= \ap{\cherry}{(\ap{\banana{(\onto{\op{op}_i}{(\lam{x k}{\ap{\eta}{(\ap{\ap{M_i}{x}}{(\cherry \compop k)})}})})_{i \in I},\ \onto{\eta}{(\lam{x}{\etaE{(\ap{(\lam{x}{x})}{x})}})}}}{N})} \\
  &= \ap{\bbanana{(\onto{\op{op}_i}{M_i})_{i \in I},\ \onto{\eta}{(\lam{x}{x})}}}{N}
 \end{align*}
-
-
-
-% \TODO{Maybe introduce do-notation here? It ought to be useful later.}
-
-
-% \section{Subtyping}
-% \label{sec:subtyping}
-
-% \section{Unrestricted Effect Types}
-% \subsection{Simulating Recursive Types}
-

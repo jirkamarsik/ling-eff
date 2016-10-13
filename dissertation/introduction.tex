@@ -31,14 +31,14 @@ papers that have proposed solutions.
     interval of time during which the dating takes place and assert that
     the time of utterance (possibly) lies in that interval.
   \item We have the presupposition trigger \emph{still} that tells us that
-    the two must have been dating in the past already. We will have to
-    possess some mechanism to project this contribution outside the scope
-    of any of the logical operators present.\footnote{While in the present,
-      we can only infer that they \emph{might} be dating, by accommodating
-      the presupposition, we can infer that sometime in the past, they
-      \emph{must have been} dating.} We can adopt the strategy of
-    Lebedeva~\cite{lebedeva2012expression} and raise exceptions to perform
-    the projection.
+    the two subjects must have been dating in the past already. We will
+    have to possess some mechanism to project this contribution outside the
+    scope of any of the logical operators present.\footnote{While in the
+      present, we can only infer that they \emph{might} be dating, by
+      accommodating the presupposition, we can infer that sometime in the
+      past, they \emph{must have been} dating.} We can adopt the strategy
+    of Lebedeva~\cite{lebedeva2012expression} and raise exceptions to
+    perform the projection.
   \item \label{item:last-feature} We have the expressive epithet
     \emph{idiot}. Following the theory of conventional implicatures of
     Potts~\cite{potts2005logic}, elaborated by
@@ -61,10 +61,10 @@ implicatures introduces two-dimensional logical formulas and defines new
 modes of combination to compute with
 them~\cite{potts2005logic}. Compositional treatments of intensionality or
 tense tend to use the simply-typed lambda
-calculus~\cite{ben2007semantics,de2013note}, as is the case in de Groote's
-treatment of anaphora~\cite{de2006towards}. In studying presuppositions,
-Lebedeva changes the calculus of de Groote to integrate
-exceptions~\cite{lebedeva2012expression}.
+calculus~\cite{ben2007semantics,de2013note}, as is also the case in de
+Groote's treatment of anaphora~\cite{de2006towards}. In studying
+presuppositions, Lebedeva uses a modified version of de Groote's calculus
+which includes exceptions~\cite{lebedeva2012expression}.
 
 It seems clear that in order to arrive at a precise notion of what it means
 do all of~\ref{item:first-feature}--\ref{item:last-feature}, we will first
@@ -79,12 +79,13 @@ Richard Montague's hugely influential work~\cite{montague1973proper}, the
 $\lambda$-calculus is already a very popular formalism in formal
 compositional semantics.\footnote{Frege's compositionality principle states
   that the meanings of complex expressions should be determined by (i.e.\
-  be functions of) the meanings of its constituents. If meanings are
-  defined in terms of meaning functions, it makes sense to use a calculus
-  of functions.} Many phenomena are analyzed using the $\lambda$-calculus
-and the rest tend to get translated to $\lambda$-calculus as well (see, for
-example, $\lambda$-DRT~\cite{kuschert1995type} or de Groote's
-continuation-based approach to dynamics~\cite{de2006towards}).
+  be functions of) the meanings of its constituents. If complex meanings
+  are to be seen as functions of other meanings, it makes sense to use a
+  calculus of functions, i.e.\ the $\lambda$-calculus.} Many phenomena are
+analyzed using the $\lambda$-calculus and the rest tend to get translated
+to $\lambda$-calculus as well (see, for example,
+$\lambda$-DRT~\cite{kuschert1995type} or de Groote's continuation-based
+approach to dynamics~\cite{de2006towards}).
 
 However, even though we have several theories which are all formalised in
 $\lambda$-calculus, it does not necessarily mean that they are compatible
@@ -136,11 +137,11 @@ following structure:
   with the added complexity caused by the more elaborate types. When
   applying a transitive verb to a quantificational subject and object, we
   let one (often the subject) first take scope and then we let the other
-  take scope. When applying the verb to a intensional arguments, we pass
-  down the world at which we are evaluating the sentence down to both the
-  subject and the object. When applying it to expressive arguments, we
-  apply the verb to the referents of both the subject and the object and on
-  the side we collect the expressive content of both.
+  take scope. When applying the verb to intensional arguments, we pass the
+  world at which we are evaluating the sentence down to both the subject
+  and the object. When applying it to expressive arguments, we apply the
+  verb to the referents of both the subject and the object and on the side
+  we collect the expressive content of both.
 \end{enumerate}
 
 This kind of structure is very commonly seen in functional programming and
@@ -157,10 +158,14 @@ we saw in~\ref{item:type-transformation}), $\eta$ is some way of lifting
 simple values into expanded values (the lifting functions
 in~\ref{item:monad-eta}) and $\hsbind$ gives us a general way of combining
 values of this expanded type (similar to the examples given
-in~\ref{item:monad-mu}). The triple also has to satisfy some algebraic
-properties which guarantee that composing functions of expanded types is
-associative and that the lifting function serves as a unit for this
-composition operator.
+in~\ref{item:monad-mu}).\footnote{This way of presenting a monad (a type
+  constructor, $\eta$ and $\hsbind$) is particular to functional
+  programming. Note that this presentation differs from the
+  category-theoretical one which replaces $\hsbind$ with a natural
+  transformation $\mu$ \cite{mac1978categories}.} The triple also has to
+satisfy some algebraic properties which guarantee that composing functions
+of expanded types is associative and that the lifting function serves as a
+unit for this composition operator.
 
 The examples given above are all instances of monads. The prevalence of
 monads in natural language semantics has been already discovered by Shan
@@ -195,7 +200,7 @@ expressions and intension-denoting expressions, then correspond to the
 Lisp-style operators $\texttt{quote}$ and $\texttt{eval}$ respectively.
 
 The idea of treating linguistic expressions as effectful actions or
-programs are also very relevant to dynamic semantics, which treats the
+programs is also very relevant to dynamic semantics, which treats the
 meanings of sentences as instructions to update some common ground or other
 linguistic context.\footnote{The use of monads to encode dynamic effects
   (anaphora) dates back to 2009 and the work of Giorgolo and
@@ -221,8 +226,8 @@ same time. One such theoretical framework are effects and handlers. In this
 framework, programs are interpreted as sequences of instructions (or more
 generally as decision trees).\footnote{More precisely, we are interpreting
   programs in a free monad~\cite{swierstra2008data}.} The instructions are
-symbols called operations which stand for the different effects, the
-different ways that programs can interact with their contexts. In our
+symbols called \emph{operations}, which stand for the different effects,
+the different ways that programs can interact with their contexts. In our
 application to natural language semantics, here are some examples of
 operations that will feature in our demonstrations, along with their
 intended semantics:\footnote{The operations are just symbols and so have no
@@ -246,10 +251,10 @@ The process of calculating the denotation of a linguistic expression is
 broken down to these operations. When expressions combine to form sentences
 and discourses, these operations end up being concatenated into a large
 program which will want to perform a series of interactions with its
-context. This is when handlers come into play. A handler is an interpreter
-that gives a definition to the operation symbols in a program. Handlers can
-be made modular~\footnote{In a similar way that monads can be turned into
-  monad transformers (monad morphisms) and then
+context. This is when handlers come into play. A \emph{handler} is an
+interpreter that gives a definition to the operation symbols in a
+program. Handlers can be made modular~\footnote{In a similar way that
+  monads can be turned into monad transformers (monad morphisms) and then
   composed~\cite{shan2002monads,wu2015transformers}.} so that the
 interpreter for our vocabulary of context interactions can be defined as
 the composition of several smaller handlers, each treating a different
@@ -298,10 +303,10 @@ language semantics.
 The manuscript of this thesis is split into two parts. In the first, we
 develop a formal calculus that extends the simply-typed lambda calculus
 with a free monad for effects and handlers. We prove some key properties,
-such as strong normalization, and we show how the calculus to other similar
-notions such as continuations or monads. In the second part, we analyze
-some of the aspects of linguistic meaning as side effects: deixis,
-conventional implicature, quantification, anaphora and presupposition. We
-incrementally build up a fragment that features all of those features and
-demonstrates some of their interactions.
-
+such as subject reduction, confluence and, to an extent, termination, and
+show how the calculus relates to other similar notions such as
+continuations or monads. In the second part, we analyze some of the aspects
+of linguistic meaning as side effects: deixis, conventional implicature,
+quantification, anaphora and presupposition. We then incrementally build up
+a fragment that features all of those features and demonstrates some of
+their interactions.

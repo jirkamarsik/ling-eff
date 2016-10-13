@@ -61,22 +61,21 @@ monad in the category in which we interpret $\calc$ with our
 proved \emph{subject reduction} of $\calc$. This result gives a basic
 coherence between the type system of $\calc$ and the reduction semantics,
 guaranteeing that types are preserved under reduction. This is complemented
-by a limited proof of \emph{progress}, which states that terms which can no
-longer be reduced must have a very specific shape. We followed this with
-another fundamental property: \emph{strong normalization}. Its proof was
-split into two parts: \emph{confluence} (proved in
-Section~\ref{sec:confluence}) and \emph{termination} (proved in
-Section~\ref{sec:termination}). The proofs of both confluence and
-termination proceed by similar strategies: prove the property for the
-calculus without $\eta$-reduction by applying a general result and then
-extend the property to the complete calculus. In the case of confluence,
-the general result is the confluence of orthogonal Combinatory Reduction
-Systems~\cite{klop1993combinatory}. In the case of termination, we rely on
-two techniques: the termination of the reduction relation of Inductive Data
-Type Systems that validate the General Schema~\cite{blanqui2000termination}
-and Higher-Order Semantic Labelling~\cite{hamana2007higher}, which lets us
-use our denotational semantics to label the terms of our calculus so that
-it validates the General Schema.
+by a proof of \emph{progress}, which states that terms which do not use any
+of the partial operators and which can no longer be reduced must have a
+very specific shape.
+
+We followed this with another fundamental property: \emph{strong
+  normalization}. Its proof was split into two parts: \emph{confluence}
+(proved in Section~\ref{sec:confluence}) and \emph{termination} (proved in
+Section~\ref{sec:termination}). In the proofs of both confluence and
+termination, we proceeded by encoding the calculus into a higher-order
+rewriting formalism and then applying a general result. In the case of
+confluence, we based our proof on the confluence of orthogonal Combinatory
+Reduction Systems~\cite{klop1993combinatory}. In the case of termination,
+which we were able to obtain only for a subset of the calculus, we relied
+on the termination of Inductive Data Type Systems that validate the General
+Schema~\cite{blanqui2002inductive}.
 
 Andrej Bauer made the analogy that effects and handlers are to delimited
 continuations what while loops or if-then-else statements are to
@@ -197,7 +196,8 @@ effects and handlers:
 
   Finally, we note that \emph{Eff} is a general-purpose programming
   language which includes general recursion (\texttt{let rec}) and
-  therefore it is not terminating, contrary to $\calc$.
+  therefore is not meant to be terminating, contrary to $\calc$, whose core
+  calculus (without the $\CC$ operator) always terminates.
   
 \item $\lambda_{\mathrm{eff}}$
 
@@ -314,8 +314,7 @@ effects and handlers:
   without incurring the complexity of using a language like Haskell as our
   meta language. $\calc$ extends STLC with computation types, two
   constructors ($\eta$ and operations), two destructors (handlers and
-  $\cherry$) and the $\CC$ operator. Unlike Haskell, our extension of STLC
-  preserves strong normalization.
+  $\cherry$) and the $\CC$ operator.
 \end{itemize}
 
 
@@ -390,14 +389,17 @@ a variable that is supposed to occur in the scope of a quantifier and then
 have that variable accidentally project outside of its scope, leading to
 the generation of malformed logical formulas.
 
-The $\CC$ operator presents another solution to this problem. If we know
-that in a continuation of type $\iota \to \FF_E(o)$, the effects of the
-$\FF_E(o)$ do not depend on the $\iota$, we could move them out of the body
-of the function. This is exactly what the $\CC$ operator does.\footnote{If
-  we are mistaken and the effects do depend on the bound variable, then
-  computation gets stuck (instead of producing a malformed logical
-  formula).} With it, we can wrap the existential quantifier over the
-continuation using the following expression, which we called $\existsr P$
+The $\CC$ operator presents another solution to this problem.\footnote{A
+  solution that is not without problems of its own, as we have seen in the
+  proofs of progress (Subsection~\ref{ssec:progress}) and termination
+  (Section~\ref{sec:termination}).}  If we know that in a continuation of
+type $\iota \to \FF_E(o)$, the effects of the $\FF_E(o)$ do not depend on
+the $\iota$, we could move them out of the body of the function. This is
+exactly what the $\CC$ operator does.\footnote{If we are mistaken and the
+  effects do depend on the bound variable, then computation gets stuck
+  (instead of producing a malformed logical formula).} With it, we can wrap
+the existential quantifier over the continuation using the following
+expression, which we called $\existsr P$
 in~\ref{ssec:revising-dynamic-handler}:\footnote{The type of $\exists$ is
   $(\iota \to o) \to o$ and the type of $P$ is $\iota \to \FF_E(o)$.}
 
@@ -407,8 +409,8 @@ $$
 
 The inspiration for the $\CC$ operator came from Philippe de Groote's work
 on logical relations and
-conservativity~\cite{degroote2015conservativity}. Within his work, de
-Groote makes use of the following mathematical structure: a type
+\emph{conservativity}~\cite{degroote2015conservativity}. Within his work,
+de Groote makes use of the following mathematical structure: a type
 transformer $\pT$ equipped with three operation $\pU$, $\pBullet$ and $\pC$
 with the following types:
 
@@ -428,15 +430,15 @@ and obeying the following laws:
 If we ignore the $\pC$ operator for the moment and focus only on the $\pT$
 type transformer, the $\pU$ and $\pBullet$ operations and the first of the
 two laws, we see that we have a weaker version of an applicative
-functor. An applicative functor is a functor, which in our category is a
-type transformer such as $\pT$ that can also lift functions, equipped with
-two operations, $\pure$ and $\circledast$, which have the same types as
-$\pU$ and $\pBullet$ respectively, and satisfying the four laws given
-in~\ref{ssec:applicative-functor}. The first of the two laws given above is
-the homomorphism law~\ref{law:app-homomorphism} of applicative functors. We
-note that all three instances of this structure that are used in the
-examples of~\cite{degroote2015conservativity} also satisfy all four of the
-applicative functor laws.
+functor. An applicative functor is a functor, which, in our category, is a
+type transformer such as $\pT$,\footnote{Ignoring the arrow-component for
+  the morphism.} equipped with two operations, $\pure$ and $\circledast$,
+which have the same types as $\pU$ and $\pBullet$ respectively, and which
+satisfy the four laws given in~\ref{ssec:applicative-functor}. The first of
+the two laws given above is the homomorphism law~\ref{law:app-homomorphism}
+of applicative functors. We note that all three instances of this structure
+that are used in the examples of~\cite{degroote2015conservativity} also
+satisfy the other three applicative functor laws.
 
 We now look at the $\pC$ operator, whose type is the same as the $\CC$
 operator that we added to $\calc$ (with $\FF_E$ corresponding to
@@ -461,14 +463,15 @@ well-typed arguments for $\CC$ which will cause computation to get
 stuck. This correlates with the $\pC$ operator in de Groote's work, where
 certain values of the $\CC$ operator are left undefined.
 
-It is interesting that the $\CC$ operator that turned out to be useful in
-our work originated in another work whose objective is to capture the way
-meanings are extended in formal semantics. In our approach, we address
-conservativity\footnote{Conservativity is understood as the notion that
+It is interesting that the $\CC$ operator which turned out to be useful in
+our work originated in another work whose objective was also to capture the
+way meanings are extended in formal semantics. In our approach, we address
+conservativity,\footnote{Conservativity is understood as the notion that
   extending the grammar to cover a new phenomenon should not change the
-  meanings which were already correct in the simpler grammar.} in two
-ways. First, we show how to lift a simply-typed semantics into a monadic
-semantics while preserving the meanings it assigns to sentences in
+  meanings which were already correct in the simpler grammar.} the subject
+of de Groote's paper, in two ways. First, we show how to lift a
+simply-typed semantics into a monadic semantics while preserving the
+meanings it assigns to sentences in
 Section~\ref{sec:lifting-semantics}. Then, in
 Chapter~\ref{chap:composing-effects}, we extend a dynamic grammar with
 presuppositions~(\ref{sec:adding-presuppositions}), conventional
@@ -653,8 +656,6 @@ existing analyses to the $\calc$ framework:
   in~\ref{ssec:comparison-ttdl}, which we summarize here:
 
   \begin{itemize}
-  \item We preserve strong normalization, even though we have exceptions
-    and recursion (in handlers).
   \item We do not licence cataphoric binding from presupposition triggers
     because we can resume on presupposition failure without reevaluating
     the previous parts of discourse.
@@ -984,14 +985,56 @@ both.
 \label{ssec:future-work-calculus}
 
 \begin{itemize}
+\item Termination for the $\CC$ Operator
+
+  In Section~\ref{sec:termination}, we have proven the termination of the
+  reduction relation of our calculus with the exception of the reduction
+  rules defining the $\CC$ operator. Therefore, we have strong
+  normalization only when we eliminate the $\CC$ operator from the
+  calculus. Strong normalization is one of the properties we aimed for when
+  we decided to design our own calculus instead of modeling semantics
+  within an actual general-purpose programming language such as Haskell or
+  \emph{Eff}.
+
+  Furthermore, strong normalization of $\calc$ would be a compelling
+  improvement on Lebedeva's use of exceptions to model
+  presuppositions~\cite{lebedeva2012expression}. Lebedeva extends the
+  simply-typed lambda-calculus with (unrestricted) exceptions and the
+  resulting calculus is non-terminating, as shown by Lillibridge's encoding
+  of recursive types~\cite{lillibridge1995exceptions}. In our calculus, the
+  possible exceptions and the messages they can carry are controlled by the
+  effect signatures of computation types, the core calculus of which we
+  have proven terminating. Furthermore, when Lebedeva sketched out a
+  possible solution to the binding problem, she defined a recursive
+  function which was then part of the lexical semantic
+  entries.\footnote{The function in question is the $\textsf{iacc}$ handler
+    for intermediate accommodation from Definition~6.29. This handler is
+    part of the definition of the dynamic existential quantifier, which is
+    the only operator using which new variables are introduced.} This is
+  also problematic since general recursion precludes termination. Our
+  calculus gets around this by relying on inductive types to provide a
+  limited form of recursion which can be proven terminating. Furthermore,
+  we also extend the calculus with a feature necessary to solve the binding
+  problem and prove its inclusion preserves strong normalization. However,
+  without a proof of termination for $\CC$, we do not have a proof of
+  strong normalization for the complete system that we propose to replace
+  Lebedeva's calculus with.
+
+  Based on the well-founded ordering on denotations that we use when
+  proving the well-definedness of the denotational semantics (which itself
+  just follows the reduction rules), we conjecture that the complete
+  $\calc$ calculus with $\CC$ is terminating, and therefore strongly
+  normalizing.
+  
+
 \item Adequacy of Denotational Semantics, Observational Equivalence
 
-  In~\ref{ssec:denotational-semantics}, we have given a denotational
-  semantics to $\calc$. Even though we first gave the reduction semantics,
-  we perceive the denotational semantics as the primary semantics as it
-  assigns to the terms of $\calc$ the mathematical objects that we want
-  them to stand for. The reduction semantics can then be seen as a
-  mechanization of computing with these objects. In
+  In Subsection~\ref{ssec:denotational-semantics}, we have given a
+  denotational semantics to $\calc$. Even though we first gave the
+  reduction semantics, we perceive the denotational semantics as the
+  primary semantics as it assigns to the terms of $\calc$ the mathematical
+  objects that we want them to stand for. The reduction semantics can then
+  be seen as a mechanization of computing with these objects. In
   Chapter~\ref{chap:properties}, we have proven
   Property~\ref{prop:denotation-soundness}, which tells us that our
   reduction semantics is sound w.r.t.\ the denotations. However, the
@@ -1051,11 +1094,11 @@ both.
 
   The commuting conversions that commute over sums can then be derived from
   this principle~\cite{balat2004extensional}. It might also be interesting
-  to seek what would such an extensionality principle would look like for
+  to seek what would such an extensionality principle look like for
   computation types. However, the biggest obstacle is that enriching the
   calculus with new reduction rules puts in jeopardy the established
-  meta-theory (most importantly strong normalization, whose proofs are
-  usually brittle).
+  meta-theory (e.g.\ confluence or termination, whose proofs are usually
+  brittle).
 
 
 \item Conservativity

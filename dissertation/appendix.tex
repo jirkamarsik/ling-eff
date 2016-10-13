@@ -602,3 +602,82 @@ can use $\cherry$.
 
 
 
+\Annex[Computer Mechanization of the Calculus]{Computer Mechanization \\ of the Calculus}
+\label{chap:mechanization}
+
+During the development of our approach, we have experimented with several
+implementations of effects and handlers. In our initial explorations, we
+used Kiselyov's extensible effects Haskell
+library~\cite{kiselyov2013extensible,extensible-effects}. However, this
+made it difficult to separate our contribution from the details of the
+Haskell encoding of effects and handlers. In the next step, we turned to a
+programming language which included effects and handlers as first-class
+primitives, Bauer and Pretnar's \emph{Eff}~\cite{bauer2012programming}. We
+have used \emph{Eff} to prototype the grammars which led to us reporting
+our first results with effects and handlers in natural
+language~\cite{marsik2014algebraic}. Nevertheless, we found it difficult to
+develop larger grammars in a direct-style calculus without a suitable
+effect system.
+
+We designed $\calc$ to have a calculus in which evaluation (reduction) is
+independent of execution (the ordering of effects within
+computations). After the definition of $\calc$ started to stabilize, we
+looked at ways of mechanizing the calculus so as to be able to use a
+computer to assist us in exploring the calculus. $\calc$ is defined by a
+set of reduction rules and so we have used PLT
+Redex~\cite{felleisen2009semantics} to develop the mechanization of the
+calculus. Redex is a Racket library/domain-specific language for
+engineering and debugging reduction semantics. The formal language of terms
+and types, the typing rules and the reduction rules can all be written in a
+style close to the one used in academic papers. The formalization can then
+be used to automatically generate test cases for formal properties such as
+subject reduction, termination or progress.
+
+We have formalized the syntax, typing rules and reduction rules using
+Redex. The source code can be found at:
+
+\centerline{\url{https://github.com/jirkamarsik/ling-eff/blob/master/redex/effects-and-handlers.rkt}}
+
+However, in order to be able to define the typing rules as judgment forms
+within Redex, we needed to include type annotations in our terms. Since
+$\calc$ types include computation types, which are indexed by effect
+signatures, which contain more types, the type-annotated terms become
+unwieldy. We have therefore also developed a formalization which omits the
+type system but keeps the original syntax. This second formalization can be
+found at:
+
+\centerline{\url{https://github.com/jirkamarsik/ling-eff/blob/master/redex/untyped-bananas.rkt}}
+
+We have commented this formalization and we have also included the complete
+final grammar that we introduce in
+Chapter~\ref{chap:composing-effects}. This formalization still leaves much
+to be desired: normalizing a $\calc$ term which corresponds to a
+non-trivial linguistic example can easily take half an hour.\footnote{The
+  Redex library only allows us to compute \emph{all} of the possible
+  reduction steps going from a given term. Since after expanding all the
+  syntactic sugar, the auxiliary handlers and other combinators, the
+  $\calc$ terms that compute the meaning of an entire sentence can be very
+  large, the atomic Redex operation of finding all the reductions in a term
+  becomes costly.} The formalization is therefore not suitable for rapid
+prototyping of semantic grammars. However, we can still use the
+formalization as a source of machine proofs for reductions in $\calc$. For
+example, we can use the formalization to verify the predicted meaning of
+Example~\ref{ex:combo} from Appendix~\ref{chap:final-example}. In the rest
+of the appendix, we present an edited version of this formalization.
+\newpage
+
+\setmonofont{DejaVu Sans Mono}
+
+\inputminted{racket}{redex/intro.rkt}
+\newpage
+\inputminted{racket}{redex/reduce.rkt}
+\newpage
+\inputminted{racket}{redex/anaphora.rkt}
+\newpage
+\inputminted{racket}{redex/code.rkt}
+\newpage
+\inputminted{racket}{redex/extend-ops.rkt}
+\newpage
+\inputminted{racket}{redex/handlers.rkt}
+\newpage
+\inputminted{racket}{redex/grammar.rkt}

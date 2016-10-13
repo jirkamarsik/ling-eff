@@ -1,4 +1,10 @@
-\usepackage[utf8]{inputenc}
+\usepackage{fontspec}
+\DeclareTextCommandDefault{\nobreakspace}{\leavevmode\nobreak\ } 
+\setmainfont[Ligatures=TeX]{TeX Gyre Pagella}
+\setmonofont{Latin Modern Mono}
+\usepackage{polyglossia}
+\setmainlanguage{english}
+\setotherlanguages{french,czech}
 \usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -25,3 +31,5 @@
 \usepackage{drs}
 \input{qobitree}
 \usepackage{bookmark}
+\usepackage{listings}
+\usepackage{minted}

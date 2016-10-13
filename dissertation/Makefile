@@ -1,8 +1,8 @@
 dissertation.pdf: *.tex references.bib
-	pdflatex dissertation
+	xelatex -shell-escape dissertation
 	bibtex dissertation
-	pdflatex dissertation
-	pdflatex dissertation
+	xelatex -shell-escape dissertation
+	xelatex -shell-escape dissertation
 
 clean:
 	rm -f *.aux *.bbl *.blg *.log *.out *.toc

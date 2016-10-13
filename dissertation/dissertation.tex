@@ -14,23 +14,23 @@
   dans le langage naturel \\
   ~\\
   Effects and Handlers \\ in Natural Language}
-\ThesisDate{26 octobre 2016}
-\ThesisAuthor{Jirka Maršík}
+\ThesisDate{1 d\'ecembre 2016}
+\ThesisAuthor{Jirka Mar\v{s}\'ik}
 
 \ThesisUL
 
 \ClearJury
-\NewJuryCategory{Directeurs}{\textit{Directeur de thèse :}}{\textit{Directeurs de thèse :}}
-\NewJuryCategory{Codirecteurs}{\textit{Co-directeur de thèse :}}{\textit{Co-directeurs de thèse :}}
+\NewJuryCategory{Directeurs}{\textit{Directeur de th\`ese :}}{\textit{Directeurs de th\`ese :}}
+\NewJuryCategory{Codirecteurs}{\textit{Co-directeur de th\`ese :}}{\textit{Co-directeurs de th\`ese :}}
 \NewJuryCategory{Rapporteurs}{\textit{Rapporteur :}}{\textit{Rapporteurs :}}
 \NewJuryCategory{Examinateurs}{\textit{Examinateur :}}{\textit{Examinateurs :}}
 \Directeurs   = { DE GROOTE Philippe & Inria Nancy - Grand Est }
-\Codirecteurs = { AMBLARD Maxime & Université de Lorraine }
+\Codirecteurs = { AMBLARD Maxime & Universit\'e de Lorraine }
 \Rapporteurs  = { HERBELIN Hugo & Inria Paris - Rocquencourt \\
                   SHAN Chung-chieh & Indiana University }
 \Examinateurs = { BARKER Chris & New York University \\
-                  UNGER Christina & Universität Bielefeld \\
-                  VIGNERON Laurent & Université de Lorraine }
+                  UNGER Christina & Universit\"at Bielefeld \\
+                  VIGNERON Laurent & Universit\'e de Lorraine }
 
 \nthks
 
@@ -42,8 +42,9 @@
 
 
 \begin{ThesisDedication}
-Je dédie cette thèse\\
-à mes parents
+  \begin{czech}
+    Tuto práci věnuji \\ mým rodičům
+  \end{czech}
 \end{ThesisDedication}
 
 
@@ -59,7 +60,7 @@ Je dédie cette thèse\\
 \input{introduction}
 
 
-\part{Calculus for Effects and Handlers}
+\part{Calculus of Effects and Handlers}
 \label{part:calculus}
 
 \input{calculus-definitions}
@@ -71,7 +72,8 @@ Je dédie cette thèse\\
 \input{calculus-continuations}
 
 
-\part{Effects and Handlers \\ in Natural Language}
+\addtocontents{toc}{\protect\newpage}
+\part[Effects and Handlers in Natural Language]{Effects and Handlers \\ in Natural Language}
 \label{part:natural-language}
 
 \input{intro-fs}
@@ -84,6 +86,8 @@ Je dédie cette thèse\\
 
 \input{conclusion}
 
+
+\addtocontents{toc}{\protect\newpage}
 \bibliography{references}
 \bibliographystyle{plain}
 

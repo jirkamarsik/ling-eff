@@ -143,7 +143,7 @@ a lemma that will allow us to exploit the fact that we restrict ourselves
 to second-order types.
 
 \begin{lemma}\label{lem:second-order-no-abstractions}
-  (\demph{Second-order terms hide no abstractions})
+  \demph{Second-order terms hide no abstractions}
 
   Every $\beta$-normal term $\Gamma \vdash M : \tau$ of second-order type
   $\tau$ in the simply-typed lambda calculus is of the form
@@ -194,7 +194,7 @@ to second-order types.
 \end{proof}
 
 \begin{corollary}\label{cor:second-order-trees}
-  (\demph{Second-order terms are trees})
+  \demph{Second-order terms are trees}
   
   Assuming all constants are of second-order type, every closed term
   $\vdash M : \nu$ of atomic type $\nu$ has a $\beta$-normal form
@@ -220,7 +220,7 @@ to second-order types.
 \end{proof}
 
 \begin{observation}\label{obs:conservativity-lifting}
-  (\demph{Conservativity of lifting})
+  \demph{Conservativity of lifting}
   
   Let $\left< \Sigma_\petita, \Sigma_\petito, \sem{-}_\petitv, S \right>$
   be an ACG where every constant $c : \tau \in \Sigma_\petita$ is of at
@@ -577,7 +577,7 @@ $\app{\op{speaker}}{\star}{(\lam{x}{\etaE{(M(x))}})}$, i.e.\ a family which
 to every $x : \iota$ assigns an $M(x) : \alpha$. This connects us back to
 the treatment of deixis in Montague's approach~\cite{montague1973proper}
 where meanings are functions which assign to every point of reference $x$
-some referent $M(x)$. This normalization is imlemented by the
+some referent $M(x)$. This normalization is implemented by the
 $\withSpeaker$ handler. If we flip its arguments, getting
 ($\lam{M s}{\app{\withSpeaker}{s}{M}}$), we get a function of type
 $\FF_{\{ \typedop{speaker}{1}{\iota} \}}(\alpha) \to (\iota \to \alpha)$.

@@ -4,8 +4,6 @@
 * execution vs evaluation
 * mention destructors in the definitions chapter?
 * consistent capitalization
-* open handlers are to closed handlers what monad transformers are to
-  monads (cite Shan and Wu)
 * highlight stability in conclusion
 * mention how bothersome it is to embed static propositions into dynamic
   propositions
@@ -15,6 +13,8 @@
 * maybe ask for polymorphism in the conclusion...?
 * explain that introduce^i is fresh^i and push^i in the end
 * use parens around the elements of lists
+* free monads in conclusion
+* add normalization to future work
 
 Reading:
 * Look at some of the earlier work form Giorgolo and Asudeh

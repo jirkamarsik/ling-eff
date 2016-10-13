@@ -2805,55 +2805,51 @@ properties: the compositionality of the denotational semantics, which we
 preserve, and the fact that the individual reduction rules preserve
 denotations, which the $\to_;$ rule does by definition. The new
 construction and its reduction rule also preserve confluence and
-termination, as we will show below, and therefore they also preserve strong
-normalization.
+termination (w.r.t.\ $\poorcalc$), as we will show below, and therefore
+they also preserve strong normalization.
 
 \begin{notation}
   The \demph{$\calc^;$ calculus} is the $\calc$ calculus with the $M; N$
   construction and its reduction rule, $\to_;$.
 \end{notation}
 
+\begin{notation}
+  The \demph{$\calc_{-\CC}^;$ calculus} is the $\poorcalc$ calculus with
+  the $M; N$ construction and its reduction rule, $\to_;$.
+\end{notation}
+
 \begin{lemma}\label{lem:semibanana-termination}
-  (\demph{Termination of $\calc^;$})
+  \demph{Termination of $\calc^;$}
 
   The reduction relation $\to$ of $\calc^;$ is terminating.
 \end{lemma}
 
 \begin{proof}
-  We consider $\calc$ with the $M; N$ construction and the following two
-  reduction rules.
+  We consider $\poorcalc$ with the $M; N$ construction and the following
+  two reduction rules.
 
   \begin{align*}
     M; N &\to M \\
     M; N &\to N
   \end{align*}
 
-  This calculus, which we will call $\calc^{;\to}$, is not confluent but,
-  as we will show below, it is terminating. Since the reduction relation of
-  $\calc^;$ is a subset of the reduction relation of $\calc^{;\to}$, then
-  the reduction relation of $\calc^;$ will turn out to be terminating as
-  well.
+  This calculus, which we will call $\calc_{-\CC}^{;\to}$, is not confluent
+  but, as we will show below, it is terminating. Since the reduction
+  relation of $\calc_{-\CC}^;$ is a subset of the reduction relation of
+  $\calc_{-\CC}^{;\to}$, then the reduction relation of $\calc_{-\CC}^;$
+  will turn out to be terminating as well.
 
   For every type $\alpha$, we add a binary function symbol $(;_\alpha)$ of
-  type $\alpha \To \alpha \To \alpha$ and typed versions of the two
-  reduction rules above to the IDTS $\labidts$ from~\ref{sec:termination},
-  forming a new IDTS $\overline{\calc^{;\to}_\tau}$. Since we have added no
-  constructor symbols and the right-hand sides of the new reduction rules
-  use no function symbols (and therefore are not recursive), we still
-  validate the General Schema and Theorem~\ref{thm:labidts-termination}
-  holds for $\overline{\calc^{;\to}_\tau}$. From its
-  Corollary~\ref{cor:intcalc-termination}, we know that $\calc^{;\to}$
-  without $\eta$-reduction, $\calc^{;\to}_{-\eta}$, terminates.
-
-  We now need to show that adding $\eta$-reduction still preserves
-  termination. The original proof stood on Lemma~\ref{lem:eta-exchange},
-  which states that we can delay $\eta$-reduction until the very end of
-  evaluation and which relies on the idea that $\eta$-reduction never opens
-  up a new redex which would neccessitate the use of another rule. This is
-  still the case since $\eta$-reduction cannot make a new $;$-redex appear
-  without actually inserting a new semicolon and because the two reduction
-  rules for $M; N$ given above are not sensitive to the structure of $M$
-  and $N$.
+  type $\alpha \to \alpha \to \alpha$ and typed versions of the two
+  reduction rules above to the IDTS $\idts$ from
+  Section~\ref{sec:termination}, forming a new IDTS
+  $\calc^{;\to}_\tau$. Since we have added no constructor symbols and the
+  right-hand sides of the new reduction rules use no function symbols (and
+  therefore are not recursive), we still validate the General Schema and
+  Theorem~\ref{thm:idts-termination} holds for
+  $\calc^{;\to}_\tau$. Following the proof of
+  Theorem~\ref{thm:termination}, we know that $\calc_{-\CC}^{;\to}$
+  terminates.
 \end{proof}
 
 To prove that $\calc^;$ is confluent, we prove that $\to_;$ is confluent
@@ -3016,15 +3012,17 @@ in~\cite{klop1992term}.
 
 \begin{proof}
   Corollary of Lemma~\ref{lem:semicolon-confluent},
-  Lemma~\ref{lem:semicolon-commutes} and the Lemma of Hindley-Rosen.
+  Lemma~\ref{lem:semicolon-commutes} and the Lemma of Hindley-Rosen
+  (Lemma~\ref{lem:hindley-rosen}).
 \end{proof}
 
 \begin{theorem}
-  \demph{Strong normalization of $\calc^;$}
+  \demph{Strong normalization of $\calc_{-\CC}^;$}
 
-  $\calc^;$ is strongly normalizing, i.e.\ there are no infinite reduction
-  chains in $\calc^;$ and all maximal reduction chains originating in a
-  $\calc^;$ term $M$ terminate in the same term, the normal form of $M$.
+  $\calc_{-\CC}^;$ is strongly normalizing, i.e.\ there are no infinite
+  reduction chains in $\calc_{-\CC}^;$ and all maximal reduction chains
+  originating in a $\calc_{-\CC}^;$ term $M$ terminate in the same term,
+  the normal form of $M$.
 \end{theorem}
 
 \begin{proof}
@@ -3046,43 +3044,6 @@ projects presupposition as widely as possible without breaking variable
 binding. Our solution improves in some aspects on Lebedeva's work:
 
 \begin{itemize}
-\item The underlying calculus is strongly normalizing.
-
-  Lebedeva extends the simply-typed lambda-calculus with (unrestricted)
-  exceptions and the resulting calculus is non-terminating, as shown by
-  Lillibridge's encoding of recursive
-  types~\cite{lillibridge1995exceptions}. Our first attempt at formalizing
-  $\calc$ actually had the same deficiency and we were able to encode
-  recursive types using Lillibridge's method.\footnote{The non-terminating
-    $\calc$ assumed a global effect signature $E$ and used computation
-    types $\FF(\alpha)$ which all shared the effect signature $E$ (i.e.\
-    every $\FF(\alpha)$ was implicitly $\FF_E(\alpha)$). This was
-    problematic because one could use the type $\FF(\alpha)$ somewhere in
-    the type of one of the operations in $E$. This created a loop where $E$
-    explicitly referenced $\FF(\alpha)$ which implicitly referenced $E$ and
-    it is this loop which is exploited by Lillibridge's encoding of
-    recursive types. This no longer works in the version of $\calc$
-    presented in this manuscript since the type $\FF_E(\alpha)$ now has to
-    explicitly mention $E$ and if $E$ contains $\FF_E(\alpha)$, then it
-    leads to an infinite type. This was sufficient to make Lillibridge's
-    encoding impossible since we have proven $\calc$ terminating
-    in~\ref{sec:termination}.} Furthermore, when Lebedeva sketched out a
-  possible solution to the binding problem, she defined a recursive
-  function which was then part of the lexical semantic
-  entries.\footnote{The function in question is the $\textsf{iacc}$ handler
-    for intermediate accommodation from Definition~6.29. This handler is
-    part of the definition of the dynamic existential quantifier, which is
-    the only operator using which new variables are introduced.} This is
-  also problematic since general recursion precludes termination. Our
-  calculus gets around this by relying on inductive types to provide a
-  limited form of recursion which can be proven terminating.
-
-  The $\calc$ calculus, as it is presented in this manuscript, is
-  terminating and strongly normalizing, while still allowing us to
-  implement the accommodation strategy used by van der
-  Sandt~\cite{van1992presupposition} and
-  Lebedeva~\cite{lebedeva2012expression}.
-
 \item Our analysis fixes a bug which allowed presupposition triggers to
   bind pronouns preceding them.
 
