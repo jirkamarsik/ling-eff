@@ -14,11 +14,11 @@ effects at the same time.
 \chapter{Introduction to Formal Semantics}
 \label{chap:intro-fs}
 
-Semantics is the study of the meaning of language. In this Chapter, we will
+Semantics is the study of the meaning of language. In this chapter, we will
 review the very basics of a school of formal semantics which originated
 with Richard Montague in the early
 70's~\cite{montague1970english,montague1970universal,montague1973proper}~(\ref{sec:montague}). We
-then present a formalism that embodies the principles of montagovian
+will then present a formalism that embodies the principles of montagovian
 semantics, the Abstract Categorial
 Grammars~\cite{de2001towards}~(\ref{sec:acg}). In
 Chapter~\ref{chap:dynamic-semantics}, we will be analyzing anaphora in
@@ -35,7 +35,7 @@ Logic~\cite{de2006towards,lebedeva2012expression}~(\ref{sec:ttdl}).
 \label{sec:montague}
 
 When studying semantics, one of the verifiable predictions that we can make
-is whether the contents of one utterance entails the contents of
+is whether the contents of one utterance entail the contents of
 another. This issue already preoccupied Aristotle, who addressed the
 problem in his study of syllogisms. Using his theory, Aristotle could
 systematically predict that the contents of
@@ -78,7 +78,7 @@ strategy to natural language~\cite{montague1973proper}.
 \subsection{Syntax}
 \label{ssec:montague-syntax}
 
-Contrary to propositional language, whose language is made only of
+Contrary to propositional logic, whose language is made only of
 propositions, the set of which is given inductively, natural language
 expressions fall into many syntactic categories. Montague therefore defines
 the expressions of a language as a family of sets, indexed by
@@ -105,7 +105,7 @@ following four:
 Having established the categories, we will now give some of the
 construction rules in Montague's grammar. The sets $P_A$ of phrases of
 category $A$ are defined as the smallest sets being closed on the following
-constructions rules (taken almost verbatim from~\cite{montague1973proper}):
+construction rules (taken almost verbatim from~\cite{montague1973proper}):
 
 \begin{description}
 \item[S1] $B_A \subseteq P_A$ for every category $A$.
@@ -148,7 +148,7 @@ constructions rules (taken almost verbatim from~\cite{montague1973proper}):
 \item[S5] If $\delta \in P_{IV / T}$\footnote{i.e.\ $\delta \in P_{TV}$}
   and $\beta \in P_{T}$, then $F_5(\delta, \beta) \in P_{IV}$, where
   $F_5(\delta, \beta) = \delta \beta$ if $\beta$ does not have the form
-  $\textbf{he}_n$ and $F_5(\delta, \textbf{he}_n) = \textbf{him}_n$.
+  $\textbf{he}_n$, and $F_5(\delta, \textbf{he}_n) = \textbf{him}_n$.
 
 \item[S14] If $\alpha \in P_{T}$ and $\phi \in P_{t}$, then
   $F_{10,n}(\alpha, \phi) \in P_{t}$, where either:
@@ -247,27 +247,27 @@ which conditions (i.e.\ in which world or model) the sentence is true.
 
 Methodologically, Montague first proposes introducing a formal logic (an
 artificial language) that is suitable to describe the truth conditions of
-the natural language under study. Instead of computing directly the
-truth value of a sentence in a model, Montague translates sentences of
-natural language into this formal logic. In~\cite{montague1973proper}, this
-formal logic is a higher-order tensed intensional logic with the standard
-logical connectives, quantifiers over objects of any type, the modal
-operator of necessity $\Box$ and the past and future modalities $H$ and
-$W$. The modalities and the tenses were introduced by Montague to model
-specific problems in the semantics of a natural language (intensional verbs
-and tensed verbs). These phenomena will not feature in the small extract
-from his fragment that we will demonstrate here and therefore we will
-simplify Montague's approach to use plain higher-order logic (i.e.\ lambda
-calculus).
+the natural language under study. Instead of computing directly the truth
+value of a sentence in a model, Montague translates sentences of natural
+language into this formal logic. In~\cite{montague1973proper}, this formal
+logic is a higher-order tensed intensional logic with the standard logical
+connectives, quantifiers over objects of any type, the modal operator of
+necessity $\Box$ and the past and future modalities $H$ and $W$. The
+modalities and the tenses were introduced by Montague to model specific
+problems in the semantics of a natural language (intensional verbs and
+tensed verbs). These phenomena will not feature in the small extract from
+his fragment that we will demonstrate here and therefore we will simplify
+Montague's approach to use plain higher-order logic (i.e.\ the
+$\lambda$-calculus).
 
 We establish the meaning of a sentence by translating it to a corresponding
 formula in higher-order logic (a term of type $t$) whose meaning will
 become the meaning of the sentence. However, the expressions of our
 language are composed not only of sentences ($P_t$), but also of noun
 phrases ($P_T$), common nouns ($P_{CN}$), transitive verbs ($P_{TV}$)
-\ldots We will interpret these as terms of higher-order logic of different
-types. The scheme that connects the syntactic categories to the types of
-interpretations is given below:
+$\ldots$ We will interpret these as terms of higher-order logic of
+different types. The scheme that connects the syntactic categories to the
+types of interpretations is given below:
 
 \begin{align*}
   &f(t) = t \\
@@ -404,9 +404,9 @@ This completes the definition of the semantics for our fragment. We can now
 use it to find the meanings of expressions described by our grammar. In the
 previous subsection, we have seen two derivations of the surface form of
 the sentence $\textbf{every man loves a unicorn}$. We can now use the
-semantics to show the translations into higher-order side-by-side with the
-surface form realizations. First, we get the subject-wide scope reading of
-the sentence:
+semantics to show the translations into higher-order logic side-by-side
+with the surface form realizations. First, we get the subject-wide scope
+reading of the sentence:
 
 \begin{center}
 \begin{tikzpicture}[sibling distance=1cm,level distance=2cm]
@@ -476,8 +476,8 @@ reappear in current formulations of Montague's approach:
 \item The meaning of a sentence is described in a formal logic. The
   interpretation of a sentence is then realized by translating sentences of
   the natural language to formulas of the logic.
-\item Sentences are built out of constituents which do not all denote
-  truth values (e.g.\ verb phrases denote predicates). Lambda calculus is
+\item Sentences are built out of constituents which do not all denote truth
+  values (e.g.\ verb phrases denote predicates). The $\lambda$-calculus is
   used to glue the meanings of all the constituents together. This usually
   means that the logic in which we interpret natural language is
   higher-order logic.
@@ -502,9 +502,9 @@ formalism which makes it easy to define Montague-like semantics for
 fragments of natural languages~\cite{de2001towards}. It is this formalism
 that we will be using in the second part of this manuscript and so we will
 dedicate this section to a brief introduction. We start by presenting the
-formal definition and then we see an example of analyzing the syntax and
-the semantics of a fragment similar to the one we have seen in the Montague
-example in~\ref{sec:montague}.
+formal definition and then we look at an example of analyzing the syntax
+and the semantics of a fragment similar to the one we have seen in the
+Montague example in~\ref{sec:montague}.
 
 
 \subsection{Definition}
@@ -604,9 +604,9 @@ notion of interpreting derivations.
 \end{definition}
 
 With these definitions in place, we can start tracing the parallels between
-Montague's grammar and ACGs. The deep syntactic structure is represented by
-a higher-order signature $\Sigma_1$. Its constants are the basic
-expressions and the syntactic construction rules from
+Montague's grammar and ACGs. The level of deep syntactic structure is
+represented by a higher-order signature $\Sigma_1$. Its constants are the
+basic expressions and the syntactic construction rules from
 Subsection~\ref{ssec:montague-syntax} and its types are the categories. The
 types of the construction rules reflect the types of the constituents and
 of the resulting complex expression. For example, the construction rule
@@ -753,13 +753,13 @@ signature:
   \lexsynt{unicorn}{\text{unicorn}}
 \end{align*}
 
-These two signatures, the lexicon and the distinguished type $S$ form
-together an ACG.\@ The abstract language of this ACG generates syntactic
+These two signatures, the lexicon and the distinguished type $S$ together
+form an ACG.\@ The abstract language of this ACG generates syntactic
 derivations, such as the terms $t_1$ and $t_2$ given below.
 
 \begin{align*}
-  &t_1 = \app{\abs{every}}{\abs{man}}{(\lam{x}{\app{\abs{a}}{\abs{unicorn}}{(\lam{y}{\app{\abs{love}}{x}{y}})}})} \\
-  &t_2 = \app{\abs{a}}{\abs{unicorn}}{(\lam{y}{\app{\abs{every}}{\abs{man}}{(\lam{x}{\app{\abs{love}}{x}{y}})}})}
+  &t_1 = \app{\abs{every}}{\abs{man}}{(\lam{x}{\app{\abs{a}}{\abs{unicorn}}{(\lam{y}{\app{\abs{love}}{y}{x}})}})} \\
+  &t_2 = \app{\abs{a}}{\abs{unicorn}}{(\lam{y}{\app{\abs{every}}{\abs{man}}{(\lam{x}{\app{\abs{love}}{y}{x}})}})}
 \end{align*}
 
 The object language contains strings which are the surface realizations of
@@ -781,8 +781,8 @@ by the fact that there exist multiple derivations which all yield the same
 surface realization. Furthermore, Montague noted that in his grammar, there
 is an infinity of derivations for this sentence, though their differences
 are unimportant (they are all essentially equivalent to one of the two
-analyses that we have). In ACGs, this notion is made precise. The sentence
-above also has an infinity of possible derivations (e.g.\
+analyses that we have here). In ACGs, this notion is made precise. The
+sentence above also has an infinity of possible derivations (e.g.\
 $\app{\abs{every}}{\abs{man}}{(\lam{x}{\app{\abs{a}}{\abs{unicorn}}{(\ap{\abs{love}}{x})}})}$). However,
 every such derivation is $\beta\eta$-equivalent to either $t_1$ or $t_2$,
 whereas $t_1$ and $t_2$ are not $\beta\eta$-equivalent (they have different
@@ -833,7 +833,7 @@ in the interpretations. This is a liberty that we will take when dealing
 with semantic lexicons. The calculus into which we will be translating will
 not always be the linear $\lambda$-calculus. It will suffice for it to be
 any calculus which includes the simply-typed (linear)
-$\lambda$-calculus. The simply-typed lambda calculus, which we will make
+$\lambda$-calculus. The simply-typed $\lambda$-calculus, which we will make
 use of in this interpretation, is one such calculus. $\calc$, which we will
 use in the upcoming chapters, is another.
 
@@ -955,7 +955,7 @@ the sentence's truth conditions.
 
 Furthermore, the contribution of a sentence can be more complicated than
 conjoining a new proposition to the logical representation of the preceding
-course. Let us consider the an example from~\cite{kamp1993discourse}
+discourse. Let us consider an example from~\cite{kamp1993discourse}
 (Example~(1.28), Section~1.1.3):
 
 \begin{exe}
@@ -973,7 +973,7 @@ refers to the indefinite from the first sentence. We would therefore like
 the referent of the pronoun to co-vary with the referent of the
 indefinite. However, the variable $x$ which designates the referent of the
 indefinite is not in scope of the second sentence. Instead of just
-conjoining the two propositions, we would like to insert the propositions
+conjoining the two propositions, we would like to insert the proposition
 under the scope of the existential quantifier contributed by the indefinite
 of the first sentence.\footnote{We can also think of this as extending the
   existential quantification from the first sentence to cover the second
@@ -981,7 +981,8 @@ of the first sentence.\footnote{We can also think of this as extending the
 
 These issues with anaphora are not limited to examples that span multiple
 sentences. We can see the same phenomenon in the single-sentence
-Example~\ref{ex:donkey-rc} and its paraphrase in~\ref{ex:donkey-if}.
+Example~\ref{ex:donkey-rc} and its paraphrase in
+Example~\ref{ex:donkey-if}.
 
 \begin{exe}
   \ex Every farmer who owns a donkey$_1$ beats it$_1$. \label{ex:donkey-rc} \\
@@ -1024,8 +1025,8 @@ quantifiers contributed by the indefinites.
 
 When Montague wanted to treat intensional and tensed verbs in his fragment,
 he decided to translate natural language to a formal logic which was
-intensional and tensed. A similar thing happened with dynamic phenomena in
-natural language (anaphora) and the development of dynamic
+intensional and tensed. A similar strategy was employed by semanticists who
+studied dynamic phenomena (such as anaphora) and developed their dynamic
 logics~\cite{groenendijk1991dynamic,kamp1993discourse,de2006towards,lebedeva2012expression}. In
 dynamic logic, $(\exists x.\, A) \land B$ becomes equivalent to
 $(\exists x.\, A \land B)$ and $(\exists x.\, A) \to B$ becomes equivalent
@@ -1041,12 +1042,12 @@ briefly introduce DRT and in the next, we talk about TTDL.
 
 
 \subsection{Discourse Representation Structures}
-\label{sec:drt-drses}
+\label{sec:drt-drss}
 
 In DRT, sentences contribute to the construction of a \emph{Discourse
-  Representation Structure} (DRS). This structure serve at the same time as
-the representation of the \emph{content} of the discourse and also as the
-\emph{context} in which any subsequent discourse is evaluated.
+  Representation Structure} (DRS). This structures serve at the same time
+as the representation of the \emph{content} of the discourse and also as
+the \emph{context} in which any subsequent discourse is evaluated.
 
 We begin the formal definition by assuming an infinite set $\DD$ of
 \emph{discourse referents}. These are just like the variables of
@@ -1157,14 +1158,14 @@ the accessibility relation.
 
 The result of interpreting a discourse in DRT is a DRS.\@ Our interest in
 interpreting natural language is to be able to recover the truth conditions
-of a linguistic utterance. Therefore, we need a way of how to read off the
-truth conditions of a discourse from a DRS.\@ We find that the most
-instructive way to give a formal semantics to DRT is to give a translation
-to an already established logic. In the case of our formalization of DRT,
-we will be translating DRSs and DRS conditions to first-order
-logic.\footnote{There exist varieties of DRT that are more complex and
-  might include, e.g., modal operators. There, it might be necessary to
-  translate to some other logic.}
+of a linguistic utterance. Therefore, we need a way to read off the truth
+conditions of a discourse from a DRS.\@ We find that the most instructive
+way to give a formal semantics to DRT is to give a translation to an
+already established logic. In the case of our formalization of DRT, we will
+be translating DRSs and DRS conditions to first-order logic.\footnote{There
+  exist varieties of DRT that are more complex and might include, e.g.,
+  modal operators. There, it might be necessary to translate to some other
+  logic.}
 
 \begin{definition}
   We define a \demph{mapping $\fo{(\_)}$ from DRSs and DRS conditions to
@@ -1187,10 +1188,10 @@ the scope of the existential quantifiers introduced by the universe of the
 DRS.\@ This intuitively corresponds to the
 $(\exists x.\, A) \land B = (\exists x.\, A \land B)$ law of dynamic
 logic. Furthermore, any (existentially quantified) variables contributed by
-a DRS which acts as an antecedent in an implication take scope over the
-consequent of the implication using universal quantification. This is a
-realization of the $(\exists x.\, A) \to B = (\forall x.\, A \to B)$ law of
-dynamic logic.
+a DRS which acts as an \emph{antecedent} in an implication take scope over
+the \emph{consequent} of the implication using universal
+quantification. This is a realization of the
+$(\exists x.\, A) \to B = (\forall x.\, A \to B)$ law of dynamic logic.
 
 We can now retrieve the truth conditions of the DRS that we have computed
 in the previous subsection.
@@ -1266,7 +1267,7 @@ we define formally along with the notion of DRS
 \begin{definition}
   An occurrence of a DRS $K_i = \left< U_i, C_i \right>$ and the discourse
   referents from its universe $U_i$ are \demph{accessible} to an occurrence
-  of a DRS $K_j$ if and only if $K_j$ is subordinate to $K_i$.
+  of a DRS $K_j$ if and only if $K_j$ is weakly subordinate to $K_i$.
 \end{definition}
 
 The definition of subordination can be summed up by saying that a DRS
@@ -1293,10 +1294,11 @@ translation of $K$ falls within the scope of the quantifier of $x$.
 In the above, $x$ and $y$, the discourse referents of $K_1$, are available
 to $K_2$. Therefore, the occurrences of $x$ and $y$ in $K_2$ are
 bound. However, $x$ and $y$ are not available to $K_0$. This means that if
-we were to continue the discourse with the sentence \emph{he is cruel}, we
-could not interpret the pronoun \emph{he} as referring to the farmer $x$
-since new contribution are added to the main DRS $K_0$. This correctly
-predicts the infelicity of the discourse in Example~\ref{ex:donkey-cruel}.
+we were to continue the discourse in Example~\ref{ex:donkey-rc} with the
+sentence \emph{he is cruel}, we could not interpret the pronoun \emph{he}
+as referring to the farmer $x$ since new contributions are evaluated within
+the main DRS $K_0$. This correctly predicts the infelicity of the discourse
+in Example~\ref{ex:donkey-cruel}.
 
 \begin{exe}
   \ex[*]{Every farmer$_1$ who owns a donkey$_2$ beats it$_2$. He$_1$ is cruel. \label{ex:donkey-cruel}}
@@ -1312,7 +1314,7 @@ and universal quantification are expressed in terms of conjunction,
 negation and existential quantification, which are primitive. In DRT, we
 can do something similar and reduce the $\Rightarrow$ connective (which
 plays the role of implication and universal quantification) and the $\lor$
-connective of disjunction to the other primitives.
+connective to the other primitives.
 
 \begin{align*}
 \drs{$x_1$ \ldots\ $x_n$}{
@@ -1362,7 +1364,7 @@ Type-Theoretic Dynamic Logic (TTDL). TTDL aims to reproduce the predictions
 of DRT and dynamic semantics while using only standard logical
 tools. Unlike DPL and DRT, there is no need to introduce a new logic with
 non-standard notions of binding and scope. Meanings are represented as
-functions and propositions in the simply-typed lambda calculus (i.e.\
+functions and propositions in the simply-typed $\lambda$-calculus (i.e.\
 higher-order logic) and their composition does not necessitate the use of
 any special primitive operator (such as the merge operator on
 DRSs~\cite{muskens1996combining}).
@@ -1472,8 +1474,8 @@ continuation $\lam{e}{\top}$, where $\top$ is a tautology).
 \end{align*}
 
 We can define a combinator $\static$ which will map dynamic propositions to
-static ones by interpreting in the empty contexts. Applying this combinator
-to the dynamic proposition that is the meaning of
+static ones by interpreting them in the empty context. Applying this
+combinator to the dynamic proposition that is the meaning of
 Example~\ref{ex:jones-porsche} gives us the desired truth conditions.
 
 $$
@@ -1542,17 +1544,17 @@ $D$ and combinators $\eta$ and $\hsbind$:
 These operations satisfy all three of the monad laws. The $D$ monad
 characterizes computations that have read/write access to some state of
 type $\gamma$ and can manipulate their continuation of type $o$. We can
-actually derive as the combination of the state monad and the continuation
-monad using monad transformers. Let $S$ be the state monad which maps the
-type $\alpha$ to the type $\gamma \to (\alpha \times \gamma)$. This is the
-monad that underlies state, such as the storing and retrieving of discourse
-referents. There exists also a monad transformer $S^T$ which maps monads
-$F$ into monads $S(F)$ that enrich the structure of $F$ with state. The
-monad $S(F)$ maps the type $\alpha$ to the type
-$\gamma \to F(\alpha \times \gamma)$. Let $C$ be the continuation monad
-which maps the type $\alpha$ to the type $(\alpha \to o) \to o$. By
-applying the $S$ monad transformer to the $C$ monad, we get a monad $S(C)$
-that maps the type $\alpha$ to the type
+actually derive $D$ as the combination of the state monad and the
+continuation monad using monad transformers. Let $S$ be the state monad
+which maps the type $\alpha$ to the type
+$\gamma \to (\alpha \times \gamma)$. This is the monad that underlies
+state, such as the storing and retrieving of discourse referents. There
+exists also a monad transformer $S^T$ which maps monads $F$ into monads
+$S(F)$ that enrich the structure of $F$ with state. The monad $S(F)$ maps
+the type $\alpha$ to the type $\gamma \to F(\alpha \times \gamma)$. Let $C$
+be the continuation monad which maps the type $\alpha$ to the type
+$(\alpha \to o) \to o$. By applying the $S$ monad transformer to the $C$
+monad, we get a monad $S(C)$ that maps the type $\alpha$ to the type
 $\gamma \to ((\alpha \times \gamma) \to o) \to o$. This type is isomorphic
 to the type $D(\alpha) = \gamma \to (\alpha \to \gamma \to o) \to o$ by
 currying.
@@ -1623,9 +1625,9 @@ the abstract syntactic types to the lexical items in our fragment.
 Next, we identify the types of interpretations that we will use.
 
 \begin{align*}
-  \sem{S} = \Omega \\
-  \sem{N} = \iota \to \Omega \\
-  \sem{NP} = (\iota \to \Omega) \to \Omega
+  \sem{S} &= \Omega \\
+  \sem{N} &= \iota \to \Omega \\
+  \sem{NP} &= (\iota \to \Omega) \to \Omega
 \end{align*}
 
 Sentences will denote dynamic propositions, nouns will denote dynamic
@@ -1652,7 +1654,7 @@ refer to. However, the proper noun $\abs{Mary}$ takes advantage of the
 continuation $P$ to access the context $e$ and modify it to include the
 discourse referent for Mary in the following context. Similarly, the
 pronoun $\abs{she}$ uses the continuation $P$ to access the context $e$ and
-find within a suitable referent. The denotations for the determiners
+find within it a suitable referent. The denotations for the determiners
 $\abs{a}$ and $\abs{every}$ are the same as the ones we have seen
 in~\ref{ssec:acg-semantics}, only the classical logical operators have been
 replaced with the dynamic ones from~\ref{ssec:ttdl-logic}. The lexical

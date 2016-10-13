@@ -1,12 +1,16 @@
 \chapter{Continuations}
 \label{chap:continuations}
 
-In this chapter, we will show the connection between calculi containing
-operators for delimited control and our $\banana{\lambda}$
-calculus. Throughout the chapter, we will introduce different calculi and
-map their terms and reduction relations onto the reduction relation of
-$\banana{\lambda}$. For one of the calculi with delimited control, we also
-introduce a type system which is a simplification of the one found
+Continuations are a fundamental notion in computer science. They subsume
+all of the monadic structures that we are interested
+in~\cite{filinski1994representing} and they are central to the meaning of
+linguistic expressions~\cite{barker2014continuations}. In this chapter, we
+will show the connection between calculi containing operators for
+manipulating continuations and our $\banana{\lambda}$ calculus. Throughout
+the chapter, we will introduce different calculi and map their terms and
+reduction relations onto the terms and reduction relation of
+$\banana{\lambda}$. For one of the calculi with control operators, we also
+introduce a type system, which is a simplification of the one found
 in~\cite{danvy1989functional} and we map it onto the type system of
 $\banana{\lambda}$. See Figure~\ref{fig:continuation-plan} for a high-level
 look at the structure of the chapter.
@@ -22,7 +26,8 @@ look at the structure of the chapter.
     \draw[very thick] (lambda) -- (split);
     \draw[->,very thick] (split) -| (shift);
     \draw[->,very thick] (split) -| (shift0);
-    \draw[->,dashed] (lambda) .. controls +(-30:2) and +(190:2) .. (banana) node[midway,above]{(\ref{sec:simulating-cbv})};
+    \draw[->,dashed] (lambda) .. controls +(0:2) and +(160:2) .. (banana) node[midway,above]{(\ref{sec:simulating-cbv})};
+    \draw[->,dotted] (lambda) .. controls +(-45:1.5) and +(-160:1.5) .. (banana) node[midway,below]{(\ref{sec:simulating-cbv})};
     \draw[->,dashed] (shift0) .. controls +(-15:2.5) and +(270:1.5) .. (banana) node[midway,below]{(\ref{sec:simulating-shift0})};
     \draw[->,dashed] (shift) .. controls +(-10:1.5) and +(190:1.5) .. (shift0) node[midway,below]{(\ref{sec:turning-to-shift})};
     \draw[->,dotted] (shift) .. controls +(-40:5) and +(-50:3.5) .. (banana) node[midway,below]{(\ref{sec:considering-types})};
@@ -183,6 +188,9 @@ reduction chain $\sem{M} \tto \sem{N}$ in $\banana{\lambda}$. We start by
 proving $\sem{\ap{(\lam{x}{M})}{V}} \tto \sem{\subst{M}{x}{V}}$.
 
 \begin{property}
+  Let $M$ be a $\lambda_v$ term and $V$ a $\lambda_v$ value. Then the
+  following reduction chain exists in $\calc$:
+  
   $\sem{\ap{(\lam{x}{M})}{V}} \tto \sem{\subst{M}{x}{V}}$
 \end{property}
 
@@ -210,12 +218,12 @@ $\beta$. On line 5, we finally get to the point where we perform the
 $\banana{\lambda}$ $\beta$-reduction that actually corresponds to the
 $\lambda_v$ $\beta$-reduction that we are modelling.
 
-Finally, on line 6, we push the substitution under the $\sem{.}$
-operator. This is valid, since any free $x$ in $\sem{M}$ must have
-originated as a translation of a free $x$ in $M$. In the first expression,
-such an $x$ would get interpreted as $\ap{\eta}{x}$ and then $x$ would get
-replaced with $v$ to get $\ap{\eta}{v}$. In the second expression, the $x$
-would first get replaced by $V$ and then $V$ would be interpreted as
+On line 6, we push the substitution under the $\sem{.}$ operator. This is
+valid, since any free $x$ in $\sem{M}$ must have originated as a
+translation of a free $x$ in $M$. In the first expression, such an $x$
+would get interpreted as $\ap{\eta}{x}$ and then $x$ would get replaced
+with $v$ to get $\ap{\eta}{v}$. In the second expression, the $x$ would
+first get replaced by $V$ and then $V$ would be interpreted as
 $\ap{\eta}{v}$. In both cases, we get the same result.
 
 \end{proof}
@@ -228,10 +236,10 @@ $C[\ap{(\lam{x}{M})}{V}] \to C[\subst{M}{x}{V}]$. Nevertheless, our
 calculus is pure and lets us perform reductions in any syntactic context
 (see the notion of context closure from~\ref{sec:reductions}). This means
 that whenever we have $\sem{M} \to \sem{N}$, we also always have
-$\sem{C}[\sem{M}] \to \sem{C}[\sem{N}]$\footnote{We have not defined the
+$\sem{C}[\sem{M}] \to \sem{C}[\sem{N}]$,\footnote{We have not defined the
   $\sem{.}$ interpretation operator for contexts. Contexts are simply terms
-  with a $[]$ inside so we just extend the $\sem{.}$ for terms with the
-  clause $\sem{[]} = []$.}, which is the same as
+  with a $[]$ inside and so we just extend the $\sem{.}$ interpretation of
+  terms with the clause $\sem{[]} = []$.} which is the same as
 $\sem{C[M]} \to \sem{C[N]}$.
 
 \begin{corollary}
@@ -239,22 +247,21 @@ $\sem{C[M]} \to \sem{C[N]}$.
   have that $\sem{M} \tto \sem{N}$ in $\banana{\lambda}$.
 \end{corollary}
 
-We have shown that our translations \emph{preserves} reduction chains. Can
+We have shown that our translation \emph{preserves} reduction chains. Can
 we get anything stronger?
 
-The inverse is not true in this case. Consider the example of $M =
-\lam{x}{(\ap{(\lam{y}{y})}{x})}$ and $N = \lam{x}{x}$. If we take $\sem{M}$
-and perform some reductions, we arrive at
+The inverse is not true in this case. Consider the example of
+$M = \lam{x}{(\ap{(\lam{y}{y})}{x})}$ and $N = \lam{x}{x}$. If we take
+$\sem{M}$ and perform some reductions, we arrive at
 $\ap{\eta}{(\lam{x}{\ap{\eta}{x}})}$. However, this is equal to $\sem{N}$
 and so we have $\sem{M} \tto \sem{N}$. This is the case even though $M$
 does not reduce to $N$ in $\lambda_v$ ($\lambda_v$ does not allow
-reductions inside a $\lambda$-abstraction, even if they are benign). Our
-interpretation will end up licencing an equality between $M$ and $N$ even
-though the language we were modelling ($\lambda_v$) does not equate them
-(in a way, this interpretation is complete but not sound). While this makes
-the interpretation less appealing, we still elaborate it because it is
-instructive in showing the similarity between delimited control and effect
-handlers.
+reductions inside a $\lambda$-abstraction). Our interpretation will end up
+licencing an equality between $M$ and $N$ even though the language we were
+modelling ($\lambda_v$) does not equate them (in a way, this interpretation
+is complete but not sound). While this makes the interpretation less
+appealing, we still elaborate it because it is instructive in showing the
+similarity between delimited control and effect handlers.
 
 To conclude this section, we have defined a translation from $\lambda_v$
 to $\banana{\lambda}$ and proven that it preserves types and
@@ -267,8 +274,11 @@ $\lambda_v$ in an untyped version of $\banana{\lambda}$.
 
 Now that we have introduced how a $\lambda$-calculus with a notion of
 evaluation order is to be interpreted in $\banana{\lambda}$, we are ready
-to introduce control operators. Our claim is that effects and handlers are
-very close to delimited continuations. The pair of operators that resembles
+to introduce control operators. Our claim is that the effects and handlers
+of $\calc$ are very close to delimited continuations.\footnote{This analogy
+  originates with Andrej Bauer who says that effects and handlers are to
+  delimited continuations what while loops or if-then-else statements are
+  to gotos~\cite{bauer2012lambda}.} The pair of operators that resembles
 the behavior of handlers the most are the operators $\shifto$ and
 $\reseto$.
 
@@ -337,9 +347,9 @@ frame which separates the $\shifto$ from the nearest enclosing
 $\reseto$. The only role of $\reseto$ is thus to serve as a kind of marker
 to delimit the context/continuation $F$ of $\shifto$. The argument to
 $\shifto$ then receives this continuation $F$, composed with $\reseto$, as
-its argument\footnote{You may already start to see similarities with the
+its argument.\footnote{You may already start to see similarities with the
   $\banana{\op{op}}$ rule of $\banana{\lambda}$ and why we chose $\shifto$
-  and $\reseto$ in particular.}.
+  and $\reseto$ in particular.}
 
 \section{Simulating $\shifto$ and $\reseto$}
 \label{sec:simulating-shift0}
@@ -376,22 +386,21 @@ translated into handlers, i.e.\ $\sem{\ap{\texttt{op}}{M}} =
 To show that this simulation is faithful, we will prove that $M \to N$ in
 $\lambda_{\shifto}$ implies $\sem{M} \ttoffrom \sem{N}$ in
 $\banana{\lambda}$. $\sem{M} \ttoffrom \sem{N}$ says that we can go from
-$\sem{M}$ to $\sem{N}$ through a series of reductions and
-expansions\footnote{We will need the expansions when ``unevaluating'' some
-  of the monadic binds that have been introduced by our translations.}. In
-this case, our simulation property will prove that equivalence given by the
-calculus' equational theory is preserved
-% \footnote{Such a one-sided property
-%   is also satisfied by trivial interpretations so the property itself does
-%   not do the interpretation justice. In other words, this interpretation is
-%   complete but not sound (consider already the $\lambda_v$ example towards
-%   the end of \ref{sec:simulating-cbv}). \TODO{Is there some better
-%     characterization of this kind of simulation? Check out Plotkin's
-%     seminal paper on Call-by-value, call-by-name and the
-%     lambda-calculus.}}
-, i.e.\ $M = N$ in $\lambda_\shifto$ implies $\sem{M}
-= \sem{N}$ in $\banana{\lambda}$ (where $X = Y$ is to be read as $X
-\ttoffrom Y$).
+$\sem{M}$ to $\sem{N}$ through a series of reductions and expansions, i.e.\
+$\sem{M}$ and $\sem{N}$ are convertible.\footnote{We will need the
+  expansions when ``unevaluating'' some of the monadic binds that have been
+  introduced by our translations.} In this case, our simulation property
+will prove that equivalence given by the calculus' equational theory is
+preserved,
+% \footnote{Such a one-sided property is also satisfied by trivial
+% interpretations so the property itself does not do the interpretation
+% justice. In other words, this interpretation is complete but not sound
+% (consider already the $\lambda_v$ example towards the end of
+% \ref{sec:simulating-cbv}). Is there some better characterization of this
+% kind of simulation? Check out Plotkin's seminal paper on Call-by-value,
+% call-by-name and the lambda-calculus.}
+i.e.\ $M = N$ in $\lambda_\shifto$ implies $\sem{M} = \sem{N}$ in
+$\banana{\lambda}$ (where $X = Y$ is to be read as $X \ttoffrom Y$).
 
 \begin{property}
   Let $M$ and $N$ be terms of $\lambda_\shifto$. If $M \to N$, then
@@ -454,7 +463,7 @@ handler's argument, we can apply the $\banana{\op{op}}$ rule on line
 disappears on line 4 after two $\beta$-reductions.
 
 From then on, we perform a series of expansions while trying to push the
-interpretation operator $\sem{.}$ outwards from just $F[x]$ to the entire
+interpretation operator $\sem{.}$ outwards from $F[x]$ to the entire
 expression. The expansions used above are a reversal of a common idiom we
 have used before. We used to go from $(\ap{\eta}{M}) \hsbind (\lam{m}{N})$
 to $\subst{N}{m}{M}$ using $\eta.\hsbind$ and then a
@@ -489,7 +498,7 @@ focus of this section, but it also gives us more insight into
 $\banana{\lambda}$. If we read it from right to left and slightly
 generalizing, it tells us how to think of terms of the form
 $(\app{\op{op}}{x}{k})$. They represent computations where the next point
-of evaluation is a contextually dependent operation $\op{op}$. $x$ is the
+of evaluation is a contextually dependent operation $\op{op}$: $x$ is the
 operation's argument and $k$ captures the context in which $\op{op}$ is
 being used inside the computation.
 
@@ -511,7 +520,7 @@ with the base case, $F = []$.
 \setcounter{equation}{0}
 \ChapterPrefix
 
-The individual steps are pretty self-explanatory.On line 4, we expand the
+The individual steps are pretty self-explanatory. On line 4, we expand the
 definition of the exclamation mark from~\ref{ssec:operations-and-handlers}.
 
 Next case, $F = (\ap{F'}{M})$:
@@ -628,16 +637,15 @@ We will do so by first translating $\lambda_\shift$ to $\lambda_\shifto$.
 
 NB: We cannot use
 $(\ap{\shifto}{(\lam{k}{\ap{\reseto}{(\ap{\semo{M}}{k})}})})$ for the
-interpretation of $(\ap{\shift}{M})$. That would result in
+interpretation of $\sem{\ap{\shift}{M}}$. That would result in
 $\semo{(\ap{\shift}{[]})}$ being equal to
 $(\ap{\shifto}{(\lam{k}{\ap{\reseto}{(\ap{[]}{k})}})})$. The problem here
 is that $(\ap{\shift}{[]})$ is an evaluation frame in $\lambda_\shift$, but
 its interpretation is not even an evaluation context in $\lambda_\shifto$
 since the $[]$ is buried under a $\lambda$-abstraction.
 
-To see that this kind of interpretation preserves the same kind of property
-we have been demonstrating in the rest of this section, we prove the
-following.
+To see that this interpretation preserves the same kind of property we have
+been demonstrating in the rest of this section, we prove the following.
 
 \begin{property}
   \label{prop:simul-semo}
@@ -720,7 +728,9 @@ $\banana{\op{op}'}$). It is therefore an identity function on
 computations. However, the most general type that we can infer for
 $\banana{}$ is $\FF_E(\alpha) \to \FF_{E'}(\alpha)$ for any $E$ and $E'$
 such that $E \subseteq E'$. It can therefore be used as a kind of explicit
-weakening operator on computation types.
+weakening operator on computation types.\footnote{This need for explicit
+  weakening of computation types could be eliminated by using actual
+  polymorphic types.}
 
 
 \section{Considering Types}
@@ -759,8 +769,8 @@ wanted to guarantee type safety while allowing this amount of flexibility,
 we would need to use indexed effects \cite{andjelkovic2014towards} to track
 the answer type as it changes from $\op{shift0}$ to $\op{shift0}$. We will
 therefore modify Danvy and Filinski's type system to prohibit continuations
-from changing the answer type to fit into the capabilities of our type
-system.
+from changing the answer type so as to fit into the capabilities of our
+type system.
 
 Our modified type system will have judgments that follow this schema:
 
@@ -768,13 +778,13 @@ $$
 \Gamma \pipe \gamma \vdash M : \tau
 $$
 
-We switch to our style of notation, $\Gamma$ for a type context and $M$ for
+We switch to our style of notation, $\Gamma$ is a typing context and $M$ is
 a term. We give only a single answer type, $\gamma$, written to the left of
 the turnstile. We also separate it from the type context with a vertical
 bar instead of a comma so as not to be confusing with the notation for
 context extension ($\Gamma, x : \alpha$). In continuation-passing style,
-the type of the above term $M$ would correspond to $(\tau \to \gamma) \to
-\gamma$.
+the type of the above term $M$ would correspond to
+$(\tau \to \gamma) \to \gamma$.
 
 There is one more subtlety to cover before we look at the typing rules
 themselves: what are the types?
@@ -800,8 +810,8 @@ to discriminate between functions w.r.t.\ the context (i.e.\ answer type) in
 which they can be applied.
 
 \begin{definition}
-  We define the \demph{typing relation for $\lambda_\shift$} as the
-  transitive closure of the inference rules given in
+  We define the \demph{typing relation for $\lambda_\shift$} as the of all
+  judgments derivable from the inference rules given in
   Figure~\ref{fig:typing-rules-shift}.
 \end{definition}
 
@@ -861,15 +871,16 @@ its soundess by way of demonstrating type preservation and progress.
   preserving the type).
 \end{lemma}
 \begin{proof}
-  This technical lemma, common to most $\lambda$-calculus variations, is
-  proven by induction on the proof of $\Gamma, x : \alpha \pipe \gamma
-  \vdash M : \tau$ (which is the same as induction on the syntactic
-  structure of $M$). The only catch here is that when we descend into $M$
-  through $\lambda$-abstractions and $\reset$s, we might be forced to
-  change the answer type from $\gamma$ to some $\delta$. Now, in order for
-  the induction to work, we will need to change the answer type in $\Gamma
-  \pipe \gamma \vdash V : \alpha$ from $\gamma$ to $\delta$ as well. In
-  other words, we need to coerce $\Gamma \pipe \gamma \vdash V : \alpha$ to
+  This technical lemma, common to most $\lambda$-calculi, is proven by
+  induction on the derivation of
+  $\Gamma, x : \alpha \pipe \gamma \vdash M : \tau$ (which is the same as
+  induction on the syntactic structure of $M$). The only catch here is that
+  when we descend into $M$ through $\lambda$-abstractions and $\reset$s, we
+  might be forced to change the answer type from $\gamma$ to some
+  $\delta$. Now, in order for the induction to work, we will need to change
+  the answer type in $\Gamma \pipe \gamma \vdash V : \alpha$ from $\gamma$
+  to $\delta$ as well. In other words, we need to coerce
+  $\Gamma \pipe \gamma \vdash V : \alpha$ to
   $\Gamma \pipe \delta \vdash V : \alpha$.
 
   This is exactly where the condition that the term $V$ that we are
@@ -889,8 +900,9 @@ its soundess by way of demonstrating type preservation and progress.
 \begin{proof}
   We will prove this property case by case for each reduction rule of
   $\lambda_\shift$. In the proof, we assume that the context $C$ wrapping
-  the redex and the contractum is just the empty context $[]$. It follows
-  directly that if $M \to N$ preserves types, then so does $C[M] \to C[N]$.
+  the redex and the contractum is just the empty context $[]$. By the
+  compositionality of the type system, it follows that if $M \to N$
+  preserves types, then so does $C[M] \to C[N]$.
 
   \begin{enumerate}
   \item $M \to_\beta N$
@@ -907,7 +919,7 @@ its soundess by way of demonstrating type preservation and progress.
       \BinaryInfC{$\Gamma \pipe \gamma \vdash \ap{(\lam{x}{M'})}{V} : \tau$}
     \end{prooftree}
 
-    By applying Lemma~\ref{lem:subst-shift} to the well-typedness proofs of
+    By applying Lemma~\ref{lem:subst-shift} to the typing derivations of
     $M'$ and $V$, we directly get the typing judgment we need.
 
   \item $M \to_\reset N$
@@ -921,11 +933,11 @@ its soundess by way of demonstrating type preservation and progress.
     \end{prooftree}
 
     If we recover the typing derivation for $V$, we run into the same issue
-    as before. The context has changed from answer type $\gamma$ to answer
-    type $\tau$. Again, we rely on the fact that the argument to $\reset$
-    must have been a value in order to be able to take the proof $\Gamma
-    \pipe \tau \vdash M : \tau$ and coerce it to a proof $\Gamma \pipe
-    \gamma \vdash M : \tau$.
+    as in the proof of Lemma~\ref{lem:subst-shift}. The context has changed
+    from answer type $\gamma$ to answer type $\tau$. Again, we rely on the
+    fact that the argument to $\reset$ must have been a value in order to
+    be able to take the judgment $\Gamma \pipe \tau \vdash M : \tau$ and
+    coerce it to a judgment $\Gamma \pipe \gamma \vdash M : \tau$.
 
   \item $M \to_\shift N$
 
@@ -949,10 +961,10 @@ its soundess by way of demonstrating type preservation and progress.
     compound term. This is what lets us assume that the answer type of both
     $F[\ap{\shift}{V}]$ and $\ap{\shift}{V}$ is $\tau$.
 
-    We can take the typing judgment of $V$ and the fact that $F$ is a
-    context that can take a term $M'$ such that $\Gamma \pipe \tau \vdash
-    M' : \alpha$ and yield a term $F[M']$ such that $\Gamma \pipe \tau
-    \vdash F[M'] : \tau$.
+    From this typing derivation, we will extract the typing judgment of $V$
+    and the evaluation frame $F$ that can take a term $M'$ such that
+    $\Gamma \pipe \tau \vdash M' : \alpha$ to a term $F[M']$ such that
+    $\Gamma \pipe \tau \vdash F[M'] : \tau$.
 
     \begin{prooftree}
       \AxiomC{$\Gamma \pipe \tau \vdash V : (\alpha \xto{\delta} \tau) \xto{\tau} \tau$}
@@ -972,9 +984,9 @@ its soundess by way of demonstrating type preservation and progress.
     The proof tree construction is straightforward, plugging in the two
     parts, $V$ and $F[]$, we got from the typing of $M$. The only peculiar
     point is our use of $F[]$ in the environment $\Gamma, x : \alpha$,
-    which presupposes that $x$ is fresh for $F[]$\footnote{That is a
-      condition of the $\to_\shift$ reduction rule that we never made
-      explicit.}.
+    which presupposes that $x$ is fresh for $F[]$.\footnote{As per the
+      Barendregt variable convention~\cite{barendregt1984lambda}, we assume
+      bound variables to be different from free variables.}
   \end{enumerate}
 \end{proof}
 
@@ -1050,9 +1062,9 @@ its soundess by way of demonstrating type preservation and progress.
     $M'$ is another closed well-typed term and so we apply the induction
     hypothesis to $M'$ and deal with the possible results:
     \begin{itemize}
-    \item $M' = V$ --- we reduce $M = \ap{\reset}{V}$ to $N = V$ using
+    \item $M' = V$ --- we can reduce $M = \ap{\reset}{V}$ to $N = V$ using
       $\to_\reset$
-    \item $M' = F[\ap{\shift}{V}]$ --- we reduce $M =
+    \item $M' = F[\ap{\shift}{V}]$ --- we can reduce $M =
       \ap{\reset}{(F[\ap{\shift}{V}])}$ to $N =
       \ap{\reset}{(\ap{V}{(\lam{x}{\ap{\reset}{(F[x])}})})}$ using
       $\to_\shift$
@@ -1071,7 +1083,7 @@ its soundess by way of demonstrating type preservation and progress.
       \UnaryInfC{$\emptyset \pipe \gamma \vdash \ap{\shift}{M'} : \tau$}
     \end{prooftree}
 
-    \ldots apply the induction hypothesis and treat all cases.
+    \ldots apply the induction hypothesis and treat all the cases.
     \begin{itemize}
     \item $M' = V$ --- then we have $M = F[\ap{\shift}{V}]$ where $F = []$
     \item $M' = F'[\ap{\shift}{V}]$ --- we have $M =
@@ -1103,10 +1115,11 @@ its soundess by way of demonstrating type preservation and progress.
   of the following properties:
   \begin{itemize}
   \item $N$ is a value --- therefore, $N$ is not stuck
-  \item $N = F[\ap{\shift}{V}]$ --- This case is impossible. We know that
-    $N$ is not of the shape $\ap{\reset}{N'}$. Somewhere in the reduction
-    chain from $\ap{\reset}{M}$ to $N$, the $\reset$ was removed. The only
-    reduction rule that can do that is $\to_\reset$, repeated here:
+  \item $N = F[\ap{\shift}{V}]$ --- This case is impossible. It would mean
+    that $N$ is not of the shape $\ap{\reset}{N'}$. Somewhere in the
+    reduction chain from $\ap{\reset}{M}$ to $N$, the $\reset$ would have
+    to be removed. The only reduction rule that can do that is
+    $\to_\reset$, repeated here:
 
     $$
     C[\ap{\reset}{V}] \to_\reset C[V]
@@ -1114,23 +1127,24 @@ its soundess by way of demonstrating type preservation and progress.
 
     It only applies when the argument of $\reset$ is a value. Furthermore,
     when applied in the empty context $[]$, its result is also a
-    value. Note that values cannot contain a redex (they are either simple
-    variables or $\lambda$-abstractions, which are not valid evaluation
-    contexts). This means that $N$ must be a value but this is in
-    contradiction with $N = F[\ap{\shift}{V}]$.
+    value. Since values are irreducible (they are either simple variables
+    or $\lambda$-abstractions, which are not valid evaluation contexts),
+    then this $\to_\reset$ would have been the last reduction in the chain
+    $\ap{\reset}{M} \tto M' = \ap{\reset}{V} \to_\reset V = N$. However,
+    this is in contradiction with $N = F[\ap{\shift}{V}]$.
   \item $N \to N'$ --- $N$ is not stuck because we can reduce to $N'$.
   \end{itemize}
 \end{proof}
 
 Having proven the type soundness of the above type system for
 $\lambda_\shift$, we now show that typed $\lambda_\shift$ translates to
-typed $\banana{\lambda}$. We already defined a translation from
+typed $\banana{\lambda}$. We have already defined a translation from
 $\lambda_\shift$ terms to $\banana{\lambda}$ in~\ref{sec:turning-to-shift},
 now we have to define a translation of the types.
 
 \begin{definition}
   We define the \demph{interpretation $\sem{\tau}$ of a $\lambda_\shift$
-    type $\tau$} by establishing that:
+    type $\tau$} by:
 
   \begin{itemize}
   \item $\sem{\nu} = \nu$ where $\nu$ is an atomic type
@@ -1138,17 +1152,18 @@ now we have to define a translation of the types.
     $\sem{\alpha \xto{\gamma} \beta} = \sem{\alpha} \to
     \FF_{E_{\sem{\gamma}}}(\sem{\beta})$ where
     $E_\omega = \{ \typedop{shift0}{((\delta \to \FF_E(\omega)) \to
-      \FF_E(\omega))}{\delta} \}_\delta \uplus E$\footnote{The idea behind
-      $E_\omega$ is that $\shift0$ should be polymorphic in
-      $\delta$. However, we do not have polymorphism in $\banana{\lambda}$,
-      so in this particular case, we will assume we have sufficiently many
-      distinct instances of $\shift0$ covering the different types at which
-      we want to $\shift$.}
+      \FF_E(\omega))}{\delta} \}_\delta\footnotemark \uplus E$
   \end{itemize}
 
-  where $E$ is assumed to be some effect signature such that
-  $\shift0 \notin E$\footnote{The calculus can be further extended with
-    other effects whose effect signature would be E.}.
+  \footnotetext{The idea behind $E_\omega$ is that $\shift0$ should be
+    polymorphic in $\delta$. However, we do not have polymorphism in
+    $\banana{\lambda}$, so in this particular case, we will assume we have
+    sufficiently many distinct instances of $\shift0$ covering the
+    different types at which we want to $\shift$.}
+
+  where $E$ can be any effect signature as long as
+  $\shift0 \notin E$.\footnote{This means that the calculus can be further
+    extended with other effects whose effect signature would be E.}
 \end{definition}
 
 \newcommand{\cstype}{\FF_{E_{\sem{\gamma}}}}
@@ -1183,14 +1198,11 @@ now we have to define a translation of the types.
     $\ap{\eta}{x}$ and we can build a proof of the type judgment like this:
 
     \begin{prooftree}
-      \AxiomC{}
-      \RightLabel{[$\eta$]}
-      \UnaryInfC{$\sem{\Gamma} \vdash \eta : \sem{\tau} \to \cstype(\sem{\tau})$}
       \AxiomC{$x : \sem{\tau} \in \sem{\Gamma}$}
       \RightLabel{[var]}
       \UnaryInfC{$\sem{\Gamma} \vdash x : \sem{\tau}$}
-      \RightLabel{[app]}
-      \BinaryInfC{$\sem{\Gamma} \vdash \ap{\eta}{x} : \cstype(\sem{\tau})$}
+      \RightLabel{[$\eta$]}
+      \UnaryInfC{$\sem{\Gamma} \vdash \ap{\eta}{x} : \cstype(\sem{\tau})$}
     \end{prooftree}
 
 
@@ -1208,19 +1220,13 @@ now we have to define a translation of the types.
     $\sem{\tau_1 \xto{\delta} \tau_2} = \sem{\tau_1} \to
     \FF_{E_{\sem{\delta}}}(\sem{\tau_2})$. Let us prove its type.
 
-    \vspace{2mm}
-    \makebox[\textwidth][c]{
-      \AxiomC{}
-      \RightLabel{$\eta$}
-      \UnaryInfC{$\sem{\Gamma} \vdash \eta : (\sem{\tau_1} \to \FF_{E_{\sem{\delta}}}(\sem{\tau_2})) \to \cstype(\sem{\tau_1} \to \FF_{E_{\sem{\delta}}}(\sem{\tau_2}))$}
+    \begin{prooftree}
       \AxiomC{$\sem{\Gamma}, x : \sem{\tau_1} \vdash \sem{M'} : \FF_{E_{\sem{\delta}}}(\sem{\tau_2})$}
       \RightLabel{[abs]}
       \UnaryInfC{$\sem{\Gamma} \vdash \lam{x}{\sem{M'}} : \sem{\tau_1} \to \FF_{E_{\sem{\delta}}}(\sem{\tau_2})$}
       \RightLabel{[app]}
-      \BinaryInfC{$\sem{\Gamma} \vdash \ap{\eta}{(\lam{x}{\sem{M'}})} : \cstype(\sem{\tau_1} \to \FF_{E_{\sem{\delta}}}(\sem{\tau_2}))$}
-      \DisplayProof
-    }
-    \vspace{2mm}
+      \UnaryInfC{$\sem{\Gamma} \vdash \ap{\eta}{(\lam{x}{\sem{M'}})} : \cstype(\sem{\tau_1} \to \FF_{E_{\sem{\delta}}}(\sem{\tau_2}))$}
+    \end{prooftree}
 
 
   \item $M = \ap{M_1}{M_2}$
@@ -1375,14 +1381,12 @@ $\banana{\lambda}$.\footnote{$\shift0$/$\reset0$ are also the control
   operators that one reaches for when implementing effect handlers using
   delimited continuations~\cite{kammar2013handlers}. This means that not
   only can we use effect handlers to implement delimited continuations, we
-  can also do the converse. The relationship between effect handlers and
-  delimited continuations has been likened to the one between while loops
-  and conditional jumps (i.e.\ same formal expressivity, different levels
-  of abstraction).} We also focused on the latter since it allowed us to
-show how a type system for continuations translates to the type system of
-$\banana{\lambda}$. We did not study \texttt{control}/\texttt{prompt}, or
-their variants \texttt{control0}/\texttt{prompt0}. These operators have
-already been shown to be mutually expressible with $\shift$/$\reset$ and
+  can also do the converse.} We also focused on the latter since it allowed
+us to show how a type system for continuations translates to the type
+system of $\banana{\lambda}$. We did not study
+\texttt{control}/\texttt{prompt}, or their variants
+\texttt{control0}/\texttt{prompt0}. These operators have already been shown
+to be mutually expressible with $\shift$/$\reset$ and
 $\shift0$/$\reset0$~\cite{shan2007static}.
 
 When discussing control operators similar to effect handlers, we should

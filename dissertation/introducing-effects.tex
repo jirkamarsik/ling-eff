@@ -61,10 +61,9 @@ way to achieve that is to say that the atomic types of our abstract
 syntactic signature should be interpreted as computations. We will write
 $\sem{-}_\petitv$ for the semantic interpretation using simple values and
 $\sem{-}_\petitc$ for the semantic interpretation using computations. On
-the type level, we will define
-$\sem{\alpha}_\petitc = \FF_E(\sem{\alpha}_\petitv)$ for atomic abstract
-types $\alpha$. By applying this to the common Montagovian interpretation,
-we get:
+the type level, we will define $\sem{a}_\petitc = \FF_E(\sem{a}_\petitv)$
+for atomic abstract types $a$. By applying this to the common Montagovian
+interpretation, we get:
 
 \begin{align*}
   \sem{S}_\petitv &= o & \sem{S}_\petitc &= \FF_E(o) \\
@@ -95,14 +94,14 @@ left-to-right (as can be seen by looking at the expanded non-recursive
 definition below). While indexicality is order-independent, some of the
 effects that we will introduce later (such as anaphora) are
 order-dependent. The order that we would like to reflect in the evaluation
-is the linear lexical order in which elements appear in the spoken/written
-form of the sentence. Since in categorial grammars of English, it is often
-the case that operators first take their complements from the right and
-then apply to their argument on the left (e.g.\ transitive verbs or
-relative pronouns of type $(NP \limp S) \limp N \limp N$), we will often
-like to chain the evaluation of the arguments in the order opposite to the
-one in which we receive them. This will give rise to the $\liftr$
-operation.
+is the linear lexical order in which the arguments appear in the
+spoken/written form of the sentence. Since in categorial grammars of
+English, it is often the case that operators first take their complements
+from the right and then apply to their argument on the left (e.g.\
+transitive verbs or relative pronouns of type
+$(NP \limp S) \limp N \limp N$), we will often like to chain the evaluation
+of the arguments in the order opposite to the one in which we receive
+them. This will give rise to the $\liftr$ operation.
 
 \begin{align*}
   \liftl_{a_1 \limp \cdots \limp a_n \limp b}(f) &= \lam{X_1 \ldots X_n}{X_1 \hsbind (\lam{x_1}{\ldots\ X_n \hsbind (\lam{x_n}{\etaE{(\ap{f}{x_1\ \ldots\ x_n})}})})} \\
@@ -117,7 +116,7 @@ fragment into computations:
 &= \etaE{\obj{j}} \\
 \sem{\abs{Mary}}_\petitc &= \liftl_{NP}(\obj{m}) \\
 &= \etaE{\obj{m}} \\
-\sem{\abs{loves}}_\petitc &= \liftr_{NP \limp NP \limp S}(\lam{o s}{\app{\obj{love}}{s}{o}}) \\
+\sem{\abs{loves}}_\petitc &= \liftr_{NP \limp NP \limp S}(\lam{o s}{\etaE{(\app{\obj{love}}{s}{o})}}) \\
 &= \lam{O S}{S \hsbind (\lam{s}{O \hsbind (\lam{o}{\app{\obj{love}}{s}{o}})})} \\
 &= \lam{O S}{\obj{love} \apr S \aplr O} \\
 &= \lam{O S}{\etaE{\obj{love}} \aplr S \aplr O}
@@ -129,11 +128,11 @@ idea behind the notation is that you are supposed to put double brackets on
 a side of the operator whenever the argument on that side is a
 computation. In our example, $S$ and $O$ are both computations and
 $\obj{love}$ is a pure function term. We can expand this term so that it is
-a bit more regular by making $\obj{love}$ into a computation as well. We
-can then a notice a connection between the denotations in $\sem{-}_\petitv$
-and the denotations in $\sem{-}_\petitc$. The $\sem{-}_\petitc$ denotations
-are just the $\sem{-}_\petitv$ denotations where every constant $\obj{c}$
-was replaced with $\etaE{\obj{c}}$ and every application $\ap{f}{x}$ was
+a bit more regular by making $\obj{love}$ a computation as well. We can
+then a notice a connection between the denotations in $\sem{-}_\petitv$ and
+the denotations in $\sem{-}_\petitc$. The $\sem{-}_\petitc$ denotations are
+just the $\sem{-}_\petitv$ denotations where every constant $\obj{c}$ was
+replaced with $\etaE{\obj{c}}$ and every application $\ap{f}{x}$ was
 replaced with $f \aplr x$. Note that $\eta$ and $\aplr$ make up the
 applicative functor $\FF_E$ (see~\ref{ssec:applicative-functor}).
 
@@ -146,7 +145,7 @@ to second-order types.
   \demph{Second-order terms hide no abstractions}
 
   Every $\beta$-normal term $\Gamma \vdash M : \tau$ of second-order type
-  $\tau$ in the simply-typed lambda calculus is of the form
+  $\tau$ in the simply-typed $\lambda$-calculus is of the form
   $\lam{x_1 \ldots x_n}{N}$ where $N$ contains no abstractions, provided
   that any constants used have only a second-order type and any variables
   present in $\Gamma$ have a first-order (i.e.\ atomic) type.
@@ -211,7 +210,7 @@ to second-order types.
   it contains no bound variables either. Note that this is also the case
   for every subterm of $N$.
   
-  $N$ is composed entirely of constants and applications. If an $N$ is an
+  $N$ is composed entirely of constants and applications. If $N$ is an
   application, then the function is either a constant or some smaller
   application composed entirely of constants and applications. By
   induction, we thus show that $M$'s normal form, $N$, is of the shape
@@ -336,10 +335,9 @@ extra-linguistic context. In this section, we will restrict our attention
 to a very limited subset of these expressions: singular first-person
 pronouns (\emph{I}, \emph{me}).
 
-\begin{align*}
-\abs{I} &: NP \\
-\abs{me} &: NP
-\end{align*}
+$$
+\abs{me} : NP
+$$
 
 The meanings that we assign to expressions in natural languages must
 reflect this context-sensitivity: the truth conditions of \emph{Mary loves
@@ -373,23 +371,22 @@ of type $\iota$. The effect signature $E$ can be any signature provided
 that $\typedop{speaker}{1}{\iota} \in E$.
 
 \begin{align*}
-  \lex{I}{\app{\op{speaker}}{\star}{(\lam{x}{\etaE{x}})}} \\
-  &= \ap{\op{speaker}!}{\star} \\
-  \lex{me}{\ap{\op{speaker}!}{\star}}
+  \lex{me}{\app{\op{speaker}}{\star}{(\lam{x}{\etaE{x}})}} \\
+  &= \ap{\op{speaker}!}{\star}
 \end{align*}
 
-The denotations of $\abs{I}$ and $\abs{me}$ demand the context for the
-identity of the speaker $x$ using operation $\op{speaker}$ and then declare
-that $x$ to be the referent of the pronoun. Taking the output of an
-operation and then immediately returning it as the result of the
-computation will be a common pattern and so we use the $\op{speaker}!$
-shorthand introduced in~\ref{ssec:operations-and-handlers}.
+The denotation of $\abs{me}$ demands the context for the identity of the
+speaker $x$ using the operation $\op{speaker}$ and then declares that $x$
+to be its. Taking the output of an operation and then immediately returning
+it as the result of the computation will be a common pattern and so we use
+the $\op{speaker}!$ shorthand introduced
+in~\ref{ssec:operations-and-handlers}.
 
 Now the question is how to use the denotation given above to build meanings
 of sentences containing first-person pronouns, e.g.\ \emph{Mary loves
   me}. In Montague's use of points of reference, Montague introduces an
 intermediate language of intensional logic~\cite{montague1973proper}. When
-Montague then gives a interpretation to this language, the point of
+Montague then gives an interpretation to this language, the point of
 reference at which an expression is to be evaluated is passed through to
 its subexpressions. We will be making use of the lifted semantics
 introduced in the previous section. The chaining of the computations will
@@ -446,9 +443,9 @@ computation of type $\FF_E(\alpha)$, in which $\op{speaker}$ will not be
 used. Since $\op{speaker}$ is the only operation in our effect signature,
 by applying this handler to the denotation of a sentence in our fragment,
 we get a denotation of type $\FF_\emptyset(o)$, which is isomorphic to
-$o$\footnote{The two directions of the isomorphism are given by
+$o$.\footnote{The two directions of the isomorphism are given by
   $\cherry : \FF_\emptyset(\alpha) \to \alpha$ and
-  $\eta : \alpha \to \FF_\emptyset(\alpha).$}.
+  $\eta : \alpha \to \FF_\emptyset(\alpha).$}
 
 $$
   \app{\withSpeaker}{s}{\sem{\app{\abs{loves}}{\abs{me}}{\abs{John}}}} \tto
@@ -473,9 +470,9 @@ difficult to analyze the difference between the following two sentences:
 \end{exe}
 
 In our setting, we can model this kind of behavior since the $\withSpeaker$
-is not a meta-level operation, but it is a term in our calculus like any
-other. We can therefore have lexical entries for direct and indirect speech
-that will interact differently with deictic expressions.
+handler is not a meta-level operation, but it is a term in our calculus
+like any other. We can therefore have lexical entries for direct and
+indirect speech that will interact differently with deictic expressions.
 
 \begin{align*}
   \abs{said}_{\abs{is}} &: S \limp NP \limp S \\
@@ -483,13 +480,13 @@ that will interact differently with deictic expressions.
 \end{align*}
 
 We have two lexical items that correspond to the use of $\abs{said}$ in
-both direct speech and indirect speech. They differ both in surface
-realization (both in prosody and punctuation) and semantic
-interpretation\footnote{The semantics of quotations hides many more
+both direct speech and indirect speech. They differ in surface realization
+(both in prosody and punctuation) \emph{and} semantic
+interpretation.\footnote{The semantics of quotations hides many more
   complexities~\cite{shan2010character} and whether quotations shift the
   interpretations of indexical expressions is under debate. We limit
   ourselves to using \emph{said} as an example of how a lexical entry that
-  shifts indexicals would look like in $\calc$.}.
+  shifts indexicals would look like in $\calc$.}
 
 \begin{align*}
   \sem{\abs{said}_{\abs{is}}} &= \lam{C S}{\obj{say} \apr S \aplr C} \\
@@ -552,9 +549,9 @@ $\withSpeaker$ handler, the following equations become admissible:
 \end{align*}
 
 $M$ is a metavariable ranging over computations of type
-$\FF_{\{ \typedop{speaker}{1}{\iota} \}}(\alpha)$\footnote{For a
+$\FF_{\{ \typedop{speaker}{1}{\iota} \}}(\alpha)$.\footnote{For a
   formalization of the use of metavariables, see~\ref{ssec:crs}
-  or~\cite{klop1993combinatory}.}. We can check by reduction that whenever
+  or~\cite{klop1993combinatory}.} We can check by reduction that whenever
 $M_1 = M_2$ via the above equations, then $(\app{\withSpeaker}{s}{M_1})$
 and $(\app{\withSpeaker}{s}{M_2})$ are convertible in
 $\banana{\lambda}$. The insight we get from these equations is that asking
@@ -600,9 +597,9 @@ Here, we will deal with supplements, namely nominal appositives and
 supplementary relative clauses. We will assume abstract constants for the
 (supplementary) relative pronoun, the appositive construction and a
 relational noun\footnote{We are working in a minimal fragment without
-  determiners. Relational nouns will let use some meaningful noun phrases
-  as nominal appositives in the examples to come.} with the following
-types:
+  determiners. Relational nouns will let us use some meaningful noun
+  phrases as nominal appositives in the examples to come.} with the
+following types:
 
 \begin{align*}
   \abs{who}_{\abs{s}} &: (NP \limp S) \limp NP \limp NP \\
@@ -624,19 +621,19 @@ implication (``if X, then Y'') and disjunction (``either X, or Y'').
 
 In our fragment, a noun phrase contributes both its referent and also
 possibly some conventional implicature. If we would model this fact by
-interpreting NPs as pairs, we would be forced to revisit all the other
-lexical entries to take this change into account (e.g.\ transitive verbs
-such as $\abs{loves}$ would need to explicitly aggregate the conventional
-implicatures of both their subjects and objects). Rather than do that, we
-will make use of $\banana{\lambda}$ and model this interaction with the
-context as an operation. When a linguistic expression wants to
-conventionally implicate something, it will use the $\op{implicate}$
-operation. The expression will need to communicate what exactly it wants to
-implicate. This will be a proposition and so the input type of
-$\op{implicate}$ will be the type $o$ of propositions. We do not need to
-collect any information from the context and so the output type will be
-$1$. Using this operation, we can now give denotations to expressions that
-are about to generate conventional implicatures:
+interpreting NPs as pairs of referents and implicatures, we would be forced
+to revisit all the other lexical entries to take this change into account
+(e.g.\ transitive verbs such as $\abs{loves}$ would need to explicitly
+aggregate the conventional implicatures of both their subjects and
+objects). Rather than do that, we will make use of $\banana{\lambda}$ and
+model this interaction with the context as an operation. When a linguistic
+expression wants to conventionally implicate something, it will use the
+$\op{implicate}$ operation. The expression will need to communicate what
+exactly it wants to implicate. This will be a proposition and so the input
+type of $\op{implicate}$ will be the type $o$ of propositions. We do not
+need to collect any information from the context and so the output type
+will be $1$. Using this operation, we can now give denotations to
+expressions that generate conventional implicatures:
 
 \begin{align*}
   \sem{\abs{who}_{\abs{s}}} &= \lam{C X}{\begin{aligned}[t]
@@ -662,12 +659,13 @@ with its gap filled in by an expression that refers to the same referent as
 the head noun $X$. The implicature of the appositive is a statement of
 equality between the referents of the two noun phrases. Finally, we also
 give the semantics to the relational noun ``X's best friend'' by assuming
-that we have function $\obj{best-friend} : \iota \to \iota$ in the model.
+that we have a function $\obj{best-friend} : \iota \to \iota$ in the model.
 
 We will want to show that these denotations project through the operators
 that make up the logical structure of a sentence/discourse. Since the
 conventional implicature mechanism is implemented using operations, we can
-get this behavior for free by just using the standard operators.
+get this behavior for free by just using the standard operators and lifting
+them to computations.
 
 \begin{align*}
   \lex{not-the-case}{\liftl_{S \limp S}(\lnot)} \\
@@ -692,10 +690,10 @@ we compute their denotations, we find out that these actually are the
 propositions that the two sentences try to implicate.
 
 \begin{align*}
-  & \sem{\app{\abs{either-or}}{(\app{\abs{loves}}{\abs{Jane}}{\abs{John}})}{(\app{\abs{loves}}{\abs{John}}{(\app{\abs{appos}}{(\ap{\abs{best-friend}}{\abs{John}})}{\abs{Mary}})})}} \\
-  & \tto \app{\op{implicate}}{(\obj{m} = \ap{\obj{best-friend}}{\obj{j}})}{(\lam{z}{\etaE{(\app{\obj{love}}{\obj{j}}{\obj{s}} \lor \app{\obj{love}}{\obj{m}}{\obj{j}})}})} \tag{\ref{ex:either-or}} \\
+  & \sem{\app{\abs{either-or}}{(\app{\abs{loves}}{\abs{Sarah}}{\abs{John}})}{(\app{\abs{loves}}{\abs{John}}{(\app{\abs{appos}}{(\ap{\abs{best-friend}}{\abs{John}})}{\abs{Mary}})})}} \\
+  & \tto \app{\op{implicate}}{(\obj{m} = \ap{\obj{best-friend}}{\obj{j}})}{(\lam{\_}{\etaE{(\app{\obj{love}}{\obj{j}}{\obj{s}} \lor \app{\obj{love}}{\obj{m}}{\obj{j}})}})} \tag{\ref{ex:either-or}} \\
   & \sem{\app{\abs{if-then}}{(\ap{\abs{not-the-case}}{(\app{\abs{loves}}{\abs{Sarah}}{(\app{\abs{who}_{\abs{s}}}{(\lam{x}{\app{\abs{loves}}{x}{\abs{Sarah}}})}{\abs{John}})})})}{(\app{\abs{loves}}{\abs{John}}{\abs{Mary}})}} \\
-  & \tto \app{\op{implicate}}{(\app{\obj{love}}{\obj{s}}{\obj{j}})}{(\lam{z}{\etaE{(\lnot(\app{\obj{love}}{\obj{j}}{\obj{s}}) \to \app{\obj{love}}{\obj{m}}{\obj{j}})}})} \tag{\ref{ex:if-not}}
+  & \tto \app{\op{implicate}}{(\app{\obj{love}}{\obj{s}}{\obj{j}})}{(\lam{\_}{\etaE{(\lnot(\app{\obj{love}}{\obj{j}}{\obj{s}}) \to \app{\obj{love}}{\obj{m}}{\obj{j}})}})} \tag{\ref{ex:if-not}}
 \end{align*}
 
 To go full circle and fulfill the empirical criterion that the meaning of
@@ -721,7 +719,7 @@ of~\eqref{ex:either-or} and~\eqref{ex:if-not}, we can then verify that we
 get propositions that do entail the intended implicatures.
 
 \begin{align*}
-  & \ap{\withImplicatures}{\sem{\app{\abs{either-or}}{(\app{\abs{loves}}{\abs{Jane}}{\abs{John}})}{(\app{\abs{loves}}{\abs{John}}{(\app{\abs{appos}}{(\ap{\abs{best-friend}}{\abs{John}})}{\abs{Mary}})})}}} \nonumber \\
+  & \ap{\withImplicatures}{\sem{\app{\abs{either-or}}{(\app{\abs{loves}}{\abs{Sarah}}{\abs{John}})}{(\app{\abs{loves}}{\abs{John}}{(\app{\abs{appos}}{(\ap{\abs{best-friend}}{\abs{John}})}{\abs{Mary}})})}}} \nonumber \\
   & \tto (\obj{m} = \ap{\obj{best-friend}}{\obj{j}}) \land (\app{\obj{love}}{\obj{j}}{\obj{s}} \lor \app{\obj{love}}{\obj{m}}{\obj{j}}) \\
   & \ap{\withImplicatures}{\sem{\app{\abs{if-then}}{(\ap{\abs{not-the-case}}{(\app{\abs{loves}}{\abs{Sarah}}{\abs{John}})})}{(\app{\abs{loves}}{\abs{John}}{\abs{Mary}})}}} \nonumber \\
   & \tto (\app{\obj{love}}{\obj{s}}{\obj{j}}) \land (\lnot(\app{\obj{love}}{\obj{j}}{\obj{s}}) \to \app{\obj{love}}{\obj{m}}{\obj{j}})
@@ -835,8 +833,8 @@ different motivations:
   individuals as that is the type of referents for noun phrases. Finally,
   in this section we will be dealing only with quantification and no other
   effects and therefore the signature $E$ will be empty and so we can also
-  $\FF_\emptyset(\omega)$ with $\omega$. This leaves us with the type
-  $((\iota \to o) \to o) \rightarrowtail \iota$.
+  identify $\FF_\emptyset(\omega)$ with $\omega$. This leaves us with the
+  type $((\iota \to o) \to o) \rightarrowtail \iota$.
 \item Like in the previous sections, we can also figure out the input and
   output types of $\op{scope}$ by considering what information the
   quantified noun phrase can offer to its context and what it expects in
@@ -922,9 +920,9 @@ Here, we apply not only $\SI$, but $\eta \circ \SI$, to the sentence
 denotation. This is because our type for interpreting sentences, $\sem{S}$,
 is $\FF_E(o)$ and since in this section, we are using a closed handler
 (type $\FF_E(o) \to o$), we have to follow with the injection $\eta$ (type
-$o \to \FF_E(o)$)\footnote{We could also just as well choose $\sem{S} = o$
+$o \to \FF_E(o)$).\footnote{We could also just as well choose $\sem{S} = o$
   but we want to be consistent with the other treatments we have shown so
-  far and the ones we will see later.}.
+  far and the ones we will see later.}
 
 Using this new lexical entry for $\abs{loves}$, we can directly compute a
 reading for Example~\ref{ex:quantifiers}:
@@ -985,17 +983,17 @@ $(\lam{k}{\exists y.\ \ap{n}{y} \land \ap{k}{y}})$, we make use of the
 meaning $n$ of the restrictor noun. By looking at the type of
 $\op{scope} : ((\iota \to o) \to o) \rightarrowtail \iota$, we see that we
 cannot pass a computation with quantificational effects as an argument to
-$\op{scope}$\footnote{In that case, we would need to have
+$\op{scope}$.\footnote{In that case, we would need to have
   $\typedop{scope}{((\iota \to \FF_E(o)) \to o)}{\iota} \in E$. This is
-  problematic since $E$, which contains $\op{scope}$ is then
-  recursive.}. So instead, we discharge the quantificational potential of
-the noun in the restrictor of the generalized quantifier using the $\SI$
-handler\footnote{This is very much like the situation we have seen towards
+  problematic since $E$, which contains $\op{scope}$, is then recursive.}
+So instead, we discharge the quantificational potential of the noun in the
+restrictor of the generalized quantifier using the $\SI$
+handler.\footnote{This is very much like the situation we have seen towards
   the end of Chapter~\ref{chap:continuations}. The $\SI$ handler is our
   $\reset$. We can only pass the type check if we use $\shift$/$\reset$
   (Section~\ref{sec:considering-types}). We encode $\shift$ as $\shifto$ by
   using a $\reset$ (in our case $\SI$) inside the argument to $\shifto$ (in
-  our case $\op{scope}$), as in Section~\ref{sec:turning-to-shift}.}. We
+  our case $\op{scope}$), as in Section~\ref{sec:turning-to-shift}.} We
 will look at the kind of readings this leads to by considering the classic
 example from~\cite{burchardt2004computational}:
 
@@ -1025,7 +1023,7 @@ $$
       (\ap{\SI}{(N \apl x)}) \to \ap{k}{x}})}}
 $$
 
-However, if we followed the analogy to $\shift$ and $\reset$ (i.e.\
+However, had we followed the analogy to $\shift$ and $\reset$ (i.e.\
 wrapping the entire body of the function that is the argument to
 $\op{scope}$/$\shifto$ in $\SI$/$\reset$, see
 Section~\ref{sec:turning-to-shift}), we might have tried the following:
@@ -1049,22 +1047,11 @@ meaning of Example~\ref{ex:siamese}, we find another possible reading:
 \end{align*}
 
 Both of the readings we have seen are actually valid interpretations of
-this sentence; quantifiers are a notorious source of ambiguities. In the
-ACG framework, a term from the abstract signature, a tectogrammatic
-structure of some sentence, is mapped by a deterministic interpretation
-function into a term in the object signature, which in the case of
-semantics is its sense or denotation. The conventional approach to dealing
-with ambiguities in ACGs~\cite{de2001towards,pogodalla2007generalizing} is
-to make it so that the ambiguous sentence has multiple corresponding
-abstract terms, i.e.\ tectogrammatic analyses\footnote{Alternatively, we
-  could make it so that a single object term corresponds to multiple
-  readings. A natural way to deal with that would be to introduce the
-  effect of non-deterministic choice (signature $\typedop{choose}{1}{2}$).
-%% TODO?: Maybe show the approach that relies on weakly-typed lambda-banana?
-}. We can therefore imagine that our fragment contains both $\abs{every}$
-and $\abs{every'}$, one giving narrow scope to resrictor quantifiers and
-the other giving them wide scope (the same would be the case for other
-determiners such as $\abs{a}$).
+this sentence; quantifiers are a notorious source of ambiguities. We could
+include both $\abs{every}$ and $\abs{every'}$ in our grammar, one giving
+narrow scope to resrictor quantifiers and the other giving them wide scope
+(the same would be the case for other determiners such as $\abs{a}$). This
+way, both readings would be available.
 
 Note that Example~\ref{ex:quantifiers} is ambiguous as well. The
 existential quantifier in \emph{a woman} can take either wide or narrow
@@ -1175,10 +1162,10 @@ Example~\ref{ex:quantifiers}:
 We can also generate all five readings of Example~\ref{ex:siamese}, without
 incurring the overgeneration due to Cooper's
 storage~\cite{burchardt2004computational} thanks to the ACG type
-system\footnote{The overgenerating case is due to a variable escaping its
+system.\footnote{The overgenerating case is due to a variable escaping its
   scope. However, such a term with a free occurrence of a variable would
   not be a well-typed closed term and so such a derivation does not exist
-  in our grammar.}.
+  in our grammar.}
 
 \begin{align*}
 & \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{therapist}})}{(\ap{\abs{every}}{(\ap{\abs{owner-of}}{(\ap{\abs{a}}{\abs{siamese-cat}})})})}} \\
@@ -1193,16 +1180,16 @@ system\footnote{The overgenerating case is due to a variable escaping its
 &\tto \exists z.\ \ap{\obj{therapist}}{z} \land (\exists y.\ \ap{\obj{siamese-cat}}{y} \land (\forall x.\ \app{\obj{own}}{x}{y} \to \app{\obj{love}}{x}{z})) \tag{\ref{ex:siamese}}
 \end{align*}
 
-The QR operator allows us to displace the scope of any quantifier
+The QR operator allows us to displace the scope of any quantifier.
 \footnote{Actually, it can displace any kind of $NP$ effect, including
   dynamics, and so it can be used, e.g., to implement a kind of
   cataphora. This will turn out to be a bug, not a feature, because of
   crossover constraints~\cite{shan2006explaining}, to be treated in
-  Subsection~\ref{ssec:crossover}.}. We might now risk overgenerating by
+  Subsection~\ref{ssec:crossover}.} We might now risk overgenerating by
 letting quantifiers leak outside of scope islands. However, this can be
 remedied at the level of the abstract type signature. Pogodalla and
 Pompigne~\cite{pogodalla2012controlling} show how to use dependent types in
-the abstract types of an ACG to enforce a scope island constraint ---
+the abstract signature of an ACG to enforce a scope island constraint ---
 namely that quantified noun phrases should not take scope outside of the
 nearest enclosing tensed clause.
 
@@ -1264,11 +1251,11 @@ lead to generating undesired meanings in which variables escape from the
 scopes of their intended binders. Our approach is closer to \emph{Keller
   storage}~\cite{keller1988nested}, also known as \emph{nested Cooper
   storage}. In Keller storage, quantifiers can be stored both side-by-side
-and embedded: any of the quantifiers stored by side-by-side can be
-retrieved, but whenever a quantifier is retrieved, all of its embedded
-quantifiers are retrieved at the same time. Our representation lacks the
-side-by-side mode of composition. The chain of $\op{scope}$ operations in
-an $\FF_{\{ \typedop{scope}{((\iota \to o) \to o)}{\iota} \}}(\alpha)$
+and embedded: any of the quantifiers stored side-by-side can be retrieved,
+but whenever a quantifier is retrieved, all of its embedded quantifiers are
+retrieved at the same time. Our representation lacks the side-by-side mode
+of composition. The chain of $\op{scope}$ operations in an
+$\FF_{\{ \typedop{scope}{((\iota \to o) \to o)}{\iota} \}}(\alpha)$
 denotation corresponds to a series of embedded quantifiers in Keller
 storage: we cannot retrieve a quantifier without first retrieving the
 quantifiers which precede it in the chain. This is exemplified by this
@@ -1302,9 +1289,9 @@ quantification.
 
 At the basis of any linguistic modelling that uses $\banana{\lambda}$ is
 the notion of a computation: all of the extensions to the simply-typed
-lambda calculus in $\banana{\lambda}$ deal with computation types, types of
-the form $\FF_E(\alpha)$. We will want to use computations in the semantic
-interpretations of our lexical items.
+$\lambda$-calculus in $\banana{\lambda}$ deal with computation types, types
+of the form $\FF_E(\alpha)$. We will want to use computations in the
+semantic interpretations of our lexical items.
 
 If we start from some existing Montagovian semantics (interpreting
 sentences as propositions, noun phrases as individuals, nouns as sets),
@@ -1324,7 +1311,7 @@ include:
   computation
 
   This idea is well-established in formal semantics. Examples include de
-  Groote's Montagovian treatment of anaphora~\cite{de2006towards} ($o$ is
+  Groote's montagovian treatment of anaphora~\cite{de2006towards} ($o$ is
   replaced with $\gamma \to (\gamma \to o) \to o$), Lebedeva's extension of
   this formalism~\cite{lebedeva2012expression} (furthermore replaces
   $\iota$ with $\gamma \to \iota$), Ben-Avi and
@@ -1383,10 +1370,10 @@ include:
   Kiselyov~\cite{kiselyov2008call}.
 \end{itemize}
 
-This palette of strategies ranges the possibility space in a tradeoff
-between flexibility and simplicity. Inserting computations into more and
-more places gives us more expressivity but this comes at the price of the
-system's simplicity:
+This palette of strategies ranges the possibility space, offering a
+tradeoff between flexibility and simplicity. Inserting computations into
+more and more places gives us more expressivity but this comes at the price
+of the system's simplicity:
 
 \begin{itemize}
 \item A noun denotation of type $\FF_E(\iota \to o)$ has some effect and
@@ -1394,11 +1381,11 @@ system's simplicity:
 \item A noun denotation of type $\iota \to \FF_E(o)$ might have different
   effects, depending on the semantic argument that it will be applied
   to. As a consequence, this effect becomes available only when we apply
-  the denotation to some argument of type $\iota$\footnote{We could use the
+  the denotation to some argument of type $\iota$.\footnote{We could use the
     $\CC$ operator of $\banana{\lambda}$ to get a value of the above type
     $\FF_E(\iota \to o)$. However, this partial operation succeeds only if
     the effects do not actually depend on the argument. If that is the
-    case, we might as well use $\FF_E(\iota \to o)$ directly.}.
+    case, we might as well use $\FF_E(\iota \to o)$ directly.}
 \item A noun denotation of type $\FF_E(\iota) \to \FF_E(o)$ might evaluate
   its argument first, or it might perform some other effects, or it might
   handle some of the operations used in the computation of its argument.
@@ -1459,8 +1446,8 @@ homomorphism $\sem{-}$ to the object-level function $\alpha \to \beta$. A
 semantic function is any other function present at the object (semantic)
 level, e.g.\ the predicate $\obj{love} : \iota \to \iota \to o$.
 
-We will demonstrate this on the example of Example~\ref{ex:quantifiers}:
-\emph{every man loves a woman}.
+We will demonstrate this on Example~\ref{ex:quantifiers}: \emph{every man
+  loves a woman}.
 
 \begin{align*}
 & \sem{\app{\abs{loves}}{(\ap{\abs{a}}{\abs{woman}})}{(\ap{\abs{every}}{\abs{man}})}} \\
@@ -1469,8 +1456,8 @@ We will demonstrate this on the example of Example~\ref{ex:quantifiers}:
 \end{align*}
 
 We pass the computations $\sem{\ap{\abs{a}}{\abs{woman}}}$ and
-$\sem{\ap{\abs{every}}{\abs{man}}}$ intact to the lexical entry for the
-transitive verb $\abs{loves} : NP \limp NP \limp S$, without forcing their
+$\sem{\ap{\abs{every}}{\abs{man}}}$ to the lexical entry for the transitive
+verb $\abs{loves} : NP \limp NP \limp S$ intact, without forcing their
 evaluation using $\hsbind$ or other operators. Once inside the transitive
 verb, we apply to them the predicate $\obj{love}$. This time, we use the
 $\apr$ and $\aplr$ which first evaluate both arguments left-to-right and
@@ -1736,9 +1723,9 @@ Examples:
   the set of lazy cats, we will need to know w.r.t.\ which world we are
   speaking since different cats are lazy in different worlds. Similarly
   when we deal with verbs, we will need to know the current world to know
-  whether or not entities are in some relation. The information we want
-  from the context is the current salient world. If $\sigma$ is the type of
-  possible worlds, we will introduce an operation of output type
+  whether or not entities are in some relation together. The information we
+  want from the context is the current salient world. If $\sigma$ is the
+  type of possible worlds, we will introduce an operation of output type
   $\sigma$. There is no need to specify which current salient world we mean
   and so we leave the input type at $1$.
   
@@ -1815,7 +1802,7 @@ what we want, $\iota$, we get the type of
 $\typedop{scope}{((\iota \to o) \to o)}{\iota}$. We can see the quantified
 noun phrase as contributing a quantifier to the context (the nearest
 sentence will need this quantifier in order to correctly compute its own
-meaning) and asking in return the bound variable which is to act as the
+meaning) and asking in return for the bound variable which is to act as the
 noun phrase's ``referent''. The idea that quantified noun phrases can be
 interpreted by a process that sends the generalized quantifier somewhere
 else and puts a variable in its place was already established by Cooper's
@@ -1834,8 +1821,8 @@ these analyses set out to use a monad. Since our computation types form a
 free monad (see~\ref{ssec:free-monad}), we can profit from identifying a
 monad in an existing linguistic analysis and then embedding that monad in
 our free monad. Other times, we may find a linguistic analysis which uses
-non-compositional/impure operations to construct the semantics and then
-base our operations on those operations.
+non-compositional/impure operators to construct the semantics and then
+base our operations on those operators.
 
 Our most ambitious use of this technique combines both approaches. The
 types of de Groote's type-theoretic dynamic logic correspond to a monad of
@@ -1869,7 +1856,8 @@ monad which maps types $\alpha$ to types $\omega \times \alpha$ where
 $\omega$ is some monoid. Writer monads have been used in theories of
 expressives, which are a kind of conventional implicature, by Giorgolo and
 Asudeh~\cite{giorgolo2011multidimensional,giorgolo2012monads}, Kiselyov and
-Shan~\cite{kiselyov2010lambda} and Barker~\cite{barker2015monads}.
+Shan~\cite{kiselyov2010lambda} and Barker and
+Bumford~\cite{barker2015monads}.
 
 Spotting monads like this is usually not that difficult because there is
 just a few common monads that tend to be reused and combined a lot. Most of
@@ -1885,7 +1873,7 @@ documentation to the Haskell monad transformer library
 \textbf{mtl}~\cite{mtl}, one can find for every common monad (transformer)
 the set of operations that it enables on the monad. For example, the reader
 monad $F(\alpha) = \gamma \to \alpha$ allows computations to \emph{ask} for
-a value of type $\alpha$ with a getter while the writer monad
+a value of type $\gamma$ with a getter while the writer monad
 $F(\alpha) = \omega \times \alpha$ lets computations \emph{write} values of
 type $\omega$ with a setter. We can then have the same functionality by
 making sure that we include these operations as either operation symbols in
@@ -1969,7 +1957,7 @@ missing argument. This can be easily solved by having distinct abstract
 types for optional and non-optional NPs and only permit the appearance of
 $\op{abort}$ in the interpretations of optional constituents (i.e.\
 $\sem{NP} = \FF_E(\iota)$ and
-$\sem{NP^\petito} = \FF_{E \uplus \{\typedop{abort}{1}{0}\}}(\iota)$). Then
+$\sem{NP^\petito} = \FF_{E \uplus \{\typedop{abort}{1}{0}\}}(\iota)$). Then,
 a lexical entry which accepts an optional argument but does not explicitly
 handle the case when it is missing would not type-check. However, since we
 end up having to use distinct types for optional and non-optional items and

@@ -2,24 +2,25 @@
 \label{chap:dynamic-semantics}
 
 We will now examine dynamic semantics. We will consider two theories of
-dynamics in natural language: Kamp's DRT~\cite{kamp1993discourse} and de
-Groote's TTDL~\cite{de2006towards,lebedeva2012expression}. We will build a
-$\banana{\lambda}$ analysis of dynamics and link it to both theories, as a
-side effect showing how DRT links to TTDL.\@ The analysis we will present
-can be motivated on the grounds of either DRT or TTDL.\@ We can look at the
-monad at the core of TTDL and devise operations that let us perform
-interesting things within the monad (quantifying over the discourse and
-modifying the discourse state). While this is the process that we have
-followed to discover this analysis (presented
-in~\cite{marsik2014algebraic}), we will follow a novel strategy in this
-exposition. We will start with DRT, more specifically its presentation in
-Kamp and Reyle's canonical textbook~\cite{kamp1993discourse}, and show how
-to translate it into $\banana{\lambda}$ computations
-(Section~\ref{sec:banana-drt}). We will then interpret those computations
-as TTDL dynamic propositions.
+dynamics in natural language: Kamp's DRT~\cite{kamp1993discourse}
+(Section~\ref{sec:drt}) and de Groote's
+TTDL~\cite{de2006towards,lebedeva2012expression}
+(Section~\ref{sec:ttdl}). We will build a $\banana{\lambda}$ analysis of
+dynamics and link it to both theories, as a side effect showing how DRT
+links to TTDL.\@ The analysis we will present can be motivated on the
+grounds of either DRT or TTDL.\@ We can look at the monad at the core of
+TTDL and devise operations that let us perform interesting things within
+the monad (quantifying over the discourse and modifying the discourse
+state). While this is the process that we have followed to discover this
+analysis (presented in~\cite{marsik2014algebraic}), we will follow a novel
+strategy in this exposition. We will start with DRT, more specifically its
+presentation in Kamp and Reyle's canonical
+textbook~\cite{kamp1993discourse}, and show how to translate it into
+$\banana{\lambda}$ computations (Section~\ref{sec:banana-drt}). We will
+then interpret those computations as TTDL dynamic propositions.
 
 Afterwards, we will have our first taste of combining different effects. We
-will enhance our theory of dynamics with a treatment of presupposition
+will enhance our theory of dynamics with a treatment of presuppositions
 covering projection, cancellation and accommodation. Our analysis will be
 based on Lebedeva's extension of TTDL~\cite{lebedeva2012expression}, which
 uses exceptions and exception handlers to handle presupposition projection
@@ -75,8 +76,8 @@ $\banana{\lambda}$.
 
 \vspace{6mm}
 
-In~\ref{ssec:drs}, we have said that the conditions of a DRS are atomic
-formulas of predicate logic: predicates applied to variables or
+In~\ref{ssec:drt-drss}, we have said that the conditions of a DRS are
+atomic formulas of predicate logic: predicates applied to variables or
 constants. However, during DRS construction, this notion is expanded. The
 atomic predicates described above are called \emph{irreducible
   conditions}. Along with them, we will also have syntactic trees as

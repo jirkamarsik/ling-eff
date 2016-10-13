@@ -15,6 +15,10 @@
 * use parens around the elements of lists
 * free monads in conclusion
 * add normalization to future work
+* rename (typing) contexts to environments
+* make dynamic logic ops pretty again
+* Conclusion: talk about flexibility of changing implicatures from writer
+  monad to dynamic monad
 
 Reading:
 * Look at some of the earlier work form Giorgolo and Asudeh
