@@ -4,7 +4,7 @@
 In Chapters~\ref{chap:introducing-effects}
 and~\ref{chap:dynamic-semantics}, we have seen $\calc$ analyses of
 deixis~(\ref{sec:deixis}), conventional
-implicature~\ref{sec:conventional-implicature},
+implicature~(\ref{sec:conventional-implicature}),
 quantification~(\ref{sec:quantification}), anaphora~(\ref{sec:banana-drt})
 and presupposition~(\ref{sec:presuppositions}). All of those analyses
 shared the same structure: constituents of atomic abstract type were
@@ -64,7 +64,7 @@ from~\ref{ssec:monad} and~\ref{ssec:free-monad}. In contrast to the
 approach used in Charlow's dissertation~\cite{charlow2014semantics}, we
 explore the use of effects and handlers instead of monad transformers and
 we perform all computation in a formally defined object language $\calc$,
-which is an extension of the simply-typed lambda calculus.
+which is an extension of the simply-typed $\lambda$-calculus.
 
 In~\ref{sec:presuppositions}, we have already seen how to combine our
 treatment of anaphora with a treatment of presuppositions. We will extend
@@ -81,7 +81,7 @@ have used when adding presuppositions:
   use of dynamic negation, into an open handler.
 \item We will update the existing entries in the grammar(s) to reflect any
   interactions between the lexical entries and phenomena present in both
-  treatments. In the case of presupposition, we have made it so that
+  treatments. In the case of presuppositions, we have made it so that
   contexts can cancel
   presuppositions~(\ref{ssec:cancelling-presuppositions}) and accommodate
   presuppositions~(\ref{ssec:ambiguous-accommodation}) by modifying the
@@ -116,7 +116,7 @@ be more in line with the categorial tradition. Instead of using
 non-lexicalized rules such as $\abs{trans} : VP \limp NP \limp NP \limp S$
 and $\abs{common} : CN \limp N$ (which were standing in for the DRT
 construction rules $\crlitv$ and $\crlin$), we will be using lexicalized
-items such as $\abs{loves} : NP \limp NP \limp S$ and $\abs{man} : N$.
+entries such as $\abs{loves} : NP \limp NP \limp S$ and $\abs{man} : N$.
 
 We first give the lexical items in our grammar and their syntactic types
 (i.e.\ the abstract signature).
@@ -244,9 +244,10 @@ in~\ref{sec:banana-drt}, with the following changes:
 \item We also give interpretations to the two new constants, $\_.\_$ and
   $\abs{nil}$. We interpret the empty discourse $\abs{nil}$ as a discourse
   which contributes nothing, a trivial computation that immediately returns
-  the dummy value $\star$. The discourse extension operator $\_.\_$ is
-  interpreted the same as the dynamic conjunction $\dand$, by chaining the
-  evaluation of its constituents.
+  the dummy value $\star$.\footnote{$\etaE{\star}$ is also the neutral
+    element for dynamic conjunction.} The discourse extension operator
+  $\_.\_$ is interpreted the same as the dynamic conjunction $\dand$, by
+  chaining the evaluation of its constituents.
 \end{itemize}
 
 In the interpretations, we make use of \emph{dynamic} logical operators
@@ -274,8 +275,7 @@ these operators:
 \item The existential quantifier
   $\dexists : (\iota \to \FF_E(1)) \to \FF_E(1)$ uses the $\op{introduce}$
   operation to scope over its continuation. This, in combination with the
-  previous fact, allows us to derive the key equation of Dynamic Predicate
-  Logic~\cite{groenendijk1991dynamic}
+  previous fact, allows us to derive the key law of dynamic logic
   $(\dexists x.\,A) \dand B = (\dexists x.\,A \dand B)$.\footnote{The
     equation follows from a single reduction using the $\op{op}.\hsbind$
     rule~(Property~\ref{prop:bind-rules}).}
@@ -378,7 +378,7 @@ expressing ownership or other relations (\emph{$X$'s car}, \emph{$X$'s
 \begin{align*}
   \abs{John}, \abs{Mary} &: NP \\
   \abs{poss} &: NP \limp N \limp NP \\
-  \abs{children}, \abs{best-friend} &: NP \limp NP \\
+  \abs{children-of}, \abs{best-friend} &: NP \limp NP \\
   \abs{the} &: N \limp NP
 \end{align*}
 
@@ -457,9 +457,9 @@ presuppositions:
 \end{itemize}
 
 Below, we give the definition of the handlers for the new $\op{presuppose}$
-which account for the ways a presupposition can be eliminated: global
-accommodation ($\accommodate$), local accommodation ($\maybeAccommodate$)
-or cancellation ($\useFind$).
+operation which account for the ways a presupposition can be eliminated:
+global accommodation ($\accommodate$), local accommodation
+($\maybeAccommodate$) or cancellation ($\useFind$).
 
 \begin{align*}
   \accommodate &: \FF_{E \uplus \{\op{presuppose}\}}(\alpha) \to \FF_E(\alpha) \\
@@ -479,7 +479,7 @@ definitions of $\find$ and $+$ given below.
 
 \begin{align*}
   \find &: (\iota \to o) \to \FF_{E \uplus \{\op{get}, \op{presuppose}\}}(\iota) \\
-  \find &= \lam{P}{\app{\op{get}}{\star}{(\lam{e}{\case{\selP(P, e)}{x}{\etaE{x}}{\_}{\ap{\op{presuppose}!}{P}}})}} \\
+  \find &= \lam{P}{\app{\op{get}}{\star}{(\lam{e}{\case{(\app{\selP}{P}{e})}{x}{\etaE{x}}{\_}{\ap{\op{presuppose}!}{P}}})}} \\
   \_+\_ &: \FF_{E \uplus \{\op{amb}\}}(\alpha) \to \FF_{E \uplus \{\op{amb}\}}(\alpha) \to \FF_{E \uplus \{\op{amb}\}}(\alpha) \\
   M + N &= \app{\op{amb}}{\star}{(\lam{b}{\ifte{b}{M}{N}})}
 \end{align*}
@@ -806,7 +806,7 @@ approach is closer to Projective DRT.\@ In Projective DRT, the DRSs are
 labelled and every discourse referent and condition is annotated with a
 pointer which either points to a label or is free. Assertions point to the
 containing DRS while conventional implicatures point to the topmost DRS.\@
-Presuppositions either to point to a local/intermediate DRS when the
+Presuppositions either point to a local/intermediate DRS when the
 presupposition is bound (``cancelled''), or they are free, in which case
 they project and accommodate in the topmost DRS.
 
@@ -879,7 +879,7 @@ new constant representing the pronoun as well as verbs for reported speech.
 \end{align*}
 
 To give a meaning to reported speech, we will introduce into the object
-signature a predicate $\obj{say}$:
+signature the predicate $\obj{say}$:
 
 \begin{align*}
   \obj{say} &: \iota \to o \to o
@@ -1044,10 +1044,10 @@ alternative readings, we will adopt the solution of quantifier raising
 from~\ref{ssec:quantifier-ambiguity}.
 
 We can also check that the new entry for the indefinite article $\abs{a'}$
-amounts to almost the same thing as the one for $\abs{a}$:\footnote{The
-  difference being that $\abs{a'}$ projects to the $\BOX$ which contains
-  the nearest scope island marker $\SI$, whereas $\abs{a}$ project to the
-  nearest $\BOX$.}
+amounts to almost the same thing as the existing one for
+$\abs{a}$:\footnote{The difference being that $\abs{a'}$ projects to the
+  $\BOX$ which contains the nearest scope island marker $\SI$, whereas
+  $\abs{a}$ project to the nearest $\BOX$.}
 
 \begin{align*}
 \ap{\SI}{(\ap{\sem{\abs{a'}}}{N})}
@@ -1254,7 +1254,7 @@ Example~\ref{ex:inverse}.
   sentences which are not indexical. In such cases, we will overload $\TOP$
   to also mean ``the $\TOP$ handler without the $\withSpeaker$ handler'',
   type $\FF_{E \setminus \{\op{speaker}\}}(1) \to \FF_\emptyset(o)$. This
-  means will not be obliged to provide a referent for the speaker.}
+  means we will not be obliged to provide a referent for the speaker.}
 
 However, we cannot use the same mechanism to derive the incorrect reading
 of Example~\ref{ex:crossover}.
@@ -1422,8 +1422,8 @@ The latter will lead us to trouble if we try fixing the former too naively:
 Here we add the truth conditions of the relative clause to the noun by
 including the side effects of the clause in the effects of the
 noun. However, this only works when the effects of the relative clause are
-independent of the entity $x$ under consideration,\footnote{Because our use
-  of $\CC$.} which is rarely the case. For example, assuming that
+independent of the entity $x$ under consideration,\footnote{Because of our
+  use of $\CC$.} which is rarely the case. For example, assuming that
 $\sem{\lam{x}{\app{\abs{loves}}{\abs{Mary}}{x}}} =
 \lam{x}{\ap{\op{assert}!}{(\app{\obj{love}}{x}{\obj{m}})}}$, the meaning of
 \emph{man who loves Mary} becomes:
@@ -1469,7 +1469,7 @@ the noun \emph{farmer who owns a donkey}:
 
 \begin{align*}
 & \sem{\app{\abs{who}_{\abs{r}}}{(\lam{x}{\app{\abs{owns}}{(\ap{\abs{a}}{\abs{donkey}})}{x}})}{\abs{farmer}}} \\
-& \tto \etaE{(\lam{x}{\ap{\obj{man}}{x} \land (\exists y.\, \ap{\obj{donkey}}{y} \land \app{\obj{own}}{x}{y})})}
+& \tto \etaE{(\lam{x}{\ap{\obj{farmer}}{x} \land (\exists y.\, \ap{\obj{donkey}}{y} \land \app{\obj{own}}{x}{y})})}
 \end{align*}
 
 The result is a pure computation that is not going to introduce any
@@ -1708,8 +1708,8 @@ following:
 \end{align*}
 
 At this point, we would get stuck since the exception cannot propagate
-outside of the lambda abstraction $\lambda x$, because $x$ is bound within
-the exception's message,
+outside of the $\lambda$-abstraction $\lambda x$, because $x$ is bound
+within the exception's message,
 $\lam{y}{\ap{\obj{dog}}{y} \land \app{\obj{poss}}{x}{y}}$.\footnote{This
   kind of stuck term is very similar to the
   $\ap{\CC}{(\lam{x}{\app{\op{presuppose}}{(\lam{y}{\ap{\obj{dog}}{y} \land
@@ -1722,7 +1722,7 @@ solve the binding problem.\footnote{The $\textsf{iacc}$ handler that we
 handler responsible for intermediate accommodation, $\maybeAccommodate$, is
 already part of the $\BOX$ handler and so evaluation does not get stuck and
 the presupposition is accommodated. Nevertheless, to get the intended
-reading of the above noun phrase, we will have to make the argument to the
+reading of the noun phrase above, we will have to make the argument to the
 property anaphorically accessible within the noun:\footnote{In the
   presentation of TTDL in Lebedeva's thesis~\cite{lebedeva2012expression},
   adding the condition $\ap{\obj{man}}{x}$ to the context suffices to make
@@ -1960,7 +1960,7 @@ accordingly.
   \\
   \find &: (\iota \to \FF_{E^*}(1)) \to \FF_{E \uplus \{\op{get}, \op{presuppose}\}}(\iota) \\
   \find &=
-          \lam{P}{\app{\op{get}}{\star}{(\lam{e}{\case{\app{\selP}{(\cherry \circ \empty \circ \box \circ P)}{e}}{x}{\etaE{x}}{\_}{\ap{\op{presuppose}!}{P}}})}}
+          \lam{P}{\app{\op{get}}{\star}{(\lam{e}{\case{\app{\selP}{(\cherry \circ \EMPTY \circ \box \circ P)}{e}}{x}{\etaE{x}}{\_}{\ap{\op{presuppose}!}{P}}})}}
 \end{align*}
 
 In $\accommodate$ and $\maybeAccommodate$, instead of asserting
@@ -1969,7 +1969,7 @@ wherever the presupposition is being accomodated. The $\useFind$ handler
 will work the same way as before but with a new definition for $\find$
 which works on dynamic predicates of type $\iota \to \FF_{E^*}(1)$. $\find$
 will map dynamic predicates to static predicates using
-$\cherry \circ \empty \circ \BOX$. The use of $\empty \circ \BOX$ blocks
+$\cherry \circ \EMPTY \circ \BOX$. The use of $\EMPTY \circ \BOX$ blocks
 any dynamic effects in the predicate $P$.\footnote{And thanks to
   $\separateDynamics$, dynamic effects (those from $E^*$) are the only effects in
   $P$.} This can be intuitively understood as the listener considering

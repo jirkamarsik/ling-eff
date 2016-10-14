@@ -25,7 +25,7 @@ directions in which the work presented here can be extended
 \label{sec:summary}
 
 In Part~\ref{part:calculus}, we have introduced $\calc$, a formal calculus
-that extends the simply-typed lambda calculus (STLC) with effects and
+that extends the simply-typed $\lambda$-calculus (STLC) with effects and
 handlers.
 
 The definition of $\calc$ is given in
@@ -87,8 +87,9 @@ useful tool in natural language
 semantics~\cite{de2001type,barker2002continuations,shan2005linguistic,de2006towards,barker2006continuations,barker2014continuations}. In
 Chapter~\ref{chap:continuations}, we have shown how $\calc$ can simulate
 delimited continuations, namely the $\shift$/$\reset$ delimited control
-operators. We presented a typed call-by-value lambda calculus with $\shift$
-and $\reset$ and have simulated its types and reductions in $\calc$.
+operators. We presented a typed call-by-value $\lambda$-calculus with
+$\shift$ and $\reset$ and have simulated its types and reductions in
+$\calc$.
 
 In Part~\ref{part:natural-language}, we have demonstrated the applications
 of $\calc$ to the problem of modelling the meaning of natural language
@@ -105,7 +106,7 @@ several linguistic phenomena in the framework of $\calc$ computations:
 deixis (Section~\ref{sec:deixis}), conventional implicature à la Potts
 (Section~\ref{sec:conventional-implicature}) and quantification à la
 Montague (Section~\ref{sec:quantification}). We have then explicitly
-described the methodology given to find the kinds of analyses that we have
+described the methodology used to find the kinds of analyses that we have
 presented in Chapter~\ref{chap:introducing-effects} as to encourage
 researchers to develop other analyses in the framework.
 
@@ -116,7 +117,7 @@ can be extracted from Discourse Representation Theory. This gave us a way
 to handle dynamics in $\calc$ as well as strengthen the claim that effects
 and handlers are suitable mechanisms for dealing with natural language. We
 have also shown how to interpret the $\calc$ computations as the dynamic
-propositions of de Groote's Type Theoretical Dynamic Logic
+propositions of de Groote's Type-Theoretic Dynamic Logic
 (TTDL)~\cite{de2006towards}. In her
 dissertation~\cite{lebedeva2012expression}, Lebedeva extended TTDL with
 exceptions to treat presuppositions and in
@@ -153,12 +154,12 @@ $\calc$ can be compared to several existing calculi and implementations of
 effects and handlers:
 
 \begin{itemize}
-\item System F (i.e.\ the polymorphic lambda calculus or the second-order
-  lambda calculus)
+\item System F (i.e.\ the polymorphic $\lambda$-calculus or the
+  second-order $\lambda$-calculus)
 
-  $\calc$ extends the simply-typed lambda calculus with computation types
-  $\FF_E(\alpha)$. Computations are algebraic expressions and as such can
-  be expressed as inductive data types.\footnote{An inductive type is a
+  $\calc$ extends the simply-typed $\lambda$-calculus with computation
+  types $\FF_E(\alpha)$. Computations are algebraic expressions and as such
+  can be expressed as inductive data types.\footnote{An inductive type is a
     recursive type with positive
     constructors. In~\ref{ssec:termination-for-idts}, we have seen that a
     computation type $\FF_E(\alpha)$ has positive constructors $\eta$ and
@@ -204,7 +205,7 @@ effects and handlers:
 \item $\lambda_{\mathrm{eff}}$
 
   The $\lambda_{\mathrm{eff}}$ calculus~\cite{kammar2013handlers} is a
-  call-by-push-value lambda calculus~\cite{levy1999call} with operations
+  call-by-push-value $\lambda$-calculus~\cite{levy1999call} with operations
   and handlers. Call-by-push-value is special in introducing two kinds of
   terms: computations and values. The intuition behind the two is that
   computations \emph{do}, whereas values \emph{are}. Two of the crucial
@@ -235,7 +236,7 @@ effects and handlers:
 
   $\lambda_{\mathrm{eff}}$ presents an intriguing alternative to
   $\calc$. The call-by-push-value calculus is flexible enough to
-  accommodate both call-by-name and call-by-value. $\lambda$ abstractions
+  accommodate both call-by-name and call-by-value. $\lambda$-abstractions
   and operations are both treated as effects, which might make the
   definition of the $\CC$ operator, which permutes $\lambda$ with
   operations, more intuitive.\footnote{The extra typing rule for the $\CC$
@@ -252,9 +253,9 @@ effects and handlers:
   $\calc$; notably, $\calc$'s effect system is based on that of
   $\lambda_{\mathrm{eff}}$. However, $\calc$ diverges from
   $\lambda_{\mathrm{eff}}$ in that it is a proper extension of the
-  simply-typed lambda calculus (STLC): every term, type, typing judgment or
-  reduction in STLC is also a term, type, typing judgment or reduction in
-  $\calc$. For example, the STLC term $\lam{x}{x}$ is not a
+  simply-typed $\lambda$-calculus (STLC): every term, type, typing judgment
+  or reduction in STLC is also a term, type, typing judgment or reduction
+  in $\calc$. For example, the STLC term $\lam{x}{x}$ is not a
   $\lambda_{\mathrm{eff}}$ term. Its closest counterparts in
   $\lambda_{\mathrm{eff}}$ would be either
   $\vdash_\emptyset \lam{x}{\textbf{return } x} : A \to F(A)$, where $A$ is
@@ -431,8 +432,8 @@ If we ignore the $\pC$ operator for the moment and focus only on the $\pT$
 type transformer, the $\pU$ and $\pBullet$ operations and the first of the
 two laws, we see that we have a weaker version of an applicative
 functor. An applicative functor is a functor, which, in our category, is a
-type transformer such as $\pT$,\footnote{Ignoring the arrow-component for
-  the morphism.} equipped with two operations, $\pure$ and $\circledast$,
+type transformer such as $\pT$,\footnote{Ignoring the arrow-component of
+  the functor.} equipped with two operations, $\pure$ and $\circledast$,
 which have the same types as $\pU$ and $\pBullet$ respectively, and which
 satisfy the four laws given in~\ref{ssec:applicative-functor}. The first of
 the two laws given above is the homomorphism law~\ref{law:app-homomorphism}
@@ -445,7 +446,7 @@ operator that we added to $\calc$ (with $\FF_E$ corresponding to
 $\pT$). Its behavior is specified only by the second law, which defines the
 value of $\pC$ when applied to a pure function (a function of the form
 $\lam{x}{\ap{\pU}{(\ap{f}{x})}}$). Our $\CC$ also obeys this law by
-including it as the $\CC_\eta$ reduction rule which is part of the
+including it as the $\CC_\eta$ reduction rule, which is part of the
 definition of $\CC$:\footnote{The fact that we can take this law and use it
   as a definition of the $\CC$ operator is due to $\eta$ being a
   constructor in $\calc$, $\eta$-headed expressions are not head-reducible
@@ -596,15 +597,15 @@ existing analyses to the $\calc$ framework:
   handler for $\op{speaker}$ that appears within a lexical entry, we turned
   to direct quotations. However, the meanings that we give to sentences
   such as Example~\ref{ex:mary-peter} only express part of the
-  meaning. Namely, we capture the fact Peter claims that Mary kissed
+  meaning. Namely, we capture the fact that Peter claims that Mary kissed
   him. Nevertheless, the sentence also entails that Peter uttered the
   sentence ``Mary kissed me''. Therefore, in our analysis, the sentence in
   Example~\ref{ex:mary-peter} would be judged equivalent to the sentence in
   Example~\ref{ex:peter-mary}. The meaning of direct quotation does not
   depend only on the meaning of the quoted clause, but on its exact
-  form. Since our system is strictly compositional,\footnote{We are using
-    abstract categorial grammars for the syntax-semantics interface.} we
-  would need to make it so that the meaning of every sentence is the
+  form. Since our system is strictly compositional,\footnote{Because we are
+    using abstract categorial grammars for the syntax-semantics interface.}
+  we would need to make it so that the meaning of every sentence is the
   sentence itself. More elaborate treatments of quotation can be found
   in~\cite{geurts2003quotation,potts2007dimensions,shan2010character}.
 
@@ -640,7 +641,7 @@ existing analyses to the $\calc$ framework:
   lends itself very well to the handler abstraction. In our treatment of
   dynamics, we use an effect handler ($\BOX$) and avoid the overt
   manipulation of any tree or stack of contexts; our contexts are just sets
-  discourse referents propositions.
+  discourse referents and propositions.
 
 
 \item Presuppositions
@@ -683,7 +684,7 @@ appeared. Below, we relate them to our approach.
 
   Monad transformers map simpler monads into more complex monads with some
   additional structure. If we want to have a monad with enough structure
-  for, e.g., state, non-determinism and exceptions, we can take the
+  for, e.g., state, nondeterminism and exceptions, we can take the
   corresponding monad transformers and apply them, one after another, to
   some base monad. Monad transformers were evoked as a possible solution to
   the problem of composing monads by Shan in his first paper on monads for
@@ -711,7 +712,7 @@ appeared. Below, we relate them to our approach.
   the set of possible readings. The output state will be just the input
   state $s$ and the set of possible readings will be the singleton set
   $\{\left< s_\top, s \right>\}$. This is the case even though the pronoun
-  has no non-deterministic effect, i.e.\ its structure in the set monad is
+  has no nondeterministic effect, i.e.\ its structure in the set monad is
   trivial. We contrast this with the entry for pronouns that we use in
   $\calc$:
 
@@ -738,7 +739,7 @@ appeared. Below, we relate them to our approach.
   gives us and then we write abstract polymorphic terms which can be
   interpreted in different monads provided that they have enough structure
   to interpret the capability/operation. This is the method presented
-  in\cite{liang1995monad,jones1995functional} and used in (Haskell)
+  in~\cite{liang1995monad,jones1995functional} and used in (Haskell)
   libraries implementing monad transformers~\cite{mtl}. However,
   formalizing this method already leads us half of the way towards effect
   and handlers (we write computations using abstract operations and the
@@ -753,9 +754,9 @@ appeared. Below, we relate them to our approach.
   course~\cite{barker2015monads,charlow2015monads}, Simon Charlow presented
   another strategy for combining the different monads. It consists of
   adding the $\eta$ and the $\hsbind$ of every monad to the lexicon as type
-  shifters. When given a sentence, the grammar then assigns a reading for
-  every possible way to glue the meanings of the parts of the sentence in a
-  type-sound way. There is therefore no need to define any supermonad to
+  shifters. When given a sentence, the grammar then assigns a reading to
+  every possible way of gluing the meanings of the parts of the sentence in
+  a type-sound way. There is therefore no need to define any supermonad to
   serve as the universal glue since the task of gluing together the pieces
   from different monads is up to the parser. The same strategy was also
   adopted by Giorgolo and Asudeh in their ESSLLI 2015
@@ -968,11 +969,11 @@ linguistic phenomena. Nevertheless, we believe that the use of effects and
 handlers might be interesting to those considering using monad transformers
 to build a formal semantics. This is especially the case if one is
 considering to do so in the context of an ACG and wants to therefore use a
-formal lambda calculus for the semantic calculations. Out of the
+formal $\lambda$-calculus for the semantic calculations. Out of the
 alternatives mentioned in this subsection, we found the approach of setting
 monads loose and letting the grammar figure out the semantic glue
-particularly intriguing as it tries to sidestep the issue of composing the
-monads.
+particularly intriguing as it tries to elegantly sidestep the issue of
+composing the monads.
 
 
 \section{Future Work}
@@ -1004,7 +1005,7 @@ both.
 
   The denotational semantics is useful for reasoning about $\calc$
   programs. Strengthening the formal link between the denotational
-  semantics and the reductions semantics would therefore be most
+  semantics and the reduction semantics would therefore be most
   welcome. The kind of property we are looking for is known as
   \emph{adequacy} and it states that if a program and a value have the same
   denotation, then the program must be able to reduce to that value. For

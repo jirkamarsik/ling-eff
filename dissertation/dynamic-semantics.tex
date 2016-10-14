@@ -75,13 +75,13 @@ $\banana{\lambda}$.
 
 \vspace{6mm}
 
-In~\ref{ssec:drt-drss}, we have said that the conditions of a DRS are
-atomic formulas of predicate logic: predicates applied to variables or
-constants. However, during DRS construction, this notion is expanded. The
-atomic predicates described above are called \emph{irreducible
-  conditions}. Along with them, we will also have syntactic trees as
-conditions. Furthermore, these syntactic trees might contain discourse
-referents.
+In~\ref{ssec:drt-drss}, we have seen that the conditions of a DRS resemble
+formulas of predicate logic: predicates applied to variables and logical
+operators such as negation, implication or disjunction. However, during DRS
+construction, this notion is expanded. The formulas described above are
+called \emph{irreducible conditions}. Along with them, we will also have
+syntactic trees as conditions. Furthermore, these syntactic trees might
+contain discourse referents.
 
 We will look at DRS construction for an example
 from~\cite{kamp1993discourse} (Example~(1.28), Section~1.1.3):
@@ -262,7 +262,7 @@ $\app{\obj{fascinate}}{\dru}{\drv}$
 \end{tabular}
 \end{center}
 
-For the object noun we do the same, introducing the discourse referent
+For the object pronoun we do the same, introducing the discourse referent
 $\drv$ and the condition $\drv = \drx$. Finally, all that is left is to
 translate the transitive verb into a binary relation and we get the final
 DRS representation.
@@ -298,7 +298,7 @@ highest node of any other triggering configuration that $\gamma$ contains.''
 \end{quote}
 
 In this rule, the extra piece of context in the triggering configuration
-make it so that the application of the rule to the subject dominates the
+makes it so that the application of the rule to the subject dominates the
 application of the same rule to the object and therefore fixes evaluation
 order: first subject, then object.
 
@@ -320,7 +320,7 @@ apply it to the discourse referent $u$.
 \end{figure}
 
 The rule for pronouns, $\crpro$ in Figure~\ref{fig:crpro}, is very
-similar. In introduces a new kind of operation, in which the NP being
+similar. It introduces a new kind of operation, in which the NP being
 evaluated is asking its context for a suitable anaphoric referent.
 
 We will leave the rule for proper nouns until
@@ -346,7 +346,7 @@ respectively.
 \end{figure}
 
 The system from~\cite{kamp1993discourse} described above can be presented
-in a manner reminiscent of operational semantics for programming languages.
+in a manner reminiscent of operational semantics of programming languages.
 
 The terms of this language are DRSs which contain as conditions syntactic
 trees with discourse referents. The values in this language are discourse
@@ -404,19 +404,19 @@ $$
 $$
 
 Likewise, there is an analogue for evaluating indefinite descriptions in
-object positions which differs only in the triggerring configuration. The
+object positions which differs only in the triggering configuration. The
 reduction rules for $\crpro$, $\crlin$ and $\crlitv$ can be derived in the
 same way. Then, the DRS that corresponds to a sentence can be seen as a
 normal form\footnote{The system permits reductions in different conditions
-  at the same time and is therefore not confluent. Hence the indefinite
-  article in ``\emph{a normal form}''.} in this reduction system.
+  at the same time and is therefore not confluent.} in this reduction
+system.
 
 If we look at the rule, then we can see a remarkable similarity to the
 rules seen in Chapter~\ref{chap:continuations} for $\lambda_\shift$ and
 $\lambda_\shifto$. Inside the context $C$, we have some kind of delimiting
 construction, a DRS in one case and a $\reset$ in the other. As one of the
 arguments of this construction, we have an expression buried inside a more
-limited context: $C_\gamma$, which cannot contain any more nested DRSs, and
+limited context, $C_\gamma$, which cannot contain any more nested DRSs, and
 $F$, which cannot contain any more $\reset$s. In the case of DRT, this
 buried expression is an indefinite or a pronoun which wants to access the
 context's DRS to add (and possibly look for) discourse referents and
@@ -597,17 +597,17 @@ own.
 
 \vspace{6mm}
 
-We, as well as Kamp and Reyle, assume that behind every common noun
-$\alpha$ lies a set of individuals, a predicate $\alpha$. The lexical
-insertion rule for nouns replaces the noun by that predicate. We can
-capture the same line of reasoning in ACGs. We contrast the category $CN$
-of common nouns (such as \emph{snowman}, \emph{snake}, \emph{ladder}) to
-the larger category $N$ of nouns (\emph{animal in your garden}, \emph{man
-  who owns a donkey}). The common nouns will correspond to plain sets of
-individuals, $\sem{CN} = \iota \to o$. However, more complex nouns might
-also have effects\footnote{In the case of dynamics, it might be just
-  anaphora, but more generally it might also be indexicality,
-  quantification, conventional implicature\ldots}  and so we have
+We assume that behind every common noun $\alpha$ lies a set of individuals,
+a predicate $\alpha$. The lexical insertion rule for nouns replaces the
+noun by that predicate. We can capture the same line of reasoning in
+ACGs. We contrast the category $CN$ of common nouns (such as
+\emph{snowman}, \emph{snake}, \emph{ladder}) to the larger category $N$ of
+nouns (\emph{animal in your garden}, \emph{man who owns a donkey}). The
+common nouns will correspond to plain sets of individuals,
+$\sem{CN} = \iota \to o$. However, more complex nouns might also have
+effects\footnote{In the case of dynamics, it might be just anaphora, but
+  more generally it might also be indexicality, quantification,
+  conventional implicature\ldots} and so we have
 $\sem{N} = \FF_E(\iota \to o)$. In ACGs, to say that every common noun $CN$
 is a noun $N$ is to provide an injection of type $CN \limp
 N$. Homomorphically, its denotation will be an injection from $\iota \to o$
@@ -640,7 +640,7 @@ same as with $\crlin$. Behind every (extensional transitive) verb $\alpha$
 lies a binary relation, also called $\alpha$. When combined with a subject
 and an object, verbs form sentences. This is embodied by the ACG abstract
 constant $\abs{trans}$ which maps verbs from $V$ into functions in
-$NP \limp NP \limp S$. From the triggerring configuration of the rule
+$NP \limp NP \limp S$. From the triggering configuration of the rule
 $\crlitv$, we see that (the parent of) the subject dominates (the parent
 of) the object. This leads DRT to always evaluate the dynamic effects of
 the subject before the object. In $\banana{\lambda}$, this feature is
@@ -655,8 +655,8 @@ evaluated before $Y$ using $\hsbind$.
 We have seen how to map the syntax-semantics construction rules of DRT into
 the ACG formalism and how the extra steps performed when reducing
 indefinites or pronouns in DRT correspond to operations, with which we have
-extended ACG's lambda calculus in $\banana{\lambda}$. We can now look at an
-example in action.
+extended ACG's $\lambda$-calculus in $\banana{\lambda}$. We can now look at
+an example in action.
 
 \begin{exe}
   \ex \label{ex:man-porsche} A man owns a Porsche. It fascinates him.
@@ -762,13 +762,13 @@ pronouns in
 TTDL~\cite{de2006towards}~(Subsection~\ref{ssec:ttdl-lexicon}). The clause
 for $\op{introduce}$ is the denotation of the indefinite \emph{someone},
 also known as the dynamic existential quantifier
-in~\cite{lebedeva2012expression}. This is not a coincidence. The clauses
-for $\op{choose}$ and $\op{introduce}$ are both values of type $\iota$
-written in continuation-passing style with observation type
-$\Omega = \gamma \to (\gamma \to o) \to o$, i.e.\ values of type
-$(\iota \to \Omega) \to \Omega$. TTDL uses continuation-passing style
-(generalized quantifiers) in the denotation of its noun phrases and so
-their denotations end up having the same type. The two noun phrases, the
+in~\cite{lebedeva2012expression}~(Subsection~\ref{ssec:ttdl-logic}). This
+is not a coincidence. The clauses for $\op{choose}$ and $\op{introduce}$
+are both values of type $\iota$ written in continuation-passing style with
+observation type $\Omega = \gamma \to (\gamma \to o) \to o$, i.e.\ values
+of type $(\iota \to \Omega) \to \Omega$. TTDL uses continuation-passing
+style (generalized quantifiers) in the denotation of its noun phrases and
+so their denotations end up having the same type. The two noun phrases, the
 pronoun and the indefinite, stand for the two major ways that dynamic noun
 phrases interact with their contexts, retrieving their referents from
 context or introducing new ones into the context. Together with
@@ -820,7 +820,7 @@ two handlers to get the dynamic proposition.
 where:
 \vspace{-1mm}
 \begin{align*}
-  e_1 &= \ap{\obj{Porsche}}{y} \cons y \cons \ap{\obj{man}}{x} \cons x \cons e \\
+  e_1 &= (\ap{\obj{Porsche}}{y}) \cons y \cons (\ap{\obj{man}}{x}) \cons x \cons e \\
   e_2 &= (u = \ap{\sel}{e_1}) \cons u \cons e_1 \\
   e_3 &= (v = \ap{\sel}{e_2}) \cons v \cons e_2
 \end{align*}
@@ -866,7 +866,7 @@ The definition of dynamic negation in TTDL
 from~\cite{lebedeva2012expression} will be a great guide in how to proceed:
 
 \begin{align*}
-\dnot_{\TTDL} \_ &: \Omega \to \Omega \\
+\dnot_{\TTDL} &: \Omega \to \Omega \\
 \dnot_{\TTDL} A &= \lam{e \phi}{\lnot (\app{A}{e}{(\lam{e}{\top})}) \land \ap{\phi}{e}}
 \end{align*}
 
@@ -983,8 +983,8 @@ handler to extract the proposition that is represented by this computation.
 \end{align*}
 
 The handler differs from the original $\TTDL$ only in the $\eta$ clause,
-which substitutes $\top$ for the returned proposition $p$ in
-$\lam{e \phi}{p \land \ap{\phi}{e}}$.
+which substitutes the dynamic tautology $\top$ for the returned proposition
+$p$ in $\lam{e \phi}{p \land \ap{\phi}{e}}$.
 
 We can use computations of type $\FF_{E_\DRT}(1)$ as our type of dynamic
 (i.e.\ effectful) propositions. We can embed simple propositions using
@@ -1207,11 +1207,11 @@ are equivalent.
 The simplification in the second equation is based on an assumption that
 $((\ap{\sel}{e} = y) \cons y \cons e) = e$. In other words, if an
 individual is already present in the context (the individual
-$\ap{\sel}{e}$), adding it again under a different name ($y$) does not
+$\ap{\sel}{e}$), adding them again under a different name ($y$) does not
 change the context. While certain strategies of anaphora resolution might
 rely on individuals being repeatedly added to the context on every
 use,\footnote{For example when contexts are lists of individuals ordered by
-  saliency and adding the same individual multiple times increases its
+  saliency and adding the same individual multiple times increases their
   saliency.} we allow ourselves this modification to simplify the
 derivations in the coming examples and make the resulting logical formulas
 more readable. Therefore, we will be using this simplified denotation for
@@ -1307,8 +1307,8 @@ of this in our treatment of presuppositions by using $\iota$ as the output
 type of $\op{presuppose}$. This way, we do not have to abort the evaluation
 of the sentence, rewind all of the effects and evaluate it again; we return
 the presupposed entity immediately and the evaluation of the sentence
-continues. This strategy also avoid the over-generation mentioned above, in
-which a presupposition trigger binds a pronoun preceding it.
+continues. This strategy also avoids the over-generation mentioned above,
+in which a presupposition trigger binds a pronoun preceding it.
 
 We have shown how the $\op{presuppose}$ operation can be motivated on the
 grounds of the analysis done by Lebedeva
@@ -1334,10 +1334,10 @@ this also has an advantage when we start to consider ambiguous ways of
 accommodating presuppositions (\ref{ssec:ambiguous-accommodation}). Suppose
 we have two operations, $\op{introduce\_somewhere}$ and
 $\op{assert\_somewhere}$, that let us introduce discourse referents and
-conditions into arbitrary DRSs on the projection line\footnote{A
+conditions into arbitrary DRSs on the projection line.\footnote{A
   \emph{projection line} is a path in the immediate-subordination tree from
   a sub-DRS to the root DRS~\cite{van1992presupposition}. See the
-  definition of immediate subordination in~\ref{ssec:drt-context}.}. We
+  definition of immediate subordination in~\ref{ssec:drt-context}.} We
 might then end up accommodating the discourse referent and the condition in
 different DRS, yielding an undesired meaning. If we package the two
 operations into a single $\op{presuppose\_somewhere}$, then we do not have
@@ -1410,7 +1410,7 @@ the closed $\bbanana{}$ in the following ways:
   predicate $P$ as $\existsr P$.
 \end{itemize}
 
-After having interpreted the $A : \FF_{E \uplus E_\DRT}(1)$ using the
+After having interpreted $A : \FF_{E \uplus E_\DRT}(1)$ using the
 $\banana{}$, we get a computation of type $\FF_E(\gamma \to \FF_E(o))$. In
 order to apply it to an $e : \gamma$, we use the $\apll$ combinator one
 last time.
@@ -1573,7 +1573,7 @@ a discourse referent and a condition.
   \accommodate &= \banana{\onto{\op{presuppose}}{(\lam{P k}{\app{\op{introduce}}{\star}{(\lam{x}{\app{\op{assert}}{(\ap{P}{x})}{(\lam{\_}{\ap{k}{x}})}})}})}}
 \end{align*}
 
-The accommodate handler turns presupposed content into asserted
+The $\accommodate$ handler turns presupposed content into asserted
 content. The place we want to do that is usually on the level of the
 topmost DRS.\@ We can define a combinator which corresponds to the idea of
 a top DRS.
@@ -1597,7 +1597,7 @@ the denotation of the first sentence.
 \end{align*}
 
 Wrapping a dynamic negation over this will resolve all the $\op{introduce}$
-and $\op{assert}$ operations but the $\op{presuppose}$ will prevail.
+and $\op{assert}$ operations, but the $\op{presuppose}$ will prevail.
 
 \begin{align*}
 &\dnot\ \sem{S_1} \\
@@ -1730,12 +1730,12 @@ if there is no suitable referent, as a presupposition trigger.
 
 The final part of the puzzle is how to make the context of the antecedent
 (\emph{John owns a car}) available in the consequent (\emph{his car is
-  cheap}). DRT has special accessibility rules for implications, but
-in~\ref{sec:intro-drt} we have seen how to translate DRT implications into
-negations and conjunctions while preserving accessibility\footnote{The same
-  technique is applied in the TTDL of~\cite{lebedeva2012expression}.}. We
-will use the same strategy to correctly deal with accessibility in
-conditional utterances.
+  cheap}). DRT has special accessibility rules for implications, but in
+Subsection~\ref{ssec:drt-implication-disjunction}, we have seen how to
+translate DRT implications into negations and conjunctions while preserving
+accessibility.\footnote{The same technique is applied in the TTDL
+  of~\cite{lebedeva2012expression}.}  We will use the same strategy to
+correctly deal with accessibility in conditional utterances.
 
 \begin{align*}
   \abs{if-then} &: S \limp S \limp S \\
@@ -1761,7 +1761,7 @@ to this context and can resolve \emph{his} to $x$ and then retrieve $y$
 using $\selP$, thus preventing the triggering of a presupposition.
 
 Instead of using $\find$ in the lexical entry of every presupposition
-trigger, there is also an alternative realization that is more in the
+trigger, there is also an alternative implementation that is more in the
 spirit of $\banana{\lambda}$. We can change the semantics of
 $\op{presuppose}$ from ``introduce a new top-level discourse referent
 satisfying the predicate'' to ``find a salient individual satisfying the
@@ -1867,7 +1867,7 @@ negate its argument.
     \end{aligned}
 \end{align*}
 
-We now move to up to the antecedent $S_1$: \emph{John owns a car}.
+We now move up to the antecedent $S_1$: \emph{John owns a car}.
 
 \begin{align*}
   \sem{S_1}
@@ -2001,7 +2001,7 @@ determine whether it will presuppose the existence of John or whether it
 will retrieve John from some (potentially hypothetical) context. This means
 our solution is compositional and if we were to place this denotation
 inside the following context, the presupposition of there being some
-salient John will be cancelled:
+salient John would be cancelled:
 
 \begin{exe}
   \ex If there is a poor man called John, then if John owns a car, his car
@@ -2114,7 +2114,7 @@ analysis by including the $\maybeAccommodate$ in the $\DBOX$ handler:
 \end{align*}
 
 Now, if our semantics for the modal operator \emph{maybe} and the attitude
-verb \emph{think} uses boxes, then we get as denotation of
+verb \emph{think} use boxes, then we get as denotation of
 Example~\ref{ex:wilma} a nondeterministic computation that yields the three
 readings mentioned above. Looking back at those three readings,
 \cite{sep-presupposition} states that while they are all possible, the
@@ -2129,13 +2129,14 @@ preferred to non-global accommodation.
 \end{quote}
 
 If it were only for this principle, we might wonder why we bothered with
-allowing accommodation in any DRS on the projection line instead of always
-accommodating globally. However, there are other forces which push in the
-opposite direction and impose constraints on presupposition projection. The
-one that we will tend to in this section is the effect of variable
-binding. A proposition being presupposed cannot escape the scope of a
-binder that binds one of its variables. In~\cite{sep-presupposition}, this
-is illustrated on the following example.
+allowing accommodation in any DRS on the projection line in the first place
+if we are going to always prefer accommodating globally. However, there are
+other forces which push in the opposite direction and impose constraints on
+presupposition projection. The one that we will tend to in this section is
+the effect of variable binding. A proposition being presupposed cannot
+escape the scope of a binder that binds one of its
+variables. In~\cite{sep-presupposition}, this is illustrated on the
+following example.
 
 \begin{exe}
   \ex \label{ex:most-germans-wash} Most Germans wash their car on Saturday.
@@ -2154,12 +2155,12 @@ However, we cannot get the global accommodation reading. The problem is
 that the referent of \emph{their} is a variable being quantified over by
 the quantifier \emph{most Germans}. If this variable is $x$, then the
 presupposition being triggered is the existence of an individual satisfying
-$\lam{y}{\ap{\obj{car}}{y} \land \app{\obj{own}}{x}{y}}$. This predicate contains a
-free variable $x$, which means that for every different value $x$, we
-actually have a different predicate that identifies a different car. The
-solution to this \emph{binding problem} in theories that implement
+$\lam{y}{\ap{\obj{car}}{y} \land \app{\obj{own}}{x}{y}}$. This predicate
+contains a free variable $x$, which means that for every different value
+$x$, we actually have a different predicate that identifies a different
+car. The solution to this \emph{binding problem} in theories that implement
 accommodation, such as van der Sandt's DRT
-approach~\cite{van1992presupposition} and Lebedeva's extension of
+approach~\cite{van1992presupposition} or Lebedeva's extension of
 TTDL~\cite{lebedeva2012expression}, is to reflect this logical
 impossibility into a linguistic constraint. Presupposed material cannot
 project out of a binder that binds some part of that material.
@@ -2456,8 +2457,8 @@ three possible interpretations:
 \begin{itemize}
 \item projecting the presupposition out of the conditional (the way of
   global accommodation)
-\item accommodating the presupposition at the level of the entire
-  conditional (intermediate accommodation)
+\item accommodating the presupposition at the level of the antecedent of
+  the conditional (intermediate accommodation)
 \item accommodating the presupposition already at the level of the
   consequent of the conditional (local accommodation)
 \end{itemize}
@@ -2610,7 +2611,7 @@ wrapping up the dynamic negation: negating and asserting the propositions.
   $\hsbind$ until after we have selected the preferred reading using the
   $\search$ handler that we will present next.}
 
-In the steps above, we pass $\hsbind$ operator through the $\op{amb}$
+In the steps above, we pass the $\hsbind$ operator through the $\op{amb}$
 operation symbol, which is represented by $+$. We then perform the negation
 and assertion on the two successful computations. We also change the
 resulting propositions into equivalent but more readable ones. The
@@ -2628,7 +2629,7 @@ binding. Our operation symbol for nondeterminism was called $\op{amb}$
 because of its similarity to McCarthy's $amb$ operator for writing
 ambiguous (i.e.\ nondeterministic)
 functions~\cite{mccarthy1961basis,abelson1996structure}. The expression
-$C[amb(M, N)]$ reduces to either $C[M]$ or $C[N]$, provided that the
+$C[amb(M, N)]$ reduces to either $C[M]$ or $C[N]$, ensuring that the
 resulting expression successfully produces a value. This kind of choice
 operator is sometimes called ``angelic'' because it watches out for us by
 making choices that will lead to a successful evaluation. This is the kind
@@ -2675,7 +2676,7 @@ $M; N$ is that $M; N$ should reduce to $N$ if $M$ is stuck; otherwise, it
 should reduce to $M$. We will give a formal definition shortly.
 
 If we apply this handler to the denotation of Example~\ref{ex:man-angry},
-we will get the inteded reading: the one in which the presupposition
+we will get the intended reading: the one in which the presupposition
 projects as widely as possible without violating binding.\footnote{If we
   wanted to retrieve all admissible readings, we could write a handler that
   would use the $M; N$ construction to build a list containing all the
@@ -2864,8 +2865,8 @@ the following lemma, which is a special case of Proposition~1.0.2
 in~\cite{klop1992term}.
 
 \begin{lemma}\label{lem:subcommutativity}
-  A relation $\to$ is confluent iff its reflexive-transitive $\tto$ is
-  subcommutative, i.e.\ if for all $a, b, c$ such that $a \to b$ and
+  A relation $\to$ is confluent iff its reflexive-transitive closure $\tto$
+  is subcommutative, i.e.\ if for all $a, b, c$ such that $a \to b$ and
   $a \to c$, there exists a $d$ such that $b \to^= d$ and $c \to^= d$.
 \end{lemma}
 
@@ -3003,7 +3004,7 @@ in~\cite{klop1992term}.
   \item $a$ is at the same time a $\calc$-redex and a $;$-redex:
 
     This is impossible because there is no rule in $\calc$ whose left-hand
-    side is headed by the $M; N$ construction, which is on the other hand
+    side is headed by the $M; N$ construction, which is, on the other hand,
     the case in every $;$-redex.
   \end{itemize}
 \end{proof}
@@ -3049,7 +3050,7 @@ binding. Our solution improves in some aspects on Lebedeva's work:
 \begin{itemize}
 \item The underlying calculus is strongly normalizing.
 
-  Lebedeva extends the simply-typed lambda-calculus with (unrestricted)
+  Lebedeva extends the simply-typed $\lambda$-calculus with (unrestricted)
   exceptions and the resulting calculus is non-terminating, as shown by
   Lillibridge's encoding of recursive
   types~\cite{lillibridge1995exceptions}. Our first attempt at formalizing
@@ -3087,11 +3088,11 @@ binding. Our solution improves in some aspects on Lebedeva's work:
 \item Our analysis fixes a bug which allowed presupposition triggers to
   bind pronouns preceding them.
 
-  The exceptions used in Lebedeva's extension of the simply-typed lambda
-  calculus are not resumable. If a referential noun phrase triggers a
-  presupposition about the existence of its referent, the evaluation of the
-  sentence is restarted with the presupposed referent now in the
-  context. However, this overgenerates by allowing any anaphoric
+  The exceptions used in Lebedeva's extension of the simply-typed
+  $\lambda$-calculus are not resumable. If a referential noun phrase
+  triggers a presupposition about the existence of its referent, the
+  evaluation of the sentence is restarted with the presupposed referent now
+  in the context. However, this overgenerates by allowing any anaphoric
   expressions in the same sentence to bind to that referent, even those
   expressions which precede the presupposition trigger.
 
@@ -3111,8 +3112,8 @@ binding. Our solution improves in some aspects on Lebedeva's work:
   schema~\cite{de2006towards}. The terms and their types correspond to a
   monad of state and continuations. When this theory is then extended to
   cover presuppositions, instead of augmenting the monad to include another
-  effect, the underlying lambda calculus is replaced by an impure calculus
-  with order of evaluation, exceptions and handlers.
+  effect, the underlying $\lambda$-calculus is replaced by an impure
+  calculus with order of evaluation, exceptions and handlers.
 
   Our approach is based on and heavily inspired by Lebedeva's use of
   exception mechanisms to treat presupposition but instead of using a term
@@ -3282,10 +3283,10 @@ individual $x$ will ask for the polarity and if it is positive, return
 ``\emph{$x$ trusts nobody}'', and if it is negative, return ``\emph{$x$
   trusts somebody}''. If we then embed this VP inside the sentence
 ``\emph{I met a man who trusts nobody}'', the resulting meaning would ask
-for the polarity and if it is positive, then return the meaning of
-``\emph{I met a man who trusts nobody}'', and if it is negative, then
-return ``\emph{I met a man who trusts somebody}'', which is not the desired
-negation of the sentence. We do not get the correct meaning by ignoring the
+for the polarity and if it is positive, return the meaning of ``\emph{I met
+  a man who trusts nobody}'', and if it is negative, return ``\emph{I met a
+  man who trusts somebody}'', which is not the desired negation of the
+sentence. We do not get the correct meaning by ignoring the
 $\op{get\_polarity}$ operation and applying the meaning of the context
 ``\emph{I met a man who $[]$}'' to (either of) the results.
 
@@ -3405,8 +3406,8 @@ signature $E$, $\left<\FF_E, \eta, \hsbind\right>$ is a monad. Likewise,
 all of the phenomena we treat have a monadic structure as well: Barker's
 continuization uses the continuation monad~\cite{barker2002continuations},
 de Groote and Lebedeva's TTDL uses a combination of the state monad and the
-continuation monad~\cite{de2006towards,lebedeva2012expression}
-(see~\ref{ssec:truth-conditions-side-effects}), de Groote and Kanazawa's
+continuation monad~\cite{de2006towards,lebedeva2012expression} (see
+Subsection~\ref{ssec:ttdl-monadic-structure}), de Groote and Kanazawa's
 intensionalization uses the reader monad~\cite{de2013note}, Giorgolo and
 Asudeh's implementation of Potts' conventional implicature analysis uses
 the writer monad~\cite{giorgolo2011multidimensional}. The fact that the
@@ -3416,8 +3417,9 @@ difficult.
 
 We have shown that DN-TTDL is not monadic, but there are also other
 abstractions which have weaker laws than monads and which are still
-useful. The applicative functors (see~\ref{ssec:applicative-functor}) that
-are used in Oleg Kiselyov's Applicative Abstract Categorial
+useful. The applicative functors (see
+Subsection~\ref{ssec:applicative-functor}) that are used in Oleg Kiselyov's
+Applicative Abstract Categorial
 Grammars~\cite{kiselyov2015applicative,kiselyov2015swing} are one such
 example. However, as we will show next, DN-TTDL also violates the laws of
 functors, which are even weaker than those of applicative functors.
@@ -3478,10 +3480,11 @@ implement this kind of functionality. However, this does not mean that we
 cannot combine our technique of using $\banana{\lambda}$ computations with
 the technique proposed by Qian~\cite{qian2014accessibility}. We have seen
 how to implement TTDL in $\banana{\lambda}$, on which DN-TTDL is built. We
-can therefore use the DN-TTDL schema by replacing the TTDL implementation
-using our $\banana{\lambda}$ implementation. The downside is that we have
-to then always work with pairs of computations of propositions everywhere,
-which is a heavy price to pay for the offered empirical coverage increase.
+can therefore use the DN-TTDL schema while replacing the TTDL
+implementation with our $\banana{\lambda}$ implementation. The downside is
+that we have to then always work with pairs of computations of propositions
+everywhere, which is a heavy price to pay for the offered empirical
+coverage increase.
 
 
 \section{Summary}
@@ -3500,29 +3503,30 @@ denotations to lexical items in our grammar~(\ref{sec:banana-drt}). In
 translating the DRT fragment into an ACG+$\calc$ fragment, we have made it
 compositional by showing that what DRT actually composes are instructions
 on how to build DRSs. We have then connected our analysis to de Groote's
-Type-Theoretic Dynamic Logic~\cite{de2006towards,lebedeva2012expression},
-another compositional theory of dynamic semantics using ACGs and
-continuations, by interpreting the computations as dynamic
-propositions. Finally, inspired by the algebraic effects
-literature\cite{hyland2006combining,plotkin2009handlers,pretnar2010logic,plotkin2013handling},
+Type-Theoretic Dynamic Logic~\cite{de2006towards,lebedeva2012expression} by
+interpreting the computations as dynamic propositions. Finally, inspired by
+the algebraic effects
+literature~\cite{hyland2006combining,plotkin2009handlers,pretnar2010logic,plotkin2013handling},
 we have given a system of equations which derives DRSs as the canonical
-forms of dynamic computations (a collection variables accessible to
+forms of dynamic computations (a collection of variables accessible to
 subsequent formulas coupled with a collection of simple propositions about
 those variables)~(\ref{ssec:algebraic-drt}).
 
 After having introduced anaphora, we moved onto another effect that is
-closely related: presuppositions~(\ref{sec:presuppositions}). Our
-treatment of presuppositions, which was in the style of
+closely related: presuppositions~(\ref{sec:presuppositions}). Our treatment
+of presuppositions, which was in the style of
 Lebedeva~\cite{lebedeva2012expression} and van der
 Sandt~\cite{van1992presupposition}, was built on top of our dynamic
-semantics and was the first time we got to see how to combine side
-effects from different phenomena. We first started with changing the
-dynamic effects handler from a closed handler into an open
-handler~(\ref{ssec:revising-dynamic-handler}). While this involved some
-complicated $\lambda$ terms, this is a price we will have to pay only
-once. Now that we have an open handler for dynamics, we can combine dynamics
-with other effects with much less effort. Then we took the following steps
-to integrate presuppositions into our dynamic semantics:
+semantics and was the first time we got to see how to combine side effects
+from different phenomena. We first started with changing the dynamic
+effects handler from a closed handler into an open
+one~(\ref{ssec:revising-dynamic-handler}). While this involved some
+complicated $\lambda$-terms, this is a price we will have to pay only
+once. Now that we have an open handler for dynamics, we can combine
+dynamics with other effects with much less effort.
+
+Then we took the following steps to integrate presuppositions into our
+dynamic semantics:
 
 \begin{enumerate}
 \item \label{item:fixbug} We have fixed a bug in the dynamics handler

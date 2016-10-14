@@ -77,7 +77,7 @@ function.
 
   \vspace{2mm}
   \begin{tabular}{>{$}r<{$} >{$}c<{$} >{$}l<{$}}
-    \ap{(M_1 \compop M_2)}{N} & \to_\compop & \ap{M_1}{(\ap{M_2}{N})} \\
+    \ap{(M_1 \compop M_2)}{N} & \to_{\compop} & \ap{M_1}{(\ap{M_2}{N})} \\
   \end{tabular}
   \vspace{2mm}
 \end{proposition}
@@ -3224,9 +3224,9 @@ will use the metavariables $\MMM$ and $\NNN$ for these equivalence classes.
 
 The preorder $\tto$ on $\calc$ terms can be extended to interreducibility
 classes of $\calc$ terms. Formally, we have $\MMM \tto \NNN$ if there
-exists $M \in \MMM$ and $N \in \NNN$ such that $M \tto N$. Furthermore,
-this preorder is antisymmetric and the $\tto$ relation on interreducibility
-classes therefore forms a partial order. This means that
+exists $M \in \MMM$ and $N \in \NNN$ such that $M \tto N$. This preorder is
+antisymmetric and the $\tto$ relation on interreducibility classes
+therefore forms a partial order. This means that
 $(T^{/\rightleftarrows}, \tto)$ is a presheaf equipped with a partial
 order.
 
@@ -3251,9 +3251,9 @@ relation $\tto$ of $\calc$ is closed on contexts, the operations of
 $\TT^{/\rightleftarrows}$ are weakly monotonic: if we replace one of the
 arguments $\MMM_i$ in $f(\MMM_1, \ldots, \MMM_n)$ with an $\MMM'_i$ such
 that $\MMM_i \tto \MMM_i'$, then we will also have
-$f(\MMM_1, \ldots, M_n) \tto f(\MMM_1, \ldots, \MMM'_i, \ldots,
-\MMM_n)$. Therefore, we have a weakly monotonic $(V+\Sigma)$-algebra
-$\TT^{/\rightleftarrows}$.
+$f(\MMM_1, \ldots, \MMM_i, \ldots, \MMM_n) \tto f(\MMM_1, \ldots, \MMM'_i,
+\ldots, \MMM_n)$. Therefore, we have a weakly monotonic
+$(V+\Sigma)$-algebra $\TT^{/\rightleftarrows}$.
 
 \begin{definition}
   For a given $(V+\Sigma)$-algebra $\AAA$, a \demph{term-generated
@@ -3307,8 +3307,8 @@ Our weakly monotonic algebra $(\TT^{/\rightleftarrows}, \tto)$ is a
 quasi-model for the IDTS $\idts$. The expressions
 $L = \bangop \theta^*_{\tau,\Gamma}(l)$ and
 $R = \bangop \theta^*_{\tau,\Gamma}(r)$ are instances of the left-hand and
-right-hand side of the $\calc$ reduction rule $l \to r$. Therefore, we
-always have $L \tto R$.
+right-hand side, respectively, of the $\calc$ reduction rule $l \to
+r$. Therefore, we always have $L \tto R$.
 
 
 \subsubsection{Labelling Our System}
