@@ -1307,6 +1307,7 @@
 
 ;; Socrates is mortal. (Section 5.1)
 ;; (compute-truth-conditions example-socrates-conclusion)
+;; '(∃ (x2) ((Socrates* x2) ∧ (mortal* x2)))
 (define-checked-term example-socrates-conclusion
   (♭ ((top s) ((is mortal) Socrates))))
 
@@ -1319,12 +1320,16 @@
 
 ;; Every man loves a unicorn. (Subsection 5.2.3)
 ;; (compute-truth-conditions (term example-montague-object-wide))
+;; '(∃ (x1) ((unicorn* x1) ∧ (∀ (x2) ((man* x2) ⇒ (love* x2 x1)))))
 (define-checked-term example-montague-object-wide
   (♭ ((top s) ((QR (indef_ unicorn)) (λ (y)
                  ((QR (every man)) (λ (x) ((loves y) x))))))))
 
 ;; Jones owns Ulysses. It fascinates him. (Section 5.3)
 ;; (compute-truth-conditions (term example-jones-ulysses))
+;; '(∃ (x1) ((Jones* x1) ∧
+;;  (∃ (x2) ((Ulysses* x2) ∧
+;;  ((own* x1 x2) ∧ (fascinate* x2 x1))))))
 (define-checked-term example-jones-ulysses
   (♭ ((top s) ((dot ((dot nil-disc)
                           ((owns Ulysses) Jones)))
@@ -1332,6 +1337,9 @@
 
 ;; Jones owns a Porsche. It fascinates him. (Section 5.3, Section 7.1)
 ;; (compute-truth-conditions (term example-jones-porsche))
+;; '(∃ (x1) ((Jones* x1) ∧
+;;  (∃ (x2) ((Porsche* x2) ∧
+;;  ((own* x1 x2) ∧ (fascinate* x2 x1))))))
 (define-checked-term example-jones-porsche
   (♭ ((top s) ((dot ((dot nil-disc)
                           ((owns (indef Porsche)) Jones)))
@@ -1339,33 +1347,44 @@
 
 ;; Every farmer who owns a donkey beats it. (Section 5.3)
 ;; (compute-truth-conditions (term example-donkey-relative))
+;; '(∀ (x1)
+;;   (¬ ((farmer* x1) ∧ (∃ (x2) ((donkey* x2) ∧ ((own* x1 x2) ∧
+;;                               (¬ (beat* x1 x2))))))))
 (define-checked-term example-donkey-relative
   (♭ ((top s) ((beats it)
                (in-situ (every ((who_r (owns (indef donkey))) farmer)))))))
 
 ;; If a farmer owns a donkey, he beats it. (Section 5.3)
 ;; (compute-truth-conditions (term example-donkey-conditional))
+;; '(∀ (x1)
+;;   (¬ ((farmer* x1) ∧ (∃ (x3) ((donkey* x3) ∧ ((own* x1 x3) ∧
+;;                               (¬ (beat* x1 x3))))))))
 (define-checked-term example-donkey-conditional
   (♭ ((top s) ((if-then ((owns (indef donkey)) (indef farmer)))
                         ((beats it) he)))))
 
 ;; John loves Mary. (Section 6.2)
 ;; (compute-truth-conditions (term example-basic))
+;; '(∃ (x1) ((John* x1) ∧ (∃ (x2) ((Mary* x2) ∧ (love* x1 x2)))))
 (define-checked-term example-basic
   (♭ ((top s) ((loves Mary) John))))
 
 ;; John loves me. (Section 6.2)
 ;; (compute-truth-conditions (term example-deixis))
+;; '(∃ (x1) ((John* x1) ∧ (love* x1 s)))
 (define-checked-term example-deixis
   (♭ ((top s) ((loves me) John))))
 
 ;; John said Mary loves me. (Subsection 6.2.1)
 ;; (compute-truth-conditions (term example-indirect-speech))
+;; '((η (∃ (x3) ((John* x3) ∧ (∃ (x1) ((Mary* x1) ∧ (say* x3 (love* x1 s)))))))
+;;|| (η (∃ (x3) ((John* x3) ∧ (say* x3 (∃ (x1) ((Mary* x1) ∧ (love* x1 s))))))))
 (define-checked-term example-indirect-speech
-  (♭ ((top s) ((said_is ((loves me) Mary)) John))))
+  ((top s) ((said_is ((loves me) Mary)) John)))
 
 ;; John said "Mary loves me". (Subsection 6.2.1)
 ;; (compute-truth-conditions (term example-indirect-speech))
+;; '(∃ (x1) ((John* x1) ∧ (say* x1 (∃ (x2) ((Mary* x2) ∧ (love* x2 x1))))))
 (define-checked-term example-direct-speech
   (♭ ((top s) ((said_ds ((loves me) Mary)) John))))
 
@@ -1508,3 +1527,66 @@
 (define-checked-term example-final
   (♭ ((top s) ((said_is ((loves (in-situ everyone)) it))
                ((who_s (owns (indef dog))) (best-friend me))))))
+
+
+
+
+
+
+;; Making it FAST
+;; ==============
+
+(define normalize-fast
+  (letrec ([normalize-fast
+            (λ (t)
+              (if (list? t)
+                  (normalize-fast-at-top (map normalize-fast t))
+                  (normalize-fast-at-top t)))]
+           [normalize-fast-at-top
+            (term-match/single BANANA+SPAC
+              ;; β
+              [((λ (x) any_1) any_2)
+               (normalize-fast (term (subst any_1 x any_2)))]
+              ;; η
+              [(side-condition (λ (x) (any x))
+                               (not (term (free-in x any))))
+               (term any)]
+              ;; handle-η
+              [(with (OP_i any_i) ... (η any_p) handle (η any_v))
+               (normalize-fast-at-top (term (any_p any_v)))]
+              ;; handle-OP
+              [(with (OP_i any_i) ... (η any_p) handle (OP any_arg (λ (x) any_m)))
+               (let ([clause (assoc (term OP) (term ((OP_i any_i) ...)))]
+                     [x_f    (variable-not-in (term (any_i ... any_p)) (term x))])
+                 (if clause
+                   (term ((clause any_arg) (λ (x_f) (with (OP_i any_i) ...
+                                                          (η any_p)
+                                                     handle (subst any_m x x_f)))))
+                   (term (OP any_arg (λ (x_f) (with (OP_i any_i) ...
+                                                    (η any_p)
+                                               handle (subst any_m x x_f)))))))]
+              ;; ♭
+              [(♭ (η any))
+               (term any)]
+              ;; 𝓒-η
+              [(C (λ (x) (η any)))
+               (term (η ,(normalize-fast-at-top (term (λ (x) any)))))]
+              ;; 𝓒-OP
+              [(side-condition (C (λ (x) (OP any_a (λ (x_k) any_k))))
+                               (not (term (free-in x any_a))))
+               (term (OP any_a (λ (x_k) (C (λ (x) any_k)))))]
+              ;; β.×1
+              [(π1 (pair any_1 any_2))
+               (term any_1)]
+              ;; β.×2
+              [(π1 (pair any_1 any_2))
+               (term any_2)]
+              ;; β.+1
+              [(case (inl any) any_l any_r)
+               (normalize-fast-at-top (term (any_l any)))]
+              ;; β.+2
+              [(case (inr any) any_l any_r)
+               (normalize-fast-at-top (term (any_r any)))]
+              [any
+               any])])
+    normalize-fast))
