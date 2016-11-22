@@ -21,6 +21,7 @@
 *.vrb
 \#*.*\#
 _region_.tex
+_minted-*
 .stfolder
 paper
 dias/*-eps-converted-to.pdf
