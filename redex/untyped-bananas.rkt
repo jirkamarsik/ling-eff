@@ -13,7 +13,7 @@
 
 ;; Defining the Calculus
 ;; =====================
-;; 
+;;
 ;; These are the terms of the lambda-banana calculus, as defined in Section
 ;; 1.2 of the dissertation.
 (define-language BANANA
@@ -88,7 +88,7 @@
   [(free-in x (η e))
    (free-in x e)]
   [(free-in x (OP e_arg (λ (x_r) e_k)))
-   ,(or (term (free-in x e_arg)) (term (free-in x e_k)))]
+   ,(or (term (free-in x e_arg)) (term (free-in x (λ (x_r) e_k))))]
   [(free-in x (with (OP_i e_i) ... (η e_p) handle e))
    ,(or (ormap identity (term ((free-in x e_i) ...)))
         (term (free-in x e_p))
@@ -155,7 +155,7 @@
   [(subst (π2 e) x e_new)
    (π2 (subst e x e_new))]
   [(subst (pair e_1 e_2) x e_new)
-   (pair (subst e_1 x e_new) (e_2 x e_new))]
+   (pair (subst e_1 x e_new) (subst e_2 x e_new))]
   [(subst (inl e) x e_new)
    (inl (subst e x e_new))]
   [(subst (inr e) x e_new)
@@ -170,7 +170,7 @@
 ;; We can now define the reduction relation of our calculus. This follows
 ;; closely the definitions given in Chapter 1 of the dissertation.
 (define reduce
-  (compatible-closure 
+  (compatible-closure
     (reduction-relation
       BANANA+SPA
       #:domain e
@@ -260,7 +260,7 @@
 
   [----------------------------------------------
    (individual-in e_ind ((::-ι e_ind) e_context))]
-  
+
   [(individual-in e_ind e_context)
    ------------------------------------------------
    (individual-in e_ind ((::-ι e_other) e_context))]
@@ -278,7 +278,7 @@
 
   [-------------------------------------------------
    (proposition-in e_prop ((::-o e_prop) e_context))]
-  
+
   [(proposition-in e_prop e_context)
    --------------------------------------------------
    (proposition-in e_prop ((::-ι e_other) e_context))]
@@ -345,7 +345,7 @@
   [(proposition-in (Ulysses* e_x) e_c)
    ----------------------------
    (has-gender e_x neutral e_c)]
-  
+
   [(proposition-in (Porsche* e_x) e_c)
    ----------------------------
    (has-gender e_x neutral e_c)]
@@ -408,7 +408,7 @@
 
   [--------------------------
    (all-conds-in ⊤ e_context)]
-  
+
   [(all-conds-in e_c1 e_context)
    (all-conds-in e_c2 e_context)
    ----------------------------------------
@@ -455,7 +455,7 @@
   [(complete-ctx e_ctx)
    -----------------------------------
    (complete-ctx ((::-ι e_ind) e_ctx))]
-  
+
   [(complete-ctx e_ctx)
    ------------------------------------
    (complete-ctx ((::-o e_prop) e_ctx))])
@@ -1552,7 +1552,9 @@
    (free-in-fast x any)]
   [(free-in-fast x (η any))
    (free-in-fast x any)]
-  [(free-in-fast x (OP any_arg (λ (x_r) any_k)))
+  [(free-in-fast x (any_1 || any_2))
+   ,(or (term (free-in-fast x any_1)) (term (free-in-fast x any_2)))]
+  [(free-in-fast x (OP any_arg any_k))
    ,(or (term (free-in-fast x any_arg)) (term (free-in-fast x any_k)))]
   [(free-in-fast x (with (OP_i any_i) ... (η any_p) handle any))
    ,(or (ormap identity (term ((free-in-fast x any_i) ...)))
@@ -1580,8 +1582,6 @@
         (term (free-in-fast x any_r)))]
   [(free-in-fast x (absurd any))
    (free-in-fast x any)]
-  [(free-in-fast x (any_1 || any_2))
-   ,(or (term (free-in-fast x any_1)) (term (free-in-fast x any_2)))]
   [(free-in-fast x (any_f any_a))
    ,(or (term (free-in-fast x any_f)) (term (free-in-fast x any_a)))])
 
@@ -1599,11 +1599,14 @@
    (λ (x) any_body)]
   [(subst-fast (λ (x_arg) any_body) x any_new)
    ,(if (term (free-in x_arg any_new))
-      (let ([x_f (variable-not-in (term (any_new any_body)) (term x_arg))])
-        (term (λ (,x_f) (subst-fast (subst-fast any_body x_arg ,x_f) x any_new))))
+      (term-let ([x_f (variable-not-in (term (any_new any_body)) (term x_arg))])
+        (term (λ (x_f) (subst-fast (subst-fast any_body x_arg x_f) x any_new))))
       (term (λ (x_arg) (subst-fast any_body x any_new))))]
   [(subst-fast (η any) x any_new)
    (η (subst-fast any x any_new))]
+  ;; has to be above the OP clause
+  [(subst-fast (any_1 || any_2) x any_new)
+   ((subst-fast any_1 x any_new) || (subst-fast any_2 x any_new))]
   [(subst-fast (OP any_arg any_k) x any_new)
    (OP (subst-fast any_arg x any_new) (subst-fast any_k x any_new))]
   [(subst-fast (with (OP_i any_i) ... (η any_p) handle any) x any_new)
@@ -1620,7 +1623,7 @@
   [(subst-fast (π2 any) x any_new)
    (π2 (subst-fast any x any_new))]
   [(subst-fast (pair any_1 any_2) x any_new)
-   (pair (subst-fast any_1 x any_new) (any_2 x any_new))]
+   (pair (subst-fast any_1 x any_new) (subst-fast any_2 x any_new))]
   [(subst-fast (inl any) x any_new)
    (inl (subst-fast any x any_new))]
   [(subst-fast (inr any) x any_new)
@@ -1629,13 +1632,11 @@
    (case (subst-fast any x any_new) (subst-fast any_l x any_new) (subst-fast any_r x any_new))]
   [(subst-fast (absurd any) x any_new)
    (absurd (subst-fast any x any_new))]
-  [(subst-fast (any_1 || any_2) x any_new)
-   ((subst-fast any_1 x any_new) || (subst-fast any_2 x any_new))]
   [(subst-fast (any_f any_a) x any_new)
    ((subst-fast any_f x any_new) (subst-fast any_a x any_new))])
 
-;; map-children-fast is just like map-children but it is constant instead of linear
-;; by not checking that the subterms are well-formed expressions.
+;; map-children-fast is just like map-children but it does not check
+;; that the subterms are well-formed expressions
 (define map-children-fast-aux
   (term-match/single BANANA+SPA
     [x
@@ -1646,6 +1647,9 @@
      (λ (f) (term (λ (x) ,(f (term any)))))]
     [(η any)
      (λ (f) (term (η ,(f (term any)))))]
+    ;; has to go before the OP rule
+    [(any_1 || any_2)
+     (λ (f) (term (,(f (term any_1)) || ,(f (term any_2)))))]
     [(OP any_1 (λ (x) any_2))
      (λ (f) (term (OP ,(f (term any_1)) (λ (x) ,(f (term any_2))))))]
     [(with (OP any_h) ... (η any_p) handle any)
@@ -1675,8 +1679,6 @@
                         ,(f (term any_r)))))]
     [(absurd any)
      (λ (f) (term (absurd ,(f (term any)))))]
-    [(any_1 || any_2)
-     (λ (f) (term (,(f (term any_1)) || ,(f (term any_2)))))]
     [(any_1 any_2)
      (λ (f) (term (,(f (term any_1)) ,(f (term any_2)))))]))
 
@@ -1699,18 +1701,19 @@
               [(with (OP_i any_i) ... (η any_p) handle (η any_v))
                (normalize-fast-at-top (term (any_p any_v)))]
               ;; handle-OP
-              [(with (OP_i any_i) ... (η any_p) handle (OP any_arg (λ (x) any_m)))
-               (term-let ([clause (assoc (term OP) (term ((OP_i any_i) ...)))]
-                          [x_f    (variable-not-in (term (any_i ... any_p)) (term x))]
-                          [cont   (term (λ (x_f) ,(normalize-fast-at-top
+              [(with (OP_i any_i) ... (η any_p) handle (OP (side-condition any_arg (not (equal? (term any_arg) (term ||))))
+                                                           (λ (x) any_k)))
+               (let ([clause (assoc (term OP) (term ((OP_i any_i) ...)))])
+                 (term-let ([x_f  (variable-not-in (term (any_i ... any_p any_k)) (term x))]
+                            [cont (term (λ (x_f) ,(normalize-fast-at-top
                                                     (term (with (OP_i any_i) ...
                                                                 (η any_p)
-                                                           handle (subst-fast any_m x x_f))))))])
-                 (if (term clause)
-                   (normalize-fast-at-top (term
-                     (,(normalize-fast-at-top (term (clause any_arg)))
-                      cont)))
-                   (term (OP any_arg cont))))]
+                                                           handle (subst-fast any_k x x_f))))))])
+                   (if clause
+                     (normalize-fast-at-top (term
+                       (,(normalize-fast-at-top (term (,(cadr clause) any_arg)))
+                        cont)))
+                     (term (OP any_arg cont)))))]
               ;; ♭
               [(♭ (η any))
                (term any)]
@@ -1720,12 +1723,12 @@
               ;; 𝓒-OP
               [(side-condition (C (λ (x) (OP any_a (λ (x_k) any_k))))
                                (not (term (free-in-fast x any_a))))
-               (term (OP any_a ,(normalize-fast-at-top (term (λ (x_k) ,(normalize-fast-at-top (term (C (λ (x) any_k)))))))))]
+               (term (OP any_a (λ (x_k) ,(normalize-fast-at-top (term (C (λ (x) any_k)))))))]
               ;; β.×1
               [(π1 (pair any_1 any_2))
                (term any_1)]
               ;; β.×2
-              [(π1 (pair any_1 any_2))
+              [(π2 (pair any_1 any_2))
                (term any_2)]
               ;; β.+1
               [(case (inl any) any_l any_r)
@@ -1742,29 +1745,93 @@
               ;; ++ ::-o
               [((++ ((::-o any_h) any_t)) any_2)
                (term ((::-o any_h) ,(normalize-fast-at-top (term ((++ any_t) any_2)))))]
-      (--> (sel-he e_context)
-           e_referent
-           (judgment-holds (sel masculine e_context e_referent))
-           "sel-he")
-      (--> (sel-she e_context)
-           e_referent
-           (judgment-holds (sel feminine e_context e_referent))
-           "sel-she")
-      (--> (sel-it e_context)
-           e_referent
-           (judgment-holds (sel neutral e_context e_referent))
-           "sel-it")
-      (--> ((selP e_property) e_context)
-           (inl e_referent)
-           (judgment-holds (sel-prop e_property e_context e_referent))
-           "selP-found")
-      (--> ((selP e_property) e_context)
-           (inr ★)
-           (judgment-holds (complete-ctx e_context))
-           (side-condition (not (judgment-holds (sel-prop e_property
-                                                          e_context
-                                                          e_referent))))
-           "selP-not-found")
+              ;; sel-he
+              [(side-condition (sel-he e_context)
+                               (judgment-holds (sel masculine e_context e_referent)))
+               (car (judgment-holds (sel masculine e_context e_referent)
+                                    e_referent))]
+              ;; sel-she
+              [(side-condition (sel-she e_context)
+                               (judgment-holds (sel feminine e_context e_referent)))
+               (car (judgment-holds (sel feminine e_context e_referent)
+                                    e_referent))]
+              ;; sel-it
+              [(side-condition (sel-it e_context)
+                               (judgment-holds (sel neutral e_context e_referent)))
+               (car (judgment-holds (sel neutral e_context e_referent)
+                                    e_referent))]
+              ;; selP-found
+              [(side-condition ((selP e_property) e_context)
+                               (judgment-holds (sel-prop e_property e_context e_referent)))
+               (term (inl ,(car (judgment-holds (sel-prop e_property e_context e_referent) e_referent))))]
+              ;; selP-not-found
+              [(side-condition ((selP e_property) e_context)
+                               (and (judgment-holds (complete-ctx e_context))
+                                    (not (judgment-holds (sel-prop e_property e_context e_referent)))))
+               (term (inr ★))]
               [any
                (term any)])])
     normalize-fast))
+
+
+;; Debugging
+
+(define (foo-everywhere t)
+  (if (list? t)
+    (map foo-everywhere t)
+    'foo))
+
+(define (abc-everywhere t)
+  (cond [(list? t)
+         (map abc-everywhere t)]
+        [(redex-match? BANANA+SPA variable-not-otherwise-mentioned t)
+         (list-ref '(A B C) (random 3))]
+        [else
+         t]))
+
+;; alpha-equivalence
+(define-metafunction BANANA+SPA
+  ≡α : any any -> #t or #f
+  [(≡α x x)
+   #t]
+  [(≡α c c)
+   #t]
+  [(≡α (λ (x_1) any_1) (λ (x_2) any_2))
+   (≡α any_1 (subst-fast any_2 x_2 x_1))]
+  [(≡α (η any_1) (η any_2))
+   (≡α any_1 any_2)]
+  [(≡α (any_1l || any_1r) (any_2l || any_2r))
+   ,(and (term (≡α any_1l any_2l)) (term (≡α any_1r any_2r)))]
+  [(≡α (OP any_arg1 any_k1) (OP any_arg2 any_k2))
+   ,(and (term (≡α any_arg1 any_arg2)) (term (≡α any_k1 any_k2)))]
+  [(≡α (with (OP_i any_1i) ... (η any_1p) handle any_1)
+       (with (OP_i any_2i) ... (η any_2p) handle any_2))
+   ,(and (andmap identity (term ((≡α any_1i any_2i) ...)))
+         (term (≡α any_1p any_2p))
+         (term (≡α any_1 any_2)))]
+  [(≡α (♭ any_1) (♭ any_2))
+   (≡α any_1 any_2)]
+  [(≡α (C any_1) (C any_2))
+   (≡α any_1 any_2)]
+  [(≡α ★ ★)
+   #t]
+  [(≡α (π1 any_1) (π1 any_2))
+   (≡α any_1 any_2)]
+  [(≡α (π2 any_1) (π2 any_2))
+   (≡α any_1 any_2)]
+  [(≡α (pair any_1l any_1r) (pair any_2l any_2r))
+   ,(and (term (≡α any_1l any_2l)) (term (≡α any_1r any_2r)))]
+  [(≡α (inl any_1) (inl any_2))
+   (≡α any_1 any_2)]
+  [(≡α (inr any_1) (inr any_2))
+   (≡α any_1 any_2)]
+  [(≡α (case any_1 any_1l any_1r) (case any_2 any_2l any_2r))
+   ,(and (term (≡α any_1 any_2))
+         (term (≡α any_1l any_2l))
+         (term (≡α any_1r any_2r)))]
+  [(≡α (absurd any_1) (absurd any_2))
+   (≡α any_1 any_2)]
+  [(≡α (any_1f any_1a) (any_2f any_2a))
+   ,(and (term (≡α any_1f any_2f)) (term (≡α any_1a any_2a)))]
+  [(≡α any_thing any_thing_else)
+   #f])
