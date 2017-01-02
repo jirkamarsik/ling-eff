@@ -1,3 +1,5 @@
+PATH := /home/jirka/Projects/pygments-main:$(PATH)
+
 dissertation.pdf: *.tex references.bib
 	xelatex -shell-escape dissertation
 	bibtex dissertation

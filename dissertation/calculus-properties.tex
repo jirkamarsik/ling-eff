@@ -1538,25 +1538,23 @@ in~\ref{ssec:composing-functions}.
   \end{align}
 \end{definition}
 
-To understand why the laws look the way they do, we will consider functions
-of type $\alpha \to F(\beta)$. These are the kinds of functions one might
-use to model call-by-value~\cite{moggi1991notions,moggi1990abstract}: we
-take a value $\alpha$ and then yield some computation $F(\beta)$. Now
-assume we would use this type of functions to model procedures of input
-type $\alpha$ and output type $\beta$ and we would want these procedures to
-form a category. For every type $\alpha$, we would an identity procedure
-with input type and output type $\alpha$, therefore a function of type
-$\alpha \to F(\alpha)$. The polymorphic $\eta$ combinator will be this
-identity procedure. We would also like to be able to compose a procedure
-from $\alpha$ to $\beta$ with a procedure from $\beta$ to $\gamma$, i.e.\
-compose functions of types $\alpha \to F(\beta)$ and $\beta \to
-F(\gamma)$. When composing $f : \alpha \to F(\beta)$ with
-$g : \beta \to F(\gamma)$, we run into the problem of having some
-$f(x) : F(\beta)$ and $g : \beta \to F(\gamma)$ that we cannot
-compose. This is where $\hsbind$ comes in and composes these two values for
-us. Let $f \kleisli g = \lam{x}{f(x) \hsbind g}$ be the resulting
-composition operator. In order for this structure to be a category, it
-needs to satisfy the following:
+To understand why the laws look the way they do, we will consider functions of
+type $\alpha \to F(\beta)$. These are the kinds of functions one might use to
+model call-by-value~\cite{moggi1991notions,moggi1990abstract}: we take a value
+$\alpha$ and then yield some computation $F(\beta)$. Now assume we would use
+this type of functions to model procedures of input type $\alpha$ and output
+type $\beta$ and we would want these procedures to form a category. For every
+type $\alpha$, we would like an identity procedure with input type and output
+type $\alpha$, therefore a function of type $\alpha \to F(\alpha)$. The
+polymorphic $\eta$ combinator will be this identity procedure. We would also
+like to be able to compose a procedure from $\alpha$ to $\beta$ with a procedure
+from $\beta$ to $\gamma$, i.e.\ compose functions of types $\alpha \to F(\beta)$
+and $\beta \to F(\gamma)$. When composing $f : \alpha \to F(\beta)$ with $g :
+\beta \to F(\gamma)$, we run into the problem of having some $f(x) : F(\beta)$
+and $g : \beta \to F(\gamma)$ that we cannot compose. This is where $\hsbind$
+comes in and composes these two values for us. Let $f \kleisli g = \lam{x}{f(x)
+  \hsbind g}$ be the resulting composition operator. In order for this structure
+to be a category, it needs to satisfy the following:
 
 \begin{align*}
   (f \kleisli g) \kleisli h &= f \kleisli (g \kleisli h) \\

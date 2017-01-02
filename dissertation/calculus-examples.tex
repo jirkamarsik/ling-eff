@@ -474,14 +474,14 @@ free.
 \end{align*}
 
 In the implementation above, we also rely on the presence of an equality
-predicate on the $var$ type:
+predicate on the $var$ type:\footnote{$2$ is the Boolean type that we have
+  defined in Section~\ref{sec:sums-and-products} as $1 + 1$.}
 
  $$
-  (=) : var \to var \to 2\footnotemark
+  (=) : var \to var \to 2
  $$
 
- \footnotetext{$2$ is the Boolean type that we have defined in
-   Section~\ref{sec:sums-and-products} as $1 + 1$.}
+ 
 
 And that is all we need. We can put these two combinators side-by-side with
 the existing ones like $\dive$ and $\trye$ and we will have a semantics for
