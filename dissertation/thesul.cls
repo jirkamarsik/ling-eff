@@ -400,10 +400,10 @@
                                 \@ThesisAuthor
     \end{center}
        \vskip5mm plus2fil
-    %              \hskip1cm\@ThesisJuryTitle
-    % \begin{center}
-    %                             \@ThesisJury
-    % \end{center}
+                 \hskip1cm\@ThesisJuryTitle
+    \begin{center}
+                                \@ThesisJury
+    \end{center}
        \vskip5mm
                             \@ThesisFirstPageFoot
     %---------------------------------------------------
