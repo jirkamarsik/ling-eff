@@ -1,21 +1,39 @@
 \documentclass{beamer}
 
-\usetheme[subsection page=progressbar]{metropolis}
+\usetheme[subsection page=progressbar,progressbar=frametitle]{metropolis}
 \usepackage{appendixnumberbeamer}
 
 \input{packages}
-
 \input{definitions}
 
 \definecolor{transparent}{RGB}{208,213,213}
+\definecolor{shady}{RGB}{208,213,213}
+\definecolor{cicolor}{RGB}{80,180,10}
+
+\hypersetup{pdfstartview={Fit}}
+
+\setbeamerfont{section in toc}{series=\bfseries}
+\setbeamerfont{subsection in toc}{series=\bfseries}
+\setbeamertemplate{frame numbering}[fraction]
+\usefonttheme[onlymath]{serif}
+
+\usepackage{blindtext}
+
+\setbeamercolor{framesubtitle}{fg=mDarkTeal}
+\addtobeamertemplate{frametitle}{}{%
+  \ifx\insertframesubtitle\@empty\else%
+  \usebeamerfont{framesubtitle}%
+  \usebeamercolor[fg]{framesubtitle}%
+  \insertframesubtitle%
+  \fi%
+}
+
+\newcommand{\credit}[1]{\par\hfill \footnotesize \cite{#1}}
 
 
-\title{Introducing a Calculus of Effects and Handlers for Natural Language Semantics}
-\date{August 20, 2016}
-\author{Jirka Maršík \and Maxime Amblard}
-\institute{LORIA, UMR 7503, Université de Lorraine, CNRS, Inria, Campus Scientifique, \\
-F-54506 Vand\oe uvre-lès-Nancy, France \\
-\textbf{jiri.marsik89@gmail.com}}
+\title{Effects and Handlers in Natural Language}
+\date{December 9, 2016}
+\author{Jirka Maršík}
 
 
 \begin{document}
@@ -26,67 +44,224 @@ F-54506 Vand\oe uvre-lès-Nancy, France \\
 \section{Introduction}
 
 
-\begin{frame}{Fighting with Compositionality}
-  \begin{block}{Setting}
-    Formal Semantics
-  \end{block}
-  
-  \pause
+\begin{frame}{Truth-Conditional Semantics}
+All men are mortal. Socrates is a man. \\
+$\vDash$ Socrates is mortal.
+\vfill
+\pause
+$(\forall x.\, \obj{man}(x) \to \obj{mortal}(x)) \land
+(\obj{man}(\obj{Socrates}))$ \\
+$\vDash \obj{mortal}(\obj{Socrates})$
+\end{frame}
+
+
+\begin{frame}{Compositionality in Theory}
   \begin{block}{Compositionality}
-    The \alert<6>{meaning} of a complex expression is a \alert<4>{function}
-    of its structure and the \alert<6>{meanings} of its constituents.
-  \end{block}
-  
-  \pause
-  \begin{block}{Case of quantification}
-  \begin{itemize}
-  \item use $\lambda\mu$ \cite{de2001type} or $\shift$/$\reset$
-    \cite{shan2005linguistic} \alert<4>{functions}
-    \uncover<7>{\begin{flushright}\alert{calculi with effects}\end{flushright}}
-  \pause
-  \pause
-  \item use continuized \alert<6>{meanings} \cite{barker2002continuations},
-    i.e.\ generalized quantifiers
-    \uncover<7>{\begin{flushright}\alert{term encodings of effects}\end{flushright}}
-  \end{itemize}
+    The meaning of a complex expression is determined by its structure and
+    the meanings of its constituents.
+    % The meaning of a complex expression is a function of its structure and
+    % the meanings of its constituents.
   \end{block}
 \end{frame}
 
 
-\begin{frame}{Connections to Existing Work}
-  \begin{block}{Pioneers}
-  \begin{itemize}
-  \item \cite{shan2002monads,hobbs1977making}
-  \end{itemize}
-  \end{block}
-  
-  \begin{block}{Parallel developments}
-  \begin{itemize}
-  \item \cite{charlow2014semantics,kiselyov2015swing}
-  \end{itemize}
-  \end{block}
+\begin{frame}{Compositionality in Practice}
+  John loves Mary.
 
-  \begin{block}{ESSLLI courses}
-  \begin{itemize}
-  \item \cite{barker2015monads,giorgolo2015natural}
-  \end{itemize}
-  \end{block}
-  
-  \begin{block}{Effects and Handlers}
-  \begin{itemize}
-  \item
-    \cite{cartwright1994extensible,plotkin2013handling,bauer2012programming,kammar2013handlers,kiselyov2013extensible}
-  \end{itemize}
-  \end{block}
+  \pause
+
+  \begin{align*}
+    \sem{\abs{John}} \uncover<3->{&= \obj{John}} \\
+    \sem{\abs{Mary}} \uncover<3->{&= \obj{Mary}} \\
+    \sem{\abs{loves}} \uncover<3->{&= \lam{O S}{\obj{love}(S, O)}}
+  \end{align*}
+
+  \pause
+  \pause
+
+  \begin{align*}
+    & \sem{\ap{(\ap{\abs{loves}}{\abs{Mary}})}{\abs{John}}} \\
+    \uncover<5->{
+    & = \ap{(\ap{(\lam{O S}{\obj{love}(S, O)})}{\obj{Mary}})}{\obj{John}} \\
+    & \longrightarrow \ap{(\lam{S}{\obj{love}(S, \obj{Mary})})}{\obj{John}} \\
+    & \longrightarrow \obj{love}(\obj{John}, \obj{Mary})
+    }
+  \end{align*}
 \end{frame}
+
+
+\begin{frame}{Quantification}
+  \vfill
+
+  Mary loves every book. \\
+  $\forall x.\, \obj{book}(x) \to \obj{love}(\obj{Mary}, x)$
+
+  \vfill
+
+  \uncover<2->{
+    $$
+    \sem{\ap{\abs{every}}{\abs{book}}} = \lam{P}{\forall x.\, \obj{book}(x)
+      \to P(x)}
+    $$}
+
+  \uncover<3->{
+    $$
+    \sem{\abs{loves}} = \lam{O S}{\alert{S\, (\lambda s.\, O\, (\lambda o.}\,
+      \obj{love}(s, o)\alert{))}}
+    $$}
+
+  \uncover<2->{\credit{montague1973proper}}
+\end{frame}
+
+
+\begin{frame}{Dynamics}
+  \vfill
+ 
+  Mary reads a book. She loves it. \\
+  $\exists x.\, \obj{book}(x) \land \obj{read}(\obj{Mary}, x) \land
+  \obj{love}(\obj{Mary}, x)$
+
+  \vfill
+
+  \uncover<2->{
+    $$
+    \sem{\abs{she}} = \lam{P e \phi}{\appp{P}{(\ap{\selshe}{e})}{e}{\phi}}
+    $$}
+
+  \uncover<3->{
+    $$
+    \sem{\abs{loves}} = \lam{O S}{\ap{S}{(\lam{s}{\ap{O}
+          {(\lam{o \alert{e \phi}}{\obj{love}(s, o) \alert{\land \ap{\phi}{e}}})}})}}
+    $$}
+  
+  \uncover<2->{\credit{de2006towards}}
+\end{frame}
+
+
+\begin{frame}{Conventional Implicatures}
+  \vfill
+
+  If Mary is bored, she reads Gravity's Rainbow, her favorite book. \\
+  $(\obj{bored}(\obj{Mary}) \to \obj{read}(\obj{Mary}, \obj{GR}))$ \\
+  $\land \ (\obj{GR} = \obj{favorite-book}(\obj{Mary}))$
+  
+  \vfill
+
+  \uncover<2->{
+    \begin{align*}
+      &\sem{\text{Gravity's Rainbow, Mary's favorite book}} \\
+      % &\sem{\app{\abs{appos}}{(\ap{\abs{favorite-book}}{\abs{Mary}})}{\abs{GR}}} \\
+      &= \left< \obj{GR}, \obj{GR} = \obj{favorite-book}(\obj{Mary}) \right>
+    \end{align*}}
+
+  \uncover<3->{
+    $$
+    \sem{\abs{loves}} = \lam{O S}{\left<
+        \obj{love}(\ap{\alert{\pi_1}}{S}, \ap{\alert{\pi_1}}{O}), \alert{\ap{\pi_2}{S} \land \ap{\pi_2}{O}} \right>}
+    $$}
+
+  \uncover<2->{\credit{potts2005logic}}
+\end{frame}
+
+
+\begin{frame}{Underlying Structure}
+
+  \begin{align*}
+    \sem{\abs{loves}} &= \lam{O S}{\obj{love}(S, O)} \\
+    \sem{\abs{loves}} &= \lam{O S}{\ap{S}{(\lam{s}{\ap{O}{(\lam{o}{\obj{love}(s, o)})}})}} \\
+    \sem{\abs{loves}} &= \lam{O S}{\ap{S}{(\lam{s}{\ap{O}{(\lam{o e \phi}{\obj{love}(s, o) \land \ap{\phi}{e}})}})}} \\
+    \sem{\abs{loves}} &= \lam{O S}{\left< \obj{love}(\ap{\pi_1}{S}, \ap{\pi_1}{O}), \ap{\pi_2}{S} \land \ap{\pi_2}{O} \right>}
+  \end{align*}
+
+  \vfill
+  \pause
+
+  \begin{itemize}
+  \item monads~\cite{shan2002monads}
+  \item side effects~\cite{shan2005linguistic}
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Open Problem}
+  How to combine monads/effects?
+  \begin{itemize}
+  \item monad transformers
+  \item \alert<2>{effects and handlers}
+    \pause
+    \begin{itemize}
+    \item \cite{cartwright1994extensible,kiselyov2013extensible,plotkin2013handling,bauer2012programming,kammar2013handlers}
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}[standout]{Objective}
+  Unite different phenomena \\
+  in a single grammar \\
+  using effects and handlers
+\end{frame}
+
+
+\begin{frame}{Outline}
+  \tableofcontents[hideallsubsections]
+\end{frame}
+
 
 
 \section{Definition of the \texorpdfstring{$\calc$}{} Calculus}
 
-\begin{frame}{STLC with Computations}
+\begin{frame}{Simply-typed lambda calculus (STLC)}
+  
+ \begin{figure}
+ \vspace{6mm}
 
-  Simply typed lambda calculus (STLC) with computation types $\FF_E(\gamma)$
+ \begin{subfigure}{.45\textwidth}
+   \begin{prooftree}
+    \AxiomC{$x : \alpha \in \Gamma$}
+    \RightLabel{[var]}
+    \UnaryInfC{$\Gamma \vdash x : \alpha$}
+   \end{prooftree}
+  \end{subfigure}
+  \begin{subfigure}{.45\textwidth}
+   \begin{prooftree}
+    \AxiomC{$c : \alpha \in \Sigma$}
+    \RightLabel{[const]}
+    \UnaryInfC{$\Gamma \vdash c : \alpha$}
+   \end{prooftree}
+  \end{subfigure}
 
+  \vspace{2mm}
+
+   \begin{prooftree}
+    \AxiomC{$\Gamma, x : \alpha \vdash M : \beta$}
+    \RightLabel{[abs]}
+    \UnaryInfC{$\Gamma \vdash \lam{x}{M} : \alpha \to \beta$}
+   \end{prooftree}
+   \begin{prooftree}
+    \AxiomC{$\Gamma \vdash M : \alpha \to \beta$}
+    \AxiomC{$\Gamma \vdash N : \alpha$}
+    \RightLabel{[app]}
+    \BinaryInfC{$\Gamma \vdash \ap{M}{N} : \beta$}
+   \end{prooftree}
+  \end{figure}
+
+  \pause
+  \vfill
+
+  $$
+  \ap{(\lam{x}{M})}{N} \longrightarrow \subst{M}{x}{N}
+  $$
+\end{frame}
+
+
+\begin{frame}{$\calc$ = STLC with Computations}
+  \framesubtitle{[Maršík et Amblard, NLCS 2014]}
+  \nocite{marsik2014algebraic}
+
+  STLC with computation types $\FF_E(\gamma)$
+
+  \pause
   \vfill
   
   \begin{block}{Constructors for $\FF_E(\gamma)$}
@@ -96,12 +271,14 @@ F-54506 Vand\oe uvre-lès-Nancy, France \\
     \UnaryInfC{$\Gamma \vdash \ap{\eta}{M} : \FF_E(\gamma)$}
   \end{prooftree}
 
+  \pause
+  
   \begin{prooftree}
-    \AxiomC{$\Gamma \vdash M_{\mathrm{p}} : \alpha$}
-    \AxiomC{$\Gamma, x : \beta \vdash M_{\mathrm{c}} : \FF_E(\gamma)$}
+    \AxiomC{\uncover<4-6>{$\Gamma \vdash M_{\mathrm{p}} : \alert<4>{\alpha}$}}
+    \AxiomC{\uncover<5-6>{$\Gamma, x : \alert<5>{\beta} \vdash M_{\mathrm{c}} : \FF_E(\gamma)$}}
     \def\extraVskip{0pt}
     \noLine
-    \BinaryInfC{$\typedop{op}{\alpha}{\beta} \in E$}
+    \BinaryInfC{$(\typedop{op}{\alert<4>{\alpha}}{\alert<5>{\beta}}) \in E$}
     \def\extraVskip{2pt}
     \RightLabel{[op]}
     \UnaryInfC{$\Gamma \vdash \app{\op{op}}{M_{\mathrm{p}}}{(\lam{x}{M_{\mathrm{c}}})} : \FF_E(\gamma)$}
@@ -112,9 +289,16 @@ F-54506 Vand\oe uvre-lès-Nancy, France \\
 
 \begin{frame}{Example Computation}
 
+  $$
+  \sem{\text{Mary, my best friend, loves me.}}
+  $$
+
+  \vfill
+  \pause
+
   \begin{align*}
     \Gamma \vdash\ &\app{\op{speaker}}{\star}{(\lam{s}{ \\
-                 \ &\app{\op{implicate}}{(\obj{m} = \obj{best-friend}(s))}{(\lam{\_}{ \\
+                 \ &\app{\op{implicate}}{(\obj{m} = \obj{bff}(s))}{(\lam{\_}{ \\
                  \ &\etaE{(\obj{love}(\obj{m}, s))}})}})} : \FF_E(o)
   \end{align*}
 
@@ -122,13 +306,6 @@ F-54506 Vand\oe uvre-lès-Nancy, France \\
     E = \{\ &\typedop{speaker}{1}{\iota}, \\
           \ &\typedop{implicate}{o}{1}\ \}
   \end{align*}
-
-  \vfill
-  \pause
-
-  $$
-  \sem{\text{Mary, my best friend, loves me.}}
-  $$
 \end{frame}
 
 
@@ -136,17 +313,18 @@ F-54506 Vand\oe uvre-lès-Nancy, France \\
 
   \begin{align*}
     \Gamma \vdash\ &\app{\op{speaker}}{\star}{(\lam{s}{ \\
-                 \ &\app{\op{implicate}}{(\obj{m} = \obj{best-friend}(s))}{(\lam{\_}{ \\
+                 \ &\app{\op{implicate}}{(\obj{m} = \obj{bff}(s))}{(\lam{\_}{ \\
                  \ &\etaE{(\obj{love}(\obj{m}, s))}})}})} : \FF_E(o)
   \end{align*}
 
+  \pause
   \vfill
   \centerline{$\Downarrow$}
   \vfill
 
   \begin{align*}
     \textrm{do}\ &s \from \ap{\op{speaker}}{\star} \\
-                 &\ap{\op{implicate}}{(\obj{m} = \obj{best-friend}(s))} \\
+                 &\ap{\op{implicate}}{(\obj{m} = \obj{bff}(s))} \\
                  &\textrm{return}\ (\obj{love}(\obj{m}, s))
   \end{align*}
 \end{frame}
@@ -156,10 +334,11 @@ F-54506 Vand\oe uvre-lès-Nancy, France \\
 
   \begin{align*}
     \Gamma \vdash\ &\app{\op{speaker}}{\star}{(\lam{s}{ \\
-                 \ &\app{\op{implicate}}{(\obj{m} = \obj{best-friend}(s))}{(\lam{\_}{ \\
+                 \ &\app{\op{implicate}}{(\obj{m} = \obj{bff}(s))}{(\lam{\_}{ \\
                  \ &\etaE{(\obj{love}(\obj{m}, s))}})}})} : \FF_E(o)
   \end{align*}
 
+  \pause
   \vfill
   \centerline{$\Downarrow$}
   \vfill
@@ -179,31 +358,30 @@ F-54506 Vand\oe uvre-lès-Nancy, France \\
 \begin{frame}{Closed Handlers}
 
   \begin{prooftree}
-  \AxiomC{$E = \{\typedopg{\op{op}_i}{\alpha_i}{\beta_i}\}_{i \in I}$}
   \def\extraVskip{2pt}
+  \AxiomC{\uncover<8->{$[\Gamma \vdash M_i : \alpha_i \to (\beta_i \to \alert<9>{\delta}) \to \alert<9>{\delta}]_{i \in I}$}}
   \noLine
-  \UnaryInfC{$[\Gamma \vdash M_i : \alpha_i \to (\beta_i \to \alert<3>{\delta}) \to \alert<3>{\delta}]_{i \in I}$}
+  \UnaryInfC{\uncover<5->{$\Gamma \vdash M_\eta : \gamma \to \alert<6>{\delta}$}}
   \noLine
-  \UnaryInfC{$\Gamma \vdash M_\eta : \gamma \to \alert<3>{\delta}$}
+  \UnaryInfC{\uncover<2->{$E = \{\typedopg{\alert<3>{\op{op}_i}}{\alpha_i}{\beta_i}\}_{\alert<3>{i \in I}}$}}
   \noLine
   \UnaryInfC{$\Gamma \vdash N : \FF_E(\gamma)$}
   \def\extraVskip{4pt}
   \RightLabel{$[\bbanana{}]$}
-  \UnaryInfC{$\Gamma \vdash \ap{\cibbanana}{N} : \delta$}
+  \UnaryInfC{$\Gamma \vdash \ap{\bbanana{(\onto{\alert<3>{\op{op}_i}}{M_i})_{\alert<3>{i \in I}},\ \onto{\eta}{M_\eta}}}{N} : \delta$}
   \end{prooftree}
 
+  \uncover<4->{
   \begin{columns}
-  \pause
   \column{0.6\textwidth}
   \begin{block}{Types of constructors}
   \begin{itemize}
-  \item $\op{op}_i : \alpha_i \to (\beta_i \to \alert<3>{\FF_E(\gamma)}) \to \alert<3>{\FF_E(\gamma)}$
-  \item $\eta : \gamma \to \alert<3>{\FF_E(\gamma)}$
+  \item \uncover<7->{$\op{op}_i : \alpha_i \to (\beta_i \to \alert<9>{\FF_E(\gamma)}) \to \alert<9>{\FF_E(\gamma)}$}
+  \item $\eta : \gamma \to \alert<6>{\FF_E(\gamma)}$
   \end{itemize}
-  \end{block}
+  \end{block}}
 
-  \pause
-  \pause
+  \uncover<10->{
   \column{0.4\textwidth}
   \begin{block}{Handlers are algebras}
   \begin{itemize}
@@ -215,40 +393,38 @@ F-54506 Vand\oe uvre-lès-Nancy, France \\
   \item $M_\eta$ --- constants
   \end{itemize}
   \end{block}
-  \end{columns}
+  \end{columns}}
 \end{frame}
 
 
 \begin{frame}{Open Handlers}
 
   \begin{prooftree}
-  \AxiomC{$E = \{\typedopg{\op{op}_i}{\alpha_i}{\beta_i}\}_{i \in I} \uplus E_{\mathrm{f}}$}
-  \noLine
   \def\extraVskip{2pt}
-  \UnaryInfC{$E' = E'' \uplus E_{\mathrm{f}}$}
+  \AxiomC{\uncover<8->{$[\Gamma \vdash M_i : \alpha_i \to (\beta_i \to \FF_{E'}(\delta)) \to \FF_{E'}(\delta)]_{i \in I}$}}
   \noLine
-  \UnaryInfC{$[\Gamma \vdash M_i : \alpha_i \to (\beta_i \to
-    \FF_{E'}(\delta)) \to \FF_{E'}(\delta)]_{i \in I}$}
+  \UnaryInfC{\uncover<8->{$\Gamma \vdash M_\eta : \gamma \to \FF_{E'}(\delta)$}}
   \noLine
-  \UnaryInfC{$\Gamma \vdash M_\eta : \gamma \to \FF_{E'}(\delta)$}
+  \UnaryInfC{\uncover<5->{$\alert<6>{E'} = \alert<7>{E''} \uplus \alert<5>{E_{\mathrm{f}}}$}}
   \noLine
-  \UnaryInfC{$\Gamma \vdash N : \FF_{E}(\gamma)$}
+  \UnaryInfC{\uncover<2->{$\alert<2>{E} = \alert<3>{\{\typedopg{\op{op}_i}{\alpha_i}{\beta_i}\}_{i \in I}} \uplus \alert<4,5>{E_{\mathrm{f}}}$}}
+  \noLine
+  \UnaryInfC{$\Gamma \vdash N : \FF_{\alert<2>{E}}(\gamma)$}
   \def\extraVskip{4pt}
   \RightLabel{[$\banana{}$]}
-  \UnaryInfC{$\Gamma \vdash \ap{\cibanana}{N} : \FF_{E'}(\delta)$}
+  \UnaryInfC{$\Gamma \vdash \ap{\banana{(\onto{\alert<3>{\op{op}_i}}{M_i})_{\alert<3>{i \in I},}\ \onto{\eta}{M_\eta}}}{N} : \FF_{\alert<6>{E'}}(\delta)$}
   \end{prooftree}
 
-  \pause
   \begin{columns}
   \column{0.5\textwidth}
   \begin{itemize}
-  \item $E$ --- input effects
-  \item $E_\petitf$ --- forwarded effects
+  \uncover<2->{\item $\alert<2>{E}$ --- input effects}
+  \uncover<4->{\item $\alert<4,5>{E_\petitf}$ --- forwarded effects}
   \end{itemize}
   \column{0.5\textwidth}
   \begin{itemize}
-  \item $E'$ --- output effects
-  \item $E''$ --- new effects
+  \uncover<6->{\item $\alert<6>{E'}$ --- output effects}
+  \uncover<7->{\item $\alert<7>{E''}$ --- new effects}
   \end{itemize}
   \end{columns}
 \end{frame}
@@ -259,14 +435,14 @@ F-54506 Vand\oe uvre-lès-Nancy, France \\
 \begin{frame}{Reduction Rules for Handlers}
 
   \begin{tabular*}{\textwidth}{l @{\extracolsep{\fill}} r}
-  $\ap{\uncover<1,3>{\cibanana}}{(\ap{\eta}{N})} \to$ & \\
+  $\ap{\uncover<1,3>{\cibanana}}{(\ap{\eta}{N})} \longrightarrow$ & \\
   $\ap{M_\eta}{N}$ & \\
   \\ \\
-  $\ap{\uncover<1,3>{\cibanana}}{(\ap{\ap{\op{op}_j}{N_{\mathrm{p}}}}{(\lam{x}{N_{\mathrm{c}}})})} \to$ & \\
+  $\ap{\uncover<1,3>{\cibanana}}{(\ap{\ap{\op{op}_j}{N_{\mathrm{p}}}}{(\lam{x}{N_{\mathrm{c}}})})} \longrightarrow$ & \\
   $\ap{M_j}{\ap{N_{\mathrm{p}}}{(\lam{x}{\ap{\uncover<1,3>{\cibanana}}{N_{\mathrm{c}}}})}}$
   & where $j \in I$ \\
   \\ \\
-  $\ap{\uncover<1,3>{\cibanana}}{(\ap{\ap{\op{op}_j}{N_{\mathrm{p}}}}{(\lam{x}{N_{\mathrm{c}}})})} \to$ & \\
+  $\ap{\uncover<1,3>{\cibanana}}{(\ap{\ap{\op{op}_j}{N_{\mathrm{p}}}}{(\lam{x}{N_{\mathrm{c}}})})} \longrightarrow$ & \\
   $\ap{\op{op}_j}{\ap{N_{\mathrm{p}}}{(\lam{x}{\ap{\uncover<1,3>{\cibanana}}{N_{\mathrm{c}}}})}}$
   & where $j \notin I$ \\
   \end{tabular*}
@@ -277,7 +453,63 @@ F-54506 Vand\oe uvre-lès-Nancy, France \\
 \setbeamercovered{transparent=0}
 
 
-\begin{frame}{Chaining Computations}
+\begin{frame}{$\calc$? Bananas?}
+  $$
+  \cibanana
+  $$
+
+  \pause
+
+  \begin{itemize}
+  \item fold
+  \item iterator
+  \item catamorphism
+  \end{itemize}
+
+  \credit{meijer1991functional}
+\end{frame}
+
+
+
+\section{Properties of the \texorpdfstring{$\calc$}{} Calculus}
+
+
+\begin{frame}{Subject Reduction}
+  \begin{center}
+  $\Gamma \vdash M : \tau$ and $M \longrightarrow N$
+
+  entails
+
+  $\Gamma \vdash N : \tau$
+  \end{center}
+\end{frame}
+
+
+\begin{frame}{Strong Normalization}
+  \framesubtitle{[Maršík et Amblard, Formal Grammar 2016]}
+  \nocite{marsik2016introducing}
+
+  \begin{block}{Confluence}
+  \begin{itemize}
+  \item Combinatory Reduction Systems \cite{klop1993combinatory}
+  \end{itemize}
+  \end{block}
+
+  \begin{block}{Termination}
+  \begin{itemize}
+  \item Inductive Data Type Systems \cite{blanqui2000termination}
+  \item Higher-Order Semantic Labelling \cite{hamana2007higher}
+    \begin{itemize}
+    \item Denotational Semantics
+    \end{itemize}
+  \end{itemize}
+  \end{block}
+\end{frame}
+
+
+\begin{frame}{Chaining Computations --- Monad}
+  \framesubtitle{[Maršík et Amblard, Redraw Workshop 2015]}
+  \nocite{marsik2015pragmatic}
 
   \begin{align*}
   &\_ \hsbind \_ : \FF_E(\alpha) \to (\alpha \to \FF_E(\beta)) \to \FF_E(\beta) \\
@@ -320,64 +552,76 @@ F-54506 Vand\oe uvre-lès-Nancy, France \\
 \end{frame}
 
 
+
+\section{Linguistic Phenomena as Effects}
+
+
+\begin{frame}{Analyzed Phenomena}
+  \begin{itemize}
+  \item \alert<2>{Deixis}
+  \item \alert<2>{Conventional Implicatures}
+  \item \alert<2>{Quantification}
+  \item Anaphora
+  \item Presupposition
+  \end{itemize}
+\end{frame}
+
+
 \begin{frame}{Notation: Applying Operations to Computations}
 
   $$
   \_ \circ \_ : \alpha \to \beta \to \gamma
   $$
+
+  \pause
   
   \begin{align*}
-  &\_ \opl{\circ} \_ : \FF_E(\alpha) \to \beta \to \FF_E(\gamma) \\
-  &X \opl{\circ} y = X \hsbind (\lam{x}{\ap{\eta}{(x \circ y)}}) \\
-  \\
-  &\_ \opr{\circ} \_ : \alpha \to \FF_E(\beta) \to \FF_E(\gamma) \\
-  &x \opr{\circ} Y = Y \hsbind (\lam{y}{\ap{\eta}{(x \circ y)}}) \\
-  \\
-  &\_ \oplr{\circ} \_ : \FF_E(\alpha) \to \FF_E(\beta) \to \FF_E(\gamma) \\
-  &X \oplr{\circ} Y = X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\ap{\eta}{(x \circ y)}})})
+  \_ \opl{\circ} \_ &: \FF_E(\alpha) \to \beta \to \FF_E(\gamma) \\
+  \_ \opr{\circ} \_ &: \alpha \to \FF_E(\beta) \to \FF_E(\gamma) \\
+  \_ \oplr{\circ} \_ &: \FF_E(\alpha) \to \FF_E(\beta) \to \FF_E(\gamma)
+  \end{align*}
+
+  \pause
+
+  \begin{align*}
+  X \opl{\circ} y &= X \hsbind (\lam{x}{\ap{\eta}{(x \circ y)}}) \\
+  x \opr{\circ} Y &= Y \hsbind (\lam{y}{\ap{\eta}{(x \circ y)}}) \\
+  X \oplr{\circ} Y &= X \hsbind (\lam{x}{Y \hsbind (\lam{y}{\ap{\eta}{(x \circ y)}})})
   \end{align*}
 \end{frame}
 
 
 
-\section{Properties of the \texorpdfstring{$\calc$}{} Calculus}
+\subsection{Deixis}
 
-\begin{frame}{$\calc$ is Strongly Normalizing}
 
-  \begin{block}{Confluence}
-  \begin{itemize}
-  \item Combinatory Reduction Systems \cite{klop1993combinatory}
-  \end{itemize}
-  \end{block}
+\begin{frame}{Deixis --- Motivation}
+  Mary loves me. \\
+  $\app{\op{speaker}}{\star}{(\lam{x}{\etaE{(\app{\obj{love}}{\obj{j}}{x})}})}$
 
-  \begin{block}{Termination}
-  \begin{itemize}
-  \item Inductive Data Type Systems \cite{blanqui2000termination}
-  \item Higher-Order Semantic Labelling \cite{hamana2007higher}
-  \end{itemize}
-  \end{block}
+  \vfill
+  
+  John said, ``Mary loves me''. \\
+  $\etaE{(\app{\obj{say}}{\obj{j}}{(\app{\obj{love}}{\obj{m}}{\obj{j}})})}$
 \end{frame}
 
 
-
-\metroset{sectionpage=none}
-\section{Linguistic Phenomena as Effects}
-\metroset{sectionpage=progressbar}
-
-\subsection{Deixis}
-
-\begin{frame}{Deixis}
+\begin{frame}{Deixis --- Grammar}
 
 \begin{align*}
-  \abs{John}, \abs{Mary}, \abs{me} &: NP \\
+  \abs{John}, \abs{Mary} &: NP \\
+  \abs{me} &: NP \\
   \abs{loves} &: NP \limp NP \limp S
 \end{align*}
+
+\pause
 
 \begin{align*}
   \lex{John}{\etaE{\obj{j}}} \\
   \lex{Mary}{\etaE{\obj{m}}} \\
   \lex{me}{\app{\op{speaker}}{\star}{(\lam{x}{\etaE{x}})}} \\
-  \lex{loves}{\lam{O S}{{\obj{love}} \apr S \aplr O}}
+  \lex{loves}{\lam{O S}{{\obj{love}} \apr S \aplr O}} \\
+  &\uncover<3->{= \lam{O S}{S \hsbind (\lam{s}{O \hsbind (\lam{o}{\etaE{(\app{\obj{love}}{s}{o})}})})}}
 \end{align*}
 \end{frame}
 
@@ -397,10 +641,10 @@ F-54506 Vand\oe uvre-lès-Nancy, France \\
   \etaE{(\app{\obj{love}}{\obj{j}}{\obj{m}})}
   $$
   
-  Mary loves me.
+  John loves me.
   $$
-  \sem{\app{\abs{loves}}{\abs{me}}{\abs{Mary}}} \tto
-  \app{\op{speaker}}{\star}{(\lam{x}{\etaE{(\app{\obj{love}}{\obj{m}}{x})}})}
+  \sem{\app{\abs{loves}}{\abs{me}}{\abs{John}}} \tto
+  \app{\op{speaker}}{\star}{(\lam{x}{\etaE{(\app{\obj{love}}{\obj{j}}{x})}})}
   $$
 \end{frame}
 
@@ -417,9 +661,9 @@ F-54506 Vand\oe uvre-lès-Nancy, France \\
   \pause
   
   \begin{align*}
-  &\app{\withSpeaker}{s}{\ \sem{\app{\abs{loves}}{\abs{me}}{\abs{Mary}}}} \\
-  \tto\ &\app{\withSpeaker}{s}{\ (\app{\op{speaker}}{\star}{(\lam{x}{\etaE{(\app{\obj{love}}{\obj{m}}{x})}})})} \\
-  \tto\ &\etaE{(\app{\obj{love}}{\obj{m}}{s})}
+  &\app{\withSpeaker}{s}{\ \sem{\app{\abs{loves}}{\abs{me}}{\abs{John}}}} \\
+  \tto\ &\app{\withSpeaker}{s}{\ (\app{\op{speaker}}{\star}{(\lam{x}{\etaE{(\app{\obj{love}}{\obj{j}}{x})}})})} \\
+  \tto\ &\etaE{(\app{\obj{love}}{\obj{j}}{s})}
   \end{align*}
 \end{frame}
 
@@ -431,10 +675,12 @@ F-54506 Vand\oe uvre-lès-Nancy, France \\
   \abs{said}_{\abs{ds}} &: S \limp NP \limp S
 \end{align*}
 
+\pause
+
 \begin{align*}
   \sem{\abs{said}_{\abs{is}}} &= \lam{C S}{\obj{say} \apr S \aplr C} \\
-                              &= \lam{C S}{S \hsbind (\lam{s}{\ap{\obj{say}}{s} \apr C})} \\
-  \sem{\abs{said}_{\abs{ds}}} &= \lam{C S}{S \hsbind (\lam{s}{\ap{\obj{say}}{s} \apr (\app{\withSpeaker}{s}{C})})}
+                              &\uncover<4->{= \lam{C S}{S \hsbind (\lam{s}{\ap{\obj{say}}{s} \apr C})}} \\
+  \uncover<3->{\sem{\abs{said}_{\abs{ds}}}} &\uncover<3->{= \lam{C S}{S \hsbind (\lam{s}{\ap{\obj{say}}{s} \apr (\app{\withSpeaker}{s}{C})})}}
 \end{align*}
 \end{frame}
 
@@ -443,33 +689,48 @@ F-54506 Vand\oe uvre-lès-Nancy, France \\
 
 \begin{align*}
   \sem{\abs{said}_{\abs{is}}} &= \lam{C S}{\obj{say} \apr S \aplr C} \\
-                              &= \lam{C S}{S \hsbind (\lam{s}{\ap{\obj{say}}{s} \apr C})} \\
   \sem{\abs{said}_{\abs{ds}}} &= \lam{C S}{S \hsbind (\lam{s}{\ap{\obj{say}}{s} \apr (\app{\withSpeaker}{s}{C})})}
 \end{align*}
 
-John said Mary loves me.
-\begin{align*}
-  & \sem{\app{\abs{said}_{\abs{is}}}{(\app{\abs{loves}}{\abs{me}}{\abs{Mary}})}{\abs{John}}} \\
-  & \tto \app{\op{speaker}}{\star}{(\lam{x}{\etaE{(\app{\obj{say}}{\obj{j}}{(\app{\obj{love}}{\obj{m}}{x})})}})}
-\end{align*}
+\pause
+\vfill
 
-John said, ``Mary loves me''.
-\begin{align*}
-  & \sem{\app{\abs{said}_{\abs{ds}}}{(\app{\abs{loves}}{\abs{me}}{\abs{Mary}})}{\abs{John}}} \\
-  & \tto \etaE{(\app{\obj{say}}{\obj{j}}{(\app{\obj{love}}{\obj{m}}{\obj{j}})})}
-\end{align*}
+  John said Mary loves me. \\
+  $\sem{\app{\abs{said}_{\abs{is}}}{(\app{\abs{loves}}{\abs{me}}{\abs{Mary}})}{\abs{John}}}$ \\
+  \hfill $\tto \app{\op{speaker}}{\star}{(\lam{x}{\etaE{(\app{\obj{say}}{\obj{j}}{(\app{\obj{love}}{\obj{m}}{x})})}})}$
+
+\pause
+\vfill
+
+  John said, ``Mary loves me''. \\
+  $\sem{\app{\abs{said}_{\abs{ds}}}{(\app{\abs{loves}}{\abs{me}}{\abs{Mary}})}{\abs{John}}}$
+  \hfill $\tto \etaE{(\app{\obj{say}}{\obj{j}}{(\app{\obj{love}}{\obj{m}}{\obj{j}})})}$
 \end{frame}
 
 
-\subsection{Conventional Implicature}
+\subsection{Conventional Implicatures}
 
-\begin{frame}{Conventional Implicature}
+\begin{frame}{Conventional Implicatures --- Motivation}
+  John, Mary's best friend, loves Alice. \\
+  $\etaE{(\textcolor{cicolor}{(\obj{j} = \ap{\obj{bff}}{\obj{m}})} \land \app{\obj{love}}{\obj{j}}{\obj{a}})}$
+
+  \vfill
+  
+  It is not the case that John, Mary's best friend, loves Alice. \\
+  $\etaE{(\textcolor{cicolor}{(\obj{j} = \ap{\obj{bff}}{\obj{m}})} \land \lnot (\app{\obj{love}}{\obj{j}}{\obj{a}}))}$
+\end{frame}
+
+
+\begin{frame}{Conventional Implicatures --- Grammar}
 
 \begin{align*}
   \abs{appos} &: NP \limp NP \limp NP \\
   \abs{best-friend} &: NP \limp NP \\
   \abs{not-the-case} &: S \limp S
 \end{align*}
+
+\pause
+\vfill
 
 \begin{align*}
   \lex{appos}{\lam{X Y}{\begin{aligned}[t]
@@ -478,67 +739,74 @@ John said, ``Mary loves me''.
         &\app{\op{implicate}}{(x = y)}{(\lam{\_}{ \\
         &\etaE{x}})}})})
       \end{aligned}}} \\
-  \lex{best-friend}{\lam{X}{\obj{best-friend} \apr X}} \\
-  \lex{not-the-case}{\lam{S}{\lnot \apr S}}
+  \uncover<3->{\sem{\abs{best-friend}}} &\uncover<3->{= \lam{X}{\obj{bff} \apr X}} \\
+  \uncover<3->{\sem{\abs{not-the-case}}} &\uncover<3->{= \lam{S}{\lnot \apr S}}
 \end{align*}
 \end{frame}
 
 
-\begin{frame}{Conventional Implicature --- Handler}
+\begin{frame}{Conventional Implicatures --- Handler}
   
 \begin{align*}
-  \accommodate &: \FF_{\{\typedop{implicate}{o}{1}\} \uplus E}(o) \to \FF_E(o) \\
-  \accommodate &= \lam{M}{\ap{\banana{\onto{\op{implicate}}{(\lam{i k}{i \andr \ap{k}{\star}})}}}{M}}
+  \withImplicatures &: \FF_{\{\typedop{implicate}{o}{1}\} \uplus E}(o) \to \FF_E(o) \\
+  \withImplicatures &= \lam{M}{\ap{\banana{\onto{\op{implicate}}{(\lam{i k}{i \andr \ap{k}{\star}})}}}{M}}
 \end{align*}
 
 \pause
+
 \begin{align*}
-  \sem{\abs{said}_{\abs{ds}}} := \lam{C S}{
+  \sem{\abs{said}_{\abs{ds}}} \only<2>{=}\only<3>{:=} \lam{C S}{
     &S \hsbind (\lam{s}{ \\
-    &\ap{\obj{say}}{s} \apr (\app{\withSpeaker}{s}{(\ap{\alert<2>{\accommodate}}{C})})})}
+    &\ap{\obj{say}}{s} \apr (\app{\withSpeaker}{s}{\only<2>{C}\only<3>{(\ap{\alert<3>{\withImplicatures}}{C})}})})}\only<2>{\hspace{34mm}}
 \end{align*}
 \end{frame}
 
 
-\begin{frame}{Conventional Implicature --- Examples}
-  It is not the case that John, Mary's best friend, loves Alice.
-  \begin{align*}
-    &\sem{\ap{\abs{not-the-case}}{(\app{\abs{loves}}{\abs{Alice}}{(\app{\abs{appos}}{\abs{John}}{(\ap{\abs{best-friend}}{\abs{Mary}})})})}} \\
-    &\tto \app{\op{implicate}}{(\obj{j} = \ap{\obj{best-friend}}{\obj{m}})}{(\lam{\_}{\etaE{(\lnot (\app{\obj{love}}{\obj{j}}{\obj{a}}))}})} \\
-    &\ap{\accommodate}{\sem{\ldots}} \\
-    &\tto \etaE{((\obj{j} = \ap{\obj{best-friend}}{\obj{m}}) \land \lnot (\app{\obj{love}}{\obj{j}}{\obj{a}}))}
-  \end{align*}
+\begin{frame}{Conventional Implicatures --- Examples}
+  It is not the case that John, Mary's best friend, loves Alice. \\
+  $\sem{\textcolor{shady}{\ap{\abs{not-the-case}}{(\app{\abs{loves}}{\abs{Alice}}{(\app{\abs{appos}}{\abs{John}}{(\ap{\abs{best-friend}}{\abs{Mary}})})})}}}$ \\
+  \hfill $\tto \app{\op{implicate}}{(\obj{j} = \ap{\obj{bff}}{\obj{m}})}{(\lam{\_}{\etaE{(\lnot (\app{\obj{love}}{\obj{j}}{\obj{a}}))}})}$ \\
+  \pause
+  $\ap{\withImplicatures}{\sem{\ldots}}$ \\
+  \hfill $\tto \etaE{(\textcolor{cicolor}{(\obj{j} = \ap{\obj{bff}}{\obj{m}})} \land \lnot (\app{\obj{love}}{\obj{j}}{\obj{a}}))}$
 
+  \pause
   \vfill
-  John said, ``I, Mary's best friend, love Mary''.
-  \begin{align*}
-    &\sem{\app{\abs{said}_{\abs{ds}}}{(\app{\abs{loves}}{\abs{Mary}}{(\app{\abs{appos}}{\abs{me}}{(\ap{\abs{best-friend}}{\abs{Mary}})})})}{\abs{John}}} \\
-    &\tto \etaE{(\app{\obj{say}}{\obj{j}}{((\obj{j} = \ap{\obj{best-friend}}{\obj{m}}) \land \app{\obj{love}}{\obj{j}}{\obj{m}})})}
-  \end{align*}
+
+  John said, ``I, Mary's best friend, love Mary''. \\
+  $\sem{\textcolor{shady}{\app{\abs{said}_{\abs{ds}}}{(\app{\abs{loves}}{\abs{Mary}}{(\app{\abs{appos}}{\abs{me}}{(\ap{\abs{best-friend}}{\abs{Mary}})})})}{\abs{John}}}}$ \\
+  \hfill $\tto \etaE{(\app{\obj{say}}{\obj{j}}{(\textcolor{cicolor}{(\obj{j} = \ap{\obj{bff}}{\obj{m}})} \land \app{\obj{love}}{\obj{j}}{\obj{m}})})}$
 \end{frame}
 
 
 \subsection{Quantification}
 
-\setbeamercovered{transparent=15}
-
-\begin{frame}{Quantification}
-  
-\begin{align*}
-  \abs{every}, \abs{a} &: N \limp NP \\
-  \abs{man}, \abs{woman} &: N
-\end{align*}
-
-\begin{align*}
-  \lex{every}{\lam{N}{\app{\op{scope}}{(\lam{c}{\forall \uncover<1,3>{\apr} (\ap{\uncover<1,3>{\CC}}{\uncover<1,3>{(}\lam{x}{(N \uncover<1,3>{\apl} x) \only<1,3>{\implr}\only<2>{\mathbin{\textcolor{transparent}{\ll}\!\!\!\!\to\!\!\!\!\textcolor{transparent}{\gg}}} \ap{c}{x}}\uncover<1,3>{)}})})}{(\lam{x}{\etaE{x}})}}} \\
-  \lex{a}{\lam{N}{\app{\op{scope}}{(\lam{c}{\exists \uncover<1,3>{\apr} (\ap{\uncover<1,3>{\CC}}{\uncover<1,3>{(}\lam{x}{(N \uncover<1,3>{\apl} x) \only<1,3>{\andlr}\only<2>{\mathbin{\textcolor{transparent}{\ll}\!\!\land\!\!\textcolor{transparent}{\gg}}} \ap{c}{x}}\uncover<1,3>{)}})})}{(\lam{x}{\etaE{x}})}}} \\
-  \lex{man}{\etaE{\obj{man}}} \\
-  \lex{woman}{\etaE{\obj{woman}}}
-\end{align*}
+\begin{frame}{Quantification --- Motivation}
+  John is every teacher's favorite student. \\
+  $\etaE{(\forall x.\, \ap{\obj{teacher}}{x} \to \obj{j} = \ap{\obj{favorite-student}}{x})}$
 \end{frame}
 
 
+\begin{frame}{Quantification --- Grammar}
+  
+\begin{align*}
+  \abs{man}, \abs{woman} &: N \\
+  \abs{every}, \abs{a} &: N \limp NP
+\end{align*}
+
+\pause
+
+\setbeamercovered{transparent=15}
+\begin{align*}
+  \lex{man}{\etaE{\obj{man}}} \\
+  \lex{woman}{\etaE{\obj{woman}}} \\
+  \lex{every}{\lam{N}{\app{\op{scope}}{(\lam{c}{\forall \alert<4>{\uncover<2,4>{\apr}} (\ap{\alert<4>{\uncover<2,4>{\CC}}}{\alert<4>{\uncover<2,4>{(}}\lam{x}{(N \alert<4>{\uncover<2,4>{\apl}} x) \only<2,4>{\alert<4>{\ll}\!\!\to\!\!\!\!\alert<4>{\gg}}\only<3>{\mathbin{\textcolor{transparent}{\ll}\!\!\!\!\to\!\!\!\!\textcolor{transparent}{\gg}}} \ap{c}{x}}\alert<4>{\uncover<2,4>{)}}})})}{(\lam{x}{\etaE{x}})}}} \\
+  \lex{a}{\lam{N}{\app{\op{scope}}{(\lam{c}{\exists \alert<4>{\uncover<2,4>{\apr}} (\ap{\alert<4>{\uncover<2,4>{\CC}}}{\alert<4>{\uncover<2,4>{(}}\lam{x}{(N \alert<4>{\uncover<2,4>{\apl}} x) \only<2,4>{\alert<4>{\ll}\!\!\land\!\!\alert<4>{\gg}}\only<3>{\mathbin{\textcolor{transparent}{\ll}\!\!\land\!\!\textcolor{transparent}{\gg}}} \ap{c}{x}}\alert<4>{\uncover<2,4>{)}}})})}{(\lam{x}{\etaE{x}})}}}
+\end{align*}
 \setbeamercovered{transparent=0}
+
+\end{frame}
+
 
 \begin{frame}{Quantification --- Handler}
   
@@ -563,23 +831,23 @@ John said, ``Mary loves me''.
 
 \begin{frame}{Quantification --- Examples}
 
-John, my best friend, loves every woman.
-\begin{align*}
-  &\app{\wS}{s}{(\ap{\acc}{\sem{\app{\abs{loves}}{(\ap{\abs{every}}{\abs{woman}})}{(\app{\abs{appos}}{\abs{John}}{(\ap{\abs{best-friend}}{\abs{me}})})}}})} \\
-  &\tto \etaE{((\obj{j} = \ap{\obj{best-friend}}{s}) \land (\forall x.\ \ap{\obj{woman}}{x} \to \app{\obj{love}}{\obj{j}}{x}))}
-\end{align*}
+  John, my best friend, loves every woman. \\
+  $\app{\wS}{s}{(\ap{\wI}{\sem{\textcolor{shady}{\app{\abs{loves}}{(\ap{\abs{every}}{\abs{woman}})}{(\app{\abs{appos}}{\abs{John}}{(\ap{\abs{best-friend}}{\abs{me}})})}}})}}$ \\
+  \hfill $\tto \etaE{(\textcolor{cicolor}{(\obj{j} = \ap{\obj{bff}}{s})} \land (\forall x.\ \ap{\obj{woman}}{x} \to \app{\obj{love}}{\obj{j}}{x}))}$
 
-Mary, everyone's best friend, loves John.
-\begin{align*}
-  &\ap{\acc}{\sem{\app{\abs{loves}}{\abs{John}}{(\app{\abs{appos}}{\abs{Mary}}{(\ap{\abs{best-friend}}{\abs{everyone}})})}}} \\
-  &\tto \etaE{((\forall x.\ \obj{m} = \ap{\obj{best-friend}}{x}) \land (\app{\obj{love}}{\obj{m}}{\obj{j}}))}
-\end{align*}
+  \pause
+  \vfill
 
-A man said, ``My best friend, Mary, loves me''.
-\begin{align*}
-  &\sem{\app{\abs{said}_{\abs{ds}}}{(\app{\abs{loves}}{\abs{me}}{(\app{\abs{appos}}{(\ap{\abs{best-friend}}{\abs{me}})}{\abs{Mary}})})}{(\ap{\abs{a}}{\abs{man}})}} \\
-  &\tto \etaE{(\exists x.\ \ap{\obj{man}}{x} \land \app{\obj{say}}{x}{((\ap{\obj{best-friend}}{x} = \obj{m}) \land (\app{\obj{love}}{(\ap{\obj{best-friend}}{x})}{x}))})}
-\end{align*}
+  John, everyone's best friend, loves Mary.
+  $\ap{\wI}{\sem{\textcolor{shady}{\app{\abs{loves}}{\abs{Mary}}{(\app{\abs{appos}}{\abs{John}}{(\ap{\abs{best-friend}}{\abs{everyone}})})}}}}$ \\
+  \hfill $\tto \etaE{(\textcolor{cicolor}{(\forall x.\ \obj{j} = \ap{\obj{bff}}{x})} \land (\app{\obj{love}}{\obj{j}}{\obj{m}}))}$
+
+  \pause
+  \vfill
+
+  A man said, ``My best friend, John, loves me''.
+  $\sem{\textcolor{shady}{\app{\abs{said}_{\abs{ds}}}{(\app{\abs{loves}}{\abs{me}}{(\app{\abs{appos}}{(\ap{\abs{best-friend}}{\abs{me}})}{\abs{John}})})}{(\ap{\abs{a}}{\abs{man}})}}}$ \\
+  \hfill $\tto \etaE{(\exists x.\ \ap{\obj{man}}{x} \land \app{\obj{say}}{x}{(\textcolor{cicolor}{(\ap{\obj{bff}}{x} = \obj{j})} \land (\app{\obj{love}}{(\ap{\obj{bff}}{x})}{x}))})}$
 \end{frame}
 
 
@@ -592,12 +860,18 @@ A man said, ``My best friend, Mary, loves me''.
     $\sem{\abs{best-friend}}$
   \end{itemize}
 
+  \pause
+  \vfill
+
   changes needed only to account for interactions
   \begin{itemize}
   \item scope islands ($\SI$) in tensed clauses and appositives
-  \item blocking conversational implicature ($\accommodate$) in direct
+  \item blocking conventional implicature ($\withImplicatures$) in direct
     quotation
   \end{itemize}
+
+  \pause
+  \vfill
 
   old results preserved when extending fragment
   \begin{itemize}
@@ -608,30 +882,17 @@ A man said, ``My best friend, Mary, loves me''.
 
 
 \begin{frame}{Universal Semantic Glue}
-  \vspace*{-3mm}
   $$
-  \sem{\abs{loves}} = \lam{O S}{\obj{love} \apr S \aplr O}
+  \sem{\abs{loves}}
   $$
-  \centerline{instead of}
-  $$
-  \sem{\abs{loves}} = \lam{O S i}{\app{\obj{love}}{(\ap{S}{i})}{(\ap{O}{i})}}
-  $$
+
   \vfill
-  $$
-  \sem{\abs{loves}} = \lam{O S}{\obj{love} \apr S \aplr O}
-  $$
-  \centerline{instead of}
-  $$
-  \sem{\abs{loves}} = \lam{O S}{\left< \app{\obj{love}}{(\ap{\pi_1}{S})}{(\ap{\pi_1}{O})}, \ap{\pi_2}{S} \land \ap{\pi_2}{O} \right>}
-  $$
-  \vfill
-  $$
-  \sem{\abs{loves}} = \lam{O S}{\obj{love} \apr S \aplr O}
-  $$
-  \centerline{instead of}
-  $$
-  \sem{\abs{loves}} = \lam{O S k}{\ap{S}{(\lam{s}{\ap{O}{(\lam{o}{\ap{k}{(\app{\obj{love}}{s}{o})}})}})}}
-  $$
+  
+  \begin{tabular}{ll}
+    $\lam{O S}{\obj{love} \apr S \aplr O}$ & $\lam{O S i}{\app{\obj{love}}{(\ap{S}{i})}{(\ap{O}{i})}}$ \\ \\
+    \uncover<2->{$\lam{O S}{\obj{love} \apr S \aplr O}$} & \uncover<2->{$\lam{O S}{\left< \app{\obj{love}}{(\ap{\pi_1}{S})}{(\ap{\pi_1}{O})}, \ap{\pi_2}{S} \land \ap{\pi_2}{O} \right>}$} \\ \\
+    \uncover<3->{$\lam{O S}{\ap{\SI}{(\obj{love} \apr S \aplr O)}}$} & \uncover<3->{$\lam{O S}{\ap{S}{(\lam{s}{\ap{O}{(\lam{o}{\app{\obj{love}}{s}{o}})}})}}$}
+  \end{tabular}
 \end{frame}
 
 
@@ -642,9 +903,8 @@ A man said, ``My best friend, Mary, loves me''.
   \vfill
   \cite{shan2002monads}\ : monads are prevalent in NL semantics
 
-  $\calc$ = strongly normalizing $\lambda$-calculus with free monads
-  $\FF_E$
- 
+  $\calc$ = strongly normalizing $\lambda$-calculus with the $\FF_E$ monad
+  
   \vfill
   \pause
   \centerline{$\Downarrow$}
@@ -653,40 +913,41 @@ A man said, ``My best friend, Mary, loves me''.
   We can use $\calc$ to
   \begin{itemize}
     \item write less semantic glue
-    \item study more interactions of phenomena
+    \item implement more interactions of phenomena
+    \item keep strong normalization and the STLC core
   \end{itemize}
   \vfill
 \end{frame}
 
 
 \begin{frame}{Future}
-  add more effects
+  strengthen the metatheory of $\calc$
   \begin{itemize}
-  \item anaphora and presupposition in upcoming dissertation
-    \begin{itemize}
-    \item sketched in \cite{marsik2014algebraic}
-    \end{itemize}
+  \item adequacy for the denotational semantics
   \end{itemize}
 
+  \pause
   \vfill
-  what phenomena can we treat?
+
+  model more phenomena/effects
   \begin{itemize}
-  \item all that project?
+  \item modalities
+  \item events
+  \item discourse structure
   \end{itemize}
   
+  \pause
   \vfill
-  use effects directly
+
+  explore related alternatives
   \begin{itemize}
-  \item glue-free!
-  \item have to define a uniform evaluation strategy
+  \item monads in the syntactic calculus \cite{charlow2015monadic}
   \end{itemize}
 \end{frame}
 
 
 \begin{frame}[standout]
   Thank you!
-
-  Questions?
 \end{frame}
 
 
@@ -694,7 +955,12 @@ A man said, ``My best friend, Mary, loves me''.
 
 \begin{frame}[allowframebreaks]{References}
   \bibliographystyle{apalike}
-  \bibliography{references.bib}
+  \bibliography{references}
 \end{frame}
 
 \end{document}
+
+% Local Variables:
+% TeX-engine: xetex
+% TeX-PDF-mode: t
+% End:

@@ -5,7 +5,9 @@
 *.blg
 *.dia~
 *.dvi
+*.fdb_latexmk
 *.flg
+*.fls
 *.log
 *.maf
 *.mtc*
@@ -16,6 +18,7 @@
 *.pdf
 *.rkt~
 *.snm
+*.stversions
 *.tns
 *.toc
 *.vrb
