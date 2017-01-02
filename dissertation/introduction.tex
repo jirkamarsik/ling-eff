@@ -199,22 +199,21 @@ $\uparrow$ and $\downarrow$, which map between extension-denoting
 expressions and intension-denoting expressions, then correspond to the
 Lisp-style operators $\texttt{quote}$ and $\texttt{eval}$ respectively.
 
-The idea of treating linguistic expressions as effectful actions or
-programs is also very relevant to dynamic semantics, which treats the
-meanings of sentences as instructions to update some common ground or other
-linguistic context.\footnote{The use of monads to encode dynamic effects
-  (anaphora) dates back to 2009 and the work of Giorgolo and
-  Unger~\cite{giorgolo2009coreference,unger2012dynamic}} Dynamic semantics
-and anaphora are sometimes classified as belonging to both semantics and
-pragmatics. This is also the case for other phenomena that we will treat as
-side effects in our dissertation: deixis, presupposition,
-implicature. Pragmatics studies the way a language fits into the community
-of its users, i.e.\ how it is actually used by its speakers to achieve
-their goals. It might then come as no surprise that pragmatics align well
-with side effects in programming languages since side effects themselves
-concern the ways that programs can interact with the world of their users
-(e.g.\ by making things appear on screen or by listening for the user's
-input).
+The idea of treating linguistic expressions as effectful actions or programs is
+also very relevant to dynamic semantics, which treats the meanings of sentences
+as instructions to update some common ground or other linguistic
+context.\footnote{The use of monads to encode dynamic effects (anaphora) dates
+  back to 2009 and the work of Giorgolo and
+  Unger~\cite{giorgolo2009coreference,unger2012dynamic}} Dynamic semantics and
+anaphora are sometimes classified as belonging to both semantics and pragmatics.
+This is also the case for other phenomena that we will treat as side effects in
+our dissertation: deixis, presupposition, conventional implicature. Pragmatics
+studies the way a language fits into the community of its users, i.e.\ how it is
+actually used by its speakers to achieve their goals. It might then come as no
+surprise that pragmatics align well with side effects in programming languages
+since side effects themselves concern the ways that programs can interact with
+the world of their users (e.g.\ by making things appear on screen or by
+listening for the user's input).
 
 
 \section*{Effects and Handlers}
@@ -240,8 +239,8 @@ intended semantics:\footnote{The operations are just symbols and so have no
 \item $\ap{\op{presuppose}}{P}$ presupposes the existence of an entity
   satisfying the predicate $P$. This is used by definite descriptions
   \emph{the $P$} and by proper nouns.
-\item $\ap{\op{implicate}}{i}$ states that $i$ is an implicature. This
-  operation is used by appositive constructions such as \emph{John, who is
+\item $\ap{\op{implicate}}{i}$ states that $i$ is a conventional implicature.
+  This operation is used by appositive constructions such as \emph{John, who is
     my neighbor}.
 \item $\op{speaker}$ asks the context for the identity of the speaker. This
   is used by the first-person pronoun to find its referent.
@@ -258,7 +257,7 @@ program. Handlers can be made modular~\footnote{In a similar way that
   composed~\cite{shan2002monads,wu2015transformers}.} so that the
 interpreter for our vocabulary of context interactions can be defined as
 the composition of several smaller handlers, each treating a different
-aspect of language (dynamicity, implicature, deixis\ldots).
+aspect of language (dynamicity, implicatures, deixis\ldots).
 
 When using effects and handlers, we therefore start by enumerating the set
 of interactions that programs (i.e.\ linguistic expressions in our

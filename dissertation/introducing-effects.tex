@@ -619,21 +619,20 @@ implication (``if X, then Y'') and disjunction (``either X, or Y'').
   \abs{either-or} &: S \limp S \limp S
 \end{align*}
 
-In our fragment, a noun phrase contributes both its referent and also
-possibly some conventional implicature. If we would model this fact by
-interpreting NPs as pairs of referents and implicatures, we would be forced
-to revisit all the other lexical entries to take this change into account
-(e.g.\ transitive verbs such as $\abs{loves}$ would need to explicitly
-aggregate the conventional implicatures of both their subjects and
-objects). Rather than do that, we will make use of $\banana{\lambda}$ and
-model this interaction with the context as an operation. When a linguistic
-expression wants to conventionally implicate something, it will use the
-$\op{implicate}$ operation. The expression will need to communicate what
-exactly it wants to implicate. This will be a proposition and so the input
-type of $\op{implicate}$ will be the type $o$ of propositions. We do not
-need to collect any information from the context and so the output type
-will be $1$. Using this operation, we can now give denotations to
-expressions that generate conventional implicatures:
+In our fragment, a noun phrase contributes both its referent and also possibly
+some conventional implicature. If we would model this fact by interpreting NPs
+as pairs of referents and conventional implicatures, we would be forced to
+revisit all the other lexical entries to take this change into account (e.g.\
+transitive verbs such as $\abs{loves}$ would need to explicitly aggregate the
+conventional implicatures of both their subjects and objects). Rather than do
+that, we will make use of $\banana{\lambda}$ and model this interaction with the
+context as an operation. When a linguistic expression wants to conventionally
+implicate something, it will use the $\op{implicate}$ operation. The expression
+will need to communicate what exactly it wants to conventionally implicate. This
+will be a proposition and so the input type of $\op{implicate}$ will be the type
+$o$ of propositions. We do not need to collect any information from the context
+and so the output type will be $1$. Using this operation, we can now give
+denotations to expressions that generate conventional implicatures:
 
 \begin{align*}
   \sem{\abs{who}_{\abs{s}}} &= \lam{C X}{\begin{aligned}[t]
@@ -651,15 +650,15 @@ expressions that generate conventional implicatures:
   \lex{best-friend}{\lam{X}{\obj{best-friend} \apr X}}
 \end{align*}
 
-In both of the supplement constructions, we first evaluate the head NP $X$
-to get its referent $x$. We use $x$ twice: once to construct the
-implicature and once to produce the referent of the entire complex noun
-phrase. The implicature constructed by the relative clause is the clause
-with its gap filled in by an expression that refers to the same referent as
-the head noun $X$. The implicature of the appositive is a statement of
-equality between the referents of the two noun phrases. Finally, we also
-give the semantics to the relational noun ``X's best friend'' by assuming
-that we have a function $\obj{best-friend} : \iota \to \iota$ in the model.
+In both of the supplement constructions, we first evaluate the head NP $X$ to
+get its referent $x$. We use $x$ twice: once to construct the conventional
+implicature and once to produce the referent of the entire complex noun phrase.
+The conventional implicature constructed by the relative clause is the clause
+with its gap filled in by an expression that refers to the same referent as the
+head noun $X$. The conventional implicature of the appositive is a statement of
+equality between the referents of the two noun phrases. Finally, we also give
+the semantics to the relational noun ``X's best friend'' by assuming that we
+have a function $\obj{best-friend} : \iota \to \iota$ in the model.
 
 We will want to show that these denotations project through the operators
 that make up the logical structure of a sentence/discourse. Since the
@@ -684,10 +683,10 @@ inside logical operators:
   \ex If it is not the case that John, whom Sarah loves, loves Sarah then Mary loves John. \label{ex:if-not}
 \end{exe}
 
-We expect Example~\ref{ex:either-or} to implicate that Mary is John's best
-friend and Example~\ref{ex:if-not} to implicate that Sarah loves John. If
-we compute their denotations, we find out that these actually are the
-propositions that the two sentences try to implicate.
+We expect Example~\ref{ex:either-or} to conventionally implicate that Mary is
+John's best friend and Example~\ref{ex:if-not} to conventionally implicate that
+Sarah loves John. If we compute their denotations, we find out that these
+actually are the propositions that the two sentences try to $\op{implicate}$.
 
 \begin{align*}
   & \sem{\app{\abs{either-or}}{(\app{\abs{loves}}{\abs{Sarah}}{\abs{John}})}{(\app{\abs{loves}}{\abs{John}}{(\app{\abs{appos}}{(\ap{\abs{best-friend}}{\abs{John}})}{\abs{Mary}})})}} \\
@@ -707,16 +706,16 @@ symbols and so we will use a handler.
   \withImplicatures &= \bbanana{\onto{\op{implicate}}{(\lam{i k}{i \land \ap{k}{\star}})}}
 \end{align*}
 
-This handler applies only to computations that produce propositions. It
-collects all of the implicatures and conjoins them with the (at-issue)
-proposition. We used a closed handler to make the presentation slightly
-simpler (no need to mention computation types inside the handler). In
-Chapter~\ref{chap:composing-effects}, we will introduce an open handler
-which does the same but works inside arbitrary effect signatures.
+This handler applies only to computations that produce propositions. It collects
+all of the conventional implicatures and conjoins them with the (at-issue)
+proposition. We used a closed handler to make the presentation slightly simpler
+(no need to mention computation types inside the handler). In
+Chapter~\ref{chap:composing-effects}, we will introduce an open handler which
+does the same but works inside arbitrary effect signatures.
 
 If we apply the $\withImplicatures$ handler to the denotations
-of~\eqref{ex:either-or} and~\eqref{ex:if-not}, we can then verify that we
-get propositions that do entail the intended implicatures.
+of~\eqref{ex:either-or} and~\eqref{ex:if-not}, we can then verify that we get
+propositions that do entail the intended conventional implicatures.
 
 \begin{align*}
   & \ap{\withImplicatures}{\sem{\app{\abs{either-or}}{(\app{\abs{loves}}{\abs{Sarah}}{\abs{John}})}{(\app{\abs{loves}}{\abs{John}}{(\app{\abs{appos}}{(\ap{\abs{best-friend}}{\abs{John}})}{\abs{Mary}})})}}} \nonumber \\
@@ -745,15 +744,15 @@ eye towards deriving some canonical form.
   they are guaranteed to be equal. For simplicity, we could also assume
   that $M$ is fresh for $x$ and $y$.}
 
-The equations are quite similar to those we have seen with deixis. Here,
-$M$ ranges over computations of type
-$\FF_{\{ \typedop{implicate}{o}{1} \}}(\alpha)$. Since we know that our
-only handler, $\withImplicatures$, ends up combining all the implicatures
-using conjunction, we can collapse two implicatures into a single
-implicature. Furthermore, implicating the tautology $\top$ has no
-observable effect. By making an appeal to the conjunction operator, we can
-make use of the equations of propositions and derive equations for, e.g.,
-the commutativity or idempotence of $\op{implicate}$:
+The equations are quite similar to those we have seen with deixis. Here, $M$
+ranges over computations of type $\FF_{\{ \typedop{implicate}{o}{1}
+  \}}(\alpha)$. Since we know that our only handler, $\withImplicatures$, ends
+up combining all the conventional implicatures using conjunction, we can
+collapse two conventional implicatures into a single conventional implicature.
+Furthermore, implicating the tautology $\top$ has no observable effect. By
+making an appeal to the conjunction operator, we can make use of the equations
+of propositions and derive equations for, e.g., the commutativity or idempotence
+of $\op{implicate}$:
 
 \begin{align*}
   \app{\op{implicate}}{A}{(\lam{x}{\app{\op{implicate}}{B}{(\lam{y}{M(x,y)})}})}
@@ -762,23 +761,23 @@ the commutativity or idempotence of $\op{implicate}$:
   &= \app{\op{implicate}}{B}{(\lam{x}{\app{\op{implicate}}{A}{(\lam{y}{M(y,x)})}})}
 \end{align*}
 
-A denotation in $\FF_{\{ \typedop{implicate}{o}{1} \}}(\alpha)$ is a
-sequence of implicated propositions terminated with a value of type
-$\alpha$. This is very much like the result of the \emph{parsetree
-  interpretation} in~\cite{potts2005logic} (Definition~2.50), which is an
-$(n+1)$-tuple of the interpretation of some term of type $\alpha$ together
-with the propositions which are the interpretations of the $n$ conventional
-implicatures embedded within the term.
+A denotation in $\FF_{\{ \typedop{implicate}{o}{1} \}}(\alpha)$ is a sequence of
+conventionally-implicated propositions terminated by a value of type $\alpha$.
+This is very much like the result of the \emph{parsetree interpretation}
+in~\cite{potts2005logic} (Definition~2.50), which is an $(n+1)$-tuple of the
+interpretation of some term of type $\alpha$ together with the propositions
+which are the interpretations of the $n$ conventional implicatures embedded
+within the term.
 
-Instead of constructing an $n$-tuple of the implicated propositions, our
-handler conjoins all the propositions into a single proposition. This lets
-us admit the above equations, which tell us that a computation in
-$\FF_{\{ \typedop{implicate}{o}{1} \}}(\alpha)$ is always equivalent to one
-of the form $\app{\op{implicate}}{p}{(\lam{x}{\etaE{M}})}$, where $p$ is a
-proposition and $M$ is a value of type $\alpha$. For the case of
-$\FF_{\{ \typedop{implicate}{o}{1} \}}(o)$ in particular, the domain in
-which we interpret sentences, we have that the denotation is a pair of
-propositions: the implicated content and the at-issue content.
+Instead of constructing an $n$-tuple of the conventionally-implicated
+propositions, our handler conjoins all the propositions into a single
+proposition. This lets us admit the above equations, which tell us that a
+computation in $\FF_{\{ \typedop{implicate}{o}{1} \}}(\alpha)$ is always
+equivalent to one of the form $\app{\op{implicate}}{p}{(\lam{x}{\etaE{M}})}$,
+where $p$ is a proposition and $M$ is a value of type $\alpha$. For the case of
+$\FF_{\{ \typedop{implicate}{o}{1} \}}(o)$ in particular, the domain in which we
+interpret sentences, we have that the denotation is a pair of propositions: the
+conventionally-implicated (CI) content and the at-issue content.
 
 As in~\ref{ssec:algebraic-deixis}, we can construct a handler which maps a
 computation to this canonical representation:
@@ -1745,7 +1744,7 @@ information that we will need to communicate ``upwards''. The output type
 will usually be less important, i.e.\ the trivial type $1$. We can think of
 operations with the output type $1$ as \emph{setters} or
 \emph{producers}. This pattern will be particularly useful for smuggling
-out non-at-issue content (implicatures and presuppositions).
+out non-at-issue content (conventional implicatures and presuppositions).
 
 Examples:
 
@@ -1754,15 +1753,14 @@ Examples:
   
   In Potts' logic of conventional implicatures~\cite{potts2005logic}, a
   \emph{parsetree interpretation} step traverses the syntactic tree of a
-  sentence and scoops up all the conventional implicatures generated by
-  nominal appositives, non-restrictive relative clauses or other
-  supplements. The truth conditions of the sentence are then a combination
-  of the at-issue proposition and all the implicated propositions. We will
-  need an operation to use inside supplements and other conventional
-  implicature triggers for smuggling out the implicatures. The implicatures
+  sentence and scoops up all the conventional implicatures generated by nominal
+  appositives, non-restrictive relative clauses or other supplements. The truth
+  conditions of the sentence are then a combination of the at-issue proposition
+  and all the conventionally-implicated propositions. We will need an operation
+  to use inside supplements and other conventional implicature triggers for
+  smuggling out the conventional implicatures. The conventional implicatures
   will be propositions and so the input type will be $o$. We do not need to
-  communicate anything through the output type and so we will leave it at
-  $1$.
+  communicate anything through the output type and so we will leave it at $1$.
 
   $$
   \typedop{implicate}{o}{1}
@@ -1859,31 +1857,28 @@ Asudeh~\cite{giorgolo2011multidimensional,giorgolo2012monads}, Kiselyov and
 Shan~\cite{kiselyov2010lambda} and Barker and
 Bumford~\cite{barker2015monads}.
 
-Spotting monads like this is usually not that difficult because there is
-just a few common monads that tend to be reused and combined a lot. Most of
-the interesting ones are introduced already in Moggi's original
-paper~\cite{moggi1991notions}. Other sources of inspiration are libraries
-in Haskell that implement monads. After we have identified the monad, we
-still have to figure out the operations we will need to introduce in order
-to represent the monad in our free monad $\FF_E$. A great source for this
-is the technique of characterizing monad transformers by the operations
-that they enable inside a
+Spotting monads like this is usually not that difficult because there is just a
+few common monads that tend to be reused and combined a lot. Most of the
+interesting ones are introduced already in Moggi's original
+paper~\cite{moggi1991notions}. Other sources of inspiration are libraries in
+Haskell that implement monads. After we have identified the monad, we still have
+to figure out the operations we will need to introduce in order to represent the
+monad in our free monad $\FF_E$. A great source for this is the technique of
+characterizing monad transformers by the operations that they enable inside a
 monad~\cite{jones1995functional,liang1995monad}. In these papers and in the
-documentation to the Haskell monad transformer library
-\textbf{mtl}~\cite{mtl}, one can find for every common monad (transformer)
-the set of operations that it enables on the monad. For example, the reader
-monad $F(\alpha) = \gamma \to \alpha$ allows computations to \emph{ask} for
-a value of type $\gamma$ with a getter while the writer monad
-$F(\alpha) = \omega \times \alpha$ lets computations \emph{write} values of
-type $\omega$ with a setter. We can then have the same functionality by
-making sure that we include these operations as either operation symbols in
-the effect signature or as handlers. This is exactly what we did with
-deixis in~\ref{sec:deixis} and conventional implicature
-in~\ref{sec:conventional-implicature}: $\op{speaker}$ is the operation that
-lets computations \emph{ask} for the identity of the speaker,
-$\op{implicate}$ is the operation that lets computations \emph{write}
-implicatures (the monoid in this writer monad is the conjunctive monoid on
-propositions).
+documentation to the Haskell monad transformer library \textbf{mtl}~\cite{mtl},
+one can find for every common monad (transformer) the set of operations that it
+enables on the monad. For example, the reader monad $F(\alpha) = \gamma \to
+\alpha$ allows computations to \emph{ask} for a value of type $\gamma$ with a
+getter while the writer monad $F(\alpha) = \omega \times \alpha$ lets
+computations \emph{write} values of type $\omega$ with a setter. We can then
+have the same functionality by making sure that we include these operations as
+either operation symbols in the effect signature or as handlers. This is exactly
+what we did with deixis in~\ref{sec:deixis} and conventional implicature
+in~\ref{sec:conventional-implicature}: $\op{speaker}$ is the operation that lets
+computations \emph{ask} for the identity of the speaker, $\op{implicate}$ is the
+operation that lets computations \emph{write} conventional implicatures (the
+monoid in this writer monad is the conjunctive monoid on propositions).
 
 
 \subsubsection{Writing Handlers}
