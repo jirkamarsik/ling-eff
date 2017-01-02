@@ -1,3 +1,3 @@
 ((latex-mode
-  (TeX-engine . pdflatex)
+  (TeX-engine . xetex)
   (TeX-master . "dissertation")))
