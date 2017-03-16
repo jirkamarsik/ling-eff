@@ -1,179 +1,170 @@
-\chapter*{Sommaire en français}
+\chapter*{Résumé en français}
 \label{chap:french-summary}
 
-La motivation derrière cette thèse est d'avancer les travails sur la traduction
-automatique de la langue naturelle vers des représentations logiques. L'intérêt
-est double: d'une côté de permettre aux linguistes de donner une sémantique
-formelle au langage naturel et de l'autre côté de permettre aux informaticiens
-de s'en servir pour créer des systèmes de raisonnement automatique sur des
-données écrites en langage naturel.
+La motivation de ces travaux de thèse est de proposer des traductions
+automatiques d'énoncés en langue naturelle en des représentations logiques. 
+L'intérêt est double, d'un côté de permettre aux linguistes de définir une sémantique
+formelle de la langue et de l'autre côté de permettre aux informaticiens de les 
+utiliser pour, par exemple, créer des systèmes de raisonnement automatique sur des données 
+exprimées en langue naturelle.
 
-Il y a un corps de travail substantif fait dans la recherche de la traduction
-sémantique d'anglais et d'autres langues naturelles. En prenant comme un exemple
-une phrase anglaise, on peut identifier plusieurs problèmes particulières à la
-traduction sémantique et trouver des théories qui proposent leurs solutions.
+De nombreux travaux de recherche cherchent à définir un système transformant 
+des énoncés en anglais ou en d'autres langues en représentation sémantique. Mais ils se heurtent à plusieurs difficultés.
+Par exemple dans une phrase en anglais, on peut identifier plusieurs phénomènes 
+linguistiques et leur associer des théories qui en rendent compte.
 
 \begin{exe}
   \exr{ex:intro} She might still be dating that idiot.
 \end{exe}
 
+Cet exemple est constitué :
 \begin{enumerate}
-  \item \label{item:french-first-feature} On a des expressions anaphoriques, comme
-    le pronom \emph{she}. On sait qu'on peut traduire des phrases anaphoriques
-    comme des structure de la Discourse Representation
-    Theory~(DRT)~\cite{kamp1993discourse}, les formules de la Dynamic Predicate
-    Logic~(DPL)~\cite{groenendijk1991dynamic} ou les $\lambda$-termes qui
-    utilisent des continuations~\cite{de2006towards}.
-  \item On a l'auxiliaire modal \emph{might} qu'on peut traduire comme un
+  \item \label{item:french-first-feature} d'expressions anaphoriques, comme
+    le pronom \emph{she}. On sait qu'il est possible de traduire des phrases avec des anaphores
+    dans des structures de la Discourse Representation
+    Theory~(DRT)~\cite{kamp1993discourse}, des formules de la Dynamic Predicate
+    Logic~(DPL)~\cite{groenendijk1991dynamic} ou des $\lambda$-termes avec des
+     continuations~\cite{de2006towards}.
+  \item de l'auxiliaire modal \emph{might} qu'on peut traduire comme un
     opérateur d'une logique modale ou une quantification existentielle sur des
     mondes possibles.
-  \item On a le temps présent progressif dans \emph{be dating}. Comme avec
-    l'auxiliaire modal, on peut traduire ça en un opérateur d'une logique
+  \item du temps présent progressif dans \emph{be dating}. Comme avec
+    l'auxiliaire modal, on peut le traduire en un opérateur d'une logique
     temporelle ou introduire une quantification existentielle sur des
-    intervalles de temps pendant lesquels le \emph{dating} a lieu et postuler
-    que le moment d'énonciation de la phrase se trouve (possiblement) dans un
-    tel intervalle.
-  \item On a le déclencheur de présupposition \emph{still} qui nous dit que le
-    sujet et l'objet sortaient déjà ensemble. On va devoir s'équiper d'un
-    mécanisme qui nous permettra de projeter cette présupposition en dehors de
-    la portée de n'importe quel opérateur logique.\footnote{Dans le présent, on
-      peut déduire que les deux sont \emph{peut-être} en train de sortir
+    intervalles de temps pendant lesquels le fait de \emph{dating} a lieu et postuler
+    que le moment d'énonciation de la phrase se trouve dans cet intervalle.
+  \item du déclencheur de présupposition \emph{still} qui implique que le
+    sujet et l'objet sortaient déjà ensemble. Un mécanisme permettant de projeter 
+    cette présupposition en dehors de
+    la portée de n'importe quel opérateur logique est alors nécessaire\footnote{Dans le présent, 
+    on peut déduire que les deux sont \emph{peut-être} en train de sortir
       ensemble (grâce à l'auxiliaire modal \emph{might}), mais avec la
       présupposition, on peut déduire que dans le passé, ils ont \emph{dû}
-      sortir ensemble.} On peut utiliser la stratégie de
-    Lebedeva~\cite{lebedeva2012expression} et lever une exception pour projeter
+      sortir ensemble.}. On peut utiliser la stratégie de
+    Lebedeva~\cite{lebedeva2012expression} qui utilise une levé d'exception pour projeter
     la présupposition.
-  \item \label{item:french-last-feature} On a l'épithète expressif \emph{idiot}.
+  \item \label{item:french-last-feature} de l'épithète expressif \emph{idiot}.
     En suivant la théorie des implicatures conventionnelles de
     Potts~\cite{potts2005logic}, élaborée par Gutzmann~\cite{gutzmann2015use},
     on introduit une deuxième dimension du sens dans laquelle on va noter
     l'attitude négative de l'interlocuteur envers l'objet.
 \end{enumerate}
 
-Les résultats cités dessus nous donne espoir. On pourrait les suivre de façon
-intuitive pour arriver à une représentation logique qui nous semblerait
-raisonnable. Mais comment on va faire pour formaliser ce processus complexe? La
-plupart de ces théories sont écrit dans leurs propres langages : leurs propres
+Les descriptions ci-dessus peuvent sembler être une bonne première approximation de 
+l'exemple. Il est possible de les reprendre et intuitivement construire une représentation 
+logique raisonnable du contenu informationnel. Mais comment formaliser ce processus 
+complexe ? La plupart de ces théories utilisent leur propre système de représentation, leurs propres
 définitions, notations et opérations.
 
-La DRT introduit sa propre encodage des formules logiques et propose un
-algorithme qui les construits progressivement à partir de la phrase
-donnée~\cite{kamp1993discourse}. La logique des implicatures conventionnelles de
+La DRT introduit un encodage spécifique des formules logiques et propose un
+algorithme qui les construits progressivement à partir de la phrase~\cite{kamp1993discourse}. La logique des implicatures conventionnelles de
 Potts introduit des formules logiques bidimensionnelles et définit ses propres
-façons pour les combiner~\cite{potts2005logic}. Les traitements compositionnels
-de la intensionalité ou du temps ont tendance d'utiliser le $\lambda$-calcul
+façons de les combiner~\cite{potts2005logic}. Les traitements compositionnels
+de l'intensionalité ou du temps ont tendance à utiliser le $\lambda$-calcul
 simplement typé~\cite{ben2007semantics,de2013note}, comme c'est également le cas
-avec le traitement d'anaphore de de Groote~\cite{de2006towards}. En étudiant les
-présuppositions, Lebedeva utilise une version modifiée du calcul de de Groote
-qui inclut aussi des exceptions~\cite{lebedeva2012expression}.
+avec le traitement des anaphores de de Groote~\cite{de2006towards}. Pour son traitement
+des présuppositions, Lebedeva utilise une version modifiée du calcul de de Groote
+qui inclut aussi les exceptions~\cite{lebedeva2012expression}.
 
-Il semble clair que pour arriver à une notion précise de qu'est-ce que ça veut
-dire de faire toutes les choses
-dans~\ref{item:french-first-feature}--\ref{item:french-last-feature}, on va devoir
-exprimer les théories derrière
-\ref{item:french-first-feature}--\ref{item:french-last-feature} en utilisant un
-langage formel commun.
+Il semble clair que pour rendre compte des phénomènes présentés dans les descriptions~\ref{item:french-first-feature} à~\ref{item:french-last-feature}, il est pertinent de proposer un cadre universel basé sur un langage formel.
 
+\section*{Les monades}
 
-\section*{L'arrivée des monades}
-
-On va baser notre langage universel sur le $\lambda$-calcul. Grâce au travail
+Notre langage universel est fondé sur le $\lambda$-calcul. Grâce au travail
 très influent de Richard Montague~\cite{montague1973proper}, le $\lambda$-calcul
-est déjà un formalisme très populaire dans la domaine de la sémantique
-compositionnelle formelle.\footnote{Le principe de compositionnalité de Frege
-  dit que le sens d'une expression complexe devrait être déterminé par (c.-à-d.\
-  être une fonction de) le sens de ses constituants. Si un sens complexe devrait
-  être une fonction d'un autre sens, il est logique d'utiliser un calcul des
-  fonctions, c.-à-d.\ le $\lambda$-calcul.} Beaucoup d'analyses sémantiques
-utilisent le $\lambda$-calcul et les autres analyses ont tendance à se faire
-traduire en $\lambda$-calcul aussi (prenons comme exemple le
-$\lambda$-DRT~\cite{kuschert1995type} ou le traitement de dynamicité à partir
-des continuations par de Groote~\cite{de2006towards}).
+est un formalisme répandu en sémantique
+compositionnelle formelle\footnote{Il est généralement motivé par le principe de compositionnalité de Frege qui
+  dit que le sens d'une expression complexe doit être déterminé par le sens de ses constituants (c.-à-d.\
+  être une fonction de). Si un sens complexe est une fonction d'autres sens, il est logique d'utiliser un calcul sur les
+  fonctions, comme le $\lambda$-calcul.}. Beaucoup de systèmes pour la sémantique
+utilisent le $\lambda$-calcul et les autres ont tendance à se 
+traduire en $\lambda$-calcul (par exemple la $\lambda$-DRT~\cite{kuschert1995type} 
+ou le traitement de dynamicité à partir
+des continuations de de Groote~\cite{de2006towards}).
 
 Cependant, même si nous avons plusieurs théories qui sont toutes formalisées
-dans le $\lambda$-calcul, cela ne signifie pas nécessairement qu'ils sont
+dans le $\lambda$-calcul, cela ne signifie pas nécessairement qu'elles sont
 compatibles ou que nous savons les combiner. Une théorie de l'intensionalité
-pourrait déclarer que les phrases devraient être traduites en termes de type
-$\sigma \to o$, le type de fonctions des mondes possibles vers les valeurs de
+pourrait déclarer que les phrases sont traduites en termes de type
+$\sigma \to o$, le type des fonctions des mondes possibles vers les valeurs de
 vérité. D'un autre côté, une analyse des expressives suggère que des phrases
-devraient correspondre à des termes de type $o \times \epsilon$, le type de
-paires de valeurs de vérité (le contenu propositionnel) et de marqueurs
+devraient correspondre à des termes de type $o \times \epsilon$, le type des
+paires composées de valeurs de vérité (le contenu propositionnel) et de marqueurs
 expressifs (le contenu expressif). Les deux théories seraient compatibles au
-niveau de calcul utilisé mais pas au niveau des termes proposés. Une fonction
+niveau du calcul utilisé mais pas au niveau des termes. Une fonction
 traitant des propositions intensionnelles ne seraient pas directement
 applicables à une proposition expressive.
 
 Pour poursuivre notre recherche d'uniformité et de compatibilité des opérations
-sémantiques, nous examinerons les termes et les types utilisés par les
-traitement sémantiques à base du $\lambda$-calcul et nous essayerons de trouver
-une structure sous-jacente commune. Nous remarquons que toutes ces approches
-partagent les traits suivants:
+sémantiques, nous avons examiné les termes et les types utilisés par les
+traitements sémantiques à partir du $\lambda$-calcul et nous avons essayé de trouver
+une structure sous-jacente commune. Nous remarquons que l'ensemble de ces 
+approches partagent les caractéristiques suivantes :
 
 \begin{enumerate}
-\item \label{item:french-type-transformation} Les types de certaines des
+\item \label{item:french-type-transformation} Les types de certaines 
   dénotations sont élargies. Par exemple, lorsqu'il s'agit de quantificateurs,
-  le type des dénotations de syntagmes nominaux va de $\iota$ (des individus) à
+  le type des dénotations des syntagmes nominaux va de $\iota$ (des individus) à
   $(\iota \to o) \to o$ (des quantificateurs généralisés sur les individus);
-  dans la sémantique intensionnelle, le type de dénotations de phrases va de $o$
+  dans la sémantique intensionnelle, le type des dénotations des phrases va de $o$
   (des valeurs de vérité) à $\sigma \to o$ (des fonctions des mondes possibles
-  vers des valeurs de vérité, c.-à-d.\ des ensembles de mondes possibles); et
-  avec les expressives, le type de dénotations de phrases va de $o$ à $o \times
+  vers des valeurs de vérité, c.-à-d.\ des ensembles de mondes possibles) ; et
+  avec les expressives, le type des dénotations des phrases va de $o$ à $o \times
   \epsilon$ (des valeurs de vérité associées à des marqueurs expressifs).
-\item \label{item:french-monad-eta} Il y a un processus qui peut lever des
+\item \label{item:french-monad-eta} Il existe un processus pouvant transformer des
   dénotations de l'ancien type dans des dénotations du nouveau type. Dans
-  l'exemple avec les quantificateurs, il s'agit de la fameuse opération de
-  levage de type, le <<type raising>>. Dans l'exemple avec les intensions,
+  l'exemple avec les quantificateurs, il s'agit de la fameuse opération de type 
+  <<\textit{type raising}>>. Dans l'exemple avec les intensions,
   il s'agit du combinateur $\textbf{K}$ qui transforme une valeur de vérité en
   une fonction constante qui attribue cette valeur de vérité à tous les mondes,
-  une intension rigide. Dans l'exemple avec des expressifs, c'est la fonction
+  (une intension rigide). Dans l'exemple avec des expressifs, c'est la fonction
   qui couple une proposition avec un marqueur expressif neutre/vide.
-\item Puis il y a d'autres habitants du type étendu qui ne peuvent pas être
-  obtenu en utilisant la fonction de levage décrite ci-dessus; ce sont ceux pour
+\item Puis il y a d'autres types étendus qui ne peuvent pas être
+  obtenus en utilisant la fonction de \textit{type raising} évoqué ci-dessus ; ce sont ceux pour
   lequel nous avons élargi le type. Les syntagmes nominaux quantificationnel
-  tels que \emph{everyone} ne sont pas les résultat de levage de type sur un
+  tels que \emph{everyone} ne sont pas les résultats d'un \textit{type raising} sur un type 
   individu. Les propositions intensionnelles telles que \emph{Hespherus is
     Phosphorus} ont des extensions qui varient d'un monde à l'autre. Les
   expressives tel que le diminutif \emph{Wolfie} indiquent un individu et
   portent également un marqueur expressif qui transmet l'attitude du locuteur
   envers le référent.
-\item \label{item:french-monad-mu} Enfin, ces approches ont aussi une façon
-  générale de composer des dénotations plus petites en dénotations plus grandes
-  et de traiter la complexité ajoutée par les types plus élaborés. Lorsqu'on
+\item \label{item:french-monad-mu} Enfin, ces approches ont aussi une stratégie 
+  de composition des dénotations plus petites en des dénotations plus grandes
+  et de traitement de la complexité ajoutée par les types plus élaborés. Lorsqu'on
   applique un verbe transitif à un sujet et à un objet quantificationnel, on
-  laisse un (souvent le sujet) prendre la portée et ensuite on laisse l'autre
-  prendre la portée. Lorsque nous appliquons le verbe aux arguments
+  laisse l'un (souvent le sujet) prendre la portée et ensuite on laisse l'autre
+  prendre la sienne. Lorsque nous appliquons le verbe aux arguments
   intensionnels, nous passons le monde où nous évaluons la phrase au sujet et
-  l'objet. Quand on l'applique à des arguments expressifs, on applique le verbe
-  aux référents du sujet et de l'objet et on recueille le contenu expressif des
-  deux.
+  à l'objet. Quand on l'applique à des arguments expressifs, on applique le verbe
+  aux référents du sujet et de l'objet et on recueille le contenu expressif des deux.
 \end{enumerate}
 
-Ce type de structure est très commun dans la programmation fonctionnelle et dans
+Ce type de structure est en réalité très commun dans la programmation fonctionnelle et dans
 la sémantique dénotationnelle des langages de programmation. C'est la structure
 d'un \emph{foncteur applicatif}~\cite{mcbride2008applicative}. Les exemples
 ci-dessus sont également des instances d'une structure plus spéciale appelée une
 \emph{monade}~\cite{moggi1991notions}.
 
-Nous n'allons pas rentrer dans les détails de la définition d'une monade ici,
-mais nous allons donner un aperçu néanmoins. Une monade est un triple $(T, \eta,
+Nous n'entrons pas dans cette section dans les détails de la définition d'une monade que l'on peut retrouver dans ce document,
+mais nous allons néanmoins en donner un aperçu. Une monade est un triplet $(T, \eta,
 \hsbind)$ où $T$ est une fonction sur les types (l'expansion des types que nous
-avons vu dans~\ref{item:french-type-transformation}), $\eta$ est une façon de
-soulever des valeurs simples en valeurs étendues (les fonctions de levage
+avons vu dans la section~\ref{item:french-type-transformation}), $\eta$ est une façon de
+transformer des valeurs simples en valeurs étendues (les fonctions de \textit{type raising}
 dans~\ref{item:french-monad-eta}) et $\hsbind$ nous donne un moyen général de
 combiner des valeurs de ce type étendu (semblable aux exemples données
-dans~\ref{item:french-monad-mu}).\footnote{Ce façon de présenter une monade (un
+dans~\ref{item:french-monad-mu})\footnote{Cette façon de présenter une monade (un
   constructeur de type, $\eta$ et $\hsbind$) est particulière à la programmation
   fonctionnelle. Notez que cette présentation diffère de celle utilisée dans la
   théorie des catégories, qui remplace $\hsbind$ par une transformation
-  naturelle $\mu$ \cite{mac1978categories}.} Le triple doit également satisfaire
+  naturelle $\mu$ \cite{mac1978categories}.}. Le triplet doit également satisfaire
 certaines propriétés algébriques qui garantissent que la composition des
-fonctions sur des types étendus est associative et que la fonction de levage
+fonctions sur des types étendus est associative et que la fonction de \emph{type raising}
 sert d'unité pour cet opérateur de composition.
 
-Les analyses discutées ci-dessus sont tous des exemples de monades. La
-prévalence des monades dans la sémantique du langage naturel a déjà été
-découverte par Shan dans~\cite{shan2002monads}. Cependant, le défi consiste à
-essayer d'utiliser plusieurs monades en même temps.
+Les analyses discutées ci-dessus sont toutes des exemples de monades. La
+prévalence des monades dans la sémantique de la langue a déjà été
+mise en avant par Shan dans~\cite{shan2002monads}. Cependant, le défi consiste à
+combiner l'utilisation de plusieurs monades en même temps.
 
 
 \section*{Les effets de bord linguistiques}
@@ -181,70 +172,68 @@ essayer d'utiliser plusieurs monades en même temps.
 Les monades apparaissent souvent dans la sémantique dénotationnelle des langages
 de programmation pour tenir compte des notions de calcul communément appelées
 \emph {les effets de bord}~\cite{moggi1991notions}. Nous pouvons nous baser sur
-cette correspondance et considérer la structure monadique en langage naturel
+cette correspondance et considérer la structure monadique en langue naturelle
 comme des effets de bord linguistiques. Cette analogie a été poursuivie par
 Shan~\cite{shan2005linguistic,shan2005thesis} et
 Kiselyov~\cite{kiselyov2008call} et est présente dans les travaux récents sur
-les monades dans la sémantique du langage
-naturel~\cite{giorgolo2012monads,charlow2014semantics}. Cependant, l'idée même
-remonte avant que les monades soient introduites à l'informatique. Dans leur
+les monades dans la sémantique de la langue naturelle~\cite{giorgolo2012monads,charlow2014semantics}. Cependant, l'idée remonte avant que les monades soient introduites en informatique. Dans leur
 article de 1977, Hobbs et Rosenschein prennent une perspective computationnelle
 sur la logique intensionnelle de Montague~\cite{montague1973proper} : les
 intensions correspondent aux programmes et les extensions correspondent aux
 valeurs. Un programme peut accéder aux variables globales qui décrivent l'état
-du monde.\footnote{La dépendance à un environnement d'un certain type $\sigma$
+du monde\footnote{La dépendance à un environnement d'un certain type $\sigma$
   est un effet de bord qui peut être décrit en utilisant la monade <<reader>>.
-  Cette monade lève le type $\alpha$ vers le type $\sigma \to \alpha$. Cette
-  levage de types est exactement la même comme celle décrit par les théories
-  d'intensionalisation~\cite{ben2007semantics,de2013note}.} Les opérateurs
-$\uparrow$ et $\downarrow$, qui font une traduction entre les expressions
+  Cette monade transforme le type $\alpha$ vers le type $\sigma \to \alpha$. Cette
+  transformation de types est exactement la même que celle décrite par les théories
+  d'intensionalisation~\cite{ben2007semantics,de2013note}.}. Les opérateurs
+$\uparrow$ et $\downarrow$, qui traduisent les expressions
 dénotant les extensions et les expressions dénotant les intensions,
 correspondent respectivement aux opérateurs $\texttt{quote} $ et $\texttt{eval}$
 dans les langages de la famille Lisp.
 
 L'idée de traiter les expressions linguistiques comme des actions ou des
-programmes avec des effets est également très pertinente pour la sémantique
-dynamique, qui traite le sens d'une phrase comme des instructions pour mettre à
-jour le <<common ground>> ou un autre contexte
-linguistique.\footnote{L'utilisation des monades pour encoder des effets
-  dynamiques (l'anaphore) remonte à 2009 et aux travail de Giorgolo et
-  Unger~\cite{giorgolo2009coreference,unger2012dynamic}.} La sémantique
+programmes avec des effets est également pertinente pour la sémantique
+dynamique, qui traite le sens d'une phrase comme des instructions mettant à
+jour le <<common ground>> (ou un autre contexte
+linguistique)\footnote{L'utilisation des monades pour encoder des effets
+  dynamiques (l'anaphore) remonte à 2009 et aux travaux de Giorgolo et
+  Unger~\cite{giorgolo2009coreference,unger2012dynamic}.}. La sémantique
 dynamique et l'anaphore sont parfois classées comme appartenant à la fois à la
 sémantique et à la pragmatique. C'est également le cas pour d'autres phénomènes
-que nous traiterons comme des effets de bord dans notre thèse: la deixis, la
+que nous traitons comme des effets de bord dans cette thèse: la deixis, la
 présupposition, l'implicature conventionnelle. La pragmatique étudie la façon
 dont un langage se situe dans la communauté de ses utilisateurs, c.-à-d.\ comment
 il est réellement utilisé par ses locuteurs pour atteindre leurs objectifs. Il
-ne serait donc pas surprenant que la pragmatique correspond bien aux effets de
+ne serait donc pas surprenant que la pragmatique corresponde bien aux effets de
 bord des langages de programmation, car les effets de bord eux-mêmes concernent
 la façon dont les programmes peuvent interagir avec le monde de leurs
 utilisateurs (par exemple, en faisant apparaître des choses sur l'écran ou en
-récoltant des entrées données par l'utilisateur).
+récupérant des entrées fournies par l'utilisateur).
 
 
 \section*{Les effets et les handlers}
 
-En prenant les différentes structures monadiques de la sémantique du langage
-naturel comme des effets de bord, nous pouvons appliquer des théories qui
-combinent des effets de bord pour trouver un formalisme qui peut parler de tous
-les aspects du langage en même temps. Les effets et les handlers font un tel
-cadre théorique. Dans ce cadre, les programmes sont interprétés comme des
+En prenant les différentes structures monadiques de la sémantique de la langue
+naturelle comme des effets de bord, nous pouvons appliquer des théories qui les 
+combinent pour définir un formalisme capable d'exprimer différents aspects du langage 
+en même temps. Les effets et les handlers sont pour nous un tel
+cadre théorique. Ici, les programmes sont interprétés comme des
 séquences d'instructions (ou plus généralement comme des arbres de
-décision).\footnote{Plus précisément, nous interprétons des programmes dans une
-  monade libre~\cite{swierstra2008data}.} Les instructions sont des symboles
+décision)\footnote{Plus précisément, nous interprétons des programmes dans une
+  monade libre~\cite{swierstra2008data}.}. Les instructions sont des symboles
 appelés des \emph{opérations}, qui représentent les différents effets, les
 différentes façons dont les programmes peuvent interagir avec leur contexte.
-Dans notre application à la sémantique du langage naturel, voici quelques
-exemples d'opérations qui figureront dans nos démonstrations, ainsi que leur
-sémantique:\footnote{Les opérations ne sont que des symboles et n'ont donc pas
-  du sens inhérent.}
+Dans notre application à la sémantique de la langue naturelle, voici quelques
+exemples d'opérations qui figurent dans nos définitions, ainsi que leur
+sémantique\footnote{Les opérations ne sont que des symboles et n'ont donc pas
+  un sens inhérent.} :
 
 \begin{itemize}
 \item $\op{introduce}$ introduit un nouveau référent de discours dans le
   contexte. C'est l'opération utilisée par des syntagmes nominaux comme
   l'indéfini \emph{a man}.
 \item $\ap{\op{presuppose}}{P}$ présuppose l'existence d'une entité satisfaisant
-  le prédicat $P$. Ceci est utilisé par des descriptions définies \emph{the $P$}
+  le prédicat $P$. Elle est utilisée par des descriptions définies \emph{the $P$}
   et par des noms propres.
 \item $\ap{\op{implicate}}{i}$ indique que $i$ est une implicature
   conventionnelle. Cette opération est utilisée par des constructions
@@ -256,21 +245,21 @@ sémantique:\footnote{Les opérations ne sont que des symboles et n'ont donc pas
 Le calcul de la dénotation d'une expression linguistique est décomposé en ces
 opérations. Lorsque les expressions se combinent pour former des phrases et des
 discours, ces opérations finissent par être concaténées dans un grand programme
-qui effectuera une série d'interactions avec son contexte. C'est à ce point que
-les handlers entrent en jeu. Un \emph{handler} est un interpréteur qui donne une
-définition aux symboles d'opération dans un programme. Les handlers peuvent être
+qui effectue une série d'interactions avec son contexte. C'est à ce point que
+les handlers sont utilisés. Un \emph{handler} est un interpréteur qui donne une
+définition aux symboles d'opération présents dans un programme. Les handlers peuvent être
 rendus modulaires~\footnote{De la même manière que les monades peuvent être
   transformées en <<monad transformers>> (<<monad morphisms>>) puis
   composées~\cite{shan2002monads,wu2015transformers}.} afin que l'interprète
-complet de tout les interactions avec le contexte puisse être défini comme la
+global de toutes les interactions avec le contexte puisse être défini comme la
 composition de plusieurs petits handlers, chacun traitant un aspect différent du
 langage (la dynamique, les implicatures, la deixis\ldots).
 
-Lorsque nous utilisons des effets et des handlers, nous commençons par énumérer
-l'ensemble de tout les interactions possibles que les programmes (c.-à-d.\ les
+Lorsque nous utilisons les effets et les handlers, nous commençons par énumérer
+l'ensemble de toutes les interactions possibles que les programmes (c.-à-d.\ les
 expressions linguistiques dans notre application) peuvent avoir avec leurs
 contextes. Ensuite, nous pouvons interpréter les expressions linguistiques comme
-des séquences de telles instructions. Enfin, nous écrivons des handlers qui
+des séquences d'instructions. Enfin, nous écrivons des handlers qui
 mettent en œuvre ces instructions et produisent une représentation sémantique
 appropriée. Cette approche suit donc de près le mantra donné par Lewis:
 
@@ -288,7 +277,7 @@ appropriée. Cette approche suit donc de près le mantra donné par Lewis:
   \end{flushright}
 \end{quote}
 
-Nous pouvons tracer les origines des effets et des handlers à deux points. L'un
+Nous pouvons faire remonter les origines des effets et des handlers à deux moment. L'un
 est le travail de Cartwright et Felleisen sur les Extensible Denotational
 Language Specifications~\cite{cartwright1994extensible}, dans lequel une
 technique de développement de la sémantique est présentée qui fait que lorsqu'un
@@ -299,46 +288,45 @@ sur les effets algébriques~\cite{hyland2006combining}, une technique catégoriq
 pour étudier les programmes avec des effets de bord, qui fut ensuite étendu par
 Plotkin et Pretnar pour inclure les
 handlers~\cite{plotkin2009handlers,pretnar2010logic,plotkin2013handling}. La
-technique a gagné en popularité ces dernières années (2012 et suivantes). Elle
-trouve ses applications à la fois dans l'encodage des effets dans les langages
+technique a gagné en popularité ces dernières années (depuis 2012). Elle
+trouve des applications à la fois dans l'encodage des effets dans les langages
 de programmation fonctionnels
 purs~\cite{kiselyov2013extensible,kiselyov2015freer,kammar2013handlers,brady2013programming}
 et dans la conception des langages de
 programmation~\cite{bauer2012programming,lindley2016dobedobedo,dolan2015effective,kiselyov2016eff,hillerstrom2016compiling}.
 Notre thèse explore l'applicabilité des effets et des handlers à la sémantique
-du langage naturel.
+de la langue naturelle.
 
-
-\section*{Une sommaire des résultats}
+\section*{Résumé des résultats}
 \label{sec:french-summary-of-results}
 
-Après avoir donné une introduction à la problématique dans lequel s'intéresse
-cette thèse, on va procéder avec une sommaire du contenu du manuscrit.
+Après avoir introduit la problématique dans laquelle se situe
+ces travaux, nous revenons sur une description du contenu du manuscrit.
 
-Dans la partie~\ref{part:calculus}, nous avons introduit $\calc$, un calcul
+Dans la partie~\ref{part:calculus}, nous introduisons $\calc$, un calcul
 formel qui étend le $\lambda$-calcul simplement typé (STLC) avec des effets et
 des handlers.
 
 La définition de $\calc$ est donnée dans le chapitre~\ref{chap:definitions}.
 $\calc$ introduit une nouvelle famille de types dans STLC, les types des
 calculs, et des nouveaux termes, qui comprennent des constructeurs et des
-destructeurs des calculs. Nous avons donné un système des types au calcul qui
+destructeurs des calculs. Nous avons donné un système de types au calcul qui
 étend celui de STLC et une sémantique de réduction qui combine les réductions de
-STLC $\beta$ et $\eta$ avec les définitions des nouveaux symboles. Au cours du
-chapitre, nous maintenons deux perspectives sur la signification de ces termes:
+STLC $\beta$ et $\eta$ avec les définitions des nouveaux symboles. Dans ce
+chapitre, nous maintenons deux perspectives sur la signification de ces termes :
 les calculs peuvent être considérés comme des programmes qui interagissent avec
 un système à travers un ensemble d'opérations spéciales ou ils peuvent être
-considérés comme des expressions algébriques construit à partir d'une signature
+considérés comme des expressions algébriques construites à partir d'une signature
 algébrique infinie.
 
 Dans le chapitre~\ref{chap:examples}, nous avons donné un exemple d'utilisation
-du calcul $\calc$. En plus de faire connaître au lecteur la notation et les
-réductions du calcul, l'exemple a servi d'aperçu du genre d'ingénierie
-linguistique que nous ferions plus tard dans le manuscrit. Au cours du chapitre,
-nous avons développé une sémantique compositionnelle pour un langage
-informatique simple avec des erreurs et des variables. Cela nous permet de
+du calcul $\calc$. En plus d'introduire les notations et les
+réductions du calcul, l'exemple sert d'aperçu du genre d'ingénierie
+linguistique que nous faisons plus tard dans le manuscrit. Au cours du chapitre,
+nous développons une sémantique compositionnelle pour un langage
+informatique simple avec des erreurs et des variables. Ceci nous permet de
 démontrer la modularité de l'utilisation de notre monade de calcul, car nous
-pourrions ajouter des variables au langage sans avoir à modifier la sémantique
+pouvons ajouter des variables au langage sans avoir à modifier la sémantique
 des autres constructions.
 
 La contribution principale de la partie~\ref{part:calculus} se trouve dans le
@@ -353,33 +341,32 @@ nous interprétons $\calc$ avec notre \emph{sémantique dénotationnelle}. Dans 
 section~\ref{sec:type-soundness}, nous avons prouvé la \emph{préservation des
   types} (<<subject reduction>>) dans $\calc$. Ce résultat donne une cohérence
 entre le système des types de $\calc$ et sa sémantique de réduction,
-garantissant que les types sont conservés sous réduction. Ceci est complété par
+garantissant que les types sont conservés par la réduction. Ceci est complété par
 une preuve de \emph{progression}, qui indique que les termes qui n'utilisent
 aucun des opérateurs partiels et qui ne peuvent plus être réduits doivent avoir
-une forme très spécifique.
+une forme spécifique.
 
-Nous avons enchaîné avec la preuve d'une autre propriété fondamentale: la
-\emph{normalisation forte}. Sa preuve a été divisée en deux parties:
+Nous avons enchaîné avec la preuve d'une autre propriété fondamentale : la
+\emph{normalisation forte}. Sa preuve a été divisée en deux parties :
 \emph{confluence} (prouvée dans la section~\ref{sec:confluence}) et
 \emph{terminaison} (prouvée dans la section~\ref{sec:termination}). Les preuves
-de confluence et de terminaison procèdent par des stratégies similaires: prouver
+de confluence et de terminaison procèdent par des stratégies similaires : prouver
 la propriété pour le calcul sans la $\eta$-réduction en appliquant un résultat
 général, puis étendre la propriété au calcul complet. Dans le cas de la
 confluence, le résultat général est la confluence des systèmes de réduction
 combinatoires orthogonaux~\cite{klop1993combinatory}. Dans le cas de la
-terminaison, nous nous appuyons sur deux techniques: la terminaison de la
+terminaison, nous nous appuyons sur deux techniques : la terminaison de la
 relation de réduction dans les systèmes de type de données inductives qui
 valident le schéma général~\cite{blanqui2000termination} et l'étiquetage
 sémantique d'ordre supérieur~\cite{hamana2007higher}, ce qui nous permet
 d'utiliser notre sémantique dénotationnelle pour étiqueter les termes de notre
 calcul afin de valider le schéma général.
 
-Andrej Bauer a fait l'analogie que les effets et les handlers sont à des
+Andrej Bauer a fait l'analogie dans laquelle les effets et les handlers sont aux
 continuations délimitées ce que les boucles while ou les constructions
-if-then-else sont à des instructions goto~\cite{bauer2012lambda}. Les
+if-then-else sont aux instructions du type \textit{goto}~\cite{bauer2012lambda}. Les
 continuations elles-mêmes se sont avérées être un outil efficace dans la
-sémantique du langage
-naturel~\cite{de2001type,barker2002continuations,shan2005linguistic,de2006towards,
+sémantique de la langue naturelle~\cite{de2001type,barker2002continuations,shan2005linguistic,de2006towards,
   barker2006continuations,barker2014continuations}. Dans le
 chapitre~\ref{chap:continuations}, nous avons montré comment $\calc$ peut
 simuler des continuations délimitées, à savoir les opérateurs de contrôle
@@ -387,19 +374,19 @@ délimitée $\shift$/$\reset$. Nous avons présenté un $\lambda$-calcul avec ap
 par valeur et les opérateurs $\shift$ et $\reset$ et simulé ses types et ses
 réductions dans $\calc$.
 
-Dans la partie~\ref{part:natural-language}, nous avons démontré les applications
-de $\calc$ au problème de la modélisation du sens des énoncés de langage
-naturel.
+Dans la partie~\ref{part:natural-language}, nous démontrons les applications
+de $\calc$ aux problèmes de modélisation du sens des énoncés de la langue
+naturelle.
 
 Après avoir examiné les bases de la sémantique formelle dans le
 chapitre~\ref{chap:intro-fs}, nous avons montré comment les calculs dans $\calc$
-peuvent être utilisés pour donner une sémantique compositionnelle aux plusieurs
-phénomènes linguistiques "non compositionnels" dans le
-chapitre~\ref{chap:introducing-effects}. Nous avons décrit comment introduire
+peuvent être utilisés pour donner une sémantique compositionnelle à plusieurs
+phénomènes linguistiques ``non compositionnels". Dans le
+chapitre~\ref{chap:introducing-effects}, nous avons décrit comment introduire
 des calculs dans une sémantique compositionnelle tout en préservant les
 dénotations assignées par la sémantique dans la
 section~\ref{sec:lifting-semantics}. Nous avons ensuite présenté des analyses de
-plusieurs phénomènes linguistiques dans le cadre des calculs $\calc$: la deixis
+plusieurs phénomènes linguistiques dans $\calc$: la deixis
 (section~\ref{sec:deixis}), l'implicature conventionnelle à la Potts
 (section~\ref{sec:conventional-implicature}) et la quantification à la Montague
 (section~\ref{sec:quantification}). Nous avons ensuite décrit explicitement la
@@ -408,34 +395,31 @@ dans le chapitre~\ref{chap:introducing-effects} afin d'encourager les chercheurs
 à élaborer d'autres analyses dans le même cadre.
 
 Nous avons consacré le chapitre~\ref{chap:dynamic-semantics} à un phénomène
-particulièrement complexe: la dynamique. Dans les sections~\ref{sec:drt-as-pl}
+particulièrement complexe : la dynamique. Dans les sections~\ref{sec:drt-as-pl}
 et~\ref{sec:banana-drt}, nous avons montré comment une analyse $\calc$ de la
-dynamique peut être extraite de la Discourse Representation Theory. Cela nous a
-donné un moyen de gérer la dynamique dans $\calc$ ainsi que de renforcer la
-prétention que les effets et les handlers sont des mécanismes appropriés pour
-traiter le langage naturel. Nous avons également montré comment interpréter les
+dynamique peut être extraite à partir de la Discourse Representation Theory. Cela 
+donne un moyen de gérer la dynamique dans $\calc$ et renforcer l'idée
+que les effets et les handlers sont des mécanismes appropriés pour
+traiter la langue naturelle. Nous avons également montré comment interpréter les
 calculs $\calc$ comme les propositions dynamiques de la Type-Theoretic Dynamic
 Logic (TTDL)~\cite{de2006towards}. Dans sa thèse~\cite{lebedeva2012expression},
-Lebedeva a étendu la TTDL avec des exceptions pour traiter les présuppositions
+Lebedeva a étendu TTDL avec des exceptions pour traiter les présuppositions
 et dans la section~\ref{sec:presuppositions}, nous avons intégré l'analyse de
 présuppositions de Lebedeva dans notre analyse $\calc$ de la dynamique (nous
 avons comparé notre adaptation avec l'original dans la section suivante,
-\ref{ssec:comparison-linguistic}). Dans la section~\ref{sec:double-negation}, on
-a considéré une autre extension de la TTDL, la Double Negation
-TTDL~\cite{qian2014accessibility} and on a montré que la levage de dénotations
-qui a été fait dans la Double Negation TTDL ne se soumet pas au analyse comme un
-effet de bord dans $\calc$.
+%\ref{ssec:comparison-linguistic}
+). Dans la section~\ref{sec:double-negation}, nous avons
+considéré une autre extension de TTDL pour la double négation~\cite{qian2014accessibility} et nous avons montré que le \textit{type raising} des dénotations qui y est utilisé ne peut pas être simulé dans $\calc$.
 
-Dans le chapitre~\ref{chap:composing-effects}, nous avons soutenu notre
-affirmation selon laquelle l'utilisation d'effets et de handlers permet de
-combiner des phénomènes différents dans une seule grammaire. Nous avons commencé
+Dans le chapitre~\ref{chap:composing-effects}, nous montrons comment l'utilisation d'effets et de handlers permet de
+combiner le traitement de phénomènes différents dans une seule grammaire. Nous avons commencé
 avec la grammaire dynamique développée dans le
 chapitre~\ref{chap:dynamic-semantics}, répété dans les
 sections~\ref{sec:dynamic-kernel} et~\ref{sec:adding-presuppositions}. Nous
-avons ensuite étendu cette grammaire avec des implicatures
+avons ensuite étendu cette grammaire avec les implicatures
 conventionnelles~(\ref{sec:adding-conventional-implicature}), la
 deixis~(\ref{sec:adding-deixis}) et la
 quantification~(\ref{sec:adding-quantification}) avec peu ou aucune modification
-de la sémantique originale. Nous avons terminé le chapitre en esquissant une
-analyse des clauses relatives restrictives et leurs interactions avec les
+de la sémantique originale. Nous terminons le chapitre en esquissant une
+analyse des subordonnées restrictives et leurs interactions avec les
 présuppositions dans la section~\ref{sec:relative-clauses}.
