@@ -1210,7 +1210,7 @@
      \fi
      %\addtocounter{page}{-2}%
     }
-\newcommand{\AcknowledgmentName}{Remerciements}
+\newcommand{\AcknowledgmentName}{Acknowledgments}
 \newcommand{\@acknowledgment@hook}{}
 \newenvironment{ThesisAcknowledgments}
     {\@newdoublepage
