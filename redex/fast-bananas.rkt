@@ -5,10 +5,7 @@
 ;; Below is a mechanization of the lambda-banana calculus defined in
 ;; 'Effects and Handlers in Natural Language'. The mechanization can be
 ;; consulted to verify the computations done in the dissertation and see a
-;; formalized definition of the calculus and the grammar.  Beware that the
-;; implementation of normalization is very inefficient and it can thus take
-;; an hour to normalize a term large enough to represent an interesting
-;; linguistic example.
+;; formalized definition of the calculus and the grammar.
 
 
 ;; Defining the Calculus
@@ -72,100 +69,100 @@
 
 ;; (free-in x e) is true iff x occurs free in e
 (define-metafunction BANANA+SPA
-  free-in : x e -> #t or #f
+  free-in : x any -> #t or #f
+  [(free-in x ★)
+   #f]
   [(free-in x x)
    #t]
   [(free-in x x_different)
    #f]
   [(free-in x c)
    #f]
-  [(free-in x (e_f e_a))
-   ,(or (term (free-in x e_f)) (term (free-in x e_a)))]
-  [(free-in x (λ (x) e))
+  [(free-in x (η any))
+   (free-in x any)]
+  [(free-in x (♭ any))
+   (free-in x any)]
+  [(free-in x (C any))
+   (free-in x any)]
+  [(free-in x (π1 any))
+   (free-in x any)]
+  [(free-in x (π2 any))
+   (free-in x any)]
+  [(free-in x (inl any))
+   (free-in x any)]
+  [(free-in x (inr any))
+   (free-in x any)]
+  [(free-in x (absurd any))
+   (free-in x any)]
+  [(free-in x (any_f any_a))
+   ,(or (term (free-in x any_f)) (term (free-in x any_a)))]
+  [(free-in x (λ (x) any))
    #f]
-  [(free-in x (λ (x_different) e))
-   (free-in x e)]
-  [(free-in x (η e))
-   (free-in x e)]
-  [(free-in x (OP e_arg (λ (x_r) e_k)))
-   ,(or (term (free-in x e_arg)) (term (free-in x (λ (x_r) e_k))))]
-  [(free-in x (with (OP_i e_i) ... (η e_p) handle e))
-   ,(or (ormap identity (term ((free-in x e_i) ...)))
-        (term (free-in x e_p))
-        (term (free-in x e)))]
-  [(free-in x (♭ e))
-   (free-in x e)]
-  [(free-in x (C e))
-   (free-in x e)]
-  [(free-in x ★)
-   #f]
-  [(free-in x (π1 e))
-   (free-in x e)]
-  [(free-in x (π2 e))
-   (free-in x e)]
-  [(free-in x (pair e_1 e_2))
-   ,(or (term (free-in x e_1)) (term (free-in x e_2)))]
-  [(free-in x (inl e))
-   (free-in x e)]
-  [(free-in x (inr e))
-   (free-in x e)]
-  [(free-in x (case e e_l e_r))
-   ,(or (term (free-in x e))
-        (term (free-in x e_l))
-        (term (free-in x e_r)))]
-  [(free-in x (absurd e))
-   (free-in x e)]
-  [(free-in x (e_1 || e_2))
-   ,(or (term (free-in x e_1)) (term (free-in x e_2)))])
+  [(free-in x (λ (x_different) any))
+   (free-in x any)]
+  [(free-in x (pair any_1 any_2))
+   ,(or (term (free-in x any_1)) (term (free-in x any_2)))]
+  [(free-in x (any_1 || any_2))
+   ,(or (term (free-in x any_1)) (term (free-in x any_2)))]
+  [(free-in x (OP any_arg any_k))
+   ,(or (term (free-in x any_arg)) (term (free-in x any_k)))]
+  [(free-in x (case any any_l any_r))
+   ,(or (term (free-in x any))
+        (term (free-in x any_l))
+        (term (free-in x any_r)))]
+  [(free-in x (with (OP_i any_i) ... (η any_p) handle any))
+   ,(or (ormap identity (term ((free-in x any_i) ...)))
+        (term (free-in x any_p))
+        (term (free-in x any)))])
 
 ;; (subst e x e_new) is the result of substituting e_new for all the free
 ;; occurrences of x in e (i.e. e[x := e_new])
 (define-metafunction BANANA+SPA
-  subst : e x e -> e
-  [(subst x x e_new)
-   e_new]
-  [(subst x_different x e_new)
-   x_different]
-  [(subst c x e_new)
-   c]
-  [(subst (e_f e_a) x e_new)
-   ((subst e_f x e_new) (subst e_a x e_new))]
-  [(subst (λ (x) e_body) x e_new)
-   (λ (x) e_body)]
-  [(subst (λ (x_arg) e_body) x e_new)
-   ,(if (term (free-in x_arg e_new))
-      (let ([x_f (variable-not-in (term (e_new e_body x)) (term x_arg))])
-        (term (λ (,x_f) (subst (subst e_body x_arg ,x_f) x e_new))))
-      (term (λ (x_arg) (subst e_body x e_new))))]
-  [(subst (η e) x e_new)
-   (η (subst e x e_new))]
-  [(subst (OP e_arg (λ (x_k) e_k)) x e_new)
-   (OP (subst e_arg x e_new) (subst (λ (x_k) e_k) x e_new))]
-  [(subst (with (OP_i e_i) ... (η e_p) handle e) x e_new)
-   (with (OP_i (subst e_i x e_new)) ... (η (subst e_p x e_new))
-         handle (subst e x e_new))]
-  [(subst (♭ e) x e_new)
-   (♭ (subst e x e_new))]
-  [(subst (C e) x e_new)
-   (C (subst e x e_new))]
-  [(subst ★ x e_new)
+  subst : any x any -> any
+  [(subst ★ x any_new)
    ★]
-  [(subst (π1 e) x e_new)
-   (π1 (subst e x e_new))]
-  [(subst (π2 e) x e_new)
-   (π2 (subst e x e_new))]
-  [(subst (pair e_1 e_2) x e_new)
-   (pair (subst e_1 x e_new) (subst e_2 x e_new))]
-  [(subst (inl e) x e_new)
-   (inl (subst e x e_new))]
-  [(subst (inr e) x e_new)
-   (inr (subst e x e_new))]
-  [(subst (case e e_l e_r) x e_new)
-   (case (subst e x e_new) (subst e_l x e_new) (subst e_r x e_new))]
-  [(subst (absurd e) x e_new)
-   (absurd (subst e x e_new))]
-  [(subst (e_1 || e_2) x e_new)
-   ((subst e_1 x e_new) || (subst e_2 x e_new))])
+  [(subst x x any_new)
+   any_new]
+  [(subst x_different x any_new)
+   x_different]
+  [(subst c x any_new)
+   c]
+  [(subst (η any) x any_new)
+   (η (subst any x any_new))]
+  [(subst (♭ any) x any_new)
+   (♭ (subst any x any_new))]
+  [(subst (C any) x any_new)
+   (C (subst any x any_new))]
+  [(subst (π1 any) x any_new)
+   (π1 (subst any x any_new))]
+  [(subst (π2 any) x any_new)
+   (π2 (subst any x any_new))]
+  [(subst (inl any) x any_new)
+   (inl (subst any x any_new))]
+  [(subst (inr any) x any_new)
+   (inr (subst any x any_new))]
+  [(subst (absurd any) x any_new)
+   (absurd (subst any x any_new))]
+  [(subst (any_f any_a) x any_new)
+   ((subst any_f x any_new) (subst any_a x any_new))]
+  [(subst (λ (x) any_body) x any_new)
+   (λ (x) any_body)]
+  [(subst (λ (x_arg) any_body) x any_new)
+   ,(if (term (free-in x_arg any_new))
+      (term-let ([x_f (variable-not-in (term (any_new any_body x)) (term x_arg))])
+        (term (λ (x_f) (subst (subst any_body x_arg x_f) x any_new))))
+      (term (λ (x_arg) (subst any_body x any_new))))]
+  [(subst (pair any_1 any_2) x any_new)
+   (pair (subst any_1 x any_new) (subst any_2 x any_new))]
+  [(subst (any_1 || any_2) x any_new)
+   ((subst any_1 x any_new) || (subst any_2 x any_new))]
+  [(subst (OP any_arg (λ (x_k) any_k)) x any_new)
+   (OP (subst any_arg x any_new) (subst (λ (x_k) any_k) x any_new))]
+  [(subst (case any any_l any_r) x any_new)
+   (case (subst any x any_new) (subst any_l x any_new) (subst any_r x any_new))]
+  [(subst (with (OP_i any_i) ... (η any_p) handle any) x any_new)
+   (with (OP_i (subst any_i x any_new)) ... (η (subst any_p x any_new))
+         handle (subst any x any_new))])
 
 ;; We can now define the reduction relation of our calculus. This follows
 ;; closely the definitions given in Chapter 1 of the dissertation.
@@ -521,6 +518,8 @@
 
 ;; normalize uses the apply-reduction-relation of Redex to find a normal
 ;; form for a lambda-banana term.
+;; INEFFICIENT: Use normalize-reduce for an efficient implementation
+;; of normalization with the 'reduce' relation.
 (define (normalize rel t)
   (let [(steps (apply-reduction-relation rel t))]
     (if (null? steps)
@@ -531,57 +530,141 @@
 ;; Haskell parlance, this is the Functor instance for lambda-banana terms.
 (define map-children-aux
   (term-match/single BANANA+SPA
+    [★
+     (λ (f) (term ★))]
     [x
      (λ (f) (term x))]
     [c
      (λ (f) (term c))]
-    [(e_1 e_2)
-     (λ (f) (term (,(f (term e_1)) ,(f (term e_2)))))]
-    [(λ (x) e)
-     (λ (f) (term (λ (x) ,(f (term e)))))]
-    [(η e)
-     (λ (f) (term (η ,(f (term e)))))]
-    [(OP e_1 (λ (x) e_2))
-     (λ (f) (term (OP ,(f (term e_1)) (λ (x) ,(f (term e_2))))))]
-    [(with (OP e_h) ... (η e_p) handle e)
+    [(η any)
+     (λ (f) (term (η ,(f (term any)))))]
+    [(♭ any)
+     (λ (f) (term (♭ ,(f (term any)))))]
+    [(C any)
+     (λ (f) (term (C ,(f (term any)))))]
+    [(π1 any)
+     (λ (f) (term (π1 ,(f (term any)))))]
+    [(π2 any)
+     (λ (f) (term (π2 ,(f (term any)))))]
+    [(inl any)
+     (λ (f) (term (inl ,(f (term any)))))]
+    [(inr any)
+     (λ (f) (term (inr ,(f (term any)))))]
+    [(absurd any)
+     (λ (f) (term (absurd ,(f (term any)))))]
+    [(any_1 any_2)
+     (λ (f) (term (,(f (term any_1)) ,(f (term any_2)))))]
+    [(λ (x) any)
+     (λ (f) (term (λ (x) ,(f (term any)))))]
+    [(pair any_1 any_2)
+     (λ (f) (term (pair ,(f (term any_1)) ,(f (term any_2)))))]
+    [(any_1 || any_2)
+     (λ (f) (term (,(f (term any_1)) || ,(f (term any_2)))))]
+    [(OP any_1 (λ (x) any_2))
+     (λ (f) (term (OP ,(f (term any_1)) (λ (x) ,(f (term any_2))))))]
+    [(case any any_l any_r)
+     (λ (f) (term (case ,(f (term any))
+                        ,(f (term any_l))
+                        ,(f (term any_r)))))]
+    [(with (OP any_h) ... (η any_p) handle any)
      (λ (f) (term (with ,@(map (λ (c) (list (car c) (f (cadr c))))
-                               (term ((OP e_h) ...)))
-                        (η ,(f (term e_p)))
-                     handle ,(f (term e)))))]
-    [(♭ e)
-     (λ (f) (term (♭ ,(f (term e)))))]
-    [(C e)
-     (λ (f) (term (C ,(f (term e)))))]
-    [★
-     (λ (f) (term ★))]
-    [(π1 e)
-     (λ (f) (term (π1 ,(f (term e)))))]
-    [(π2 e)
-     (λ (f) (term (π2 ,(f (term e)))))]
-    [(pair e_1 e_2)
-     (λ (f) (term (pair ,(f (term e_1)) ,(f (term e_2)))))]
-    [(inl e)
-     (λ (f) (term (inl ,(f (term e)))))]
-    [(inr e)
-     (λ (f) (term (inr ,(f (term e)))))]
-    [(case e e_l e_r)
-     (λ (f) (term (case ,(f (term e))
-                        ,(f (term e_l))
-                        ,(f (term e_r)))))]
-    [(absurd e)
-     (λ (f) (term (absurd ,(f (term e)))))]
-    [(e_1 || e_2)
-     (λ (f) (term (,(f (term e_1)) || ,(f (term e_2)))))]))
+                               (term ((OP any_h) ...)))
+                        (η ,(f (term any_p)))
+                     handle ,(f (term any)))))]))
 
 (define (map-children f t)
   ((map-children-aux t) f))
 
-;; normalize-bottom-up traverses a term bottom-up and normalizes
-;; it. Normalization often makes a term smaller, which increases the
-;; performance of identifying redexes and therefore leads to faster
-;; normalization times.
-(define (normalize-bottom-up rel t)
-  (normalize rel (map-children (λ (x) (normalize-bottom-up rel x)) t)))
+;; normalize-reduce computes the normal form of a lambda-banana
+;; term efficiently.
+(define normalize-reduce
+  (letrec ([normalize-reduce
+            (λ (t) (normalize-reduce-at-top (map-children normalize-reduce t)))]
+           [normalize-reduce-at-top
+            (term-match/single BANANA+SPAC
+              ;; β
+              [((λ (x) any_1) any_2)
+               (normalize-reduce (term (subst any_1 x any_2)))]
+              ;; η
+              [(side-condition (λ (x) (e x))
+                               (not (term (free-in x e))))
+               (term e)]
+              ;; handle-η
+              [(with (OP_i any_i) ... (η any_p) handle (η any_v))
+               (normalize-reduce-at-top (term (any_p any_v)))]
+              ;; handle-OP
+              [(with (OP_i any_i) ... (η any_p) handle (OP (side-condition any_arg (not (equal? (term any_arg) (term ||))))
+                                                           (λ (x) any_k)))
+               (let ([clause (assoc (term OP) (term ((OP_i any_i) ...)))])
+                 (term-let ([x_f  (variable-not-in (term (any_i ... any_p any_k)) (term x))]
+                            [cont (term (λ (x_f) ,(normalize-reduce-at-top
+                                                    (term (with (OP_i any_i) ...
+                                                                (η any_p)
+                                                           handle (subst any_k x x_f))))))])
+                   (if clause
+                     (normalize-reduce-at-top (term
+                       (,(normalize-reduce-at-top (term (,(cadr clause) any_arg)))
+                        cont)))
+                     (term (OP any_arg cont)))))]
+              ;; ♭
+              [(♭ (η any))
+               (term any)]
+              ;; 𝓒-η
+              [(C (λ (x) (η any)))
+               (term (η ,(normalize-reduce-at-top (term (λ (x) any)))))]
+              ;; 𝓒-OP
+              [(side-condition (C (λ (x) (OP (side-condition any_arg (not (equal? (term any_arg) (term ||))))
+                                             (λ (x_k) any_k))))
+                               (not (term (free-in x any_arg))))
+               (term (OP any_arg (λ (x_k) ,(normalize-reduce-at-top (term (C (λ (x) any_k)))))))]
+              ;; β.×1
+              [(π1 (pair any_1 any_2))
+               (term any_1)]
+              ;; β.×2
+              [(π2 (pair any_1 any_2))
+               (term any_2)]
+              ;; β.+1
+              [(case (inl any) any_l any_r)
+               (normalize-reduce-at-top (term (any_l any)))]
+              ;; β.+2
+              [(case (inr any) any_l any_r)
+               (normalize-reduce-at-top (term (any_r any)))]
+              ;; ++ nil
+              [((++ nil) any_2)
+               (term any_2)]
+              ;; ++ ::-ι
+              [((++ ((::-ι any_h) any_t)) any_2)
+               (term ((::-ι any_h) ,(normalize-reduce-at-top (term ((++ any_t) any_2)))))]
+              ;; ++ ::-o
+              [((++ ((::-o any_h) any_t)) any_2)
+               (term ((::-o any_h) ,(normalize-reduce-at-top (term ((++ any_t) any_2)))))]
+              ;; sel-he
+              [(side-condition (sel-he e_context)
+                               (judgment-holds (sel masculine e_context e_referent)))
+               (car (judgment-holds (sel masculine e_context e_referent)
+                                    e_referent))]
+              ;; sel-she
+              [(side-condition (sel-she e_context)
+                               (judgment-holds (sel feminine e_context e_referent)))
+               (car (judgment-holds (sel feminine e_context e_referent)
+                                    e_referent))]
+              ;; sel-it
+              [(side-condition (sel-it e_context)
+                               (judgment-holds (sel neutral e_context e_referent)))
+               (car (judgment-holds (sel neutral e_context e_referent)
+                                    e_referent))]
+              ;; selP-found
+              [(side-condition ((selP e_property) e_context)
+                               (judgment-holds (sel-prop e_property e_context e_referent)))
+               (term (inl ,(car (judgment-holds (sel-prop e_property e_context e_referent) e_referent))))]
+              ;; selP-not-found
+              [(side-condition ((selP e_property) e_context)
+                               (and (judgment-holds (complete-ctx e_context))
+                                    (not (judgment-holds (sel-prop e_property e_context e_referent)))))
+               (term (inr ★))]
+              [any
+               (term any)])])
+    normalize-reduce))
 
 
 ;; simplify-logic is a reduction relation that implements some simple
@@ -681,7 +764,7 @@
 ;; a lambda-banana term which encodes the meaning of a sentence to
 ;; human-readable truth-conditions of that sentence.
 (define (compute-truth-conditions term)
-  (let* ([normal-form (normalize-bottom-up reduce-more term)]
+  (let* ([normal-form (normalize-reduce term)]
          [unblocked-form (resolve-blocked normal-form)]
          [simplified (normalize simplify-logic unblocked-form)]
          [pretty (normalize prettify-logic simplified)])
