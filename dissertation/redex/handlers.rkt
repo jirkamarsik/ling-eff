@@ -26,9 +26,11 @@
 (define-metafunction BANANA+SPA
   INTRODUCE : e e -> e
   [(INTRODUCE e_u e_k)
-     (FRESH e_u (λ (x)
-     (PUSH x (λ (y)
-     (e_k x)))))])
+   ,(term-let ([x_f1 (variable-not-in (term e_k) 'x)]
+               [x_f2 (variable-not-in (term (e_k x_f1)) '_)])
+              (term (FRESH e_u (λ (x_f1)
+                                 (PUSH x_f1 (λ (x_f2)
+                                              (e_k x_f1)))))))])
 
 ;; The empty handler (Section 8.1) evaluates the discourse in an empty
 ;; anaphoric context.
@@ -50,8 +52,6 @@
   (handler-η (PRESUPPOSE (λ (P) (λ (k)
                (INTRODUCE ★ (λ (x) (>>= (P x) (λ (_) (k x))))))))))
 
-
-
 ;; We will need to make a nondeterministic choice when trying to accommodate
 ;; a presupposition at different levels. The choose expression constructor,
 ;; which corresponds to the + operator in the dissertation (Section 8.2),
@@ -59,7 +59,8 @@
 (define-metafunction BANANA+SPA
   choose : e e -> e
   [(choose e_1 e_2)
-   (AMB ★ (λ (b) (ifte b e_1 e_2)))])
+   ,(term-let ([x_f (variable-not-in (term (e_1 e_2)) 'b)])
+              (term (AMB ★ (λ (x_f) (ifte x_f e_1 e_2)))))])
 
 ;; The maybeAccommodate handler uses choose to consider both projecting the
 ;; presupposition and accommodating it.
@@ -98,6 +99,13 @@
 (define-checked-term dbox
   (∘ box maybeAccommodate useFind))
 
+
+
+
+
+
+
+
 ;; The next two handlers are the handlers for conventional implicature from
 ;; Section 8.3.  The asImplicature handler translates ASSERT to IMPLICATE
 ;; and INTRODUCE (i.e. FRESH and PUSH) to INTRODUCE_I (i.e. FRESH_I and
@@ -122,41 +130,3 @@
 (define-checked-term top
   (λ (s)
     (∘ search empty box accommodate useFind withImplicatures (withSpeaker s) SI)))
-
-;; Dynamic Logic
-;; =============
-;;
-;; This section introduces the logical operators that we will be using in
-;; our grammar.  These are based on de Groote and Lebedeva's Type-Theoretic
-;; Dynamic Logic.  Their lambda-banana definitions can be found in Section 8.1
-;; of the dissertation.
-
-(define-metafunction BANANA+SPA
-  d∧ : e e -> e
-  [(d∧ e_a e_b)
-   (>>= e_a (λ (x_) e_b))])
-
-(define-metafunction BANANA+SPA
-  d¬ : e -> e
-  [(d¬ e_a)
-   (>>= (dbox e_a) (λ (a) (! ASSERT (¬ a))))])
-
-(define-metafunction BANANA+SPA
-  d∃ : e -> e
-  [(d∃ e_pred)
-   (INTRODUCE ★ (λ (x) (e_pred x)))])
-
-(define-metafunction BANANA+SPA
-  d→ : e e -> e
-  [(d→ e_a e_b)
-   (d¬ (d∧ e_a (d¬ e_b)))])
-
-(define-metafunction BANANA+SPA
-  d∨ : e e -> e
-  [(d∨ e_a e_b)
-   (d¬ (d∧ (d¬ e_a) (d¬ e_b)))])
-
-(define-metafunction BANANA+SPA
-  d∀ : e -> e
-  [(d∀ e_pred)
-   (d¬ (d∃ (λ (x) (d¬ (e_pred x)))))])

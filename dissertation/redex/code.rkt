@@ -57,11 +57,10 @@
 ;; human-readable truth-conditions of that sentence.
 (define (compute-truth-conditions term)
   (let* ([normal-form (normalize-bottom-up reduce-more term)]
-         [simplified (normalize simplify-logic normal-form)]
+         [unblocked-form (resolve-blocked normal-form)]
+         [simplified (normalize simplify-logic unblocked-form)]
          [pretty (normalize prettify-logic simplified)])
     pretty))
-
-
 
 
 
@@ -105,14 +104,15 @@
 (define-metafunction BANANA+SPA
   handler : (OP e) ... (η e) -> e
   [(handler (OP e_h) ... (η e_p))
-   (λ (x) (with (OP e_h) ... (η e_p) handle x))])
-
+   ,(term-let ([x_f (variable-not-in (term (e_h ... e_p)) 'x)])
+              (term (λ (x_f) (with (OP e_h) ... (η e_p) handle x_f))))])
 ;; We combine the two last abstractions to define a functionalized handler
 ;; expression with the default eta clause.
 (define-metafunction BANANA+SPA
   handler-η : (OP e) ... -> e
   [(handler-η (OP e_h) ...)
-   (λ (x) (with-η (OP e_h) ... handle x))])
+   ,(term-let ([x_f (variable-not-in (term (e_h ...)) 'x)])
+              (term (λ (x_f) (with-η (OP e_h) ... handle x_f))))])
 
 ;; We define a syntax for (n-ary) function composition.
 (define-metafunction BANANA+SPA
@@ -124,14 +124,16 @@
 (define-metafunction BANANA+SPA
   <<· : e e -> e
   [(<<· e_f e_x)
-   (>>= e_f (λ (f) (η (f e_x))))])
+   ,(term-let ([x_f (variable-not-in (term e_x) 'f)])
+              (term (>>= e_f (λ (x_f) (η (x_f e_x))))))])
 
 ;; We also define function application when the argument is the result of
 ;; a computation.
 (define-metafunction BANANA+SPA
   ·>> : e e -> e
   [(·>> e_f e_x)
-   (>>= e_x (λ (x) (η (e_f x))))])
+   ,(term-let ([x_f (variable-not-in (term e_f) 'x)])
+              (term (>>= e_x (λ (x_f) (η (e_f x_f))))))])
 
 ;; Finally, we define function application for when both function and
 ;; argument are the results of computations. This is the <*> binary
@@ -139,7 +141,9 @@
 (define-metafunction BANANA+SPA
   <<·>> : e e -> e
   [(<<·>> e_f e_x)
-   (>>= e_f (λ (f) (>>= e_x (λ (x) (η (f x))))))])
+   ,(term-let ([x_f1 (variable-not-in (term e_x) 'f)]
+               [x_f2 (variable-not-in (term x_f1) 'x)])
+              (term (>>= e_f (λ (x_f1) (>>= e_x (λ (x_f2) (η (x_f1 x_f2))))))))])
 
 ;; When defining the open handler for dynamics (box), we will make use of
 ;; the following two combinators, introduced in Subsection 7.3.1 of
@@ -147,7 +151,8 @@
 (define-metafunction BANANA+SPA
   <<<· : e e -> e
   [(<<<· e_f e_x)
-   (>>= e_f (λ (f) (f e_x)))])
+   ,(term-let ([x_f (variable-not-in (term e_x) 'f)])
+              (term (>>= e_f (λ (x_f) (x_f e_x)))))])
 
 (define-metafunction BANANA+SPA
   ∃>> : e -> e

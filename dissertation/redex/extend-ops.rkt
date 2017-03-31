@@ -12,15 +12,20 @@
            (define-metafunction BANANA+SPA
              opl : e e -> e
              [(opl e_x e_y)
-              (>>= e_x (λ (x) (η ((op x) e_y))))])
+              ,(term-let ([x_f (variable-not-in (term e_y) 'x)])
+                (term (>>= e_x (λ (x_f) (η ((op x_f) e_y))))))])
            (define-metafunction BANANA+SPA
              opr : e e -> e
              [(opr e_x e_y)
-              (>>= e_y (λ (y) (η ((op e_x) y))))])
+              ,(term-let ([x_f (variable-not-in (term e_x) 'y)])
+                (term (>>= e_y (λ (x_f) (η ((op e_x) x_f))))))])
            (define-metafunction BANANA+SPA
              oplr : e e -> e
              [(oplr e_x e_y)
-              (>>= e_x (λ (x) (>>= e_y (λ (y) (η ((op x) y))))))])))]))
+              ,(term-let ([x_f1 (variable-not-in (term e_y) 'x)]
+                          [x_f2 (variable-not-in (term x_f1) 'y)])
+                (term (>>= e_x (λ (x_f1) (>>= e_y (λ (x_f2) (η ((op x_f1) x_f2))))))))])))]))
+
 
 ;; We have conjunction,
 (extend-operator-to-computations ∧)
@@ -38,17 +43,3 @@
 (extend-operator-to-computations ++)
 
 
-;; The next three definitions concern the expression of Boolean values
-;; using sums (Subsection 1.5.4 in the dissertation). We define constants
-;; for true...
-(define-checked-term true
-  (inl ★))
-;; and false.
-(define-checked-term false
-  (inr ★))
-;; Finally, we define if-then-else expressions using case analysis.
-(define-metafunction BANANA+SPA
-  ifte : e e e -> e
-  [(ifte e_cond e_then e_else)
-   (case e_cond (λ (,(variable-not-in (term e_then) '_)) e_then)
-                (λ (,(variable-not-in (term e_else) '_)) e_else))])
